@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  content     String
+  coverImage  String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Conference {
+  id               String   @id @default(cuid())
+  title            String
+  location         String
+  date             DateTime
+  role             String
+  description      String?
+  link             String?
+  slides           String?
+  presentationSlug String?
+  createdAt        DateTime @default(now())
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  title       String
+  program     String
+  type        String
+  description String?
+  semester    String?
+  credits     Int?
+  weeks       CourseWeek[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model PressItem {
+  id         String   @id @default(cuid())
+  title      String
+  source     String
+  url        String
+  date       DateTime
+  excerpt    String?
+  type       String   @default("HABER")
+  coverImage String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Announcement {
+  id        String    @id @default(cuid())
+  title     String
+  body      String
+  type      String    @default("GENEL")
+  pinned    Boolean   @default(false)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model CourseWeek {
+  id         String   @id @default(cuid())
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  weekNumber Int
+  topic      String
+  notes      String?
+  slides     String?
+  resources  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([courseId, weekNumber])
+}

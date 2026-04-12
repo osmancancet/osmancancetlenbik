@@ -1,0 +1,43 @@
+import dynamic from "next/dynamic";
+import type { ComponentType } from "react";
+
+export type PresentationMeta = {
+  slug: string;
+  title: string;
+  description?: string;
+};
+
+type Entry = {
+  meta: PresentationMeta;
+  Component: ComponentType;
+};
+
+/**
+ * Yeni sunum eklemek için:
+ *   1. src/presentations/<slug>/Presentation.tsx oluştur
+ *   2. (varsa) src/presentations/<slug>/styles.css ekle ve component'te import et
+ *   3. Buraya yeni bir entry ekle
+ *   4. Admin'de konferans/dersi düzenleyip "Sunum" alanından bu slug'ı seç
+ */
+export const presentations: Record<string, Entry> = {
+  "siber-guvenlik": {
+    meta: {
+      slug: "siber-guvenlik",
+      title: "Siber Güvenlik Farkındalık Etkinliği",
+      description:
+        "37 slaytlık interaktif siber güvenlik farkındalık sunumu (Matrix Rain, glitch, otomatik simülasyonlar).",
+    },
+    Component: dynamic(() => import("./siber-guvenlik/Presentation"), {
+      ssr: false,
+    }),
+  },
+};
+
+export const presentationList: PresentationMeta[] = Object.values(
+  presentations
+).map((p) => p.meta);
+
+export function getPresentation(slug: string | null | undefined): Entry | null {
+  if (!slug) return null;
+  return presentations[slug] ?? null;
+}
