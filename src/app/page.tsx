@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { publications } from "@/data/publications";
 import { getReadingTime } from "@/lib/readingTime";
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -135,13 +135,6 @@ export default async function Home() {
               >
                 <Mail className="w-4 h-4" />
                 İletişim
-              </Link>
-              <Link
-                href="/cv"
-                className="inline-flex items-center gap-2 px-6 py-3 border border-[var(--border-strong)] text-[var(--fg)] text-sm font-medium rounded-md hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-              >
-                CV
-                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </Reveal>

@@ -38,7 +38,7 @@ Vize **%40**  ·  Final **%60**
 
 ## Ders Sorumlusu
 
-Öğr. Gör. Nur Erdem  ·  Tanıtım formu: 25.03.2025
+Öğr. Gör. Osman Can Çetlenbik  ·  Tanıtım formu: 25.03.2025
 `.trim();
 
 const WEEKS: { weekNumber: number; topic: string }[] = [

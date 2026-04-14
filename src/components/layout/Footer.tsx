@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { profile } from "@/data/profile";
 
 const links = [
-  { href: "/cv", label: "CV" },
   { href: "/duyurular", label: "Duyurular" },
   { href: "/iletisim", label: "İletişim" },
 ];

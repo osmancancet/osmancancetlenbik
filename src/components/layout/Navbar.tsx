@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Menu, X, Search } from "lucide-react";
 
@@ -27,12 +27,6 @@ function dispatchOpenSearch() {
 export function Navbar() {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
 
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -63,10 +57,7 @@ export function Navbar() {
 
   return (
     <>
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+      <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? "bg-[var(--bg)]/80 backdrop-blur-md border-b border-[var(--border)]"
@@ -133,7 +124,7 @@ export function Navbar() {
             </button>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       {/* Fullscreen mobile drawer */}
       <AnimatePresence>
@@ -173,10 +164,6 @@ export function Navbar() {
         )}
       </AnimatePresence>
 
-      <motion.div
-        style={{ scaleX }}
-        className="fixed top-0 left-0 right-0 h-px bg-[var(--accent)] origin-left z-[51]"
-      />
     </>
   );
 }

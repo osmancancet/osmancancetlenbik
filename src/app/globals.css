@@ -91,6 +91,11 @@ textarea:focus-visible,
   border-color: var(--border-strong);
 }
 
+/* Disabled cards (aria-disabled) — no hover feedback */
+.card[aria-disabled="true"]:hover {
+  border-color: var(--border);
+}
+
 /* Subtle radial fade — replaces colorful blobs */
 .radial-fade {
   position: absolute;
