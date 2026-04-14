@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, Presentation, BookOpen } from "lucide-react";
+import { ArrowLeft, FileText, Presentation, BookOpen, Clock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/ui/Reveal";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 export const dynamic = "force-dynamic";
 
@@ -66,11 +67,31 @@ export default async function CourseDetailPage({
           </p>
         </Reveal>
 
+        {course.schedule && (
+          <Reveal delay={0.18}>
+            <div className="inline-flex items-center gap-2 mt-2 text-sm font-mono text-[var(--accent)] border border-[var(--accent)]/30 bg-[var(--accent)]/5 rounded-md px-3 py-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              {course.schedule}
+            </div>
+          </Reveal>
+        )}
+
         {course.description && (
           <Reveal delay={0.2}>
             <p className="text-base text-[var(--fg-muted)] leading-relaxed mt-6 max-w-3xl">
               {course.description}
             </p>
+          </Reveal>
+        )}
+
+        {course.syllabus && (
+          <Reveal delay={0.25}>
+            <div className="mt-12 max-w-3xl">
+              <div className="text-xs uppercase tracking-[0.18em] text-[var(--accent)] mb-4">
+                Ders İçeriği
+              </div>
+              <MarkdownRenderer content={course.syllabus} />
+            </div>
           </Reveal>
         )}
 

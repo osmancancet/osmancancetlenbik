@@ -26,6 +26,8 @@ export async function POST(req: Request) {
     description?: string;
     semester?: string;
     credits?: number;
+    schedule?: string;
+    syllabus?: string;
     slug?: string;
   };
 
@@ -50,6 +52,8 @@ export async function POST(req: Request) {
       description: body.description || null,
       semester: body.semester || null,
       credits: body.credits ?? null,
+      schedule: body.schedule || null,
+      syllabus: body.syllabus || null,
     },
   });
 

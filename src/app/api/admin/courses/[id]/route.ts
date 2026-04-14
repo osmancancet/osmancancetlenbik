@@ -29,6 +29,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
     description?: string | null;
     semester?: string | null;
     credits?: number | null;
+    schedule?: string | null;
+    syllabus?: string | null;
     slug?: string;
   };
 
@@ -41,6 +43,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
       ...(body.description !== undefined && { description: body.description }),
       ...(body.semester !== undefined && { semester: body.semester }),
       ...(body.credits !== undefined && { credits: body.credits }),
+      ...(body.schedule !== undefined && { schedule: body.schedule }),
+      ...(body.syllabus !== undefined && { syllabus: body.syllabus }),
       ...(body.slug !== undefined && { slug: body.slug }),
     },
   });

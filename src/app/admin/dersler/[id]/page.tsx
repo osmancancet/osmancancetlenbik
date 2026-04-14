@@ -53,6 +53,8 @@ export default async function EditCoursePage({
               description: course.description ?? "",
               semester: course.semester ?? "",
               credits: course.credits?.toString() ?? "",
+              schedule: course.schedule ?? "",
+              syllabus: course.syllabus ?? "",
             }}
           />
         </div>

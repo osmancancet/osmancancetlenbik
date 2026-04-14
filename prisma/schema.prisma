@@ -2,6 +2,7 @@ generator client {
   provider        = "prisma-client-js"
   output          = "../src/generated/prisma"
   previewFeatures = ["driverAdapters"]
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -43,6 +44,8 @@ model Course {
   description String?
   semester    String?
   credits     Int?
+  schedule    String?
+  syllabus    String?
   weeks       CourseWeek[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt

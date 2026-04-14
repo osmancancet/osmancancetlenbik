@@ -13,6 +13,8 @@ export type CourseFormData = {
   description: string;
   semester: string;
   credits: string;
+  schedule: string;
+  syllabus: string;
 };
 
 const TYPES = ["Zorunlu", "Seçmeli"];
@@ -28,8 +30,10 @@ export function CourseForm({ initial }: { initial?: CourseFormData }) {
       program: "Büyük Veri Analistliği",
       type: "Zorunlu",
       description: "",
-      semester: "2026 Bahar",
+      semester: "2025-2026 Bahar",
       credits: "",
+      schedule: "",
+      syllabus: "",
     }
   );
   const [saving, setSaving] = useState(false);
@@ -62,6 +66,8 @@ export function CourseForm({ initial }: { initial?: CourseFormData }) {
         description: data.description || null,
         semester: data.semester || null,
         credits: data.credits ? Number(data.credits) : null,
+        schedule: data.schedule || null,
+        syllabus: data.syllabus || null,
       }),
     });
     setSaving(false);
@@ -151,7 +157,7 @@ export function CourseForm({ initial }: { initial?: CourseFormData }) {
             type="text"
             value={data.semester}
             onChange={(e) => update("semester", e.target.value)}
-            placeholder="2026 Bahar"
+            placeholder="2025-2026 Bahar"
             className={inputCls}
           />
         </Field>
@@ -166,13 +172,33 @@ export function CourseForm({ initial }: { initial?: CourseFormData }) {
         </Field>
       </div>
 
-      <Field label="Açıklama (opsiyonel)">
+      <Field label="Ders Saati (gün · saat)">
+        <input
+          type="text"
+          value={data.schedule}
+          onChange={(e) => update("schedule", e.target.value)}
+          placeholder="Çarşamba · 09:55–12:30"
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="Kısa Açıklama (opsiyonel)">
         <textarea
-          rows={4}
+          rows={3}
           value={data.description}
           onChange={(e) => update("description", e.target.value)}
           className={inputCls}
-          placeholder="Dersin amacı, kapsamı, çıktıları..."
+          placeholder="Dersin kısa özeti, 1-2 cümle"
+        />
+      </Field>
+
+      <Field label="Detaylı İçerik / Syllabus (Markdown — öğrencilere gösterilir)">
+        <textarea
+          rows={14}
+          value={data.syllabus}
+          onChange={(e) => update("syllabus", e.target.value)}
+          className={`${inputCls} font-mono text-xs`}
+          placeholder={`## Dersin Amacı\n...\n\n## Öğrenme Çıktıları\n- ...\n\n## Değerlendirme\nVize (%40), Final (%60)\n\n## Kaynaklar\n- ...`}
         />
       </Field>
 

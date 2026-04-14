@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
 import { prisma } from "@/lib/prisma";
-import { BookOpen, ArrowUpRight } from "lucide-react";
+import { BookOpen, ArrowUpRight, Clock } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Dersler",
@@ -56,9 +56,15 @@ export default async function DerslerPage() {
                 <h3 className="text-base font-medium text-[var(--fg)] mb-1 group-hover:text-[var(--accent)] transition-colors">
                   {course.title}
                 </h3>
-                <p className="text-xs text-[var(--fg-muted)] mb-4">
+                <p className="text-xs text-[var(--fg-muted)] mb-3">
                   {course.program}
                 </p>
+                {course.schedule && (
+                  <div className="inline-flex items-center gap-1.5 text-[10px] font-mono text-[var(--accent)] border border-[var(--border-strong)] rounded px-2 py-0.5 mb-4">
+                    <Clock className="w-3 h-3" />
+                    {course.schedule}
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-xs text-[var(--fg-subtle)] pt-4 border-t border-[var(--border)]">
                   <span className="font-mono">{course._count.weeks} hafta</span>
                   <ArrowUpRight className="w-4 h-4 group-hover:text-[var(--accent)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
