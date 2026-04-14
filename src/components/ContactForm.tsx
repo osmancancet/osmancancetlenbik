@@ -53,19 +53,25 @@ export function ContactForm() {
       />
 
       <div className="grid md:grid-cols-2 gap-4">
-        <Field label="Adınız">
+        <Field label="Adınız" htmlFor="contact-name">
           <input
+            id="contact-name"
+            name="name"
             type="text"
             required
+            autoComplete="name"
             value={data.name}
             onChange={(e) => update("name", e.target.value)}
             className={inputCls}
           />
         </Field>
-        <Field label="E-posta">
+        <Field label="E-posta" htmlFor="contact-email">
           <input
+            id="contact-email"
+            name="email"
             type="email"
             required
+            autoComplete="email"
             value={data.email}
             onChange={(e) => update("email", e.target.value)}
             className={inputCls}
@@ -73,20 +79,26 @@ export function ContactForm() {
         </Field>
       </div>
 
-      <Field label="Konu">
+      <Field label="Konu" htmlFor="contact-subject">
         <input
+          id="contact-subject"
+          name="subject"
           type="text"
           required
+          autoComplete="on"
           value={data.subject}
           onChange={(e) => update("subject", e.target.value)}
           className={inputCls}
         />
       </Field>
 
-      <Field label="Mesaj">
+      <Field label="Mesaj" htmlFor="contact-message">
         <textarea
+          id="contact-message"
+          name="message"
           required
           rows={5}
+          autoComplete="on"
           value={data.message}
           onChange={(e) => update("message", e.target.value)}
           className={inputCls}
@@ -123,14 +135,19 @@ const inputCls =
 
 function Field({
   label,
+  htmlFor,
   children,
 }: {
   label: string;
+  htmlFor?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label className="block text-xs uppercase tracking-wider text-[var(--fg-subtle)] mb-2">
+      <label
+        htmlFor={htmlFor}
+        className="block text-xs uppercase tracking-wider text-[var(--fg-subtle)] mb-2"
+      >
         {label}
       </label>
       {children}

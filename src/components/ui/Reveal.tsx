@@ -1,6 +1,3 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 type RevealProps = {
@@ -10,17 +7,10 @@ type RevealProps = {
   className?: string;
 };
 
-export function Reveal({ children, delay = 0, y = 30, className }: RevealProps) {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: reduce ? 0 : y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
+// Statik/ISR sayfalarda giriş animasyonu hydration sonrası "göz kırpması" etkisi
+// yaratıyordu (content önce görünmez → sonra fade-in). Reveal artık saf bir
+// wrapper: içeriği olduğu gibi, anında render eder. Scroll-triggered revealler
+// gerekirse geleceğe bırakıldı.
+export function Reveal({ children, className }: RevealProps) {
+  return <div className={className}>{children}</div>;
 }

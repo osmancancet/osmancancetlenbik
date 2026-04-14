@@ -32,10 +32,6 @@ export function Footer() {
             </Link>
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          <span>Next.js · Framer Motion · Three.js</span>
-          <span className="text-[var(--accent)]">♥</span>
-        </div>
       </div>
     </footer>
   );

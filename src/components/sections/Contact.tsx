@@ -11,19 +11,16 @@ const channels = [
   {
     icon: Mail,
     label: "E-posta",
-    value: profile.email,
     href: profile.socials.email,
   },
   {
     icon: GithubIcon,
     label: "GitHub",
-    value: "github.com/osmancancet",
     href: profile.socials.github,
   },
   {
     icon: LinkedinIcon,
     label: "LinkedIn",
-    value: "linkedin.com/in/osmancancetlenbik",
     href: profile.socials.linkedin,
   },
   {
@@ -32,7 +29,12 @@ const channels = [
     value: profile.location,
     href: null,
   },
-];
+] as Array<{
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href: string | null;
+  value?: string;
+}>;
 
 export function Contact() {
   return (
@@ -70,11 +72,8 @@ export function Contact() {
                     <Icon className="w-4 h-4 text-[var(--accent)]" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[10px] uppercase tracking-wider text-[var(--fg-subtle)]">
-                      {label}
-                    </div>
                     <div className="text-sm text-[var(--fg)] truncate">
-                      {value}
+                      {value ?? label}
                     </div>
                   </div>
                   {href && (
@@ -86,7 +85,7 @@ export function Contact() {
                 <a
                   key={label}
                   href={href}
-                  target={href.startsWith("http") ? "_blank" : undefined}
+                  target="_blank"
                   rel="noreferrer"
                   className="block"
                 >

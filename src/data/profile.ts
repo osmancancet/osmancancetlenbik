@@ -13,7 +13,8 @@ export const profile = {
   socials: {
     github: "https://github.com/osmancancet",
     linkedin: "https://linkedin.com/in/osmancancetlenbik",
-    email: "mailto:osmancancetlenbik@gmail.com",
+    email:
+      "https://mail.google.com/mail/?view=cm&fs=1&to=osmancancetlenbik@gmail.com",
   },
   expertise: [
     "Siber Güvenlik",

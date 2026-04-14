@@ -6,10 +6,22 @@ import {
   Presentation,
   ChevronLeft,
   ChevronRight,
+  BookOpen,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/ui/Reveal";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+
+type WeekLike = {
+  notes: string | null;
+  slides: string | null;
+  resources: string | null;
+  presentationSlug: string | null;
+};
+
+function weekHasContent(w: WeekLike): boolean {
+  return Boolean(w.notes || w.slides || w.resources || w.presentationSlug);
+}
 
 export const revalidate = 300;
 
@@ -47,9 +59,16 @@ export default async function WeekDetailPage({
   if (!current) notFound();
 
   const idx = course.weeks.findIndex((w) => w.weekNumber === weekNumber);
-  const prevWeek = idx > 0 ? course.weeks[idx - 1] : null;
+  // Önceki/sonraki haftaya içeriği OLAN ilk komşuyu bul — boş haftalara gitmesin.
+  const prevWeek =
+    course.weeks
+      .slice(0, idx)
+      .reverse()
+      .find((w) => weekHasContent(w)) ?? null;
   const nextWeek =
-    idx < course.weeks.length - 1 ? course.weeks[idx + 1] : null;
+    course.weeks.slice(idx + 1).find((w) => weekHasContent(w)) ?? null;
+
+  const currentHasContent = weekHasContent(current);
 
   return (
     <section className="relative pt-32 pb-24 px-6">
@@ -75,6 +94,17 @@ export default async function WeekDetailPage({
             {current.topic}
           </h1>
         </Reveal>
+
+        {!currentHasContent && (
+          <Reveal delay={0.15}>
+            <div className="card rounded-lg p-12 text-center mb-12">
+              <BookOpen className="w-10 h-10 text-[var(--fg-subtle)] mx-auto mb-4" />
+              <p className="text-sm text-[var(--fg-muted)]">
+                Bu hafta için henüz içerik eklenmedi.
+              </p>
+            </div>
+          </Reveal>
+        )}
 
         {current.slides && (
           <Reveal delay={0.15}>

@@ -46,7 +46,6 @@ export function About() {
           </div>
           <div className="mt-4 space-y-1 font-mono text-xs text-[var(--fg-subtle)]">
             <div>{profile.location}</div>
-            <div>{profile.email}</div>
           </div>
         </motion.div>
       </Reveal>
