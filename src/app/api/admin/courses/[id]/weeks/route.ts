@@ -15,6 +15,7 @@ export async function POST(req: Request, { params }: Ctx) {
     notes?: string;
     slides?: string;
     resources?: string;
+    presentationSlug?: string;
   };
 
   if (!body.weekNumber || !body.topic) {
@@ -42,6 +43,7 @@ export async function POST(req: Request, { params }: Ctx) {
       notes: body.notes || null,
       slides: body.slides || null,
       resources: body.resources || null,
+      presentationSlug: body.presentationSlug || null,
     },
   });
   return NextResponse.json({ week });

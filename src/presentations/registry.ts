@@ -31,6 +31,17 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "ofis-programlari": {
+    meta: {
+      slug: "ofis-programlari",
+      title: "Ofis Programları (PowerPoint · Canva · Gamma)",
+      description:
+        "BVA 1108 9. hafta — Sunum hazırlama araçları için 24 slaytlık görsel React sunum.",
+    },
+    Component: dynamic(() => import("./ofis-programlari/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(

@@ -15,6 +15,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     notes?: string | null;
     slides?: string | null;
     resources?: string | null;
+    presentationSlug?: string | null;
   };
 
   const week = await prisma.courseWeek.update({
@@ -25,6 +26,9 @@ export async function PATCH(req: Request, { params }: Ctx) {
       ...(body.notes !== undefined && { notes: body.notes }),
       ...(body.slides !== undefined && { slides: body.slides }),
       ...(body.resources !== undefined && { resources: body.resources }),
+      ...(body.presentationSlug !== undefined && {
+        presentationSlug: body.presentationSlug,
+      }),
     },
   });
   return NextResponse.json({ week });

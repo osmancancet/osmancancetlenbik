@@ -51,6 +51,7 @@ export default async function NewWeekPage({
           notes: "",
           slides: "",
           resources: "",
+          presentationSlug: "",
         }}
       />
     </div>

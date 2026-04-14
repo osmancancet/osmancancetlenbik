@@ -47,6 +47,7 @@ export default async function EditWeekPage({
           notes: week.notes ?? "",
           slides: week.slides ?? "",
           resources: week.resources ?? "",
+          presentationSlug: week.presentationSlug ?? "",
         }}
       />
     </div>

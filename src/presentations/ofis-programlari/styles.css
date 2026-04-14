@@ -1,0 +1,97 @@
+/* Ofis Programları sunumu — özel stiller */
+
+.ofis-shimmer {
+  background: linear-gradient(
+    90deg,
+    #00ff41 0%,
+    #4dff80 25%,
+    #ffffff 50%,
+    #4dff80 75%,
+    #00ff41 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ofis-shimmer 4s linear infinite;
+}
+
+@keyframes ofis-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.ofis-glow-text {
+  text-shadow:
+    0 0 12px rgba(0, 255, 65, 0.6),
+    0 0 32px rgba(0, 255, 65, 0.3);
+}
+
+.ofis-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 255, 65, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.ofis-window-chrome {
+  background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(0, 255, 65, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.ofis-window-bar {
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+  border-bottom: 1px solid rgba(0, 255, 65, 0.15);
+}
+
+.ofis-card {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 65, 0.03) 0%,
+    rgba(0, 255, 65, 0.01) 100%
+  );
+  border: 1px solid rgba(0, 255, 65, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.ofis-card-hover:hover {
+  border-color: rgba(0, 255, 65, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 65, 0.06) 0%,
+    rgba(0, 255, 65, 0.02) 100%
+  );
+}
+
+.ofis-pulse {
+  animation: ofis-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ofis-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.ofis-bar-fill {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #00ff41, #4dff80);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.5);
+}
+
+.ofis-slot-pp { color: #d24726; }
+.ofis-slot-canva { color: #00c4cc; }
+.ofis-slot-gamma { color: #a855f7; }
+
+.ofis-slot-pp-bg { background: rgba(210, 71, 38, 0.12); border-color: rgba(210, 71, 38, 0.3); }
+.ofis-slot-canva-bg { background: rgba(0, 196, 204, 0.12); border-color: rgba(0, 196, 204, 0.3); }
+.ofis-slot-gamma-bg { background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.3); }

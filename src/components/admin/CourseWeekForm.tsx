@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { presentationList } from "@/presentations/registry";
 
 export type WeekFormData = {
   id?: string;
@@ -12,6 +13,7 @@ export type WeekFormData = {
   notes: string;
   slides: string;
   resources: string;
+  presentationSlug: string;
 };
 
 export function CourseWeekForm({
@@ -33,6 +35,7 @@ export function CourseWeekForm({
       notes: "",
       slides: "",
       resources: "",
+      presentationSlug: "",
     }
   );
   const [saving, setSaving] = useState(false);
@@ -62,6 +65,7 @@ export function CourseWeekForm({
         notes: data.notes || null,
         slides: data.slides || null,
         resources: data.resources || null,
+        presentationSlug: data.presentationSlug || null,
       }),
     });
     setSaving(false);
@@ -128,8 +132,41 @@ export function CourseWeekForm({
       <Field
         label={
           <span className="flex items-center justify-between">
-            <span>Sunum Slaytları (Markdown — slaytları --- ile ayır)</span>
-            {isEdit && data.slides && (
+            <span>Etkileşimli Sunum (kod ile yazılmış)</span>
+            {isEdit && data.presentationSlug && (
+              <Link
+                href={`/dersler/${courseSlug}/hafta/${data.weekNumber}/sunum`}
+                target="_blank"
+                className="inline-flex items-center gap-1 text-[var(--accent)] hover:underline normal-case tracking-normal text-xs"
+              >
+                Sunumu Aç <ExternalLink className="w-3 h-3" />
+              </Link>
+            )}
+          </span>
+        }
+      >
+        <select
+          value={data.presentationSlug}
+          onChange={(e) => update("presentationSlug", e.target.value)}
+          className={inputCls}
+        >
+          <option value="">— Yok (markdown slaytlarını kullan) —</option>
+          {presentationList.map((p) => (
+            <option key={p.slug} value={p.slug}>
+              {p.title} ({p.slug})
+            </option>
+          ))}
+        </select>
+        <p className="mt-1.5 text-[10px] text-[var(--fg-subtle)]">
+          src/presentations/ altında React component olarak yazılmış sunum.
+        </p>
+      </Field>
+
+      <Field
+        label={
+          <span className="flex items-center justify-between">
+            <span>Markdown Slaytları (yedek — sunum seçilmezse kullanılır)</span>
+            {isEdit && data.slides && !data.presentationSlug && (
               <Link
                 href={`/dersler/${courseSlug}/hafta/${data.weekNumber}/sunum`}
                 target="_blank"
@@ -142,7 +179,7 @@ export function CourseWeekForm({
         }
       >
         <textarea
-          rows={16}
+          rows={14}
           value={data.slides}
           onChange={(e) => update("slides", e.target.value)}
           placeholder={`# Slayt 1\n\nİçerik\n\n---\n\n# Slayt 2\n\n- Madde\n- Madde`}

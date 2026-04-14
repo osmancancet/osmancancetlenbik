@@ -76,16 +76,17 @@ model Announcement {
 }
 
 model CourseWeek {
-  id         String   @id @default(cuid())
-  courseId   String
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  weekNumber Int
-  topic      String
-  notes      String?
-  slides     String?
-  resources  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id               String   @id @default(cuid())
+  courseId         String
+  course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  weekNumber       Int
+  topic            String
+  notes            String?
+  slides           String?
+  resources        String?
+  presentationSlug String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([courseId, weekNumber])
 }
