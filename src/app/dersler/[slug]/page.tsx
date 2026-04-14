@@ -119,12 +119,12 @@ export default async function CourseDetailPage({
             </Reveal>
           ) : (
             <div className="space-y-3">
-              {course.weeks.map((w, i) => (
-                <Reveal key={w.id} delay={i * 0.04}>
-                  <Link
-                    href={`/dersler/${course.slug}/hafta/${w.weekNumber}`}
-                    className="group card rounded-lg p-5 flex items-center gap-5 hover:border-[var(--accent)]/40"
-                  >
+              {course.weeks.map((w, i) => {
+                const hasContent = Boolean(
+                  w.notes || w.slides || w.resources || w.presentationSlug
+                );
+                const inner = (
+                  <>
                     <div className="w-12 h-12 rounded-md border border-[var(--border-strong)] flex flex-col items-center justify-center shrink-0">
                       <div className="text-[10px] uppercase tracking-wider text-[var(--fg-subtle)]">
                         Hafta
@@ -134,7 +134,13 @@ export default async function CourseDetailPage({
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-medium text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors">
+                      <h3
+                        className={`text-base font-medium ${
+                          hasContent
+                            ? "text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors"
+                            : "text-[var(--fg-muted)]"
+                        }`}
+                      >
                         {w.topic}
                       </h3>
                       <div className="flex items-center gap-3 mt-1 text-xs text-[var(--fg-subtle)]">
@@ -148,11 +154,36 @@ export default async function CourseDetailPage({
                             <Presentation className="w-3 h-3" /> Sunum
                           </span>
                         )}
+                        {!hasContent && (
+                          <span className="font-mono uppercase tracking-wider text-[10px]">
+                            İçerik yok
+                          </span>
+                        )}
                       </div>
                     </div>
-                  </Link>
-                </Reveal>
-              ))}
+                  </>
+                );
+
+                return (
+                  <Reveal key={w.id} delay={i * 0.04}>
+                    {hasContent ? (
+                      <Link
+                        href={`/dersler/${course.slug}/hafta/${w.weekNumber}`}
+                        className="group card rounded-lg p-5 flex items-center gap-5 hover:border-[var(--accent)]/40"
+                      >
+                        {inner}
+                      </Link>
+                    ) : (
+                      <div
+                        aria-disabled="true"
+                        className="card rounded-lg p-5 flex items-center gap-5 opacity-60 cursor-not-allowed"
+                      >
+                        {inner}
+                      </div>
+                    )}
+                  </Reveal>
+                );
+              })}
             </div>
           )}
         </div>

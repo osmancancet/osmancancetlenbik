@@ -49,7 +49,7 @@ export function MatrixRain({ opacity = 1 }: { opacity?: number }) {
     let frame = 0;
     const draw = () => {
       frame++;
-      if (frame % 2 !== 0) {
+      if (frame % 4 !== 0) {
         raf = requestAnimationFrame(draw);
         return;
       }

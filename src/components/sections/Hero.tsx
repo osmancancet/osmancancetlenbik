@@ -30,15 +30,15 @@ export function Hero() {
         {/* Left: text */}
         <div>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05] text-[var(--accent)]">
-            <DecryptText text="Osman Can" speed={45} delay={150} />
+            <DecryptText text="Osman Can" speed={80} delay={200} />
             <br />
-            <DecryptText text="ÇETLENBİK" speed={45} delay={650} />
+            <DecryptText text="ÇETLENBİK" speed={80} delay={1250} />
           </h1>
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.1 }}
+            transition={{ duration: 0.7, delay: 2.3 }}
             className="mt-5 text-base md:text-lg text-[var(--fg-muted)]"
           >
             <span className="text-[var(--fg)] font-medium">
@@ -51,7 +51,7 @@ export function Hero() {
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.2 }}
+            transition={{ duration: 0.7, delay: 2.45 }}
             className="mt-6 text-base md:text-lg text-[var(--fg-muted)] max-w-xl leading-relaxed"
           >
             Büyük Veri Analistliği Programı'nda öğretim görevlisiyim. Siber
@@ -63,7 +63,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 1.3 }}
+            transition={{ duration: 0.7, delay: 2.6 }}
             className="mt-6 flex flex-wrap gap-2"
           >
             {[
@@ -85,7 +85,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.4 }}
+            transition={{ duration: 0.7, delay: 2.75 }}
             className="mt-10 flex flex-wrap items-center gap-3"
           >
             <Link
@@ -107,7 +107,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 1.55 }}
+            transition={{ duration: 0.7, delay: 2.9 }}
             className="mt-8 flex items-center gap-5 text-[var(--fg-subtle)]"
           >
             <a
@@ -222,7 +222,7 @@ export function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 0.8 }}
+        transition={{ delay: 3.3, duration: 0.8 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[2] flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--fg-subtle)]"
       >
         <span>Kaydır</span>
