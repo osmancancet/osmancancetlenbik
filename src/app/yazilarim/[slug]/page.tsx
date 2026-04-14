@@ -12,7 +12,7 @@ import { extractToc } from "@/lib/toc";
 import { absoluteUrl } from "@/lib/site";
 import { articleJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,

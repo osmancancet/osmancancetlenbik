@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "Yapay zekâ, büyük veri, yazılım ve eğitim üzerine kişisel yazılar.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function YazilarimPage() {
   const posts = await prisma.post.findMany({

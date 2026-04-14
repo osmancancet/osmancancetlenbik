@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 const ContactSchema = z.object({
   name: z.string().min(2, "Ad en az 2 karakter olmalı").max(100),
@@ -10,30 +11,13 @@ const ContactSchema = z.object({
   website: z.string().max(0).optional().or(z.literal("")),
 });
 
-// In-memory rate limit (per process)
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 3;
-const ipHits = new Map<string, number[]>();
-
-function rateLimit(ip: string): boolean {
-  const now = Date.now();
-  const hits = (ipHits.get(ip) ?? []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  if (hits.length >= RATE_LIMIT_MAX) return false;
-  hits.push(now);
-  ipHits.set(ip, hits);
-  return true;
-}
-
 export async function POST(req: Request) {
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown";
-
-  if (!rateLimit(ip)) {
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`contact:${ip}`, { max: 3, windowMs: 60_000 });
+  if (!rl.ok) {
     return NextResponse.json(
       { error: "Çok fazla istek. Lütfen biraz sonra tekrar deneyin." },
-      { status: 429 }
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
     );
   }
 

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/ui/Reveal";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,

@@ -7,10 +7,14 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeStringify from "rehype-stringify";
 
+// Raw HTML in markdown source is escaped (allowDangerousHtml omitted).
+// This blocks <script>, <iframe>, inline event handlers, etc. from post content.
+// rehypePrettyCode and rehypeAutolinkHeadings emit proper hast nodes, so they
+// still render correctly without allowDangerousHtml.
 const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
-  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(remarkRehype)
   .use(rehypeSlug)
   .use(rehypeAutolinkHeadings, {
     behavior: "wrap",
@@ -21,7 +25,7 @@ const processor = unified()
     keepBackground: false,
     defaultLang: "plaintext",
   })
-  .use(rehypeStringify, { allowDangerousHtml: true });
+  .use(rehypeStringify);
 
 export async function renderMarkdown(content: string): Promise<string> {
   const file = await processor.process(content);

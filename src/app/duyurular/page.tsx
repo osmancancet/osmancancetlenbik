@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Ders, etkinlik ve genel duyurular.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const TYPE_LABEL: Record<string, string> = {
   GENEL: "Genel",

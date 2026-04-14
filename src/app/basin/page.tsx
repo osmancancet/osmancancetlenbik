@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Haberlerde, röportajlarda ve medyada yer aldığım çalışmalar.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const TYPE_LABEL: Record<string, string> = {
   HABER: "Haber",

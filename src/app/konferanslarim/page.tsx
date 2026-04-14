@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Katıldığım, konuşmacı olduğum ve düzenlediğim konferanslar ve etkinlikler.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function KonferanslarimPage() {
   const conferences = await prisma.conference.findMany({

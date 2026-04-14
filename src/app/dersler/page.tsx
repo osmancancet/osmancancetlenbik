@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Manisa Celal Bayar Üniversitesi Teknik Bilimler MYO Büyük Veri Analistliği Programı'nda verilen dersler.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function DerslerPage() {
   const courses = await prisma.course.findMany({
