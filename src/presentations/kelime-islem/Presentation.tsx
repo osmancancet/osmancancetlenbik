@@ -62,10 +62,16 @@ import {
   AlertTriangle,
   Zap,
   FileCheck2,
+  FileArchive,
   Shapes,
   Columns3,
   Rows3,
   Bookmark,
+  XCircle,
+  CheckCircle2,
+  Code2,
+  Braces,
+  Asterisk,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -454,6 +460,97 @@ const slides: Array<(active: boolean) => ReactNode> = [
     </SlideShell>
   ),
 
+  // NEW — Daktilo vs Word (before/after)
+  () => (
+    <SlideShell>
+      <Eyebrow>Neden Büyük Devrim?</Eyebrow>
+      <H2 className="mb-10">Daktilodan Word&apos;e — 5 dakikalık fark</H2>
+      <div className="grid md:grid-cols-2 gap-5">
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="rounded-2xl p-6 border border-red-500/25 bg-gradient-to-br from-red-950/20 to-transparent"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <XCircle className="w-5 h-5 text-red-400" />
+            <div className="text-xs uppercase tracking-wider text-red-400">
+              Daktilo · 1950–1990
+            </div>
+          </div>
+          <div className="space-y-2.5 text-sm text-gray-300">
+            {[
+              "Hatayı silmek = karton kağıt sile ya da özrü dile",
+              "Kopya almak = karbon kağıt + en fazla 3 nüsha",
+              "Altı çizili = geri dön, alt çizgi üst üste yaz",
+              "Başlık numarası = manuel, düzen değişince baştan",
+              "Görsel = fotoğraf yapıştır → fotokopi",
+              "Paylaşım = posta / faks / elden",
+            ].map((l, i) => (
+              <motion.div
+                key={l}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 + i * 0.05 }}
+                className="flex items-start gap-2"
+              >
+                <span className="text-red-400 font-mono mt-0.5">×</span>
+                <span className="text-[13px]">{l}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          className="rounded-2xl p-6 border border-[#4a89dc]/35 bg-gradient-to-br from-[#2b579a]/20 to-transparent"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <CheckCircle2 className="w-5 h-5 text-[#4a89dc]" />
+            <div className="text-xs uppercase tracking-wider text-[#4a89dc]">
+              Word · 1983+
+            </div>
+          </div>
+          <div className="space-y-2.5 text-sm text-gray-300">
+            {[
+              { k: "Ctrl+Z", d: "sınırsız geri alma, sınırsız pişmanlık" },
+              { k: "Ctrl+C", d: "kopya · anında · dijital · ücretsiz" },
+              { k: "Ctrl+B", d: "tek tuşla kalın / italik / altı çizili" },
+              { k: "Auto", d: "başlık stillerinden otomatik numaralama" },
+              { k: "Drag", d: "sürükle-bırak görsel, etrafında metin sarsın" },
+              { k: "Share", d: "tek linkle 30 kişi aynı anda düzenler" },
+            ].map((l, i) => (
+              <motion.div
+                key={l.k}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 + i * 0.05 }}
+                className="flex items-center gap-3"
+              >
+                <kbd className="px-2 py-0.5 text-[10px] font-mono bg-[#2b579a]/20 border border-[#4a89dc]/30 rounded text-[#a8c5ec] shrink-0 min-w-[56px] text-center">
+                  {l.k}
+                </kbd>
+                <span className="text-[13px]">{l.d}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="mt-8 text-center text-sm text-gray-400"
+      >
+        1980&apos;lerde bir tez yazmak:{" "}
+        <span className="text-red-400 font-semibold">3 ay</span>{" "}
+        · Bugün aynı tez:{" "}
+        <span className="text-[#4a89dc] font-semibold">3 gün</span>
+      </motion.div>
+    </SlideShell>
+  ),
+
   // 3 — Big numbers
   () => (
     <SlideShell>
@@ -551,6 +648,97 @@ const slides: Array<(active: boolean) => ReactNode> = [
         Yazmak hep vardı — artık{" "}
         <span className="text-[#4a89dc]">düşünmek</span> kadar hızlı.
       </motion.div>
+    </SlideShell>
+  ),
+
+  // NEW — .docx Anatomisi
+  () => (
+    <SlideShell>
+      <Eyebrow>Teknik Detay</Eyebrow>
+      <H2 className="mb-2">.docx aslında bir ZIP</H2>
+      <Sub className="mb-10 !text-base">
+        Word 2007&apos;den beri kullanılan format{" "}
+        <span className="text-[#4a89dc] font-mono">OOXML</span> (Office Open XML).
+        Uzantıyı <span className="font-mono text-[#4a89dc]">.zip</span> yap, içini aç —
+        her şey XML.
+      </Sub>
+      <div className="grid md:grid-cols-[1fr_1.2fr] gap-6">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="word-card rounded-xl p-5 font-mono text-[11px]"
+        >
+          <div className="flex items-center gap-2 text-[#4a89dc] mb-3 pb-3 border-b border-white/5">
+            <FileArchive className="w-4 h-4" />
+            <span>rapor.docx</span>
+            <span className="text-gray-600 text-[9px] ml-auto">= ZIP</span>
+          </div>
+          <div className="space-y-1 text-gray-400 leading-relaxed">
+            <div>├── <span className="text-yellow-400">[Content_Types].xml</span></div>
+            <div>├── <span className="text-blue-400">_rels/</span></div>
+            <div>│   └── .rels</div>
+            <div>├── <span className="text-blue-400">word/</span></div>
+            <div>│   ├── <span className="text-green-400">document.xml</span>   <span className="text-gray-600">// ana metin</span></div>
+            <div>│   ├── <span className="text-green-400">styles.xml</span>     <span className="text-gray-600">// başlık + font</span></div>
+            <div>│   ├── <span className="text-green-400">settings.xml</span></div>
+            <div>│   ├── <span className="text-green-400">fontTable.xml</span></div>
+            <div>│   ├── <span className="text-blue-400">theme/</span>theme1.xml</div>
+            <div>│   └── <span className="text-blue-400">media/</span>image1.png</div>
+            <div>└── <span className="text-blue-400">docProps/</span></div>
+            <div>    ├── core.xml   <span className="text-gray-600">// yazar, tarih</span></div>
+            <div>    └── app.xml    <span className="text-gray-600">// sayfa/kelime sayısı</span></div>
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <div className="text-xs uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-2">
+            <Code2 className="w-4 h-4" />
+            document.xml içinden bir parça
+          </div>
+          <pre className="word-card rounded-lg p-4 text-[10px] leading-relaxed font-mono text-gray-300 overflow-x-auto">
+{`<w:document>
+  <w:body>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading1"/>
+      </w:pPr>
+      <w:r>
+        <w:t>Giriş</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t xml:space="preserve">
+          Bu bir paragraf.
+        </w:t>
+      </w:r>
+    </w:p>
+  </w:body>
+</w:document>`}
+          </pre>
+          <div className="mt-4 space-y-2 text-[11px] text-gray-400">
+            <div className="flex items-start gap-2">
+              <Check className="w-3 h-3 text-[#4a89dc] shrink-0 mt-0.5" />
+              <span>ISO/IEC 29500 standardı — 2006&apos;dan beri</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <Check className="w-3 h-3 text-[#4a89dc] shrink-0 mt-0.5" />
+              <span>Git ile versiyonlanabilir (eski ikili .doc değildi)</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <Check className="w-3 h-3 text-[#4a89dc] shrink-0 mt-0.5" />
+              <span>
+                Kod ile oluştur: <span className="font-mono">python-docx</span>,{" "}
+                <span className="font-mono">docxtemplater</span>
+              </span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </SlideShell>
   ),
 
@@ -1299,6 +1487,115 @@ const slides: Array<(active: boolean) => ReactNode> = [
     </SlideShell>
   ),
 
+  // NEW — Fields + Wildcards
+  () => (
+    <SlideShell>
+      <Eyebrow>Power-user Özellikleri</Eyebrow>
+      <H2 className="mb-10">Alanlar (Fields) & Wildcards</H2>
+      <div className="grid md:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="word-card rounded-xl p-5"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Braces className="w-5 h-5 text-[#4a89dc]" />
+            <div className="text-sm font-semibold text-white">
+              Alanlar — Dinamik İçerik
+            </div>
+          </div>
+          <div className="text-[11px] text-gray-400 mb-4 leading-relaxed">
+            Alan = belgeye otomatik güncellenen dinamik değer.{" "}
+            <kbd className="px-1.5 py-0 text-[9px] font-mono bg-[#2b579a]/20 border border-[#4a89dc]/30 rounded text-[#a8c5ec]">
+              Ctrl+F9
+            </kbd>{" "}
+            ile ekle,{" "}
+            <kbd className="px-1.5 py-0 text-[9px] font-mono bg-[#2b579a]/20 border border-[#4a89dc]/30 rounded text-[#a8c5ec]">
+              F9
+            </kbd>{" "}
+            ile güncelle.
+          </div>
+          <div className="space-y-2 font-mono">
+            {[
+              { f: "{ DATE }", r: "21.04.2026", d: "bugünün tarihi" },
+              { f: "{ PAGE }", r: "3", d: "geçerli sayfa" },
+              { f: "{ NUMPAGES }", r: "24", d: "toplam sayfa" },
+              { f: "{ TOC }", r: "İçindekiler tablosu", d: "otomatik TOC" },
+              { f: "{ REF Bookmark1 }", r: "—", d: "çapraz başvuru" },
+              { f: "{ IF x = y \"Evet\" \"Hayır\" }", r: "koşullu metin", d: "şablon mantığı" },
+            ].map((a, i) => (
+              <motion.div
+                key={a.f}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 + i * 0.06 }}
+                className="flex items-center justify-between text-[11px] border-b border-white/5 pb-1.5"
+              >
+                <div className="text-[#4a89dc] truncate">{a.f}</div>
+                <div className="text-gray-500 text-[10px] shrink-0 ml-2">
+                  → {a.r}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35 }}
+          className="word-card rounded-xl p-5"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Asterisk className="w-5 h-5 text-[#4a89dc]" />
+            <div className="text-sm font-semibold text-white">
+              Bul &amp; Değiştir — Wildcards
+            </div>
+          </div>
+          <div className="text-[11px] text-gray-400 mb-4 leading-relaxed">
+            <kbd className="px-1.5 py-0 text-[9px] font-mono bg-[#2b579a]/20 border border-[#4a89dc]/30 rounded text-[#a8c5ec]">
+              Ctrl+H
+            </kbd>{" "}
+            → Diğer →{" "}
+            <span className="text-[#4a89dc]">Joker karakter kullan</span>. Regex
+            gibi, ama Word lehçesi.
+          </div>
+          <div className="space-y-2 font-mono">
+            {[
+              { p: "[A-Z]", m: "herhangi büyük harf" },
+              { p: "<bir>", m: "kelime sınırı (tam 'bir')" },
+              { p: "b?r", m: "b + herhangi karakter + r" },
+              { p: "*", m: "her şey (açgözlü)" },
+              { p: "(Ahmet) (Veli) → \\2 \\1", m: "grupları yer değiştir" },
+              { p: "^p^p", m: "çift boş satırı tek yap" },
+            ].map((w, i) => (
+              <motion.div
+                key={w.p}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 + i * 0.06 }}
+                className="flex items-start gap-2 text-[11px] border-b border-white/5 pb-1.5"
+              >
+                <div className="text-[#4a89dc] shrink-0">{w.p}</div>
+                <div className="text-gray-500 text-[10px] ml-auto text-right">
+                  {w.m}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="mt-6 text-center text-xs text-gray-500"
+      >
+        Bu iki özellikle 500 kişilik liste → kişiselleştirilmiş belge · 30 saniyede.
+      </motion.div>
+    </SlideShell>
+  ),
+
   /* ─────────────────  2. İLERİ ÖZELLİKLER  ───────────────── */
 
   // 17 — Section: İleri
@@ -1808,6 +2105,194 @@ const slides: Array<(active: boolean) => ReactNode> = [
           </div>
           <div className="mt-2 text-[9px] text-gray-500 text-right font-mono">
             Yazar: Osman Can Ç. · 21.04.2026 14:32
+          </div>
+        </motion.div>
+      </div>
+    </SlideShell>
+  ),
+
+  // NEW — Makrolar & VBA
+  () => (
+    <SlideShell>
+      <Eyebrow>Otomasyon</Eyebrow>
+      <H2 className="mb-4">Makrolar — Word&apos;ün Programlama Dili</H2>
+      <Sub className="mb-8 !text-base">
+        Word&apos;ün arkasında{" "}
+        <span className="text-[#4a89dc] font-mono">VBA</span> (Visual Basic for
+        Applications) var. Tekrar eden her işi otomatize et.
+      </Sub>
+      <div className="grid md:grid-cols-[1.2fr_1fr] gap-6">
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Code2 className="w-4 h-4 text-[#4a89dc]" />
+            <div className="text-xs font-mono text-gray-500">Module1.bas</div>
+            <div className="ml-auto flex gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+            </div>
+          </div>
+          <pre className="word-card rounded-lg p-5 text-[11px] leading-relaxed font-mono text-gray-300 overflow-x-auto">
+{`Sub TumBasliklaraNumaraEkle()
+  Dim p As Paragraph
+  Dim sayac As Integer
+  sayac = 0
+
+  For Each p In ActiveDocument.Paragraphs
+    If p.Style = "Heading 1" Then
+      sayac = sayac + 1
+      p.Range.InsertBefore sayac & ". "
+    End If
+  Next p
+
+  MsgBox sayac & " başlık numaralandı.", _
+         vbInformation, "Bitti!"
+End Sub`}
+          </pre>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          className="space-y-3"
+        >
+          {[
+            { icon: Keyboard, t: "VBA Editörü", d: "Alt+F11 ile editör aç" },
+            {
+              icon: Edit3,
+              t: "Makro Kaydet",
+              d: "Geliştirici → Makro Kaydet — klavye+fare hareketlerini koda dönüştürür",
+            },
+            {
+              icon: Zap,
+              t: "Kısayol Ata",
+              d: "Dosya → Seçenekler → Şerit → Geliştirici sekmesini aç",
+            },
+            {
+              icon: AlertTriangle,
+              t: "Güvenlik",
+              d: "Dış kaynaktan gelen .docm/.dotm dosyalarını açma — makro virüsleri",
+            },
+            {
+              icon: FileType2,
+              t: ".docm / .dotm",
+              d: "Makrolu belge uzantıları (.docx'te makro çalışmaz)",
+            },
+          ].map((f, i) => {
+            const Icon = f.icon;
+            return (
+              <motion.div
+                key={f.t}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 + i * 0.07 }}
+                className="word-card rounded-lg p-3 flex gap-3"
+              >
+                <Icon className="w-4 h-4 text-[#4a89dc] shrink-0 mt-0.5" />
+                <div>
+                  <div className="text-sm font-semibold text-white">{f.t}</div>
+                  <div className="text-[11px] text-gray-400">{f.d}</div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+    </SlideShell>
+  ),
+
+  // NEW — AI Copilot
+  () => (
+    <SlideShell>
+      <Eyebrow>Yapay Zekâ</Eyebrow>
+      <H2 className="mb-4">Copilot — Word&apos;ün içinde AI ortağı</H2>
+      <Sub className="mb-8 !text-base">
+        Microsoft 365 Copilot · GPT-4 ve kuzenleri Word&apos;ün içinde. Yazmadan
+        özetlemeye, çeviriye kadar.
+      </Sub>
+      <div className="grid md:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="text-xs uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#4a89dc]" />
+            Prompt örnekleri
+          </div>
+          <div className="space-y-2">
+            {[
+              "Bu paragrafı akademik tona çevir",
+              "3 madde halinde özetle",
+              "Bu metni İngilizceye çevir",
+              "Kaynakçayı APA 7'ye dönüştür",
+              "Toplantı notlarından aksiyon listesi çıkar",
+              "Bu tablo için 3 cümlelik özet yaz",
+            ].map((p, i) => (
+              <motion.div
+                key={p}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + i * 0.06 }}
+                className="word-card rounded px-4 py-2.5 flex items-center gap-3"
+              >
+                <span className="text-[#4a89dc] font-mono text-[10px]">
+                  &gt;
+                </span>
+                <span className="text-xs text-gray-300 italic">{p}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          className="space-y-3"
+        >
+          <div className="word-card-blue rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-4 h-4 text-[#4a89dc]" />
+              <div className="text-sm font-semibold text-white">
+                Nerede bulursun?
+              </div>
+            </div>
+            <div className="space-y-2 text-[11px] text-gray-400">
+              <div>· Giriş sekmesinde &ldquo;Copilot&rdquo; butonu</div>
+              <div>· Sağ panelden konuşma arayüzü</div>
+              <div>· Seçili metin üstünde &ldquo;Rewrite&rdquo;</div>
+              <div>· Boş belgede &ldquo;Draft with Copilot&rdquo;</div>
+            </div>
+          </div>
+          <div className="word-card-blue rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <DollarSign className="w-4 h-4 text-[#4a89dc]" />
+              <div className="text-sm font-semibold text-white">
+                Fiyatlandırma
+              </div>
+            </div>
+            <div className="space-y-2 text-[11px] text-gray-400">
+              <div className="flex justify-between">
+                <span>Microsoft 365 Copilot Pro</span>
+                <span className="font-mono text-[#4a89dc]">$20/ay</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Copilot Enterprise</span>
+                <span className="font-mono text-[#4a89dc]">$30/ay</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Free (sınırlı)</span>
+                <span className="font-mono text-gray-500">Outlook, Teams</span>
+              </div>
+            </div>
+          </div>
+          <div className="text-[10px] text-gray-600 text-center mt-2">
+            GPT-4 + Microsoft Graph (e-posta, takvim, belge) verilerine erişir —
+            gizlilik için kurumsal hesap kullan.
           </div>
         </motion.div>
       </div>
