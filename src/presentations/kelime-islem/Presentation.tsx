@@ -336,7 +336,8 @@ const slides: Array<(active: boolean) => ReactNode> = [
           Programı
         </H1>
         <Sub className="mt-8 max-w-2xl mx-auto">
-          Microsoft Word ve modern alternatifleriyle profesyonel doküman üretimi
+          Staj raporundan CV&apos;ye, dilekçeden ödev raporuna — günlük belge
+          araçların
         </Sub>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -596,11 +597,10 @@ const slides: Array<(active: boolean) => ReactNode> = [
         className="mt-10 word-card rounded-xl p-5 text-center"
       >
         <div className="text-sm text-gray-300">
-          İş başvurularında{" "}
-          <span className="text-[#4a89dc] font-semibold">90%+</span> insan
-          kaynakları yöneticisi, Word dosyası (
+          Staj başvurusu · CV · dilekçe · ödev raporu · iş sözleşmesi —{" "}
+          <span className="text-[#4a89dc] font-semibold">hepsi</span> Word (
           <span className="font-mono text-[#4a89dc]">.docx</span>) veya PDF
-          formatında CV bekler.
+          olarak istenir.
         </div>
       </motion.div>
     </SlideShell>
@@ -1242,15 +1242,15 @@ const slides: Array<(active: boolean) => ReactNode> = [
           </div>
           <div className="space-y-2 text-sm text-gray-800">
             {[
-              { t: "1.  Giriş", p: "1", indent: 0 },
-              { t: "2.  Literatür Taraması", p: "3", indent: 0 },
-              { t: "2.1  Kuramsal Çerçeve", p: "5", indent: 4 },
-              { t: "2.2  Önceki Çalışmalar", p: "8", indent: 4 },
-              { t: "3.  Yöntem", p: "12", indent: 0 },
-              { t: "3.1  Veri Toplama", p: "14", indent: 4 },
-              { t: "4.  Bulgular", p: "18", indent: 0 },
-              { t: "5.  Sonuç", p: "24", indent: 0 },
-              { t: "Kaynakça", p: "27", indent: 0 },
+              { t: "1.  Staj Yerinin Tanıtımı", p: "1", indent: 0 },
+              { t: "2.  Şirket / Kurum Yapısı", p: "3", indent: 0 },
+              { t: "2.1  Departmanlar", p: "5", indent: 4 },
+              { t: "2.2  Kullanılan Teknolojiler", p: "8", indent: 4 },
+              { t: "3.  Haftalık Yapılan İşler", p: "11", indent: 0 },
+              { t: "3.1  Görev Tanımları", p: "14", indent: 4 },
+              { t: "4.  Kazanımlar & Gözlemler", p: "18", indent: 0 },
+              { t: "5.  Sonuç", p: "22", indent: 0 },
+              { t: "Ekler (fotoğraflar)", p: "25", indent: 0 },
             ].map((row, i) => (
               <motion.div
                 key={row.t}
@@ -1749,7 +1749,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
   // 20 — Başvurular
   () => (
     <SlideShell>
-      <Eyebrow>Akademisyenin silahı</Eyebrow>
+      <Eyebrow>Ödev & rapor için</Eyebrow>
       <H2 className="mb-10">Başvurular — Dipnot, Alıntı, Kaynakça</H2>
       <div className="grid md:grid-cols-[1fr_1.2fr] gap-8">
         <div className="space-y-3">
@@ -1773,7 +1773,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
             {
               icon: Award,
               t: "Stil Seç",
-              d: "APA · IEEE · MLA · Chicago · Harvard · Turabian",
+              d: "Hocanın istediği stil: APA · IEEE · MLA · Chicago",
             },
             {
               icon: FileCheck2,
@@ -1850,7 +1850,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-gray-200 text-[9px] text-gray-500 font-mono">
-            ↑ APA 7 stilinde, alfabetik sıra — Word otomatik üretti
+            ↑ Ödev için kaynakça · alfabetik · Word otomatik yazdı
           </div>
         </motion.div>
       </div>
@@ -2652,11 +2652,15 @@ End Sub`}
     </SlideShell>
   ),
 
-  // 31 — Akademik yazı
+  // 31 — Staj Raporu & CV ayarları (MYO pratik)
   () => (
     <SlideShell>
-      <Eyebrow>Akademik Formülasyon</Eyebrow>
-      <H2 className="mb-10">Tez / Makale / Rapor için Word ayarları</H2>
+      <Eyebrow>Pratik Ayarlar</Eyebrow>
+      <H2 className="mb-4">Staj Raporu · Ödev · CV için Word ayarları</H2>
+      <Sub className="mb-8 !text-base">
+        Hocaların ve iş dünyasının beklediği temel format — bir kere ayarla,
+        hep kullan.
+      </Sub>
       <div className="grid md:grid-cols-2 gap-6">
         <motion.div
           initial={{ opacity: 0, x: -16 }}
@@ -2665,7 +2669,7 @@ End Sub`}
           className="word-card-blue rounded-xl p-6"
         >
           <div className="text-xs uppercase tracking-wider text-[#4a89dc] mb-4">
-            Sayfa ayarları
+            Sayfa ayarları (staj raporu)
           </div>
           <div className="space-y-3 text-sm text-gray-300">
             <div className="flex justify-between border-b border-white/5 pb-2">
@@ -2674,19 +2678,23 @@ End Sub`}
             </div>
             <div className="flex justify-between border-b border-white/5 pb-2">
               <span className="text-gray-400">Kenar boşluğu</span>
-              <span className="font-mono text-[#a8c5ec]">2.5 · 2.5 · 3.0 · 2.5</span>
+              <span className="font-mono text-[#a8c5ec]">2.5 cm (her yön)</span>
             </div>
             <div className="flex justify-between border-b border-white/5 pb-2">
               <span className="text-gray-400">Yazı tipi</span>
-              <span className="font-mono text-[#a8c5ec]">Times New Roman · 12pt</span>
+              <span className="font-mono text-[#a8c5ec]">Calibri / Arial · 11pt</span>
             </div>
             <div className="flex justify-between border-b border-white/5 pb-2">
               <span className="text-gray-400">Satır aralığı</span>
-              <span className="font-mono text-[#a8c5ec]">1.5 (tez) · 2.0 (gönderim)</span>
+              <span className="font-mono text-[#a8c5ec]">1.15 veya 1.5</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between border-b border-white/5 pb-2">
               <span className="text-gray-400">Hizalama</span>
               <span className="font-mono text-[#a8c5ec]">İki yana yasla</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Kapak sayfası</span>
+              <span className="font-mono text-[#a8c5ec]">Ad · No · Okul · Tarih</span>
             </div>
           </div>
         </motion.div>
@@ -2697,11 +2705,12 @@ End Sub`}
           className="space-y-3"
         >
           {[
-            { icon: Heading1, t: "Başlık Stillerini Kullan", d: "Başlık 1, 2, 3 → otomatik içindekiler + navigasyon" },
-            { icon: BookMarked, t: "Kaynak Yönetimini Aç", d: "Her kaynağı yeniden yazma — Başvurular menüsü" },
-            { icon: Quote, t: "APA 7 / IEEE Seç", d: "Kurumunun istediği stili üst menüde ayarla" },
-            { icon: TableIcon, t: "Tablo ve Şekilleri Numaralı", d: "Başlık Ekle → otomatik: &ldquo;Tablo 1&rdquo;, &ldquo;Şekil 1&rdquo;" },
-            { icon: FileCheck2, t: "PDF Gönder", d: "Paylaşırken hep .pdf — format bozulmaz" },
+            { icon: Heading1, t: "Başlık stillerini kullan", d: "Başlık 1, 2, 3 → içindekiler tablosu otomatik oluşsun" },
+            { icon: TableIcon, t: "Tablo ve şekilleri numaralı", d: "Başlık Ekle → \"Tablo 1\", \"Şekil 1\"" },
+            { icon: Bookmark, t: "Sayfa numarası", d: "Sağ alt köşe · kapakta gösterme" },
+            { icon: BookMarked, t: "Üstbilgi: ad + okul no", d: "Her sayfanın üstünde: \"Ahmet Yılmaz · 2021541023\"" },
+            { icon: FileCheck2, t: "Son gönderim PDF", d: "Hoca farklı Word sürümüyle açarsa format bozulur" },
+            { icon: FileText, t: "Dosya adı", d: "\"AdSoyad_OkulNo_Rapor.pdf\" formatı" },
           ].map((t, i) => {
             const Icon = t.icon;
             return (
@@ -2832,70 +2841,118 @@ End Sub`}
     </SlideShell>
   ),
 
-  // 34 — Homework
+  // 34 — Homework: CV + Dilekçe (MYO odaklı)
   () => (
     <SlideShell>
       <Eyebrow>Bu Hafta</Eyebrow>
-      <H2 className="mb-10">Yapılacaklar — 3 Sayfalık Rapor</H2>
-      <div className="grid md:grid-cols-2 gap-5">
-        {[
-          {
-            n: "01",
-            t: "Akademik Formatı Kur",
-            d: "A4, 2.5 cm kenar, 12pt Times New Roman, 1.5 satır aralığı, iki yana yasla.",
-            color: "#4a89dc",
-          },
-          {
-            n: "02",
-            t: "Başlık Stillerini Uygula",
-            d: "Giriş, Literatür, Yöntem, Sonuç → hepsi Başlık 1. Alt başlıklar Başlık 2.",
-            color: "#4a89dc",
-          },
-          {
-            n: "03",
-            t: "İçindekiler Ekle",
-            d: "Başvurular → İçindekiler Tablosu → Otomatik Tablo 1. Sonra güncelle.",
-            color: "#4a89dc",
-          },
-          {
-            n: "04",
-            t: "En Az 3 Alıntı + Kaynakça",
-            d: "Başvurular → Alıntı Ekle → Yeni Kaynak. APA 7 stilinde kaynakça oluştur.",
-            color: "#4a89dc",
-          },
-          {
-            n: "05",
-            t: "Üstbilgi & Sayfa Numarası",
-            d: "Üstbilgi: ad-soyad + ders kodu. Altbilgi sağ: &ldquo;Sayfa X&rdquo;. Kapak sayfasında gösterme.",
-            color: "#4a89dc",
-          },
-          {
-            n: "06",
-            t: "PDF Olarak Gönder",
-            d: "Dosya → Dışa Aktar → PDF. Adı: &ldquo;AdSoyad_HaftaX_Rapor.pdf&rdquo;",
-            color: "#00ff41",
-          },
-        ].map((task, i) => (
-          <motion.div
-            key={task.n}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.08 }}
-            className="word-card rounded-xl p-5"
-            style={{ borderColor: `${task.color}30` }}
-          >
-            <div className="flex items-start gap-4">
-              <div className="text-2xl font-mono font-bold" style={{ color: task.color }}>
-                {task.n}
+      <H2 className="mb-4">Yapılacaklar — CV + Staj Dilekçesi</H2>
+      <Sub className="mb-8 !text-base">
+        İki gerçek iş belgesi üret. Mezun olurken bu ikisine ihtiyacın
+        olacak — şimdi öğren.
+      </Sub>
+      <div className="grid md:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="word-card rounded-xl p-5"
+          style={{ borderColor: "rgba(74,137,220,0.35)" }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white"
+              style={{ background: "#2b579a" }}
+            >
+              1
+            </div>
+            <div>
+              <div className="text-base font-semibold text-white">
+                Görev 1 — Özgeçmiş (CV)
               </div>
-              <div>
-                <div className="text-base font-semibold text-white mb-1">{task.t}</div>
-                <div className="text-xs text-gray-400 leading-relaxed">{task.d}</div>
+              <div className="text-[10px] text-gray-500 font-mono">
+                AdSoyad_CV.pdf · tek sayfa
               </div>
             </div>
-          </motion.div>
-        ))}
+          </div>
+          <ul className="space-y-2 text-xs text-gray-300">
+            {[
+              "Üstte: Ad Soyad + iletişim (e-posta, tel, LinkedIn)",
+              "Eğitim — Başlık 1 (MYO + Lise)",
+              "Beceriler — MS Office · Python · İngilizce seviyesi",
+              "Staj / deneyim — Başlık 1 · tarih sıralı",
+              "Projeler — Başlık 1 · GitHub linki varsa",
+              "Max 2 font · Calibri/Arial · tek sayfa",
+              "PDF kaydet — \"AdSoyad_CV.pdf\"",
+            ].map((step, i) => (
+              <motion.li
+                key={step}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 + i * 0.05 }}
+                className="flex items-start gap-2"
+              >
+                <Check className="w-3 h-3 text-[#4a89dc] shrink-0 mt-0.5" />
+                <span>{step}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35 }}
+          className="word-card rounded-xl p-5"
+          style={{ borderColor: "rgba(74,137,220,0.35)" }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white"
+              style={{ background: "#2b579a" }}
+            >
+              2
+            </div>
+            <div>
+              <div className="text-base font-semibold text-white">
+                Görev 2 — Staj Dilekçesi
+              </div>
+              <div className="text-[10px] text-gray-500 font-mono">
+                AdSoyad_Staj_Dilekce.pdf
+              </div>
+            </div>
+          </div>
+          <ul className="space-y-2 text-xs text-gray-300">
+            {[
+              "Sağ üstte: Ad Soyad + okul no + tarih",
+              "Alıcı: \"Sayın [Şirket Adı] İK Yöneticisi\"",
+              "Giriş: kendini tanıt (okul, program, sınıf)",
+              "Asıl: neden bu şirket + ne öğrenmek istiyorsun",
+              "Kapanış: \"Saygılarımla,\" + isim",
+              "Ek notu: CV + transkript iliştirilecek",
+              "PDF kaydet — \"AdSoyad_Staj_Dilekce.pdf\"",
+            ].map((step, i) => (
+              <motion.li
+                key={step}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 + i * 0.05 }}
+                className="flex items-start gap-2"
+              >
+                <Check className="w-3 h-3 text-[#4a89dc] shrink-0 mt-0.5" />
+                <span>{step}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
       </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.1 }}
+        className="mt-6 text-center text-[11px] text-gray-500"
+      >
+        Teslim: bir sonraki ders · her iki dosyayı da e-posta ekle gönder ·
+        dosya adı kuralına uyulmazsa <span className="text-red-400">-10</span>
+      </motion.div>
     </SlideShell>
   ),
 
