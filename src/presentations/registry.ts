@@ -42,6 +42,17 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "kelime-islem": {
+    meta: {
+      slug: "kelime-islem",
+      title: "Kelime İşlem Programı (Word · Google Docs · LibreOffice)",
+      description:
+        "BVA 1108 10. hafta — Microsoft Word ve alternatifleri için 35 slaytlık görsel React sunum.",
+    },
+    Component: dynamic(() => import("./kelime-islem/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(

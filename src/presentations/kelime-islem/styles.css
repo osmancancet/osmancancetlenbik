@@ -1,0 +1,175 @@
+/* Kelime İşlem Programı sunumu — özel stiller */
+
+.word-shimmer {
+  background: linear-gradient(
+    90deg,
+    #00ff41 0%,
+    #4dff80 25%,
+    #ffffff 50%,
+    #4dff80 75%,
+    #00ff41 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: word-shimmer 4s linear infinite;
+}
+
+.word-shimmer-blue {
+  background: linear-gradient(
+    90deg,
+    #2b579a 0%,
+    #4a89dc 25%,
+    #ffffff 50%,
+    #4a89dc 75%,
+    #2b579a 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: word-shimmer 4s linear infinite;
+}
+
+@keyframes word-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.word-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 255, 65, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.word-window-chrome {
+  background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
+  border: 1px solid rgba(74, 137, 220, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(43, 87, 154, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.word-window-bar {
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+  border-bottom: 1px solid rgba(74, 137, 220, 0.2);
+}
+
+.word-card {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 65, 0.03) 0%,
+    rgba(0, 255, 65, 0.01) 100%
+  );
+  border: 1px solid rgba(0, 255, 65, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.word-card-hover:hover {
+  border-color: rgba(0, 255, 65, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 65, 0.06) 0%,
+    rgba(0, 255, 65, 0.02) 100%
+  );
+}
+
+.word-card-blue {
+  background: linear-gradient(
+    135deg,
+    rgba(43, 87, 154, 0.04) 0%,
+    rgba(43, 87, 154, 0.01) 100%
+  );
+  border: 1px solid rgba(74, 137, 220, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.word-pulse {
+  animation: word-pulse 2s ease-in-out infinite;
+}
+
+@keyframes word-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.word-bar-fill {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2b579a, #4a89dc);
+  box-shadow: 0 0 12px rgba(43, 87, 154, 0.5);
+}
+
+.word-slot-word { color: #4a89dc; }
+.word-slot-gdocs { color: #4285f4; }
+.word-slot-libre { color: #18a303; }
+
+.word-slot-word-bg { background: rgba(43, 87, 154, 0.14); border-color: rgba(74, 137, 220, 0.35); }
+.word-slot-gdocs-bg { background: rgba(66, 133, 244, 0.12); border-color: rgba(66, 133, 244, 0.3); }
+.word-slot-libre-bg { background: rgba(24, 163, 3, 0.12); border-color: rgba(24, 163, 3, 0.3); }
+
+/* Paper page look — for "document preview" visuals */
+.word-paper {
+  background: #fefefe;
+  color: #1f2937;
+  box-shadow:
+    0 20px 60px -20px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.word-paper-ruler {
+  background: linear-gradient(90deg, #e5e5e5 1px, transparent 1px) 0 0 / 12px 100%;
+  height: 14px;
+  border-bottom: 1px solid #d4d4d4;
+  color: #6b7280;
+  font-size: 9px;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+/* Typing caret */
+.word-caret {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  background: #2b579a;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: word-blink 1s steps(2) infinite;
+}
+
+@keyframes word-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Microsoft Word-like title "W" tile */
+.word-w-tile {
+  background: linear-gradient(135deg, #2b579a 0%, #1e3f72 100%);
+  color: white;
+  font-weight: 900;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+/* Style-token — for simulating Word styles */
+.word-style-token {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: rgba(74, 137, 220, 0.1);
+  border: 1px solid rgba(74, 137, 220, 0.3);
+  color: #a8c5ec;
+}
