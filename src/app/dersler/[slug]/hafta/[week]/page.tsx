@@ -106,7 +106,7 @@ export default async function WeekDetailPage({
           </Reveal>
         )}
 
-        {current.slides && (
+        {(current.slides || current.presentationSlug) && (
           <Reveal delay={0.15}>
             <Link
               href={`/dersler/${course.slug}/hafta/${current.weekNumber}/sunum`}
