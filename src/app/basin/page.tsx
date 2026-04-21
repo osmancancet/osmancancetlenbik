@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
+import { ShareButton } from "@/components/ShareButton";
 import { prisma } from "@/lib/prisma";
 import { Newspaper, ExternalLink, Calendar } from "lucide-react";
 
@@ -45,12 +46,7 @@ export default async function BasinPage() {
         <div className="grid md:grid-cols-2 gap-5">
           {items.map((item, i) => (
             <Reveal key={item.id} delay={i * 0.05}>
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noreferrer"
-                className="group card rounded-lg overflow-hidden h-full flex flex-col hover:border-[var(--accent)]/40"
-              >
+              <article className="group card rounded-lg overflow-hidden h-full flex flex-col hover:border-[var(--accent)]/40 relative transition-colors">
                 {item.coverImage && (
                   <div className="relative aspect-[16/9] bg-[var(--bg-soft)] overflow-hidden">
                     <Image
@@ -72,8 +68,15 @@ export default async function BasinPage() {
                       {item.source}
                     </span>
                   </div>
-                  <h2 className="text-lg font-semibold text-[var(--fg)] mb-2 group-hover:text-[var(--accent)] transition-colors">
-                    {item.title}
+                  <h2 className="text-lg font-semibold mb-2">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors before:absolute before:inset-0 before:content-['']"
+                    >
+                      {item.title}
+                    </a>
                   </h2>
                   {item.excerpt && (
                     <p className="text-sm text-[var(--fg-muted)] leading-relaxed mb-4 flex-1">
@@ -89,13 +92,21 @@ export default async function BasinPage() {
                         year: "numeric",
                       })}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[var(--accent)]">
-                      Habere Git
-                      <ExternalLink className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-center gap-2 relative z-10">
+                      <ShareButton url={item.url} title={item.title} />
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[var(--accent)] hover:underline"
+                      >
+                        Habere Git
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </a>
+              </article>
             </Reveal>
           ))}
         </div>
