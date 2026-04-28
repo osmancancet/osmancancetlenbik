@@ -53,6 +53,17 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "denklem-cizim-grafik": {
+    meta: {
+      slug: "denklem-cizim-grafik",
+      title: "Denklem · Çizim · Grafik",
+      description:
+        "BVA 1108 11. hafta — Word'ün üç görsel süper gücü (Equation Editor, Shapes/SmartArt, Charts) için 34 slaytlık React sunum.",
+    },
+    Component: dynamic(() => import("./denklem-cizim-grafik/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(
