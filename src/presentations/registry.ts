@@ -64,6 +64,17 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "tablolarla-calisma": {
+    meta: {
+      slug: "tablolarla-calisma",
+      title: "Tablolarla Çalışma (Excel · Sheets · Word)",
+      description:
+        "BVA 1108 12. hafta — Excel temelleri, formüller, pivot tablolar, Word tabloları ve alternatifler için 33 slaytlık React sunum.",
+    },
+    Component: dynamic(() => import("./tablolarla-calisma/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(

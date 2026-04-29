@@ -1,0 +1,184 @@
+/* Tablolarla Çalışma sunumu — Excel-yeşili */
+
+.tab-shimmer {
+  background: linear-gradient(
+    90deg,
+    #00ff41 0%,
+    #4dff80 25%,
+    #ffffff 50%,
+    #4dff80 75%,
+    #00ff41 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tab-shimmer 4s linear infinite;
+}
+
+.tab-shimmer-green {
+  background: linear-gradient(
+    90deg,
+    #21a366 0%,
+    #34d399 25%,
+    #ffffff 50%,
+    #34d399 75%,
+    #21a366 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tab-shimmer 4s linear infinite;
+}
+
+@keyframes tab-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.tab-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 255, 65, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.tab-window-chrome {
+  background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
+  border: 1px solid rgba(33, 163, 102, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(33, 163, 102, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.tab-window-bar {
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+  border-bottom: 1px solid rgba(33, 163, 102, 0.2);
+}
+
+.tab-card {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 65, 0.03) 0%,
+    rgba(0, 255, 65, 0.01) 100%
+  );
+  border: 1px solid rgba(0, 255, 65, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.tab-card-hover:hover {
+  border-color: rgba(0, 255, 65, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 65, 0.06) 0%,
+    rgba(0, 255, 65, 0.02) 100%
+  );
+}
+
+.tab-card-green {
+  background: linear-gradient(
+    135deg,
+    rgba(33, 163, 102, 0.05) 0%,
+    rgba(33, 163, 102, 0.01) 100%
+  );
+  border: 1px solid rgba(33, 163, 102, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.tab-pulse {
+  animation: tab-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tab-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Excel "X" tile */
+.tab-x-tile {
+  background: linear-gradient(135deg, #21a366 0%, #107c41 100%);
+  color: white;
+  font-weight: 900;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Excel-style spreadsheet */
+.tab-sheet {
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 4px;
+  font-family: "Calibri", "Helvetica Neue", sans-serif;
+  font-size: 11px;
+  box-shadow:
+    0 20px 60px -20px rgba(0, 0, 0, 0.8);
+}
+
+.tab-sheet-headerrow {
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 9px;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  text-align: center;
+  user-select: none;
+}
+
+.tab-sheet-headercol {
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 9px;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  text-align: center;
+  user-select: none;
+}
+
+.tab-sheet-cell {
+  border: 1px solid #e5e7eb;
+  padding: 3px 6px;
+  background: white;
+  color: #1f2937;
+}
+
+.tab-sheet-cell-active {
+  border: 2px solid #21a366;
+  background: #ecfdf5;
+}
+
+.tab-sheet-cell-formula {
+  background: #fef3c7;
+  font-family: "Consolas", monospace;
+  font-size: 10px;
+}
+
+/* Formula bar */
+.tab-formulabar {
+  background: #f9fafb;
+  border-top: 1px solid #d1d5db;
+  border-bottom: 1px solid #d1d5db;
+  padding: 4px 8px;
+  font-family: "Consolas", monospace;
+  font-size: 11px;
+  color: #1f2937;
+}
+
+/* Conditional formatting heat map cells */
+.tab-heat-low { background: #fef2f2; color: #991b1b; }
+.tab-heat-mid { background: #fefce8; color: #854d0e; }
+.tab-heat-high { background: #ecfdf5; color: #065f46; }
+
+/* Formula highlight */
+.tab-formula-token {
+  background: #21a36622;
+  color: #34d399;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-family: "Consolas", monospace;
+}
