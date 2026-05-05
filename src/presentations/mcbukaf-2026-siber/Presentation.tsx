@@ -20,8 +20,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   KeyRound,
-  Lock,
-  Eye,
   Brain,
   Radio,
   Skull,
@@ -407,14 +405,20 @@ function QR({
   size?: number;
   glow?: boolean;
 }) {
+  const isAbsolute = url.startsWith("http://") || url.startsWith("https://");
   const [src, setSrc] = useState<string>("");
+
   useEffect(() => {
+    if (!isAbsolute) {
+      setSrc("");
+      return;
+    }
     let cancelled = false;
     QRCode.toDataURL(url, {
-      width: size,
-      margin: 1,
-      errorCorrectionLevel: "M",
-      color: { dark: "#0c0f12", light: "#00ff88" },
+      width: size * 2,
+      margin: 2,
+      errorCorrectionLevel: "Q",
+      color: { dark: "#000000", light: "#ffffff" },
     })
       .then((d) => {
         if (!cancelled) setSrc(d);
@@ -423,11 +427,15 @@ function QR({
     return () => {
       cancelled = true;
     };
-  }, [url, size]);
+  }, [url, size, isAbsolute]);
+
   return (
     <div
-      className={`relative inline-block rounded-2xl bg-[#00ff88] p-3 ${glow ? "mcb-halo" : ""}`}
-      style={{ boxShadow: "0 0 0 1px rgba(0,255,136,0.4)" }}
+      className={`relative inline-block bg-white p-4 rounded-2xl ${glow ? "mcb-halo" : ""}`}
+      style={{
+        boxShadow:
+          "0 0 0 1px rgba(0,255,136,0.55), 0 0 40px rgba(0,255,136,0.22)",
+      }}
     >
       {src ? (
         <img
@@ -436,13 +444,15 @@ function QR({
           width={size}
           height={size}
           className="block"
+          style={{ width: size, height: size, imageRendering: "pixelated" }}
         />
       ) : (
         <div
           style={{ width: size, height: size }}
-          className="flex items-center justify-center text-zinc-900 mcb-mono text-xs"
+          className="flex flex-col items-center justify-center gap-2 text-zinc-500 mcb-mono text-xs"
         >
-          generating…
+          <RefreshCw className="w-5 h-5 animate-spin" />
+          <span>{isAbsolute ? "hazırlanıyor" : "bağlantı bekleniyor"}</span>
         </div>
       )}
     </div>
@@ -522,54 +532,73 @@ function LivePoll({
   const url = `${origin}/poll/${slug}`;
 
   return (
-    <div className="grid md:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center w-full max-w-[1400px] px-6 sm:px-12">
+    <div className="grid md:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center w-full max-w-[1400px] mx-auto text-left">
       <div className="min-w-0">
         <div className="mcb-mono text-xs tracking-[0.4em] text-emerald-400/80 mb-3">
           CANLI ANKET · {data?.total ?? 0} OY
         </div>
-        <h2 className="text-3xl sm:text-5xl font-bold leading-tight mb-8 text-white">
-          {data?.question ?? "Yükleniyor…"}
-        </h2>
-        <div className="space-y-4">
-          {(data?.options ?? []).map((o) => {
-            const c = data?.counts[o.id] ?? 0;
-            const pct = data?.total ? (c / data.total) * 100 : 0;
-            const wpct = (c / max) * 100;
-            return (
-              <div key={o.id} className="relative">
-                <div className="flex items-center gap-3 mb-1.5">
-                  {o.emoji && (
-                    <span className="text-2xl shrink-0">{o.emoji}</span>
-                  )}
-                  <span className="text-lg sm:text-xl text-zinc-200 flex-1 min-w-0">
-                    {o.label}
-                  </span>
-                  <span
-                    className="mcb-mono text-xl sm:text-2xl font-bold tabular-nums"
-                    style={{ color: accent }}
-                  >
-                    {c}
-                    <span className="text-zinc-500 text-sm ml-2">
-                      ({pct.toFixed(0)}%)
-                    </span>
-                  </span>
-                </div>
-                <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{
-                      background: `linear-gradient(90deg, ${accent}55, ${accent})`,
-                      boxShadow: `0 0 12px ${accent}66`,
-                    }}
-                    initial={false}
-                    animate={{ width: `${wpct}%` }}
-                    transition={{ type: "spring", stiffness: 80, damping: 18 }}
+        {data ? (
+          <>
+            <h2 className="text-3xl sm:text-5xl font-bold leading-tight mb-8 text-white">
+              {data.question}
+            </h2>
+            <div className="space-y-4">
+              {data.options.map((o) => {
+                const c = data.counts[o.id] ?? 0;
+                const pct = data.total ? (c / data.total) * 100 : 0;
+                const wpct = (c / max) * 100;
+                return (
+                  <div key={o.id} className="relative">
+                    <div className="flex items-center gap-3 mb-1.5">
+                      {o.emoji && (
+                        <span className="text-2xl shrink-0">{o.emoji}</span>
+                      )}
+                      <span className="text-lg sm:text-xl text-zinc-200 flex-1 min-w-0">
+                        {o.label}
+                      </span>
+                      <span
+                        className="mcb-mono text-xl sm:text-2xl font-bold tabular-nums"
+                        style={{ color: accent }}
+                      >
+                        {c}
+                        <span className="text-zinc-500 text-sm ml-2">
+                          ({pct.toFixed(0)}%)
+                        </span>
+                      </span>
+                    </div>
+                    <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{
+                          background: `linear-gradient(90deg, ${accent}55, ${accent})`,
+                          boxShadow: `0 0 12px ${accent}66`,
+                        }}
+                        initial={false}
+                        animate={{ width: `${wpct}%` }}
+                        transition={{ type: "spring", stiffness: 80, damping: 18 }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="h-12 sm:h-16 w-3/4 bg-zinc-900/80 rounded-md mb-8 animate-pulse" />
+            <div className="space-y-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div
+                    className="h-6 bg-zinc-900/60 rounded animate-pulse"
+                    style={{ width: `${60 + ((i * 13) % 30)}%` }}
                   />
+                  <div className="h-3 bg-zinc-900/80 rounded-full" />
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
       <div className="flex flex-col items-center gap-3 shrink-0">
         <QR url={url} size={220} />
@@ -914,6 +943,22 @@ function Centered({
   );
 }
 
+function FullCenter({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex flex-col items-center justify-center h-full w-full px-6 sm:px-12 ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
 function SectionTitle({
   number,
   title,
@@ -965,7 +1010,7 @@ function SectionTitle({
             textShadow: `0 0 25px ${color}55, 0 0 80px ${color}22`,
           }}
         >
-          <Glitch text={title} />
+          {title}
         </motion.h1>
         <motion.div
           initial={{ scaleX: 0 }}
@@ -1934,28 +1979,28 @@ function ThanksSlide({ origin }: { origin: string }) {
 const SLIDES: Slide[] = [
   {
     id: "cold-open",
-    section: "00 · OPEN",
+    section: "OPEN",
     audio: "boot",
     render: ({ isActive }) => <ColdOpen isActive={isActive} />,
   },
   {
     id: "title",
-    section: "00 · TITLE",
+    section: "OPEN",
     audio: "stinger",
     render: () => <TitleSlide />,
   },
   {
     id: "qr-onboarding",
-    section: "01 · BAĞLAN",
+    section: "BÖLÜM 01 · BAĞLAN",
     audio: "soft",
     render: ({ origin }) => <QROnboarding origin={origin} />,
   },
   {
     id: "poll-1",
-    section: "01 · BAĞLAN",
+    section: "BÖLÜM 01 · BAĞLAN",
     audio: "soft",
     render: ({ origin, isActive, audio }) => (
-      <Centered>
+      <FullCenter>
         <LivePoll
           slug="mcb-1-attack-surface"
           origin={origin}
@@ -1963,22 +2008,22 @@ const SLIDES: Slide[] = [
           audio={audio}
           accent="#00ff88"
         />
-      </Centered>
+      </FullCenter>
     ),
   },
   {
     id: "hook-stat",
-    section: "02 · MANZARA",
+    section: "BÖLÜM 02 · MANZARA",
     audio: "stinger",
     render: ({ isActive }) => <HookStat isActive={isActive} />,
   },
   {
     id: "section-soc-eng",
-    section: "03 · İNSAN HACK'İ",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "stinger",
     render: () => (
       <SectionTitle
-        number="01"
+        number="03"
         title="SOSYAL MÜHENDİSLİK"
         subtitle="Saldırının %98'i bir konuşmayla başlar."
         color="#22d3ee"
@@ -1988,53 +2033,53 @@ const SLIDES: Slide[] = [
   },
   {
     id: "mitnick",
-    section: "03 · İNSAN HACK'İ",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "soft",
     render: () => <MitnickQuote />,
   },
   {
     id: "real-story",
-    section: "03 · İNSAN HACK'İ",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "heartbeat",
     render: ({ isActive }) => <RealStory isActive={isActive} />,
   },
   {
     id: "poll-2",
-    section: "03 · İNSAN HACK'İ",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "soft",
     render: ({ origin, isActive, audio }) => (
-      <Centered>
+      <FullCenter>
         <SMSScene
           showHighlights={false}
           origin={origin}
           isActive={isActive}
           audio={audio}
         />
-      </Centered>
+      </FullCenter>
     ),
   },
   {
     id: "poll-2-reveal",
-    section: "03 · İNSAN HACK'İ",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "reveal",
     render: ({ origin, isActive, audio }) => (
-      <Centered>
+      <FullCenter>
         <SMSScene
           showHighlights
           origin={origin}
           isActive={isActive}
           audio={audio}
         />
-      </Centered>
+      </FullCenter>
     ),
   },
   {
     id: "section-passwords",
-    section: "04 · ŞİFRELER",
+    section: "BÖLÜM 04 · ŞİFRELER",
     audio: "stinger",
     render: () => (
       <SectionTitle
-        number="02"
+        number="04"
         title="ŞİFRELER"
         subtitle="Bir kelimenin arkasında durmak yetmez."
         color="#fbbf24"
@@ -2044,38 +2089,38 @@ const SLIDES: Slide[] = [
   },
   {
     id: "password-stats",
-    section: "04 · ŞİFRELER",
+    section: "BÖLÜM 04 · ŞİFRELER",
     audio: "alarm",
     render: ({ isActive }) => <PasswordStats isActive={isActive} />,
   },
   {
     id: "password-cracker",
-    section: "04 · ŞİFRELER",
+    section: "BÖLÜM 04 · ŞİFRELER",
     audio: "soft",
     render: ({ isActive, audio }) => (
-      <Centered>
+      <FullCenter>
         <PasswordCracker isActive={isActive} audio={audio} />
-      </Centered>
+      </FullCenter>
     ),
   },
   {
     id: "passphrase",
-    section: "04 · ŞİFRELER",
+    section: "BÖLÜM 04 · ŞİFRELER",
     audio: "soft",
     render: () => <PassphraseFormula />,
   },
   {
     id: "twofa",
-    section: "04 · ŞİFRELER",
+    section: "BÖLÜM 04 · ŞİFRELER",
     audio: "soft",
     render: () => <TwoFAExplainer />,
   },
   {
     id: "poll-3",
-    section: "04 · ŞİFRELER",
+    section: "BÖLÜM 04 · ŞİFRELER",
     audio: "soft",
     render: ({ origin, isActive, audio }) => (
-      <Centered>
+      <FullCenter>
         <LivePoll
           slug="mcb-3-2fa"
           origin={origin}
@@ -2083,16 +2128,16 @@ const SLIDES: Slide[] = [
           audio={audio}
           accent="#22d3ee"
         />
-      </Centered>
+      </FullCenter>
     ),
   },
   {
     id: "section-modern-threats",
-    section: "05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "stinger",
     render: () => (
       <SectionTitle
-        number="03"
+        number="05"
         title="MODERN TEHDİTLER"
         subtitle="AI saldırgana da çalışıyor."
         color="#f43f5e"
@@ -2102,28 +2147,28 @@ const SLIDES: Slide[] = [
   },
   {
     id: "phishing-tech",
-    section: "05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "soft",
     render: () => <PhishingTechniques />,
   },
   {
     id: "deepfake",
-    section: "05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "alarm",
     render: () => <DeepfakeSlide />,
   },
   {
     id: "ai-2026",
-    section: "05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "stinger",
     render: () => <AIAttacks2026 />,
   },
   {
     id: "poll-4",
-    section: "05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "soft",
     render: ({ origin, isActive, audio }) => (
-      <Centered>
+      <FullCenter>
         <LivePoll
           slug="mcb-4-quiz"
           origin={origin}
@@ -2131,30 +2176,30 @@ const SLIDES: Slide[] = [
           audio={audio}
           accent="#f43f5e"
         />
-      </Centered>
+      </FullCenter>
     ),
   },
   {
     id: "quiz-reveal",
-    section: "05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "reveal",
     render: () => <QuizReveal />,
   },
   {
     id: "checklist",
-    section: "06 · BU GECE",
+    section: "BÖLÜM 06 · BU GECE",
     audio: "soft",
     render: ({ isActive }) => <Checklist isActive={isActive} />,
   },
   {
     id: "manifesto",
-    section: "07 · KAPANIŞ",
+    section: "KAPANIŞ",
     audio: "stinger",
     render: () => <Manifesto />,
   },
   {
     id: "thanks",
-    section: "07 · KAPANIŞ",
+    section: "KAPANIŞ",
     audio: "soft",
     render: ({ origin }) => <ThanksSlide origin={origin} />,
   },
@@ -2249,14 +2294,10 @@ export default function Presentation() {
       </AnimatePresence>
 
       {/* progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 z-40 bg-zinc-900/60">
+      <div className="absolute top-0 left-0 right-0 h-[2px] z-40 bg-zinc-900/80">
         <motion.div
-          className="h-full"
-          style={{
-            background:
-              "linear-gradient(90deg, #00ff88, #22d3ee, #f43f5e, #fbbf24)",
-            boxShadow: "0 0 12px rgba(0,255,136,0.5)",
-          }}
+          className="h-full bg-emerald-400"
+          style={{ boxShadow: "0 0 10px rgba(0,255,136,0.55)" }}
           initial={false}
           animate={{ width: `${((idx + 1) / SLIDES.length) * 100}%` }}
           transition={{ type: "spring", stiffness: 80, damping: 18 }}
@@ -2342,5 +2383,3 @@ export default function Presentation() {
   );
 }
 
-// helper to silence unused imports lint while keeping options open
-export const __icons_in_use = { Lock, Eye, RefreshCw };

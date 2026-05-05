@@ -6,6 +6,13 @@ type Option = { id: string; label: string; emoji?: string };
 
 const STORAGE_PREFIX = "mcb_poll_voted:";
 
+const OTHER_POLLS: { slug: string; label: string }[] = [
+  { slug: "mcb-1-attack-surface", label: "Soru 1 · Saldırı yüzeyi" },
+  { slug: "mcb-2-sms-trap", label: "Soru 2 · Kargo SMS'i" },
+  { slug: "mcb-3-2fa", label: "Soru 3 · 2FA" },
+  { slug: "mcb-4-quiz", label: "Soru 4 · Phishing quiz" },
+];
+
 export function PollClient({
   slug,
   question,
@@ -45,6 +52,11 @@ export function PollClient({
       }
       localStorage.setItem(STORAGE_PREFIX + slug, optionId);
       setVoted(optionId);
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try {
+          navigator.vibrate?.(15);
+        } catch {}
+      }
     } catch {
       setError("Bağlantı hatası");
     }
@@ -52,22 +64,29 @@ export function PollClient({
   };
 
   return (
-    <div className="min-h-dvh bg-black text-white flex flex-col items-center justify-center px-5 py-10 font-sans relative overflow-hidden">
-      {/* ambient gradient */}
+    <div
+      className="min-h-dvh bg-black text-white flex flex-col font-sans relative overflow-x-hidden"
+      style={{
+        paddingTop: "max(2.5rem, env(safe-area-inset-top))",
+        paddingBottom: "max(2.5rem, env(safe-area-inset-bottom))",
+        paddingLeft: "max(1.25rem, env(safe-area-inset-left))",
+        paddingRight: "max(1.25rem, env(safe-area-inset-right))",
+      }}
+    >
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at top, rgba(0,255,65,0.08), transparent 60%), radial-gradient(ellipse at bottom, rgba(14,165,233,0.06), transparent 60%)",
+            "radial-gradient(ellipse at top, rgba(0,255,136,0.08), transparent 60%), radial-gradient(ellipse at bottom, rgba(14,165,233,0.06), transparent 60%)",
         }}
       />
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="text-center mb-2 font-mono text-xs tracking-[0.3em] text-emerald-400/70">
+      <div className="relative z-10 w-full max-w-md mx-auto flex-1 flex flex-col justify-center">
+        <div className="text-center mb-2 font-mono text-[11px] tracking-[0.4em] text-emerald-400/80">
           MCBÜKAF · 2026
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-center leading-tight mb-8">
+        <h1 className="text-[28px] sm:text-3xl font-bold text-center leading-snug mb-7">
           {question}
         </h1>
 
@@ -87,23 +106,21 @@ export function PollClient({
                   onClick={() => submit(o.id)}
                   disabled={!!submitting}
                   className={[
-                    "w-full text-left rounded-2xl border p-4 transition-all flex items-center gap-3 active:scale-[0.98]",
+                    "w-full text-left rounded-2xl border p-5 transition-all flex items-center gap-3 active:scale-[0.98] min-h-[68px]",
                     isVoted
                       ? "border-emerald-400 bg-emerald-400/10"
-                      : "border-zinc-800 bg-zinc-900/60 hover:border-emerald-400/50",
+                      : "border-zinc-800 bg-zinc-900/60 active:border-emerald-400/60",
                     submitting && !isSubmitting ? "opacity-40" : "",
                   ].join(" ")}
                 >
                   {o.emoji && (
-                    <span className="text-2xl shrink-0">{o.emoji}</span>
+                    <span className="text-3xl shrink-0">{o.emoji}</span>
                   )}
-                  <span className="text-base font-medium flex-1">
+                  <span className="text-lg font-medium flex-1 leading-snug">
                     {o.label}
                   </span>
                   {isVoted && (
-                    <span className="text-xs font-mono text-emerald-300">
-                      OY VERİLDİ
-                    </span>
+                    <span className="text-emerald-300 text-xl shrink-0">✓</span>
                   )}
                   {isSubmitting && (
                     <span className="text-xs font-mono text-zinc-500">…</span>
@@ -115,16 +132,40 @@ export function PollClient({
         )}
 
         {voted && !closed && (
-          <p className="mt-6 text-center text-sm text-zinc-400">
-            Cevabını dilediğin zaman değiştirebilirsin.
-          </p>
+          <div className="mt-6 rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-400 text-black flex items-center justify-center font-bold text-xl shrink-0">
+              ✓
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold">Oyun ekrana düştü.</div>
+              <div className="text-sm text-zinc-300">
+                Cevabını dilediğin zaman değiştirebilirsin.
+              </div>
+            </div>
+          </div>
         )}
 
         {error && (
           <p className="mt-6 text-center text-sm text-rose-400">{error}</p>
         )}
+      </div>
 
-        <p className="mt-10 text-center text-[10px] tracking-widest font-mono text-zinc-600">
+      <div className="relative z-10 w-full max-w-md mx-auto mt-10 pt-6 border-t border-zinc-900">
+        <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-500 uppercase mb-3 text-center">
+          Diğer sorular
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {OTHER_POLLS.filter((p) => p.slug !== slug).map((p) => (
+            <a
+              key={p.slug}
+              href={`/poll/${p.slug}`}
+              className="block rounded-xl border border-zinc-800 bg-zinc-950/60 p-3 text-sm text-zinc-300 active:bg-zinc-900 active:border-emerald-400/40 transition-colors"
+            >
+              {p.label}
+            </a>
+          ))}
+        </div>
+        <p className="mt-6 text-center text-[10px] tracking-widest font-mono text-zinc-600">
           OSMANCANCETLENBIK.COM
         </p>
       </div>
