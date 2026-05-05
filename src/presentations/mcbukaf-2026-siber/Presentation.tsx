@@ -65,14 +65,26 @@ type AudioApi = {
   unlock: () => Promise<void>;
   toggleMute: () => void;
   cue: (c: AudioCue) => void;
+  narrate: (lines: NarrationLine[], opts?: NarrationOpts) => void;
+  stopNarration: () => void;
+  phoneRing: (opts?: { rings?: number; volume?: number }) => () => void;
+  radioCrackle: (opts?: { volume?: number }) => () => void;
 };
+
+type NarrationLine = { text: string; delayMs?: number };
+type NarrationOpts = { rate?: number; pitch?: number; volume?: number };
 
 function useAudioEngine(): AudioApi {
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
   const droneRef = useRef<{ stop: () => void } | null>(null);
+  const narrationRef = useRef<{ cancel: () => void } | null>(null);
+  const mutedRef = useRef(false);
   const [unlocked, setUnlocked] = useState(false);
   const [muted, setMuted] = useState(false);
+  useEffect(() => {
+    mutedRef.current = muted;
+  }, [muted]);
 
   const ensure = useCallback(() => {
     if (!ctxRef.current) {
@@ -146,6 +158,18 @@ function useAudioEngine(): AudioApi {
     if (ctx.state === "suspended") await ctx.resume();
     setUnlocked(true);
     startDrone();
+    // prime speechSynthesis (iOS Safari needs a gesture-tied first call)
+    try {
+      const synth = window.speechSynthesis;
+      if (synth) {
+        const u = new SpeechSynthesisUtterance(" ");
+        u.volume = 0;
+        u.lang = "tr-TR";
+        synth.speak(u);
+        // load voices
+        synth.getVoices();
+      }
+    } catch {}
   }, [ensure, startDrone]);
 
   const toggleMute = useCallback(() => {
@@ -157,6 +181,13 @@ function useAudioEngine(): AudioApi {
         next ? 0 : 0.32,
         ctx.currentTime + 0.2,
       );
+      if (next) {
+        try {
+          window.speechSynthesis?.cancel();
+        } catch {}
+        narrationRef.current?.cancel();
+        narrationRef.current = null;
+      }
       return next;
     });
   }, [ensure]);
@@ -232,16 +263,235 @@ function useAudioEngine(): AudioApi {
     [ensure, unlocked],
   );
 
+  const stopNarration = useCallback(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {}
+    narrationRef.current?.cancel();
+    narrationRef.current = null;
+  }, []);
+
+  const narrate = useCallback(
+    (lines: NarrationLine[], opts?: NarrationOpts) => {
+      if (typeof window === "undefined") return;
+      const synth = window.speechSynthesis;
+      if (!synth || !unlocked || mutedRef.current) return;
+      // cancel anything in flight
+      try {
+        synth.cancel();
+      } catch {}
+      narrationRef.current?.cancel();
+
+      let cancelled = false;
+      const findVoice = () => {
+        const voices = synth.getVoices();
+        return (
+          voices.find((v) => v.lang === "tr-TR") ||
+          voices.find((v) => v.lang.toLowerCase().startsWith("tr")) ||
+          null
+        );
+      };
+      const playOne = (i: number) => {
+        if (cancelled || mutedRef.current || i >= lines.length) return;
+        const line = lines[i];
+        const delay = line.delayMs ?? 0;
+        setTimeout(() => {
+          if (cancelled || mutedRef.current) return;
+          const u = new SpeechSynthesisUtterance(line.text);
+          u.lang = "tr-TR";
+          const v = findVoice();
+          if (v) u.voice = v;
+          u.rate = opts?.rate ?? 0.95;
+          u.pitch = opts?.pitch ?? 0.9;
+          u.volume = opts?.volume ?? 0.85;
+          u.onend = () => playOne(i + 1);
+          u.onerror = () => playOne(i + 1);
+          try {
+            synth.speak(u);
+          } catch {}
+        }, delay);
+      };
+
+      // Some browsers populate voices async; nudge then start
+      const start = () => playOne(0);
+      if (synth.getVoices().length === 0) {
+        const onVoices = () => {
+          synth.removeEventListener("voiceschanged", onVoices);
+          start();
+        };
+        synth.addEventListener("voiceschanged", onVoices);
+        // also start in 250ms in case event never fires
+        setTimeout(start, 250);
+      } else {
+        start();
+      }
+
+      narrationRef.current = {
+        cancel: () => {
+          cancelled = true;
+          try {
+            synth.cancel();
+          } catch {}
+        },
+      };
+    },
+    [unlocked],
+  );
+
+  const phoneRing = useCallback(
+    (opts?: { rings?: number; volume?: number }) => {
+      const ctx = ensure();
+      if (!ctx || !masterRef.current || !unlocked) return () => {};
+      const out = masterRef.current;
+      const rings = opts?.rings ?? 2;
+      const vol = opts?.volume ?? 0.06;
+      const timeouts: ReturnType<typeof setTimeout>[] = [];
+      let cancelled = false;
+
+      const playRing = (offsetSec: number) => {
+        if (cancelled) return;
+        // Turkish ringback: dual-tone 440Hz + 480Hz, 1.5s on, 4s off
+        const t = ctx.currentTime + offsetSec;
+        const dur = 1.4;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.05);
+        g.gain.linearRampToValueAtTime(vol, t + dur - 0.05);
+        g.gain.linearRampToValueAtTime(0, t + dur);
+        g.connect(out);
+        const lp = ctx.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.frequency.value = 1200;
+        lp.connect(g);
+        const o1 = ctx.createOscillator();
+        o1.type = "sine";
+        o1.frequency.value = 440;
+        const o2 = ctx.createOscillator();
+        o2.type = "sine";
+        o2.frequency.value = 480;
+        o1.connect(lp);
+        o2.connect(lp);
+        o1.start(t);
+        o2.start(t);
+        o1.stop(t + dur + 0.1);
+        o2.stop(t + dur + 0.1);
+      };
+
+      for (let r = 0; r < rings; r++) {
+        playRing(r * 5.4);
+      }
+
+      return () => {
+        cancelled = true;
+        timeouts.forEach(clearTimeout);
+      };
+    },
+    [ensure, unlocked],
+  );
+
+  const radioCrackle = useCallback(
+    (opts?: { volume?: number }) => {
+      const ctx = ensure();
+      if (!ctx || !masterRef.current || !unlocked) return () => {};
+      const out = masterRef.current;
+      const vol = opts?.volume ?? 0.025;
+      let cancelled = false;
+      let stopFn: (() => void) | null = null;
+
+      // looped pink-noise pad — telsiz altyapı hissi
+      const bufLen = ctx.sampleRate * 2;
+      const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < bufLen; i++) {
+        const white = Math.random() * 2 - 1;
+        last = (last + 0.02 * white) / 1.02;
+        data[i] = last * 3.5;
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      const bp = ctx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 1800;
+      bp.Q.value = 0.7;
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.6);
+      src.connect(bp);
+      bp.connect(g);
+      g.connect(out);
+      src.start();
+
+      // occasional click bursts
+      const burst = () => {
+        if (cancelled) return;
+        const t = ctx.currentTime;
+        const cg = ctx.createGain();
+        cg.gain.setValueAtTime(0, t);
+        cg.gain.linearRampToValueAtTime(vol * 4, t + 0.005);
+        cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+        const cb = ctx.createBuffer(
+          1,
+          ctx.sampleRate * 0.06,
+          ctx.sampleRate,
+        );
+        const cd = cb.getChannelData(0);
+        for (let i = 0; i < cd.length; i++) cd[i] = Math.random() * 2 - 1;
+        const cs = ctx.createBufferSource();
+        cs.buffer = cb;
+        const cf = ctx.createBiquadFilter();
+        cf.type = "highpass";
+        cf.frequency.value = 1500;
+        cs.connect(cf);
+        cf.connect(cg);
+        cg.connect(out);
+        cs.start();
+        setTimeout(burst, 1500 + Math.random() * 4000);
+      };
+      setTimeout(burst, 2000);
+
+      stopFn = () => {
+        cancelled = true;
+        const t = ctx.currentTime;
+        g.gain.cancelScheduledValues(t);
+        g.gain.setValueAtTime(g.gain.value, t);
+        g.gain.linearRampToValueAtTime(0.0001, t + 0.4);
+        setTimeout(() => {
+          try {
+            src.stop();
+          } catch {}
+        }, 500);
+      };
+      return () => stopFn?.();
+    },
+    [ensure, unlocked],
+  );
+
   useEffect(() => {
     return () => {
       droneRef.current?.stop();
+      try {
+        window.speechSynthesis?.cancel();
+      } catch {}
       try {
         ctxRef.current?.close();
       } catch {}
     };
   }, []);
 
-  return { unlocked, muted, unlock, toggleMute, cue };
+  return {
+    unlocked,
+    muted,
+    unlock,
+    toggleMute,
+    cue,
+    narrate,
+    stopNarration,
+    phoneRing,
+    radioCrackle,
+  };
 }
 
 /* ================================================================
@@ -1354,7 +1604,13 @@ function MitnickQuote() {
   );
 }
 
-function RealStory({ isActive }: { isActive: boolean }) {
+function RealStory({
+  isActive,
+  audio,
+}: {
+  isActive: boolean;
+  audio: AudioApi;
+}) {
   const lines = useMemo(
     () => [
       "Annemi aradılar.",
@@ -1374,6 +1630,28 @@ function RealStory({ isActive }: { isActive: boolean }) {
     [],
   );
   const { out, done } = useTypewriter(lines, 24, isActive);
+
+  useEffect(() => {
+    if (!isActive || !audio.unlocked || audio.muted) return;
+    audio.narrate(
+      [
+        { text: "Annemi aradılar.", delayMs: 800 },
+        {
+          text: "Hanımefendi, bankadan arıyoruz. Hesabınızdan şüpheli bir işlem yapıldı.",
+          delayMs: 1500,
+        },
+        {
+          text: "Doğrulamak için size bir kod göndereceğiz.",
+          delayMs: 800,
+        },
+        { text: "Telefonda yedi dakika geçti.", delayMs: 1800 },
+        { text: "Annem onayladı.", delayMs: 1100 },
+        { text: "Sabah, hesap boştu.", delayMs: 1400 },
+      ],
+      { rate: 0.9, pitch: 0.95, volume: 0.85 },
+    );
+    return () => audio.stopNarration();
+  }, [isActive, audio]);
   return (
     <div className="relative w-full h-full">
       <MatrixRain density={0.4} />
@@ -1896,7 +2174,45 @@ function RansomwareSlide() {
   );
 }
 
-function AuthorityScamSlide() {
+function AuthorityScamSlide({
+  isActive,
+  audio,
+}: {
+  isActive: boolean;
+  audio: AudioApi;
+}) {
+  useEffect(() => {
+    if (!isActive || !audio.unlocked || audio.muted) return;
+    const stopRing = audio.phoneRing({ rings: 2, volume: 0.07 });
+    const stopRadio = audio.radioCrackle({ volume: 0.025 });
+    audio.narrate(
+      [
+        {
+          text: "Alo, hanımefendi. Ben emniyet müdürlüğünden Komiser Ahmet Yılmaz.",
+          delayMs: 2200,
+        },
+        {
+          text: "Şahsınız üzerine açılmış bir MASAK soruşturması var. Hesabınızdan şüpheli işlem tespit edildi.",
+          delayMs: 1400,
+        },
+        {
+          text: "Şu an Cumhuriyet Savcısı bey hatta. Lütfen kapatmayın.",
+          delayMs: 1600,
+        },
+        {
+          text: "Konuşma gizlidir. Banka, aile, kimseyle paylaşmayın.",
+          delayMs: 1500,
+        },
+      ],
+      { rate: 0.92, pitch: 0.78, volume: 0.95 },
+    );
+    return () => {
+      stopRing();
+      stopRadio();
+      audio.stopNarration();
+    };
+  }, [isActive, audio]);
+
   return (
     <Centered>
       <Phone
@@ -2308,7 +2624,27 @@ function Checklist({ isActive }: { isActive: boolean }) {
   );
 }
 
-function Manifesto() {
+function Manifesto({
+  isActive,
+  audio,
+}: {
+  isActive: boolean;
+  audio: AudioApi;
+}) {
+  useEffect(() => {
+    if (!isActive || !audio.unlocked || audio.muted) return;
+    audio.narrate(
+      [
+        {
+          text: "Saldırgan saatte bir saldırır. Sen bir ömür savunursun.",
+          delayMs: 800,
+        },
+        { text: "Sen savunmanın ilk hattısın.", delayMs: 1400 },
+      ],
+      { rate: 0.92, pitch: 1.0, volume: 0.95 },
+    );
+    return () => audio.stopNarration();
+  }, [isActive, audio]);
   return (
     <div className="relative w-full h-full">
       <MatrixRain density={0.65} />
@@ -2514,13 +2850,17 @@ const SLIDES: Slide[] = [
     id: "real-story",
     section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "heartbeat",
-    render: ({ isActive }) => <RealStory isActive={isActive} />,
+    render: ({ isActive, audio }) => (
+      <RealStory isActive={isActive} audio={audio} />
+    ),
   },
   {
     id: "authority-scam",
     section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "stinger",
-    render: () => <AuthorityScamSlide />,
+    render: ({ isActive, audio }) => (
+      <AuthorityScamSlide isActive={isActive} audio={audio} />
+    ),
   },
   {
     id: "osint",
@@ -2708,7 +3048,9 @@ const SLIDES: Slide[] = [
     id: "manifesto",
     section: "KAPANIŞ",
     audio: "stinger",
-    render: () => <Manifesto />,
+    render: ({ isActive, audio }) => (
+      <Manifesto isActive={isActive} audio={audio} />
+    ),
   },
   {
     id: "thanks",
@@ -2760,6 +3102,7 @@ export default function Presentation() {
 
   const cur = SLIDES[idx];
   useEffect(() => {
+    audio.stopNarration();
     if (audio.unlocked && cur.audio) audio.cue(cur.audio);
   }, [idx, audio, cur.audio]);
 
