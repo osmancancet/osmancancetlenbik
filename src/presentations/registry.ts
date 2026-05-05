@@ -31,6 +31,18 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "mcbukaf-2026-siber": {
+    meta: {
+      slug: "mcbukaf-2026-siber",
+      title:
+        "İnteraktif Siber Güvenlik: Son Kullanıcı Zafiyetleri ve Sosyal Mühendislik",
+      description:
+        "MCBÜKAF'26 için sıfırdan kurgulanmış sinematik sunum: canlı QR anketleri, şifre kırma simülatörü, deepfake / AI tehdit senaryoları, prosedürel ses tasarımı.",
+    },
+    Component: dynamic(() => import("./mcbukaf-2026-siber/Presentation"), {
+      ssr: false,
+    }),
+  },
   "ofis-programlari": {
     meta: {
       slug: "ofis-programlari",
