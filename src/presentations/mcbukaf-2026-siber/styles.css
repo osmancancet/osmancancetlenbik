@@ -160,3 +160,18 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(0,255,136,0.25) transparent;
 }
+
+/* ================================================================
+   TYPOGRAPHY SCALE — viewport-relative clamp() for big halls
+   ================================================================ */
+.mcb-mega   { font-size: clamp(4.5rem, 12vw, 13rem);   line-height: 1.0; letter-spacing: -0.02em; }
+.mcb-h1     { font-size: clamp(3.5rem, 8vw, 9rem);     line-height: 1.05; letter-spacing: -0.015em; }
+.mcb-h2     { font-size: clamp(2.5rem, 5.5vw, 6rem);   line-height: 1.1; }
+.mcb-h3     { font-size: clamp(2rem, 4vw, 4.25rem);    line-height: 1.15; }
+.mcb-lead   { font-size: clamp(1.75rem, 3vw, 3rem);    line-height: 1.3; }
+.mcb-body   { font-size: clamp(1.4rem, 2.4vw, 2.4rem); line-height: 1.45; }
+.mcb-meta   { font-size: clamp(1.1rem, 1.6vw, 1.6rem); line-height: 1.4; }
+.mcb-stat   { font-size: clamp(6rem, 16vw, 17rem);     line-height: 0.95; letter-spacing: -0.03em; }
+.mcb-stat-unit { font-size: clamp(2rem, 4.5vw, 4.5rem); line-height: 1; }
+.mcb-mono-lg{ font-size: clamp(1.2rem, 1.8vw, 1.85rem); }
+.mcb-tag    { font-size: clamp(0.875rem, 1.1vw, 1.1rem); letter-spacing: 0.4em; }

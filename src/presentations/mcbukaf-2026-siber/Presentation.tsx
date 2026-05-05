@@ -11,6 +11,12 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "qrcode";
 import {
+  passwordEntropy,
+  crackTime,
+  strengthLabel,
+  isLeaked,
+} from "@/lib/passwordStrength";
+import {
   Volume2,
   VolumeX,
   ChevronLeft,
@@ -324,54 +330,80 @@ function MatrixRain({ density = 1 }: { density?: number }) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const parent = canvas.parentElement;
+    if (!parent) return;
     const chars =
       "アイウエオカキクケコサシスセソタチツテト0123456789ABCDEF<>/{}[];:$#@!";
-    const fontSize = 16;
-    let cols: number[] = [];
+    const fontSize = 18;
+    let cols: { y: number; speed: number }[] = [];
+
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const n = Math.floor((canvas.width / fontSize) * density);
-      cols = Array.from({ length: n }, () =>
-        Math.floor(Math.random() * -50),
+      const rect = parent.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(rect.width));
+      const h = Math.max(1, Math.floor(rect.height));
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const colCount = Math.max(
+        16,
+        Math.floor((w / fontSize) * Math.max(0.6, density)),
       );
+      cols = Array.from({ length: colCount }, () => ({
+        y: Math.random() * h,
+        speed: 0.6 + Math.random() * 1.2,
+      }));
     };
+
     resize();
-    window.addEventListener("resize", resize);
-    let frame = 0;
+    const ro = new ResizeObserver(resize);
+    ro.observe(parent);
+
     let raf = 0;
+    let frame = 0;
     const draw = () => {
       frame++;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
       if (frame % 2 === 0) {
-        ctx.fillStyle = "rgba(2, 5, 10, 0.085)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(2, 5, 10, 0.09)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.font = `bold ${fontSize}px ui-monospace, monospace`;
+        const xStep = w / cols.length;
         for (let i = 0; i < cols.length; i++) {
           const ch = chars[Math.floor(Math.random() * chars.length)];
-          const y = cols[i] * fontSize;
-          ctx.fillStyle = "rgba(0, 255, 136, 0.3)";
-          ctx.font = `bold ${fontSize}px ui-monospace, monospace`;
-          ctx.fillText(ch, i * fontSize, y);
-          ctx.fillStyle = "rgba(34, 211, 238, 0.06)";
+          const x = i * xStep;
+          const y = cols[i].y;
+          ctx.fillStyle = "rgba(0, 255, 136, 0.32)";
+          ctx.fillText(ch, x, y);
+          ctx.fillStyle = "rgba(34, 211, 238, 0.08)";
           ctx.fillText(
             chars[Math.floor(Math.random() * chars.length)],
-            i * fontSize,
+            x,
             y - fontSize * 2,
           );
-          if (y > canvas.height && Math.random() > 0.975) cols[i] = 0;
-          cols[i]++;
+          cols[i].y += fontSize * cols[i].speed;
+          if (cols[i].y > h + fontSize * 2 && Math.random() > 0.972) {
+            cols[i].y = -fontSize * (Math.random() * 8);
+            cols[i].speed = 0.6 + Math.random() * 1.2;
+          }
         }
       }
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
+
     return () => {
-      window.removeEventListener("resize", resize);
+      ro.disconnect();
       cancelAnimationFrame(raf);
     };
   }, [density]);
+
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none">
-      <canvas ref={ref} className="absolute inset-0 w-full h-full" />
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <canvas ref={ref} className="block" />
       <div className="absolute inset-0 mcb-hex" />
       <div className="absolute inset-0 mcb-scan" />
       <div className="absolute inset-0 mcb-vignette" />
@@ -616,114 +648,16 @@ function LivePoll({
 }
 
 /* ================================================================
-   PASSWORD CRACKER (interactive)
+   PASSWORD CRACKER (interactive — sahnede + telefonda QR)
    ================================================================ */
-const COMMON_LEAKED = new Set(
-  [
-    "123456",
-    "123456789",
-    "12345678",
-    "qwerty",
-    "password",
-    "111111",
-    "12345",
-    "abc123",
-    "iloveyou",
-    "1234567",
-    "1q2w3e4r",
-    "admin",
-    "letmein",
-    "welcome",
-    "monkey",
-    "1234",
-    "passw0rd",
-    "qwerty123",
-    "1q2w3e",
-    "ankara",
-    "ankara06",
-    "istanbul",
-    "istanbul34",
-    "galatasaray",
-    "fenerbahce",
-    "besiktas",
-    "trabzonspor",
-    "turkiye",
-    "turkey",
-    "şifre",
-    "sifre123",
-    "sifre1234",
-    "parola",
-    "parola123",
-    "merhaba",
-    "ataturk",
-    "atatürk1881",
-    "1881",
-    "1923",
-    "ali123",
-    "mehmet",
-    "ayse",
-    "ayşe",
-    "fatma",
-    "ahmet",
-    "qwerty1",
-    "123qwe",
-    "asdfgh",
-    "okul123",
-    "test123",
-    "deneme",
-  ].map((s) => s.toLowerCase()),
-);
-
-function passwordEntropy(pw: string): number {
-  if (!pw) return 0;
-  let space = 0;
-  if (/[a-z]/.test(pw)) space += 26;
-  if (/[A-Z]/.test(pw)) space += 26;
-  if (/[0-9]/.test(pw)) space += 10;
-  if (/[^A-Za-z0-9]/.test(pw)) space += 33;
-  if (space === 0) space = 26;
-  return Math.log2(space) * pw.length;
-}
-
-function crackTime(bits: number): string {
-  if (bits <= 0) return "anında";
-  const guesses = Math.pow(2, bits) / 2;
-  const rate = 1e11; // offline GPU
-  const sec = guesses / rate;
-  if (sec < 1) return "1 saniyeden kısa";
-  if (sec < 60) return `${sec.toFixed(0)} saniye`;
-  const min = sec / 60;
-  if (min < 60) return `${min.toFixed(0)} dakika`;
-  const hr = min / 60;
-  if (hr < 24) return `${hr.toFixed(0)} saat`;
-  const day = hr / 24;
-  if (day < 365) return `${day.toFixed(0)} gün`;
-  const yr = day / 365;
-  if (yr < 1e3) return `${yr.toFixed(0)} yıl`;
-  if (yr < 1e6) return `${(yr / 1e3).toFixed(1)} bin yıl`;
-  if (yr < 1e9) return `${(yr / 1e6).toFixed(1)} milyon yıl`;
-  if (yr < 1e12) return `${(yr / 1e9).toFixed(1)} milyar yıl`;
-  return "evrenin yaşından uzun";
-}
-
-function strengthLabel(bits: number): {
-  label: string;
-  color: string;
-  ring: string;
-} {
-  if (bits < 28) return { label: "ÇOK ZAYIF", color: "#f43f5e", ring: "#f43f5e" };
-  if (bits < 36) return { label: "ZAYIF", color: "#fb923c", ring: "#fb923c" };
-  if (bits < 60) return { label: "ORTA", color: "#fbbf24", ring: "#fbbf24" };
-  if (bits < 80) return { label: "İYİ", color: "#22d3ee", ring: "#22d3ee" };
-  return { label: "MÜKEMMEL", color: "#00ff88", ring: "#00ff88" };
-}
-
 function PasswordCracker({
   audio,
   isActive,
+  origin,
 }: {
   audio: AudioApi;
   isActive: boolean;
+  origin: string;
 }) {
   const [pw, setPw] = useState("");
   const [reveal, setReveal] = useState(false);
@@ -736,190 +670,214 @@ function PasswordCracker({
   const bits = useMemo(() => passwordEntropy(pw), [pw]);
   const strength = useMemo(() => strengthLabel(bits), [bits]);
   const time = useMemo(() => crackTime(bits), [bits]);
-  const isLeaked = useMemo(
-    () => pw.length > 0 && COMMON_LEAKED.has(pw.toLowerCase()),
-    [pw],
-  );
+  const leaked = useMemo(() => isLeaked(pw), [pw]);
   const meterPct = Math.min(100, (bits / 100) * 100);
 
   const onReveal = () => {
     setReveal(true);
-    if (isLeaked) audio.cue("alarm");
+    if (leaked) audio.cue("alarm");
     else if (bits >= 80) audio.cue("reveal");
     else audio.cue("stinger");
   };
 
+  const testUrl = `${origin}/mcbukaf/sifre-test`;
+
   return (
-    <div className="w-full max-w-5xl px-4">
-      <div className="mcb-mono text-[11px] tracking-[0.4em] text-emerald-400/80 mb-3">
-        ŞİFRE KIRMA SİMÜLATÖRÜ · CANLI
-      </div>
-      <h2 className="text-3xl sm:text-5xl font-bold mb-8 leading-tight text-white">
-        Şifreni yaz, gerçeği gör.
-      </h2>
-
-      <div className="relative">
-        <input
-          ref={inputRef}
-          type="text"
-          autoComplete="off"
-          spellCheck={false}
-          value={pw}
-          onChange={(e) => {
-            setPw(e.target.value);
-            setReveal(false);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") onReveal();
-          }}
-          placeholder="örn. ankara06"
-          className="w-full mcb-mono bg-zinc-950/80 border-2 border-zinc-800 focus:border-emerald-400 outline-none rounded-2xl px-6 py-5 text-2xl sm:text-4xl text-white placeholder-zinc-700 transition-colors"
-          style={{
-            boxShadow: pw
-              ? `0 0 30px ${strength.color}33, inset 0 0 20px ${strength.color}10`
-              : undefined,
-          }}
-        />
-        <button
-          onClick={onReveal}
-          disabled={!pw}
-          className="absolute right-3 top-1/2 -translate-y-1/2 px-4 py-2.5 rounded-xl bg-emerald-400 text-black font-semibold hover:bg-emerald-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors mcb-mono text-sm tracking-wider"
-        >
-          KIR →
-        </button>
-      </div>
-
-      <div className="grid sm:grid-cols-3 gap-4 mt-6">
-        <div className="rounded-xl border border-zinc-800 bg-black/40 p-5">
-          <div className="mcb-mono text-[10px] tracking-[0.3em] text-zinc-500 mb-2">
-            ENTROPİ
-          </div>
-          <div
-            className="mcb-mono text-3xl font-bold tabular-nums"
-            style={{ color: strength.color }}
-          >
-            {bits.toFixed(1)} <span className="text-base text-zinc-500">bit</span>
-          </div>
-          <div className="mt-3 h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ background: strength.color }}
-              initial={false}
-              animate={{ width: `${meterPct}%` }}
-              transition={{ type: "spring", stiffness: 120, damping: 18 }}
-            />
-          </div>
+    <div className="grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-start w-full max-w-[1600px] mx-auto text-left">
+      <div className="min-w-0">
+        <div className="mcb-mono mcb-tag text-emerald-400/85 mb-4">
+          ŞİFRE KIRMA SİMÜLATÖRÜ · CANLI
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-black/40 p-5">
-          <div className="mcb-mono text-[10px] tracking-[0.3em] text-zinc-500 mb-2">
-            KIRMA SÜRESİ (offline GPU)
-          </div>
-          <div
-            className="mcb-mono text-2xl font-bold leading-tight"
-            style={{ color: strength.color }}
-          >
-            {time}
-          </div>
-          <div className="mt-3 mcb-mono text-[10px] text-zinc-600">
-            ~10¹¹ tahmin / saniye
-          </div>
-        </div>
-        <div
-          className="rounded-xl border-2 p-5"
-          style={{
-            borderColor: strength.color,
-            background: `${strength.color}11`,
-          }}
-        >
-          <div className="mcb-mono text-[10px] tracking-[0.3em] text-zinc-500 mb-2">
-            DEĞERLENDİRME
-          </div>
-          <div
-            className="mcb-mono text-2xl font-black leading-tight"
-            style={{ color: strength.color }}
-          >
-            {strength.label}
-          </div>
-        </div>
-      </div>
+        <h2 className="mcb-h2 font-bold mb-8 text-white">
+          Şifreni yaz, gerçeği gör.
+        </h2>
 
-      <AnimatePresence>
-        {reveal && pw && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className={`mt-6 rounded-xl p-6 border-2 ${
-              isLeaked ? "mcb-stripes" : ""
-            }`}
+        <div className="relative">
+          <input
+            ref={inputRef}
+            type="text"
+            autoComplete="off"
+            spellCheck={false}
+            value={pw}
+            onChange={(e) => {
+              setPw(e.target.value);
+              setReveal(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onReveal();
+            }}
+            placeholder="örn. ankara06"
+            className="w-full mcb-mono bg-zinc-950/80 border-2 border-zinc-800 focus:border-emerald-400 outline-none rounded-2xl px-7 py-7 text-white placeholder-zinc-700 transition-colors"
             style={{
-              borderColor: isLeaked ? "#f43f5e" : strength.color,
-              background: isLeaked
-                ? "rgba(244,63,94,0.18)"
-                : "rgba(0,255,136,0.06)",
+              fontSize: "clamp(2rem, 4.5vw, 4.5rem)",
+              boxShadow: pw
+                ? `0 0 35px ${strength.color}33, inset 0 0 22px ${strength.color}10`
+                : undefined,
+            }}
+          />
+          <button
+            onClick={onReveal}
+            disabled={!pw}
+            className="absolute right-4 top-1/2 -translate-y-1/2 px-5 py-3 rounded-xl bg-emerald-400 text-black font-semibold hover:bg-emerald-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors mcb-mono mcb-meta tracking-wider"
+          >
+            KIR →
+          </button>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-4 mt-7">
+          <div className="rounded-xl border border-zinc-800 bg-black/40 p-6">
+            <div className="mcb-mono mcb-tag text-zinc-500 mb-3">ENTROPİ</div>
+            <div
+              className="mcb-mono mcb-h3 font-bold tabular-nums"
+              style={{ color: strength.color }}
+            >
+              {bits.toFixed(1)}{" "}
+              <span className="text-zinc-500" style={{ fontSize: "0.45em" }}>
+                bit
+              </span>
+            </div>
+            <div className="mt-4 h-2 bg-zinc-900 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: strength.color }}
+                initial={false}
+                animate={{ width: `${meterPct}%` }}
+                transition={{ type: "spring", stiffness: 120, damping: 18 }}
+              />
+            </div>
+          </div>
+          <div className="rounded-xl border border-zinc-800 bg-black/40 p-6">
+            <div className="mcb-mono mcb-tag text-zinc-500 mb-3">
+              KIRMA SÜRESİ
+            </div>
+            <div
+              className="mcb-mono mcb-h3 font-bold leading-tight"
+              style={{ color: strength.color }}
+            >
+              {pw ? time : "—"}
+            </div>
+            <div className="mt-3 mcb-mono mcb-meta text-zinc-600">
+              offline GPU · ~10¹¹/sn
+            </div>
+          </div>
+          <div
+            className="rounded-xl border-2 p-6"
+            style={{
+              borderColor: strength.color,
+              background: `${strength.color}11`,
             }}
           >
-            {isLeaked ? (
-              <div className="flex items-start gap-4">
-                <Skull className="w-12 h-12 text-rose-400 shrink-0" />
-                <div>
-                  <div className="mcb-mono text-xs tracking-[0.3em] text-rose-400 mb-1">
-                    PWNED · LEAK DB
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-rose-100 mb-2">
-                    Bu şifre milyonlarca sızıntıda var.
-                  </div>
-                  <p className="text-rose-200/80">
-                    Saldırgan deneme bile yapmadan listesinde buldu. Hesabın
-                    halihazırda risk altında.
-                  </p>
-                </div>
-              </div>
-            ) : bits >= 80 ? (
-              <div className="flex items-start gap-4">
-                <ShieldCheck
-                  className="w-12 h-12 shrink-0"
-                  style={{ color: strength.color }}
-                />
-                <div>
-                  <div
-                    className="mcb-mono text-xs tracking-[0.3em] mb-1"
-                    style={{ color: strength.color }}
-                  >
-                    SAĞLAM
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-emerald-100">
-                    Bu şifre saldırganı kıracak makineyi beklemekten yorar.
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-start gap-4">
-                <AlertTriangle
-                  className="w-12 h-12 shrink-0"
-                  style={{ color: strength.color }}
-                />
-                <div>
-                  <div
-                    className="mcb-mono text-xs tracking-[0.3em] mb-1"
-                    style={{ color: strength.color }}
-                  >
-                    YETERSİZ
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-white">
-                    Modern bir GPU bunu “{time}”da kırar.
-                  </div>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="mcb-mono mcb-tag text-zinc-500 mb-3">
+              DEĞERLENDİRME
+            </div>
+            <div
+              className="mcb-mono mcb-h3 font-black leading-tight"
+              style={{ color: strength.color }}
+            >
+              {strength.label}
+            </div>
+          </div>
+        </div>
 
-      <p className="mt-6 mcb-mono text-xs text-zinc-600">
-        Not: Bu input hiçbir yere gönderilmez. Tüm hesap tamamen tarayıcında
-        çalışır.
-      </p>
+        <AnimatePresence>
+          {reveal && pw && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className={`mt-7 rounded-2xl p-7 border-2 ${
+                leaked ? "mcb-stripes" : ""
+              }`}
+              style={{
+                borderColor: leaked ? "#f43f5e" : strength.color,
+                background: leaked
+                  ? "rgba(244,63,94,0.18)"
+                  : "rgba(0,255,136,0.06)",
+              }}
+            >
+              {leaked ? (
+                <div className="flex items-start gap-5">
+                  <Skull
+                    className="text-rose-400 shrink-0"
+                    style={{ width: "clamp(3rem,5vw,5rem)", height: "clamp(3rem,5vw,5rem)" }}
+                  />
+                  <div>
+                    <div className="mcb-mono mcb-tag text-rose-400 mb-2">
+                      PWNED · LEAK DB
+                    </div>
+                    <div className="mcb-h3 font-bold text-rose-100 mb-2">
+                      Bu şifre milyonlarca sızıntıda var.
+                    </div>
+                    <p className="mcb-body text-rose-200/85">
+                      Saldırgan deneme yapmadan listesinde buldu.
+                    </p>
+                  </div>
+                </div>
+              ) : bits >= 80 ? (
+                <div className="flex items-start gap-5">
+                  <ShieldCheck
+                    className="shrink-0"
+                    style={{
+                      color: strength.color,
+                      width: "clamp(3rem,5vw,5rem)",
+                      height: "clamp(3rem,5vw,5rem)",
+                    }}
+                  />
+                  <div>
+                    <div
+                      className="mcb-mono mcb-tag mb-2"
+                      style={{ color: strength.color }}
+                    >
+                      SAĞLAM
+                    </div>
+                    <div className="mcb-h3 font-bold text-emerald-100">
+                      Bu şifre saldırganı yorar.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start gap-5">
+                  <AlertTriangle
+                    className="shrink-0"
+                    style={{
+                      color: strength.color,
+                      width: "clamp(3rem,5vw,5rem)",
+                      height: "clamp(3rem,5vw,5rem)",
+                    }}
+                  />
+                  <div>
+                    <div
+                      className="mcb-mono mcb-tag mb-2"
+                      style={{ color: strength.color }}
+                    >
+                      YETERSİZ
+                    </div>
+                    <div className="mcb-h3 font-bold text-white">
+                      Modern bir GPU bunu “{time}”da kırar.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <p className="mt-5 mcb-mono mcb-meta text-zinc-600">
+          Not: Hiçbir yere gönderilmez — tamamen tarayıcında çalışır.
+        </p>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 shrink-0">
+        <div className="mcb-mono mcb-tag text-emerald-400/85 text-center">
+          KENDİ ŞİFRENİ TELEFONDA TEST ET
+        </div>
+        <QR url={testUrl} size={260} />
+        <div className="text-center">
+          <div className="mcb-mono mcb-meta text-emerald-400/90 break-all max-w-[260px]">
+            /mcbukaf/sifre-test
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -970,14 +928,18 @@ function SectionTitle({
   title: string;
   subtitle: string;
   color?: string;
-  Icon: React.ComponentType<{ className?: string }>;
+  Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 }) {
   return (
     <Centered>
-      <div className="absolute inset-0 z-0 mcb-ring pointer-events-none">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[640px] h-[640px] rounded-full border-2"
-          style={{ borderColor: `${color}22` }}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 mcb-ring"
+          style={{
+            borderColor: `${color}25`,
+            width: "min(80vmin, 1100px)",
+            height: "min(80vmin, 1100px)",
+          }}
         />
       </div>
       <div className="relative z-10 flex flex-col items-center">
@@ -985,17 +947,24 @@ function SectionTitle({
           initial={{ scale: 0, rotate: -90 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", stiffness: 140, damping: 14 }}
-          className="mb-7 p-7 rounded-2xl"
+          className="mb-9 rounded-3xl"
           style={{
             background: `${color}15`,
             border: `1px solid ${color}55`,
-            boxShadow: `0 0 60px ${color}30`,
+            boxShadow: `0 0 70px ${color}33`,
+            padding: "clamp(1.25rem, 2vw, 2.25rem)",
           }}
         >
-          <Icon className="w-16 h-16" />
+          <Icon
+            style={{
+              width: "clamp(4rem, 7vw, 9rem)",
+              height: "clamp(4rem, 7vw, 9rem)",
+              color,
+            }}
+          />
         </motion.div>
         <div
-          className="mcb-mono text-sm tracking-[0.6em] mb-4 opacity-80"
+          className="mcb-mono mcb-tag mb-5 opacity-85"
           style={{ color }}
         >
           BÖLÜM {number}
@@ -1004,10 +973,10 @@ function SectionTitle({
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-5xl sm:text-7xl font-black tracking-tight"
+          className="mcb-h1 font-black tracking-tight"
           style={{
             color,
-            textShadow: `0 0 25px ${color}55, 0 0 80px ${color}22`,
+            textShadow: `0 0 30px ${color}66, 0 0 100px ${color}22`,
           }}
         >
           {title}
@@ -1016,17 +985,18 @@ function SectionTitle({
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ delay: 0.5, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="h-[3px] w-72 my-7 rounded-full"
+          className="h-[4px] my-9 rounded-full"
           style={{
+            width: "min(40vw, 640px)",
             background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
-            boxShadow: `0 0 18px ${color}66`,
+            boxShadow: `0 0 22px ${color}88`,
           }}
         />
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-2xl sm:text-3xl text-zinc-300 max-w-3xl"
+          className="mcb-lead text-zinc-200 max-w-[90vw]"
         >
           {subtitle}
         </motion.p>
@@ -1067,13 +1037,13 @@ function StatNumber({
       className="text-center"
     >
       <div
-        className="mcb-mono text-7xl sm:text-9xl font-black mcb-stat-shadow tabular-nums"
+        className="mcb-mono mcb-stat font-black mcb-stat-shadow tabular-nums"
         style={{ color }}
       >
         {formatted}
-        <span className="text-3xl sm:text-5xl ml-2 opacity-70">{unit}</span>
+        <span className="mcb-stat-unit ml-3 opacity-70">{unit}</span>
       </div>
-      <p className="text-lg sm:text-2xl text-zinc-300 max-w-[280px] mx-auto mt-3">
+      <p className="mcb-body text-zinc-200 max-w-[16ch] mx-auto mt-5">
         {label}
       </p>
     </motion.div>
@@ -1128,13 +1098,11 @@ function MockSMS({
   return (
     <div className="max-w-md w-full">
       <div className="rounded-2xl bg-zinc-900 border border-zinc-700 overflow-hidden shadow-2xl">
-        <div className="bg-zinc-800 px-4 py-3 border-b border-zinc-700">
-          <div className="text-zinc-300 text-sm">{from}</div>
-          <div className="text-zinc-500 text-xs mcb-mono">
-            şimdi · SMS
-          </div>
+        <div className="bg-zinc-800 px-5 py-4 border-b border-zinc-700">
+          <div className="text-zinc-300 mcb-meta">{from}</div>
+          <div className="text-zinc-500 mcb-meta mcb-mono">şimdi · SMS</div>
         </div>
-        <div className="p-4 text-zinc-100 text-base leading-relaxed">
+        <div className="p-6 text-zinc-100 mcb-lead leading-relaxed">
           {rendered}
         </div>
       </div>
@@ -1148,13 +1116,13 @@ function MockSMS({
 function ColdOpen({ isActive }: { isActive: boolean }) {
   const lines = useMemo(
     () => [
-      "$ ./session --start mcbukaf-2026",
-      "[OK] Boot sequence  ............................. PASS",
-      "[OK] Loading: kullanici_zafiyetleri.module       OK",
-      "[!]  WARNING: 1.2B credentials detected on dark web.",
-      "[OK] Initializing audience.exe ................... OK",
+      "$ ./baglan --etkinlik mcbukaf-2026",
+      "[TAMAM] Sistem açılıyor ............................ HAZIR",
+      "[TAMAM] Modül yükleniyor: son_kullanıcı_zafiyetleri  HAZIR",
+      "[ UYARI ] 1.2 milyar parola karanlık ağda bulundu.",
+      "[TAMAM] Salon dinleyici listesi yükleniyor .......... HAZIR",
       "",
-      "> Do you trust your password?",
+      "> Şifrene gerçekten güveniyor musun?",
       "",
     ],
     [],
@@ -1163,19 +1131,19 @@ function ColdOpen({ isActive }: { isActive: boolean }) {
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden">
-      <MatrixRain density={0.5} />
+      <MatrixRain density={0.6} />
       <div className="absolute inset-0 flex items-center justify-center px-6">
-        <pre className="mcb-mono text-emerald-400 text-base sm:text-2xl leading-relaxed max-w-4xl whitespace-pre-wrap">
+        <pre className="mcb-mono text-emerald-400 mcb-body max-w-[90vw] whitespace-pre-wrap">
           {out.map((l, i) => (
             <div
               key={i}
               className={
-                l.startsWith("[!]")
+                l.startsWith("[ UYARI ]")
                   ? "text-rose-400"
-                  : l.startsWith("[OK]")
+                  : l.startsWith("[TAMAM]")
                     ? "text-emerald-300"
                     : l.startsWith(">")
-                      ? "text-cyan-300 text-2xl sm:text-4xl mt-4"
+                      ? "text-cyan-300 mcb-h2 mt-6"
                       : ""
               }
             >
@@ -1186,7 +1154,7 @@ function ColdOpen({ isActive }: { isActive: boolean }) {
             </div>
           ))}
           {done && (
-            <span className="text-cyan-300 text-2xl sm:text-4xl mcb-cursor" />
+            <span className="text-cyan-300 mcb-h2 mcb-cursor" />
           )}
         </pre>
       </div>
@@ -1197,7 +1165,7 @@ function ColdOpen({ isActive }: { isActive: boolean }) {
 function TitleSlide() {
   return (
     <div className="relative w-full h-full">
-      <MatrixRain density={0.7} />
+      <MatrixRain density={0.85} />
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
@@ -1208,14 +1176,16 @@ function TitleSlide() {
           <div
             className="absolute inset-0 rounded-full mcb-ring"
             style={{
-              boxShadow: "0 0 80px 12px rgba(0,255,136,0.3)",
+              boxShadow: "0 0 100px 20px rgba(0,255,136,0.32)",
             }}
           />
           <ShieldAlert
-            className="w-28 h-28 sm:w-36 sm:h-36 relative"
+            className="relative"
             style={{
+              width: "clamp(7rem, 13vw, 16rem)",
+              height: "clamp(7rem, 13vw, 16rem)",
               color: "#00ff88",
-              filter: "drop-shadow(0 0 20px rgba(0,255,136,0.6))",
+              filter: "drop-shadow(0 0 24px rgba(0,255,136,0.6))",
             }}
           />
         </motion.div>
@@ -1223,7 +1193,7 @@ function TitleSlide() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="mcb-mono text-sm sm:text-base tracking-[0.6em] text-emerald-400/80 mb-4"
+          className="mcb-mono mcb-tag text-emerald-400/80 mb-5"
         >
           MCBÜKAF · 2026
         </motion.div>
@@ -1231,10 +1201,10 @@ function TitleSlide() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.7 }}
-          className="text-5xl sm:text-8xl font-black tracking-tight text-white mb-3"
+          className="mcb-mega font-black text-white mb-5"
           style={{
             textShadow:
-              "0 0 30px rgba(0,255,136,0.5), 0 0 80px rgba(0,255,136,0.2)",
+              "0 0 40px rgba(0,255,136,0.5), 0 0 100px rgba(0,255,136,0.25)",
           }}
         >
           <Glitch text="İNTERAKTİF SİBER GÜVENLİK" />
@@ -1243,7 +1213,7 @@ function TitleSlide() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="text-2xl sm:text-4xl text-zinc-300 max-w-4xl mb-10"
+          className="mcb-h3 text-zinc-200 max-w-[90vw] mb-12 font-light"
         >
           Son Kullanıcı Zafiyetleri ve Sosyal Mühendislik
         </motion.p>
@@ -1251,7 +1221,7 @@ function TitleSlide() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.0 }}
-          className="text-xl sm:text-2xl text-zinc-200"
+          className="mcb-lead text-zinc-100"
         >
           Öğr. Gör.{" "}
           <span className="font-bold text-white">Osman Can ÇETLENBİK</span>
@@ -1260,7 +1230,7 @@ function TitleSlide() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
-          className="mt-3 mcb-mono text-sm tracking-widest text-zinc-500"
+          className="mt-5 mcb-mono mcb-meta tracking-widest text-zinc-400"
         >
           Manisa CBÜ · Ümit Doğay Arınç KM Amfi 1 · 13 Mayıs 2026
         </motion.div>
@@ -1273,23 +1243,27 @@ function QROnboarding({ origin }: { origin: string }) {
   const url = `${origin}/poll/mcb-1-attack-surface`;
   return (
     <div className="relative w-full h-full">
-      <MatrixRain density={0.4} />
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center gap-6">
-        <Wifi className="w-12 h-12 text-emerald-400" />
-        <h2 className="text-4xl sm:text-6xl font-black text-white">
-          Telefonunu çıkar.
-        </h2>
-        <p className="text-xl sm:text-2xl text-zinc-300 max-w-2xl">
-          Bu QR'ı tara → bir butona bas → cevabın 2 saniyede ekrana düşsün.
+      <MatrixRain density={0.55} />
+      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center gap-7">
+        <Wifi
+          className="text-emerald-400"
+          style={{
+            width: "clamp(3.5rem, 5vw, 5.5rem)",
+            height: "clamp(3.5rem, 5vw, 5.5rem)",
+          }}
+        />
+        <h2 className="mcb-h1 font-black text-white">Telefonunu çıkar.</h2>
+        <p className="mcb-lead text-zinc-200 max-w-[80vw]">
+          QR'ı tara · butona bas · cevabın 2 saniyede ekrana düşsün.
         </p>
-        <div className="my-6">
-          <QR url={url} size={300} />
+        <div className="my-4">
+          <QR url={url} size={420} />
         </div>
-        <div className="mcb-mono text-emerald-400 text-base sm:text-lg tracking-widest">
+        <div className="mcb-mono mcb-h3 text-emerald-400 tracking-widest break-all">
           {url.replace(/^https?:\/\//, "")}
         </div>
-        <p className="mcb-mono text-zinc-500 text-xs tracking-widest mt-2">
-          Wi-Fi ya da mobil veri yeterli. Tek dokunuş.
+        <p className="mcb-mono mcb-meta text-zinc-500 tracking-widest mt-2">
+          Wi-Fi ya da mobil veri yeterli.
         </p>
       </div>
     </div>
@@ -1302,18 +1276,18 @@ function HookStat({ isActive }: { isActive: boolean }) {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mcb-mono text-xs tracking-[0.5em] text-rose-400 mb-3"
+        className="mcb-mono mcb-tag text-rose-400 mb-4"
       >
         SON 24 SAATTE · KÜRESEL
       </motion.div>
-      <h2 className="text-3xl sm:text-5xl text-white mb-16 max-w-3xl">
+      <h2 className="mcb-h2 text-white mb-14 max-w-[80vw]">
         Bu konuşmayı dinlerken bile saldırı durmuyor.
       </h2>
-      <div className="flex flex-wrap items-start justify-center gap-12 sm:gap-20">
+      <div className="flex flex-wrap items-start justify-center gap-12 sm:gap-24">
         <StatNumber
           value={3.4}
           unit="mlyr"
-          label="günlük oltalama (phishing) e-postası"
+          label="günlük oltalama e-postası"
           color="#f43f5e"
           delay={0.2}
           active={isActive}
@@ -1321,7 +1295,7 @@ function HookStat({ isActive }: { isActive: boolean }) {
         <StatNumber
           value={39}
           unit="sn"
-          label="bir saldırı arasındaki ortalama süre"
+          label="iki saldırı arası süre"
           color="#fbbf24"
           delay={0.5}
           active={isActive}
@@ -1329,7 +1303,7 @@ function HookStat({ isActive }: { isActive: boolean }) {
         <StatNumber
           value={4.88}
           unit="M$"
-          label="ortalama veri ihlali maliyeti (IBM 2024)"
+          label="ortalama veri ihlali maliyeti"
           color="#22d3ee"
           delay={0.8}
           active={isActive}
@@ -1339,9 +1313,9 @@ function HookStat({ isActive }: { isActive: boolean }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: isActive ? 1 : 0 }}
         transition={{ delay: 2.0 }}
-        className="mt-14 text-base text-zinc-500 mcb-mono"
+        className="mt-16 mcb-meta text-zinc-500 mcb-mono"
       >
-        kaynaklar: IBM Cost of a Data Breach 2024, Maryland Univ., Statista
+        IBM Cost of a Data Breach 2024 · Maryland Univ. · Statista
       </motion.p>
     </Centered>
   );
@@ -1357,10 +1331,11 @@ function MitnickQuote() {
         className="mb-10"
       >
         <Brain
-          className="w-20 h-20"
           style={{
+            width: "clamp(5rem, 8vw, 9rem)",
+            height: "clamp(5rem, 8vw, 9rem)",
             color: "#22d3ee",
-            filter: "drop-shadow(0 0 20px rgba(34,211,238,0.6))",
+            filter: "drop-shadow(0 0 24px rgba(34,211,238,0.6))",
           }}
         />
       </motion.div>
@@ -1368,7 +1343,7 @@ function MitnickQuote() {
         initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         transition={{ delay: 0.3, duration: 0.7 }}
-        className="text-4xl sm:text-6xl font-light italic text-zinc-100 max-w-5xl leading-relaxed"
+        className="mcb-h1 font-light italic text-zinc-100 max-w-[85vw] leading-tight"
       >
         “Sosyal mühendislik, dünyanın en güvenli sistemini bile bypass eder.
         Çünkü insan değişmez.”
@@ -1377,7 +1352,7 @@ function MitnickQuote() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.1 }}
-        className="mt-12 text-2xl text-zinc-400 mcb-mono tracking-widest"
+        className="mt-12 mcb-lead text-zinc-400 mcb-mono tracking-widest"
       >
         — Kevin Mitnick
       </motion.p>
@@ -1407,15 +1382,15 @@ function RealStory({ isActive }: { isActive: boolean }) {
   const { out, done } = useTypewriter(lines, 24, isActive);
   return (
     <div className="relative w-full h-full">
-      <MatrixRain density={0.3} />
+      <MatrixRain density={0.4} />
       <div className="relative z-10 flex items-center justify-center h-full px-6">
-        <pre className="mcb-mono text-2xl sm:text-3xl text-zinc-100 max-w-4xl leading-relaxed whitespace-pre-wrap">
+        <pre className="mcb-mono mcb-h3 text-zinc-100 max-w-[88vw] leading-relaxed whitespace-pre-wrap">
           {out.map((l, i) => (
             <div
               key={i}
               className={
                 l.startsWith(">")
-                  ? "text-emerald-400 text-2xl sm:text-3xl mt-2"
+                  ? "text-emerald-400 mt-3"
                   : l.startsWith("  ‘")
                     ? "text-rose-300"
                     : ""
@@ -1464,39 +1439,39 @@ function SMSScene({
       </motion.div>
       {showHighlights ? (
         <div>
-          <div className="mcb-mono text-xs tracking-[0.4em] text-rose-400 mb-3">
+          <div className="mcb-mono mcb-tag text-rose-400 mb-4">
             KIRMIZI BAYRAKLAR
           </div>
-          <h2 className="text-3xl sm:text-5xl font-bold text-white mb-6">
-            3 işaret. Hepsini bir arada gördün mü? Kapat.
+          <h2 className="mcb-h2 font-bold text-white mb-7">
+            3 işaret. Üçü birden mi? Sil.
           </h2>
-          <ul className="space-y-3 text-zinc-200 text-lg">
-            <li className="flex items-start gap-3">
-              <span className="mcb-mono text-rose-400">01</span>
+          <ul className="space-y-5 text-zinc-100 mcb-body">
+            <li className="flex items-start gap-4">
+              <span className="mcb-mono text-rose-400 shrink-0">01</span>
               <span>
                 <strong>Sahte domain.</strong> Gerçek PTT:{" "}
                 <span className="mcb-mono text-emerald-400">ptt.gov.tr</span>.
-                Buradaki: <span className="mcb-mono text-rose-400">ptt-tr.co</span>{" "}
-                (10 saniyelik bir kayıt).
+                Buradaki:{" "}
+                <span className="mcb-mono text-rose-400">ptt-tr.co</span>.
               </span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="mcb-mono text-rose-400">02</span>
+            <li className="flex items-start gap-4">
+              <span className="mcb-mono text-rose-400 shrink-0">02</span>
               <span>
                 <strong>Aciliyet.</strong> “10 dakika” diyen her mesaj seni
                 düşünmeden tıklatmak ister.
               </span>
             </li>
-            <li className="flex items-start gap-3">
-              <span className="mcb-mono text-rose-400">03</span>
+            <li className="flex items-start gap-4">
+              <span className="mcb-mono text-rose-400 shrink-0">03</span>
               <span>
                 <strong>Kısa link / yabancı TLD.</strong> .co, .ru, .top, .xyz
                 — hızlı kayıt, ucuz, takip kolay değil.
               </span>
             </li>
           </ul>
-          <p className="mt-6 text-emerald-300 text-lg">
-            ✓ Doğrusu: Linke <em>tıklama</em>. Tarayıcıdan ptt.gov.tr'yi sen aç.
+          <p className="mt-7 mcb-h3 text-emerald-300">
+            ✓ Doğrusu: tıklama. Tarayıcıdan ptt.gov.tr'yi sen aç.
           </p>
         </div>
       ) : (
@@ -1524,34 +1499,32 @@ function PasswordStats({ isActive }: { isActive: boolean }) {
   ];
   return (
     <Centered>
-      <div className="mcb-mono text-xs tracking-[0.4em] text-rose-400 mb-3">
+      <div className="mcb-mono mcb-tag text-rose-400 mb-4">
         TÜRKİYE · SIZINTI ARŞİVLERİ
       </div>
-      <h2 className="text-3xl sm:text-5xl font-bold mb-10 text-white">
+      <h2 className="mcb-h2 font-bold mb-10 text-white">
         En çok kullanılan şifreler.
       </h2>
-      <div className="space-y-2 w-full max-w-3xl">
+      <div className="space-y-3 w-full max-w-[1100px]">
         {items.map((it, i) => (
           <motion.div
             key={it.pw}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: isActive ? 1 : 0, x: 0 }}
             transition={{ delay: 0.08 * i }}
-            className="grid grid-cols-[60px_1fr_auto] items-center gap-4 p-4 rounded-xl border border-zinc-800 bg-black/40"
+            className="grid grid-cols-[80px_1fr_auto] items-center gap-5 p-5 rounded-xl border border-zinc-800 bg-black/40"
           >
-            <span className="mcb-mono text-2xl text-zinc-600 tabular-nums">
+            <span className="mcb-mono mcb-h3 text-zinc-600 tabular-nums">
               #{it.rank}
             </span>
-            <span className="mcb-mono text-2xl sm:text-3xl text-rose-300">
-              {it.pw}
-            </span>
-            <span className="mcb-mono text-zinc-400 tabular-nums text-sm sm:text-base">
+            <span className="mcb-mono mcb-h3 text-rose-300">{it.pw}</span>
+            <span className="mcb-mono mcb-meta text-zinc-400 tabular-nums">
               {it.count} hesap
             </span>
           </motion.div>
         ))}
       </div>
-      <p className="mt-8 text-zinc-400 text-base sm:text-lg max-w-2xl">
+      <p className="mt-10 mcb-lead text-zinc-300 max-w-3xl">
         Hepsi 1 saniyeden kısa sürede kırılır.
       </p>
     </Centered>
@@ -1561,35 +1534,38 @@ function PasswordStats({ isActive }: { isActive: boolean }) {
 function PassphraseFormula() {
   return (
     <Centered>
-      <Sparkles className="w-14 h-14 text-emerald-400 mb-6" />
-      <h2 className="text-3xl sm:text-5xl font-bold mb-10 text-white">
-        Yeni formül: <span className="text-emerald-400">cümle</span>, kelime değil.
+      <Sparkles
+        className="text-emerald-400 mb-7"
+        style={{
+          width: "clamp(3.5rem, 5vw, 5.5rem)",
+          height: "clamp(3.5rem, 5vw, 5.5rem)",
+        }}
+      />
+      <h2 className="mcb-h2 font-bold mb-10 text-white max-w-[88vw]">
+        Yeni formül: <span className="text-emerald-400">cümle</span>, kelime
+        değil.
       </h2>
-      <div className="space-y-5 w-full max-w-3xl">
-        <div className="rounded-xl p-5 border border-rose-500/40 bg-rose-500/5 mcb-stripes">
-          <div className="mcb-mono text-xs tracking-[0.3em] text-rose-300 mb-2">
-            ESKİ
-          </div>
-          <div className="mcb-mono text-2xl text-rose-100">Ankara2024!</div>
-          <div className="mcb-mono text-xs text-rose-300 mt-2">
+      <div className="space-y-6 w-full max-w-[1100px]">
+        <div className="rounded-2xl p-7 border border-rose-500/40 bg-rose-500/5 mcb-stripes">
+          <div className="mcb-mono mcb-tag text-rose-300 mb-3">ESKİ</div>
+          <div className="mcb-mono mcb-h2 text-rose-100">Ankara2024!</div>
+          <div className="mcb-mono mcb-meta text-rose-300 mt-3">
             ~33 bit · saniyeler içinde kırılır
           </div>
         </div>
-        <div className="rounded-xl p-5 border border-emerald-400 bg-emerald-400/10">
-          <div className="mcb-mono text-xs tracking-[0.3em] text-emerald-300 mb-2">
-            YENİ
-          </div>
-          <div className="mcb-mono text-2xl sm:text-3xl text-emerald-100">
+        <div className="rounded-2xl p-7 border-2 border-emerald-400 bg-emerald-400/10">
+          <div className="mcb-mono mcb-tag text-emerald-300 mb-3">YENİ</div>
+          <div className="mcb-mono mcb-h2 text-emerald-100 break-all">
             kahve-yeşil-bisiklet-portal-2026
           </div>
-          <div className="mcb-mono text-xs text-emerald-300 mt-2">
+          <div className="mcb-mono mcb-meta text-emerald-300 mt-3">
             ~110 bit · trilyon yıl gerekir
           </div>
         </div>
       </div>
-      <p className="mt-8 text-zinc-300 text-lg max-w-2xl">
-        Hatırlanması kolay, kırılması imkansız. Bir şifre yöneticisi (Bitwarden,
-        1Password) bunu zaten senin için üretir.
+      <p className="mt-10 mcb-lead text-zinc-200 max-w-[80vw]">
+        Hatırlanması kolay, kırılması imkansız. Bitwarden / 1Password bunu
+        senin için üretir.
       </p>
     </Centered>
   );
@@ -1598,10 +1574,10 @@ function PassphraseFormula() {
 function TwoFAExplainer() {
   return (
     <Centered>
-      <h2 className="text-3xl sm:text-5xl font-bold mb-10 text-white max-w-4xl">
-        İki Adımlı Doğrulama (2FA): üç katmanlı kalkan.
+      <h2 className="mcb-h2 font-bold mb-12 text-white max-w-[90vw]">
+        İki Adımlı Doğrulama: üç katmanlı kalkan.
       </h2>
-      <div className="grid sm:grid-cols-3 gap-5 w-full max-w-5xl">
+      <div className="grid sm:grid-cols-3 gap-6 w-full max-w-[1400px]">
         {[
           {
             icon: Brain,
@@ -1627,19 +1603,29 @@ function TwoFAExplainer() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 * i }}
-            className="rounded-2xl p-6 border bg-black/40"
-            style={{ borderColor: `${c.color}55`, boxShadow: `0 0 30px ${c.color}22` }}
+            className="rounded-2xl p-8 border bg-black/40"
+            style={{
+              borderColor: `${c.color}55`,
+              boxShadow: `0 0 35px ${c.color}22`,
+            }}
           >
-            <c.icon className="w-12 h-12 mb-4" style={{ color: c.color }} />
-            <div className="mcb-mono text-xs tracking-[0.3em] mb-2" style={{ color: c.color }}>
+            <c.icon
+              className="mb-5"
+              style={{
+                width: "clamp(3.5rem, 5vw, 5rem)",
+                height: "clamp(3.5rem, 5vw, 5rem)",
+                color: c.color,
+              }}
+            />
+            <div className="mcb-mono mcb-tag mb-3" style={{ color: c.color }}>
               {c.title}
             </div>
-            <p className="text-xl text-zinc-200">{c.body}</p>
+            <p className="mcb-lead text-zinc-100 text-left">{c.body}</p>
           </motion.div>
         ))}
       </div>
-      <p className="mt-10 text-zinc-300 text-lg max-w-3xl">
-        Kombinasyon = saldırının %99'unu durdurur. Microsoft 2024 raporu.
+      <p className="mt-12 mcb-lead text-zinc-200 max-w-[80vw]">
+        Kombinasyon = saldırının %99'unu durdurur. Microsoft 2024.
       </p>
     </Centered>
   );
@@ -1663,7 +1649,7 @@ function PhishingTechniques() {
       label: "TYPOSQUAT",
       bad: "amaz0n.com",
       good: "amazon.com",
-      note: "0 yerine o, l yerine 1 vb.",
+      note: "0 yerine o, l yerine 1.",
     },
     {
       label: "COMBOSQUAT",
@@ -1673,38 +1659,173 @@ function PhishingTechniques() {
     },
   ];
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 sm:px-12 w-full">
-      <h2 className="text-3xl sm:text-5xl font-bold text-white mb-2 text-center">
-        Phishing'in 4 numarası.
-      </h2>
-      <p className="text-zinc-400 text-lg mb-10 text-center">
-        Hepsi seni bilinen bir şeye baktığına ikna eder.
+    <FullCenter>
+      <div className="text-center mb-2">
+        <h2 className="mcb-h2 font-bold text-white">Phishing'in 4 numarası.</h2>
+      </div>
+      <p className="mcb-lead text-zinc-300 mb-10 text-center max-w-[80vw]">
+        Hepsi seni tanıdık bir şeye baktığına ikna eder.
       </p>
-      <div className="grid md:grid-cols-2 gap-4 w-full max-w-5xl">
+      <div className="grid md:grid-cols-2 gap-5 w-full max-w-[1400px]">
         {items.map((it, i) => (
           <motion.div
             key={it.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * i }}
-            className="rounded-xl border border-zinc-800 bg-black/40 p-5"
+            className="rounded-2xl border border-zinc-800 bg-black/40 p-7"
           >
-            <div className="mcb-mono text-[10px] tracking-[0.3em] text-amber-400 mb-3">
+            <div className="mcb-mono mcb-tag text-amber-400 mb-4">
               {it.label}
             </div>
-            <div className="space-y-2">
-              <div className="mcb-mono text-xl sm:text-2xl text-rose-300 break-all">
+            <div className="space-y-3">
+              <div className="mcb-mono mcb-h3 text-rose-300 break-all">
                 ✗ {it.bad}
               </div>
-              <div className="mcb-mono text-xl sm:text-2xl text-emerald-300 break-all">
+              <div className="mcb-mono mcb-h3 text-emerald-300 break-all">
                 ✓ {it.good}
               </div>
             </div>
-            <p className="mt-3 text-sm text-zinc-400">{it.note}</p>
+            <p className="mt-4 mcb-body text-zinc-300">{it.note}</p>
           </motion.div>
         ))}
       </div>
-    </div>
+    </FullCenter>
+  );
+}
+
+function AcademicScams() {
+  const cases = [
+    {
+      tag: "SAHTE KONFERANS",
+      title: "Barcelona'da bir hayal",
+      body: "Konferans daveti gelir, kayıt parası alınır, otel rezerve edilmiş gibi yapılır. Salonun adresi bile yoktur. SCOPUS taranıyor iddiası ile bilim insanı tuzağa düşürülür.",
+      defense: "Konferansı SCOPUS / WoS'tan elle teyit et. Profesyonel komite yoksa şüphe et.",
+    },
+    {
+      tag: "PREDATORY JOURNAL",
+      title: "‘48 saatte yayın’ vaadi",
+      body: "Açık erişim adı altında düşük kaliteli derginin saldırgan e-postası: hızlı kabul + 850 USD APC. CV'ne sahte bir parlak ekleme uğruna paranı alıp gider.",
+      defense: "Beall's list, DOAJ, Think.Check.Submit. Editör kurulu kim? IF tutarlı mı?",
+    },
+    {
+      tag: "SPEAR PHISHING",
+      title: "Üniversite mail kopyası",
+      body: "Hedef sensin: ‘rektorluk-belge.tr’ alan adından ‘yıllık beyan formunuz’ konulu mail. ORCID + üniversite şifren tek formda istenir.",
+      defense: "Sıfır güven. Dosyayı/linki tarayıcıdan elle aç. Üst yazı + footer tutarsızlığını kontrol et.",
+    },
+  ];
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <div className="mcb-mono mcb-tag text-cyan-400/85 mb-3 text-center">
+          AKADEMİSYENE ÖZEL TUZAKLAR
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-10 text-center">
+          Senin diplomanı bilen saldırgan, senin tuzağını da kurar.
+        </h2>
+        <div className="grid md:grid-cols-3 gap-5">
+          {cases.map((c, i) => (
+            <motion.div
+              key={c.tag}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * i }}
+              className="rounded-2xl border border-cyan-400/35 bg-cyan-400/5 p-6"
+              style={{ boxShadow: "0 0 25px rgba(34,211,238,0.12)" }}
+            >
+              <div className="mcb-mono mcb-tag text-cyan-300 mb-3">
+                {c.tag}
+              </div>
+              <div className="mcb-h3 text-white font-bold leading-tight mb-3">
+                {c.title}
+              </div>
+              <p className="mcb-body text-zinc-200 mb-4">{c.body}</p>
+              <div className="mcb-mono mcb-tag text-emerald-300 mb-1">
+                SAVUNMA
+              </div>
+              <p className="mcb-body text-emerald-100/90">{c.defense}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </FullCenter>
+  );
+}
+
+function EverydayScams() {
+  const cases = [
+    {
+      emoji: "🚗",
+      tag: "SAZAN SARMALI",
+      title: "Araç alım-satımı",
+      body: "Para 'akrabaya' yatırıldı, ruhsat sahibinin hesabına değil — noterde ortalık karışır.",
+      defense: "Para, sadece ruhsat sahibi adına gider. Üçüncü kişi varsa dur.",
+    },
+    {
+      emoji: "🏠",
+      tag: "EMLAK",
+      title: "‘IBAN değişti’ mailı",
+      body: "Tapu için son ödeme arifesi. Sözde avukattan IBAN güncellemesi gelir. 1.5M TL sahte hesaba.",
+      defense: "Finansal değişiklik geldiğinde sesli teyit + avukat ofisinden geri arama.",
+    },
+    {
+      emoji: "📦",
+      tag: "KARGO SMS",
+      title: "24 TL ödeme, 24.500 TL onay",
+      body: "Kargocum.co.tr/abc123 → 24 TL gümrük der. SMS onayında tutar 24.500 TL'dir.",
+      defense: "Onay kodu mesajındaki tutarı her zaman oku. Linke tıklamak zaten hata.",
+    },
+    {
+      emoji: "📈",
+      tag: "DEEPFAKE YATIRIM",
+      title: "Ünlü ekonomistin reklamı",
+      body: "Sosyal medyada CNBC kalitesinde reklam. Ünlü ile ‘canlı röportaj’ (deepfake). Panel 7 günde paranı 2x yapıyor — 8. gün hesap kayboluyor.",
+      defense: "SPK lisansı + bağımsız platformdan alıntı kontrol et. Sürpriz dönüş yok.",
+    },
+  ];
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <div className="mcb-mono mcb-tag text-amber-400/85 mb-3 text-center">
+          GÜNDELİK · HERKESE OLABİLİR
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-10 text-center">
+          Tek bir kötü gün, tek bir tıklama.
+        </h2>
+        <div className="grid md:grid-cols-2 gap-5">
+          {cases.map((c, i) => (
+            <motion.div
+              key={c.tag}
+              initial={{ opacity: 0, x: i % 2 ? 20 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.08 * i }}
+              className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6 flex gap-5"
+            >
+              <div
+                className="shrink-0 flex items-center justify-center"
+                style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+              >
+                {c.emoji}
+              </div>
+              <div>
+                <div className="mcb-mono mcb-tag text-amber-300 mb-2">
+                  {c.tag}
+                </div>
+                <div className="mcb-h3 text-white font-bold leading-tight mb-2">
+                  {c.title}
+                </div>
+                <p className="mcb-body text-zinc-200 mb-3">{c.body}</p>
+                <div className="mcb-mono mcb-tag text-emerald-300 mb-1">
+                  SAVUNMA
+                </div>
+                <p className="mcb-body text-emerald-100/90">{c.defense}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </FullCenter>
   );
 }
 
@@ -1712,39 +1833,40 @@ function DeepfakeSlide() {
   return (
     <Centered>
       <Radio
-        className="w-16 h-16 text-rose-400 mb-6"
-        style={{ filter: "drop-shadow(0 0 20px rgba(244,63,94,0.6))" }}
+        className="text-rose-400 mb-6"
+        style={{
+          width: "clamp(4rem, 6vw, 6rem)",
+          height: "clamp(4rem, 6vw, 6rem)",
+          filter: "drop-shadow(0 0 25px rgba(244,63,94,0.6))",
+        }}
       />
-      <div className="mcb-mono text-xs tracking-[0.5em] text-rose-400 mb-3">
+      <div className="mcb-mono mcb-tag text-rose-400 mb-4">
         2024 · HONG KONG
       </div>
-      <h2 className="text-3xl sm:text-6xl font-black text-white max-w-5xl mb-6">
+      <h2 className="mcb-h1 font-black text-white max-w-[90vw] mb-7">
         Bir CFO'nun sesiyle{" "}
-        <span className="text-rose-400 mcb-stat-shadow">25 milyon $</span>{" "}
-        çalındı.
+        <span className="text-rose-400 mcb-stat-shadow">25M $</span> çalındı.
       </h2>
-      <p className="text-xl sm:text-2xl text-zinc-300 max-w-3xl mb-8">
-        Şirket çalışanı bir Zoom toplantısına katıldı. Karşısında üst yönetimden
-        7 kişi vardı. <strong>Hepsi deepfake'di.</strong>
+      <p className="mcb-lead text-zinc-200 max-w-[80vw] mb-10">
+        Çalışan, bir Zoom'a katıldı. Karşısında üst yönetimden 7 kişi vardı.{" "}
+        <strong>Hepsi deepfake'di.</strong>
       </p>
-      <div className="grid sm:grid-cols-3 gap-4 w-full max-w-4xl text-left">
-        <div className="rounded-xl border border-rose-400/40 bg-rose-500/5 p-5">
-          <div className="mcb-mono text-[10px] tracking-[0.3em] text-rose-300 mb-2">
+      <div className="grid sm:grid-cols-3 gap-5 w-full max-w-[1300px] text-left">
+        <div className="rounded-2xl border border-rose-400/40 bg-rose-500/5 p-7">
+          <div className="mcb-mono mcb-tag text-rose-300 mb-3">
             SES KLONLAMA
           </div>
-          <p className="text-zinc-200">3 saniyelik ses örneği yeterli.</p>
+          <p className="mcb-body text-zinc-100">3 sn ses örneği yeterli.</p>
         </div>
-        <div className="rounded-xl border border-rose-400/40 bg-rose-500/5 p-5">
-          <div className="mcb-mono text-[10px] tracking-[0.3em] text-rose-300 mb-2">
+        <div className="rounded-2xl border border-rose-400/40 bg-rose-500/5 p-7">
+          <div className="mcb-mono mcb-tag text-rose-300 mb-3">
             VİDEO DEEPFAKE
           </div>
-          <p className="text-zinc-200">Tek bir Instagram fotoğrafı yeter.</p>
+          <p className="mcb-body text-zinc-100">Tek bir Instagram fotoğrafı.</p>
         </div>
-        <div className="rounded-xl border border-emerald-400/40 bg-emerald-400/5 p-5">
-          <div className="mcb-mono text-[10px] tracking-[0.3em] text-emerald-300 mb-2">
-            SAVUNMA
-          </div>
-          <p className="text-zinc-200">
+        <div className="rounded-2xl border border-emerald-400/40 bg-emerald-400/5 p-7">
+          <div className="mcb-mono mcb-tag text-emerald-300 mb-3">SAVUNMA</div>
+          <p className="mcb-body text-zinc-100">
             Aile içi <strong>code word</strong>. Para isteyen aramada sor.
           </p>
         </div>
@@ -1756,18 +1878,24 @@ function DeepfakeSlide() {
 function AIAttacks2026() {
   return (
     <Centered>
-      <Zap className="w-16 h-16 text-amber-400 mb-6" />
-      <div className="mcb-mono text-xs tracking-[0.5em] text-amber-400 mb-3">
+      <Zap
+        className="text-amber-400 mb-6"
+        style={{
+          width: "clamp(4rem, 6vw, 6rem)",
+          height: "clamp(4rem, 6vw, 6rem)",
+        }}
+      />
+      <div className="mcb-mono mcb-tag text-amber-400 mb-4">
         2026 · YAPAY ZEKÂ DESTEKLİ SALDIRILAR
       </div>
-      <h2 className="text-3xl sm:text-5xl font-bold text-white max-w-4xl mb-10">
-        Saldırgan artık bir senaryoyu 2 saniyede üretiyor.
+      <h2 className="mcb-h2 font-bold text-white max-w-[88vw] mb-12">
+        Saldırgan bir senaryoyu artık 2 saniyede üretiyor.
       </h2>
-      <div className="grid sm:grid-cols-2 gap-4 w-full max-w-4xl">
+      <div className="grid sm:grid-cols-2 gap-5 w-full max-w-[1300px]">
         {[
           {
             title: "GPT-grade phishing",
-            body: "Türkçe yazım hatasız, yerel argo, tonlama doğru. 'Yabancı dil hatası' artık ipucu değil.",
+            body: "Türkçe yazım hatasız, yerel argo, doğru tonlama. 'Yabancı dil hatası' artık ipucu değil.",
           },
           {
             title: "Polimorfik malware",
@@ -1775,11 +1903,11 @@ function AIAttacks2026() {
           },
           {
             title: "Bot ağları",
-            body: "Sosyal medyada binlerce sahte profil, gerçek insan ritminde mesaj atar.",
+            body: "Binlerce sahte profil, gerçek insan ritminde mesaj atar.",
           },
           {
             title: "Sıfır gün exploit'i",
-            body: "Otomatik fuzzing → açık → istismar. Saatler içinde, insan yokken.",
+            body: "Otomatik fuzzing → açık → istismar. Saatler içinde.",
           },
         ].map((it, i) => (
           <motion.div
@@ -1787,12 +1915,12 @@ function AIAttacks2026() {
             initial={{ opacity: 0, x: i % 2 ? 20 : -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 * i }}
-            className="rounded-xl border border-amber-400/30 bg-amber-400/5 p-5 text-left"
+            className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-7 text-left"
           >
-            <div className="mcb-mono text-amber-300 text-sm tracking-wider mb-2">
+            <div className="mcb-mono mcb-tag text-amber-300 mb-3">
               {it.title}
             </div>
-            <p className="text-zinc-200">{it.body}</p>
+            <p className="mcb-lead text-zinc-100">{it.body}</p>
           </motion.div>
         ))}
       </div>
@@ -1804,19 +1932,23 @@ function QuizReveal() {
   return (
     <Centered>
       <CheckCircle2
-        className="w-14 h-14 text-emerald-400 mb-6"
-        style={{ filter: "drop-shadow(0 0 20px rgba(0,255,136,0.5))" }}
+        className="text-emerald-400 mb-6"
+        style={{
+          width: "clamp(3.5rem, 5vw, 5.5rem)",
+          height: "clamp(3.5rem, 5vw, 5.5rem)",
+          filter: "drop-shadow(0 0 25px rgba(0,255,136,0.6))",
+        }}
       />
-      <h2 className="text-3xl sm:text-5xl font-bold text-white mb-4">
+      <h2 className="mcb-h2 font-bold text-white mb-5 max-w-[90vw]">
         Doğru cevap:{" "}
         <span className="text-emerald-400 mcb-mono">
-          B · destek@goog1e-security.com
+          B · goog1e-security.com
         </span>
       </h2>
-      <p className="text-xl text-zinc-400 max-w-3xl mb-10">
+      <p className="mcb-lead text-zinc-300 max-w-[80vw] mb-10">
         L harfi yerine 1 (bir) rakamı. Klasik typosquat.
       </p>
-      <div className="grid sm:grid-cols-2 gap-3 w-full max-w-4xl text-left">
+      <div className="grid sm:grid-cols-2 gap-4 w-full max-w-[1300px] text-left">
         {[
           {
             ok: true,
@@ -1826,7 +1958,7 @@ function QuizReveal() {
           {
             ok: false,
             email: "destek@goog1e-security.com",
-            note: "1 = l. Üstelik 'security' kelimesi paniği tetikler.",
+            note: "1 = l. Üstelik 'security' paniği tetikler.",
           },
           {
             ok: true,
@@ -1841,20 +1973,20 @@ function QuizReveal() {
         ].map((it) => (
           <div
             key={it.email}
-            className={`rounded-xl border p-4 ${
+            className={`rounded-2xl border p-6 ${
               it.ok
                 ? "border-emerald-400/40 bg-emerald-400/5"
                 : "border-rose-400 bg-rose-500/15"
             }`}
           >
             <div
-              className={`mcb-mono text-base sm:text-lg break-all ${
+              className={`mcb-mono mcb-h3 break-all ${
                 it.ok ? "text-emerald-200" : "text-rose-200"
               }`}
             >
               {it.ok ? "✓" : "✗"} {it.email}
             </div>
-            <p className="text-sm text-zinc-400 mt-1">{it.note}</p>
+            <p className="mcb-body text-zinc-300 mt-2">{it.note}</p>
           </div>
         ))}
       </div>
@@ -1865,37 +1997,46 @@ function QuizReveal() {
 function Checklist({ isActive }: { isActive: boolean }) {
   const items = [
     "Tüm hesaplara 2FA aç (SMS değil, Authenticator app).",
-    "Şifre yöneticisi kur (Bitwarden ücretsiz, %5 dakika).",
+    "Şifre yöneticisi kur (Bitwarden ücretsiz, 5 dakika).",
     "Tekrar kullanılan şifreleri hemen değiştir.",
     "Telefondaki tanımadığın uygulamaları sil.",
-    "Aile için bir 'code word' belirle. Para istenen aramada sor.",
+    "Aile için bir 'code word' belirle.",
     "Sosyal medyada 'doğum tarihi, şehir, anne kızlık' bilgilerini gizle.",
     "haveibeenpwned.com'da e-postanı kontrol et.",
   ];
   return (
     <Centered>
-      <ShieldCheck className="w-14 h-14 text-emerald-400 mb-4" />
-      <div className="mcb-mono text-xs tracking-[0.5em] text-emerald-400 mb-3">
-        BU GECE
-      </div>
-      <h2 className="text-3xl sm:text-5xl font-bold text-white mb-10">
+      <ShieldCheck
+        className="text-emerald-400 mb-5"
+        style={{
+          width: "clamp(3.5rem, 5vw, 5.5rem)",
+          height: "clamp(3.5rem, 5vw, 5.5rem)",
+        }}
+      />
+      <div className="mcb-mono mcb-tag text-emerald-400 mb-4">BU GECE</div>
+      <h2 className="mcb-h2 font-bold text-white mb-10">
         7 dakika. 7 madde. 7 kat güvenli.
       </h2>
-      <div className="space-y-3 w-full max-w-3xl">
+      <div className="space-y-3 w-full max-w-[1200px]">
         {items.map((t, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: isActive ? 1 : 0, x: 0 }}
             transition={{ delay: 0.1 * i }}
-            className="flex items-center gap-4 p-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5"
+            className="flex items-center gap-5 p-5 rounded-xl border border-emerald-400/25 bg-emerald-400/5"
           >
-            <span className="w-9 h-9 rounded-md bg-emerald-400 text-black mcb-mono font-bold flex items-center justify-center shrink-0">
+            <span
+              className="rounded-lg bg-emerald-400 text-black mcb-mono font-black flex items-center justify-center shrink-0"
+              style={{
+                width: "clamp(2.5rem, 4vw, 4rem)",
+                height: "clamp(2.5rem, 4vw, 4rem)",
+                fontSize: "clamp(1.25rem, 2vw, 2rem)",
+              }}
+            >
               {i + 1}
             </span>
-            <span className="text-lg sm:text-xl text-zinc-100 text-left">
-              {t}
-            </span>
+            <span className="mcb-lead text-zinc-100 text-left">{t}</span>
           </motion.div>
         ))}
       </div>
@@ -1906,7 +2047,7 @@ function Checklist({ isActive }: { isActive: boolean }) {
 function Manifesto() {
   return (
     <div className="relative w-full h-full">
-      <MatrixRain density={0.5} />
+      <MatrixRain density={0.65} />
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
         <motion.div
           initial={{ scale: 0 }}
@@ -1914,24 +2055,30 @@ function Manifesto() {
           transition={{ type: "spring", stiffness: 120 }}
         >
           <ShieldCheck
-            className="w-24 h-24 text-emerald-400 mb-8"
-            style={{ filter: "drop-shadow(0 0 30px rgba(0,255,136,0.7))" }}
+            className="text-emerald-400 mb-10"
+            style={{
+              width: "clamp(6rem, 11vw, 13rem)",
+              height: "clamp(6rem, 11vw, 13rem)",
+              filter: "drop-shadow(0 0 35px rgba(0,255,136,0.7))",
+            }}
           />
         </motion.div>
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="text-4xl sm:text-7xl font-black text-white max-w-5xl leading-tight"
-          style={{ textShadow: "0 0 30px rgba(0,255,136,0.4)" }}
+          className="mcb-h1 font-black text-white max-w-[90vw] leading-tight"
+          style={{ textShadow: "0 0 35px rgba(0,255,136,0.4)" }}
         >
-          Saldırgan saatte bir saldırır. Sen bir ömür savunursun.
+          Saldırgan saatte bir saldırır.
+          <br />
+          Sen bir ömür savunursun.
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.0 }}
-          className="mt-10 text-2xl sm:text-4xl text-emerald-300"
+          className="mt-12 mcb-h2 text-emerald-300"
         >
           <Glitch text="Sen savunmanın ilk hattısın." />
         </motion.p>
@@ -1940,36 +2087,107 @@ function Manifesto() {
   );
 }
 
-function ThanksSlide({ origin }: { origin: string }) {
+function ThanksSlide() {
   return (
-    <Centered>
-      <div className="mcb-mono text-xs tracking-[0.5em] text-emerald-400 mb-3">
-        SORU & CEVAP
+    <div className="relative w-full h-full">
+      <MatrixRain density={0.45} />
+      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mcb-mono mcb-tag text-emerald-400/85 mb-5"
+        >
+          SORU · CEVAP · TEŞEKKÜR
+        </motion.div>
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.7 }}
+          className="mcb-h1 font-black text-white mb-5"
+          style={{
+            textShadow:
+              "0 0 30px rgba(0,255,136,0.4), 0 0 90px rgba(0,255,136,0.18)",
+          }}
+        >
+          Teşekkürler.
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mcb-lead text-zinc-200 max-w-[80vw] mb-12"
+        >
+          Sorularınız?
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-5xl"
+        >
+          {[
+            {
+              tag: "WEB",
+              handle: "osmancancetlenbik.com",
+              href: "https://osmancancetlenbik.com",
+            },
+            {
+              tag: "GITHUB",
+              handle: "@osmancancet",
+              href: "https://github.com/osmancancet",
+            },
+            {
+              tag: "LINKEDIN",
+              handle: "in/osmancancetlenbik",
+              href: "https://linkedin.com/in/osmancancetlenbik",
+            },
+          ].map((s, i) => (
+            <motion.div
+              key={s.tag}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 + i * 0.1 }}
+              className="rounded-2xl border border-emerald-400/30 bg-emerald-400/5 p-7"
+              style={{ boxShadow: "0 0 30px rgba(0,255,136,0.12)" }}
+            >
+              <div className="mcb-mono mcb-tag text-emerald-400/85 mb-3">
+                {s.tag}
+              </div>
+              <div className="mcb-mono mcb-h3 text-emerald-100 break-all">
+                {s.handle}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+          className="mt-12 mcb-lead text-zinc-100"
+        >
+          Öğr. Gör.{" "}
+          <span className="font-bold text-white">Osman Can ÇETLENBİK</span>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.3 }}
+          className="mt-3 mcb-mono mcb-meta tracking-widest text-zinc-500"
+        >
+          Manisa CBÜ · Teknik Bilimler MYO
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="mt-10 mcb-mono mcb-meta text-zinc-600 tracking-widest"
+        >
+          MCBÜKAF · 13.05.2026 · ÜMİT DOĞAY ARINÇ KM AMFİ 1
+        </motion.div>
       </div>
-      <h2 className="text-4xl sm:text-6xl font-black text-white mb-3">
-        Teşekkürler MCBÜKAF.
-      </h2>
-      <p className="text-xl sm:text-2xl text-zinc-400 mb-10">
-        Sorunu yaz, ekrana düşür.
-      </p>
-      <div className="flex flex-col sm:flex-row items-center gap-10 mb-10">
-        <QR url={`${origin}/iletisim`} size={220} />
-        <div className="text-left max-w-md">
-          <div className="mcb-mono text-emerald-300 text-base mb-2">
-            osmancancetlenbik.com
-          </div>
-          <div className="text-zinc-400 mb-1 mcb-mono text-sm">
-            Öğr. Gör. Osman Can Çetlenbik
-          </div>
-          <div className="text-zinc-400 mcb-mono text-sm">
-            Manisa CBÜ · Teknik Bilimler MYO
-          </div>
-        </div>
-      </div>
-      <div className="mcb-mono text-xs tracking-widest text-zinc-600">
-        MCBÜKAF · 13.05.2026 · ÜMİT DOĞAY ARINÇ KM AMFİ 1
-      </div>
-    </Centered>
+    </div>
   );
 }
 
@@ -2097,9 +2315,13 @@ const SLIDES: Slide[] = [
     id: "password-cracker",
     section: "BÖLÜM 04 · ŞİFRELER",
     audio: "soft",
-    render: ({ isActive, audio }) => (
+    render: ({ isActive, audio, origin }) => (
       <FullCenter>
-        <PasswordCracker isActive={isActive} audio={audio} />
+        <PasswordCracker
+          isActive={isActive}
+          audio={audio}
+          origin={origin}
+        />
       </FullCenter>
     ),
   },
@@ -2152,6 +2374,18 @@ const SLIDES: Slide[] = [
     render: () => <PhishingTechniques />,
   },
   {
+    id: "academic-scams",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    audio: "soft",
+    render: () => <AcademicScams />,
+  },
+  {
+    id: "everyday-scams",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    audio: "soft",
+    render: () => <EverydayScams />,
+  },
+  {
     id: "deepfake",
     section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "alarm",
@@ -2201,7 +2435,7 @@ const SLIDES: Slide[] = [
     id: "thanks",
     section: "KAPANIŞ",
     audio: "soft",
-    render: ({ origin }) => <ThanksSlide origin={origin} />,
+    render: () => <ThanksSlide />,
   },
 ];
 
@@ -2305,11 +2539,11 @@ export default function Presentation() {
       </div>
 
       {/* HUD top */}
-      <div className="absolute top-3 left-4 z-30 flex items-center gap-3 mcb-mono text-[11px] tracking-widest text-emerald-400/70">
+      <div className="absolute top-4 left-5 z-30 flex items-center gap-3 mcb-mono text-sm tracking-widest text-emerald-400/80">
         <span className="mcb-tick">●</span>
         <span>{cur.section}</span>
       </div>
-      <div className="absolute top-3 right-16 z-30 mcb-mono text-[11px] tracking-widest text-zinc-500 tabular-nums">
+      <div className="absolute top-4 right-20 z-30 mcb-mono text-sm tracking-widest text-zinc-400 tabular-nums">
         {String(idx + 1).padStart(2, "0")} / {SLIDES.length}
       </div>
 
@@ -2331,44 +2565,44 @@ export default function Presentation() {
       <button
         onClick={() => go(-1)}
         disabled={idx === 0}
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full border border-white/10 bg-black/40 backdrop-blur text-white/60 hover:text-white hover:border-emerald-400/40 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full border border-white/15 bg-black/50 backdrop-blur text-white/70 hover:text-white hover:border-emerald-400/50 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
         aria-label="Önceki"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-7 h-7" />
       </button>
       <button
         onClick={() => go(1)}
         disabled={idx === SLIDES.length - 1}
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full border border-white/10 bg-black/40 backdrop-blur text-white/60 hover:text-white hover:border-emerald-400/40 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full border border-white/15 bg-black/50 backdrop-blur text-white/70 hover:text-white hover:border-emerald-400/50 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
         aria-label="Sonraki"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-7 h-7" />
       </button>
 
       {/* mute */}
       <button
         onClick={audio.toggleMute}
-        className="absolute bottom-3 right-16 z-30 w-9 h-9 rounded-full border border-white/10 bg-black/40 backdrop-blur text-white/60 hover:text-white flex items-center justify-center transition-colors"
+        className="absolute bottom-4 right-20 z-30 w-11 h-11 rounded-full border border-white/15 bg-black/50 backdrop-blur text-white/70 hover:text-white flex items-center justify-center transition-colors"
         aria-label={audio.muted ? "Sesi aç" : "Sesi kapat"}
         title="(M)"
       >
         {audio.muted ? (
-          <VolumeX className="w-4 h-4" />
+          <VolumeX className="w-5 h-5" />
         ) : (
-          <Volume2 className="w-4 h-4" />
+          <Volume2 className="w-5 h-5" />
         )}
       </button>
 
       {/* slide nav dots */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex gap-1.5">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2">
         {SLIDES.map((s, i) => (
           <button
             key={s.id}
             onClick={() => setIdx(i)}
-            className={`h-1.5 rounded-full transition-all ${
+            className={`h-2 rounded-full transition-all ${
               i === idx
-                ? "bg-emerald-400 w-6"
-                : "bg-white/15 hover:bg-white/30 w-1.5"
+                ? "bg-emerald-400 w-8"
+                : "bg-white/20 hover:bg-white/40 w-2"
             }`}
             aria-label={`Slayt ${i + 1}`}
           />
@@ -2376,8 +2610,8 @@ export default function Presentation() {
       </div>
 
       {/* keyboard hint (low-key) */}
-      <div className="absolute bottom-3 left-4 z-30 mcb-mono text-[10px] tracking-widest text-zinc-600 hidden sm:block">
-        ← / → · M
+      <div className="absolute bottom-4 left-5 z-30 mcb-mono text-xs tracking-widest text-zinc-600 hidden sm:block">
+        ← · → · M
       </div>
     </div>
   );
