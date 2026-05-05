@@ -75,7 +75,7 @@ export default async function KonferanslarimPage() {
                     </p>
                   )}
                   <div className="flex items-center gap-2 flex-wrap">
-                    {c.slides && (
+                    {(c.slides || c.presentationSlug) && (
                       <Link
                         href={`/konferanslarim/${c.id}/sunum`}
                         className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-[var(--accent)] text-[var(--bg)] font-medium hover:bg-white transition-colors"
