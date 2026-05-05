@@ -84,7 +84,7 @@ function useAudioEngine(): AudioApi {
       if (!Ctx) return null;
       const ctx = new Ctx();
       const master = ctx.createGain();
-      master.gain.value = 0.6;
+      master.gain.value = 0.32;
       master.connect(ctx.destination);
       ctxRef.current = ctx;
       masterRef.current = master;
@@ -102,39 +102,40 @@ function useAudioEngine(): AudioApi {
     droneGain.gain.value = 0.0;
     droneGain.connect(out);
 
+    // soft, non-resonant low-pass for ambient pad feel
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
-    filter.frequency.value = 220;
-    filter.Q.value = 4;
+    filter.frequency.value = 320;
+    filter.Q.value = 0.6;
     filter.connect(droneGain);
 
     const o1 = ctx.createOscillator();
-    o1.type = "sawtooth";
+    o1.type = "sine";
     o1.frequency.value = 55;
     const o2 = ctx.createOscillator();
     o2.type = "sine";
     o2.frequency.value = 82.4;
     const og = ctx.createGain();
-    og.gain.value = 0.2;
+    og.gain.value = 0.5;
     o1.connect(og);
     o2.connect(og);
     og.connect(filter);
     o1.start();
     o2.start();
 
-    droneGain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 4);
+    droneGain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 6);
     droneRef.current = {
       stop: () => {
         const t = ctx.currentTime;
         droneGain.gain.cancelScheduledValues(t);
         droneGain.gain.setValueAtTime(droneGain.gain.value, t);
-        droneGain.gain.linearRampToValueAtTime(0.0001, t + 0.5);
+        droneGain.gain.linearRampToValueAtTime(0.0001, t + 0.6);
         setTimeout(() => {
           try {
             o1.stop();
             o2.stop();
           } catch {}
-        }, 700);
+        }, 800);
       },
     };
   }, [ensure]);
@@ -153,8 +154,8 @@ function useAudioEngine(): AudioApi {
     setMuted((m) => {
       const next = !m;
       masterRef.current!.gain.linearRampToValueAtTime(
-        next ? 0 : 0.6,
-        ctx.currentTime + 0.15,
+        next ? 0 : 0.32,
+        ctx.currentTime + 0.2,
       );
       return next;
     });
@@ -167,83 +168,64 @@ function useAudioEngine(): AudioApi {
       const out = masterRef.current;
       const t = ctx.currentTime;
 
-      const pingTone = (
+      // Smooth tone with slow attack, slow release — never clicks, never jolts
+      const tone = (
         freq: number,
         dur: number,
-        type: OscillatorType,
-        gain = 0.25,
+        gain = 0.08,
+        type: OscillatorType = "sine",
+        attack = 0.04,
       ) => {
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
         osc.type = type;
         osc.frequency.value = freq;
-        g.gain.value = 0;
+        // soft lowpass to take edge off
+        const lp = ctx.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.frequency.value = 4500;
+        lp.Q.value = 0.6;
         g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(gain, t + 0.01);
+        g.gain.linearRampToValueAtTime(gain, t + attack);
         g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-        osc.connect(g);
+        osc.connect(lp);
+        lp.connect(g);
         g.connect(out);
         osc.start(t);
-        osc.stop(t + dur + 0.05);
-      };
-
-      const noiseBurst = (dur: number, filterFreq = 1500, gain = 0.18) => {
-        const buf = ctx.createBuffer(
-          1,
-          ctx.sampleRate * dur,
-          ctx.sampleRate,
-        );
-        const data = buf.getChannelData(0);
-        for (let i = 0; i < data.length; i++)
-          data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
-        const src = ctx.createBufferSource();
-        src.buffer = buf;
-        const f = ctx.createBiquadFilter();
-        f.type = "bandpass";
-        f.frequency.value = filterFreq;
-        const g = ctx.createGain();
-        g.gain.value = gain;
-        src.connect(f);
-        f.connect(g);
-        g.connect(out);
-        src.start(t);
+        osc.stop(t + dur + 0.1);
       };
 
       switch (c) {
         case "boot":
-          pingTone(880, 0.18, "square", 0.2);
+          // soft "click+tail" feel
+          tone(660, 0.35, 0.06, "sine", 0.005);
+          tone(990, 0.5, 0.04, "sine", 0.015);
           break;
         case "soft":
-          pingTone(1320, 0.12, "sine", 0.18);
+          // gentle high-air ping
+          tone(1480, 0.4, 0.05, "sine", 0.02);
           break;
         case "stinger":
-          pingTone(120, 0.6, "sawtooth", 0.35);
-          pingTone(240, 0.6, "sawtooth", 0.18);
-          noiseBurst(0.6, 800);
+          // cinematic low impact, smooth — no harsh sawtooth
+          tone(82, 1.2, 0.1, "sine", 0.01);
+          tone(165, 1.0, 0.05, "sine", 0.04);
+          tone(247, 0.8, 0.03, "sine", 0.06);
           break;
         case "alarm":
-          for (let i = 0; i < 3; i++) {
-            const osc = ctx.createOscillator();
-            const g = ctx.createGain();
-            osc.type = "square";
-            osc.frequency.value = i % 2 === 0 ? 440 : 660;
-            g.gain.setValueAtTime(0, t + i * 0.18);
-            g.gain.linearRampToValueAtTime(0.22, t + i * 0.18 + 0.02);
-            g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.18 + 0.16);
-            osc.connect(g);
-            g.connect(out);
-            osc.start(t + i * 0.18);
-            osc.stop(t + i * 0.18 + 0.18);
-          }
+          // gentle two-tone alert; sine, not square
+          tone(523, 0.28, 0.07, "sine", 0.01);
+          setTimeout(() => tone(659, 0.32, 0.07, "sine", 0.01), 220);
           break;
         case "heartbeat":
-          pingTone(60, 0.18, "sine", 0.5);
-          setTimeout(() => pingTone(60, 0.22, "sine", 0.4), 220);
+          // soft pulse, low pad
+          tone(78, 0.5, 0.09, "sine", 0.02);
+          setTimeout(() => tone(78, 0.55, 0.07, "sine", 0.02), 380);
           break;
         case "reveal":
-          noiseBurst(0.4, 6000, 0.1);
-          pingTone(1760, 0.5, "triangle", 0.22);
-          pingTone(2640, 0.5, "triangle", 0.14);
+          // gentle bell + airy shimmer
+          tone(1320, 0.7, 0.05, "sine", 0.02);
+          tone(1760, 0.9, 0.035, "sine", 0.04);
+          tone(2640, 1.1, 0.02, "sine", 0.08);
           break;
       }
     },
@@ -724,19 +706,23 @@ function PasswordCracker({
           </button>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-4 mt-7">
-          <div className="rounded-xl border border-zinc-800 bg-black/40 p-6">
-            <div className="mcb-mono mcb-tag text-zinc-500 mb-3">ENTROPİ</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-7">
+          <div className="rounded-xl border border-zinc-800 bg-black/40 p-5 min-w-0">
+            <div className="mcb-mono mcb-tag text-zinc-500 mb-2">ENTROPİ</div>
             <div
-              className="mcb-mono mcb-h3 font-bold tabular-nums"
-              style={{ color: strength.color }}
+              className="mcb-mono font-bold tabular-nums"
+              style={{
+                color: strength.color,
+                fontSize: "clamp(1.75rem, 2.8vw, 2.75rem)",
+                lineHeight: 1.05,
+              }}
             >
               {bits.toFixed(1)}{" "}
-              <span className="text-zinc-500" style={{ fontSize: "0.45em" }}>
+              <span className="text-zinc-500" style={{ fontSize: "0.5em" }}>
                 bit
               </span>
             </div>
-            <div className="mt-4 h-2 bg-zinc-900 rounded-full overflow-hidden">
+            <div className="mt-3 h-2 bg-zinc-900 rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
                 style={{ background: strength.color }}
@@ -746,13 +732,17 @@ function PasswordCracker({
               />
             </div>
           </div>
-          <div className="rounded-xl border border-zinc-800 bg-black/40 p-6">
-            <div className="mcb-mono mcb-tag text-zinc-500 mb-3">
+          <div className="rounded-xl border border-zinc-800 bg-black/40 p-5 min-w-0">
+            <div className="mcb-mono mcb-tag text-zinc-500 mb-2">
               KIRMA SÜRESİ
             </div>
             <div
-              className="mcb-mono mcb-h3 font-bold leading-tight"
-              style={{ color: strength.color }}
+              className="mcb-mono font-bold break-words"
+              style={{
+                color: strength.color,
+                fontSize: "clamp(1.4rem, 2.2vw, 2.25rem)",
+                lineHeight: 1.1,
+              }}
             >
               {pw ? time : "—"}
             </div>
@@ -761,18 +751,22 @@ function PasswordCracker({
             </div>
           </div>
           <div
-            className="rounded-xl border-2 p-6"
+            className="rounded-xl border-2 p-5 min-w-0"
             style={{
               borderColor: strength.color,
               background: `${strength.color}11`,
             }}
           >
-            <div className="mcb-mono mcb-tag text-zinc-500 mb-3">
+            <div className="mcb-mono mcb-tag text-zinc-500 mb-2">
               DEĞERLENDİRME
             </div>
             <div
-              className="mcb-mono mcb-h3 font-black leading-tight"
-              style={{ color: strength.color }}
+              className="mcb-mono font-black"
+              style={{
+                color: strength.color,
+                fontSize: "clamp(1.75rem, 2.8vw, 2.75rem)",
+                lineHeight: 1.05,
+              }}
             >
               {strength.label}
             </div>
@@ -1694,6 +1688,267 @@ function PhishingTechniques() {
   );
 }
 
+function OsintSlide() {
+  const items = [
+    {
+      tag: "INSTAGRAM HİKAYE",
+      bad: "‘Hafta sonu Bodrum’ etiketi",
+      reveal: "Saldırgan: ‘ev boş, fiziksel hırsızlık fırsatı’",
+    },
+    {
+      tag: "BİNİŞ KARTI FOTOĞRAFI",
+      bad: "Bagaj etiketi + barkod",
+      reveal: "Rezervasyon kodu (PNR) → uçuşunu iptal eder, kart bilgini alır",
+    },
+    {
+      tag: "DOĞUM GÜNÜ KUTLAMASI",
+      bad: "Etiketleyen herkes + tam tarih",
+      reveal: "Şifre tahmini, kimlik soruları (anne kızlık), sahte arama",
+    },
+    {
+      tag: "LINKEDIN KARİYER",
+      bad: "Şirket + departman + yönetici adı",
+      reveal: "Spear phishing için kusursuz şablon",
+    },
+    {
+      tag: "GOOGLE STREET VIEW",
+      bad: "Adresini paylaşıyorsun mu? Aslında paylaşıyorsun.",
+      reveal: "Kapı şifresine kadar gözlemlenebilir",
+    },
+    {
+      tag: "STRAVA / KOŞU",
+      bad: "Heatmap: aynı saatte aynı park",
+      reveal: "Fiziksel takip rutini",
+    },
+  ];
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <div className="mcb-mono mcb-tag text-rose-400/85 mb-3 text-center">
+          OSINT · DİJİTAL AYAK İZİ
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
+          Saldırgan, sosyal medyandan başlar.
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((it, i) => (
+            <motion.div
+              key={it.tag}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.06 * i }}
+              className="rounded-2xl border border-rose-400/25 bg-rose-500/5 p-5 min-w-0"
+            >
+              <div className="mcb-mono mcb-tag text-rose-300 mb-2">
+                {it.tag}
+              </div>
+              <div className="mcb-body text-zinc-100 mb-3">{it.bad}</div>
+              <div className="mcb-mono mcb-tag text-rose-400/80 mb-1">
+                SALDIRGAN GÖRÜR
+              </div>
+              <p className="mcb-body text-rose-100/85">{it.reveal}</p>
+            </motion.div>
+          ))}
+        </div>
+        <p className="mcb-lead text-center text-emerald-300 mt-8">
+          Konumunu o an paylaşma. QR'lı yaka kartını sansürle. Anne kızlık sorusunu doğum yeri yap.
+        </p>
+      </div>
+    </FullCenter>
+  );
+}
+
+function PhysicalAttacks() {
+  const cases = [
+    {
+      icon: "🔌",
+      tag: "USB DROP",
+      title: "Otoparkta ‘Maaş Listesi’",
+      body: "Buluntu USB. Takan kişi ‘ne var?’ diye merak eder. Cihaz aslında klavye gibi davranır, 0.4 saniyede komut çalıştırır.",
+      defense: "Buluntu USB'yi takmak = saldırıyı evine davet etmek.",
+    },
+    {
+      icon: "📡",
+      tag: "SAHTE Wi-Fi",
+      title: "‘Free_Guest_WiFi’",
+      body: "Kafede / havalimanında sahte AP. Bağlandıktan sonra HTTPS bile MITM proxy ile clear-text. Banka, e-posta, kurumsal — hepsi.",
+      defense: "Halka açık Wi-Fi yerine hücresel veri. Mecbursan VPN.",
+    },
+    {
+      icon: "🚪",
+      tag: "KUYRUK TAKİBİ",
+      title: "Kahve dolu ellerle giriyor",
+      body: "Saldırgan elinde laptop ve kahve. Sen kapıyı tutuyorsun. Profesyonel nezaket güvenlikten önemli değildir.",
+      defense: "Tek kişi — tek kart. Şüphede güvenliğe yönlendir.",
+    },
+    {
+      icon: "🍪",
+      tag: "OMUZ SÖRFÜ (Shoulder Surfing)",
+      title: "Otobüste şifre yazıyorsun",
+      body: "Yanındaki gözle takip eder, sonra hesabına bağlanır. PIN'i avcunla kapatmak hâlâ en güçlü 2FA biçimi.",
+      defense: "Ekran filtresi + parmaklarınla siper.",
+    },
+  ];
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <div className="mcb-mono mcb-tag text-amber-400/85 mb-3 text-center">
+          FİZİKSEL SOSYAL MÜHENDİSLİK
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
+          Saldırgan ekrandan değil, kapıdan girer.
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {cases.map((c, i) => (
+            <motion.div
+              key={c.tag}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.07 * i }}
+              className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6 flex gap-5 min-w-0"
+            >
+              <div
+                className="shrink-0"
+                style={{ fontSize: "clamp(2.5rem, 4vw, 3.5rem)" }}
+              >
+                {c.icon}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="mcb-mono mcb-tag text-amber-300 mb-2">
+                  {c.tag}
+                </div>
+                <div
+                  className="text-white font-bold leading-tight mb-2"
+                  style={{ fontSize: "clamp(1.4rem, 2.2vw, 2.25rem)" }}
+                >
+                  {c.title}
+                </div>
+                <p className="mcb-body text-zinc-200 mb-3">{c.body}</p>
+                <div className="mcb-mono mcb-tag text-emerald-300 mb-1">
+                  SAVUNMA
+                </div>
+                <p className="mcb-body text-emerald-100/90">{c.defense}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </FullCenter>
+  );
+}
+
+function RansomwareSlide() {
+  return (
+    <Centered>
+      <Skull
+        className="text-rose-400 mb-6"
+        style={{
+          width: "clamp(4rem, 6vw, 6rem)",
+          height: "clamp(4rem, 6vw, 6rem)",
+          filter: "drop-shadow(0 0 25px rgba(244,63,94,0.6))",
+        }}
+      />
+      <div className="mcb-mono mcb-tag text-rose-400 mb-4">
+        FİDYE YAZILIMI · RANSOMWARE
+      </div>
+      <h2 className="mcb-h1 font-black text-white max-w-[90vw] mb-7">
+        Tüm dosyaların kilitli.
+        <br />
+        <span className="text-rose-400 mcb-stat-shadow">72 saat</span>
+        <span className="mcb-h1"> · </span>
+        <span className="text-rose-400 mcb-stat-shadow">2 BTC</span>
+      </h2>
+      <p className="mcb-lead text-zinc-200 max-w-[80vw] mb-10">
+        Tek bir tıklamadan sonra tezler, hasta kayıtları, müşteri verisi —
+        hepsi şifreli. Ödesen bile %35'i geri dönmez.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-[1300px] text-left">
+        <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-400/10 p-7">
+          <div className="mcb-mono mcb-tag text-emerald-300 mb-3">3</div>
+          <div className="mcb-h3 text-white font-bold leading-tight mb-2">
+            Üç kopya
+          </div>
+          <p className="mcb-body text-zinc-100">Aynı dosyanın 3 kopyası.</p>
+        </div>
+        <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-400/10 p-7">
+          <div className="mcb-mono mcb-tag text-emerald-300 mb-3">2</div>
+          <div className="mcb-h3 text-white font-bold leading-tight mb-2">
+            İki ortam
+          </div>
+          <p className="mcb-body text-zinc-100">
+            Farklı medyada (HDD + bulut).
+          </p>
+        </div>
+        <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-400/10 p-7">
+          <div className="mcb-mono mcb-tag text-emerald-300 mb-3">1</div>
+          <div className="mcb-h3 text-white font-bold leading-tight mb-2">
+            Bir off-site
+          </div>
+          <p className="mcb-body text-zinc-100">
+            En az biri evden / kurumdan uzakta, offline.
+          </p>
+        </div>
+      </div>
+      <p className="mcb-lead text-emerald-300 mt-8">
+        ✓ 3-2-1 kuralı tek başına sağlık sektöründe %70'i kurtarır.
+      </p>
+    </Centered>
+  );
+}
+
+function AuthorityScamSlide() {
+  return (
+    <Centered>
+      <Phone
+        className="text-rose-400 mb-6"
+        style={{
+          width: "clamp(4rem, 6vw, 6rem)",
+          height: "clamp(4rem, 6vw, 6rem)",
+        }}
+      />
+      <div className="mcb-mono mcb-tag text-rose-400 mb-4">
+        OTORİTEYE İTAAT · TELEFON DOLANDIRICILIĞI
+      </div>
+      <h2 className="mcb-h2 font-bold text-white max-w-[90vw] mb-8">
+        “Komiserim, ben Sibel Hanım…”
+      </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full max-w-[1400px] text-left">
+        <div className="rounded-2xl border border-rose-400/40 bg-rose-500/5 p-7">
+          <div className="mcb-mono mcb-tag text-rose-300 mb-3">SENARYO</div>
+          <ul className="space-y-3 text-zinc-100 mcb-body">
+            <li>• Telsiz sesleri arka plan.</li>
+            <li>
+              • “MASAK soruşturması — adınız olaya karışmış, hesabınız
+              dondurulacak.”
+            </li>
+            <li>• Bekleme sesi → “Cumhuriyet Savcısı bey hatta.”</li>
+            <li>• Aciliyet + otorite + suçluluk hissi.</li>
+            <li>• Talep: altın/parayı poşetle kuryeye ver.</li>
+          </ul>
+        </div>
+        <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-400/10 p-7">
+          <div className="mcb-mono mcb-tag text-emerald-300 mb-3">GERÇEK</div>
+          <ul className="space-y-3 text-zinc-100 mcb-body">
+            <li>
+              • <strong>Devlet</strong> telefonda altın / para istemez.
+            </li>
+            <li>
+              • Savcılık SMS atmaz, “gizli soruşturma” diye konuşmaz.
+            </li>
+            <li>
+              • Şüphede: <strong>kapat, 155'i kendin ara</strong>.
+            </li>
+            <li>
+              • Yaşlı yakınlarına bu cümleyi öğret: “Hiç bir kuruma kuryeyle
+              para gitmez.”
+            </li>
+          </ul>
+        </div>
+      </div>
+    </Centered>
+  );
+}
+
 function AcademicScams() {
   const cases = [
     {
@@ -1721,23 +1976,29 @@ function AcademicScams() {
         <div className="mcb-mono mcb-tag text-cyan-400/85 mb-3 text-center">
           AKADEMİSYENE ÖZEL TUZAKLAR
         </div>
-        <h2 className="mcb-h2 font-bold text-white mb-10 text-center">
-          Senin diplomanı bilen saldırgan, senin tuzağını da kurar.
+        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
+          Senin diplomanı bilen, senin tuzağını da kurar.
         </h2>
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {cases.map((c, i) => (
             <motion.div
               key={c.tag}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 * i }}
-              className="rounded-2xl border border-cyan-400/35 bg-cyan-400/5 p-6"
+              className="rounded-2xl border border-cyan-400/35 bg-cyan-400/5 p-6 min-w-0"
               style={{ boxShadow: "0 0 25px rgba(34,211,238,0.12)" }}
             >
               <div className="mcb-mono mcb-tag text-cyan-300 mb-3">
                 {c.tag}
               </div>
-              <div className="mcb-h3 text-white font-bold leading-tight mb-3">
+              <div
+                className="text-white font-bold leading-tight mb-3"
+                style={{
+                  fontSize: "clamp(1.5rem, 2.4vw, 2.5rem)",
+                  lineHeight: 1.15,
+                }}
+              >
                 {c.title}
               </div>
               <p className="mcb-body text-zinc-200 mb-4">{c.body}</p>
@@ -1790,29 +2051,32 @@ function EverydayScams() {
         <div className="mcb-mono mcb-tag text-amber-400/85 mb-3 text-center">
           GÜNDELİK · HERKESE OLABİLİR
         </div>
-        <h2 className="mcb-h2 font-bold text-white mb-10 text-center">
+        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
           Tek bir kötü gün, tek bir tıklama.
         </h2>
-        <div className="grid md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {cases.map((c, i) => (
             <motion.div
               key={c.tag}
               initial={{ opacity: 0, x: i % 2 ? 20 : -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.08 * i }}
-              className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6 flex gap-5"
+              className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6 flex gap-5 min-w-0"
             >
               <div
-                className="shrink-0 flex items-center justify-center"
-                style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+                className="shrink-0 flex items-start"
+                style={{ fontSize: "clamp(2.5rem, 4vw, 3.5rem)" }}
               >
                 {c.emoji}
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="mcb-mono mcb-tag text-amber-300 mb-2">
                   {c.tag}
                 </div>
-                <div className="mcb-h3 text-white font-bold leading-tight mb-2">
+                <div
+                  className="text-white font-bold leading-tight mb-2"
+                  style={{ fontSize: "clamp(1.4rem, 2.2vw, 2.25rem)" }}
+                >
                   {c.title}
                 </div>
                 <p className="mcb-body text-zinc-200 mb-3">{c.body}</p>
@@ -2124,37 +2388,28 @@ function ThanksSlide() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-5xl"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full max-w-[1400px]"
         >
           {[
-            {
-              tag: "WEB",
-              handle: "osmancancetlenbik.com",
-              href: "https://osmancancetlenbik.com",
-            },
-            {
-              tag: "GITHUB",
-              handle: "@osmancancet",
-              href: "https://github.com/osmancancet",
-            },
-            {
-              tag: "LINKEDIN",
-              handle: "in/osmancancetlenbik",
-              href: "https://linkedin.com/in/osmancancetlenbik",
-            },
+            { tag: "WEB", handle: "osmancancetlenbik.com" },
+            { tag: "GITHUB", handle: "@osmancancet" },
+            { tag: "LINKEDIN", handle: "in/osmancancetlenbik" },
           ].map((s, i) => (
             <motion.div
               key={s.tag}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 + i * 0.1 }}
-              className="rounded-2xl border border-emerald-400/30 bg-emerald-400/5 p-7"
+              className="rounded-2xl border border-emerald-400/30 bg-emerald-400/5 px-6 py-5 text-center min-w-0"
               style={{ boxShadow: "0 0 30px rgba(0,255,136,0.12)" }}
             >
-              <div className="mcb-mono mcb-tag text-emerald-400/85 mb-3">
+              <div className="mcb-mono mcb-tag text-emerald-400/85 mb-2">
                 {s.tag}
               </div>
-              <div className="mcb-mono mcb-h3 text-emerald-100 break-all">
+              <div
+                className="mcb-mono text-emerald-100 break-words"
+                style={{ fontSize: "clamp(1.15rem, 1.8vw, 1.85rem)" }}
+              >
                 {s.handle}
               </div>
             </motion.div>
@@ -2260,6 +2515,18 @@ const SLIDES: Slide[] = [
     section: "BÖLÜM 03 · İNSAN HACK'İ",
     audio: "heartbeat",
     render: ({ isActive }) => <RealStory isActive={isActive} />,
+  },
+  {
+    id: "authority-scam",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
+    audio: "stinger",
+    render: () => <AuthorityScamSlide />,
+  },
+  {
+    id: "osint",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
+    audio: "soft",
+    render: () => <OsintSlide />,
   },
   {
     id: "poll-2",
@@ -2384,6 +2651,18 @@ const SLIDES: Slide[] = [
     section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     audio: "soft",
     render: () => <EverydayScams />,
+  },
+  {
+    id: "physical-attacks",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    audio: "soft",
+    render: () => <PhysicalAttacks />,
+  },
+  {
+    id: "ransomware",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    audio: "alarm",
+    render: () => <RansomwareSlide />,
   },
   {
     id: "deepfake",
