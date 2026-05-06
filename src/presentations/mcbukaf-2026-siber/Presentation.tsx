@@ -1125,65 +1125,142 @@ function QROnboarding({ origin }: { origin: string }) {
   );
 }
 
+function PhishingEmailRain({ active }: { active: boolean }) {
+  // 12 falling email envelopes — pure CSS-anim feel via framer-motion
+  const items = useMemo(
+    () =>
+      Array.from({ length: 14 }).map((_, i) => ({
+        x: 5 + (i * 7.3) % 90,
+        delay: (i * 0.4) % 5,
+        duration: 6 + (i % 4) * 1.5,
+        size: 28 + (i % 3) * 10,
+      })),
+    [],
+  );
+  return (
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      {items.map((it, i) => (
+        <motion.div
+          key={i}
+          initial={{ y: -80, opacity: 0 }}
+          animate={
+            active
+              ? { y: ["-10%", "110%"], opacity: [0, 0.55, 0.55, 0] }
+              : { opacity: 0 }
+          }
+          transition={{
+            repeat: Infinity,
+            duration: it.duration,
+            delay: it.delay,
+            ease: "linear",
+            times: [0, 0.1, 0.9, 1],
+          }}
+          className="absolute"
+          style={{ left: `${it.x}%`, fontSize: it.size }}
+        >
+          <span className="text-rose-400/70">✉</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 function HookStat({ isActive }: { isActive: boolean }) {
   return (
-    <Centered>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mcb-mono mcb-tag text-rose-400 mb-4"
-      >
-        SON 24 SAATTE · KÜRESEL
-      </motion.div>
-      <h2 className="mcb-h2 text-white mb-14 max-w-[80vw]">
-        Bu konuşmayı dinlerken bile saldırı durmuyor.
-      </h2>
-      <div className="flex flex-wrap items-start justify-center gap-12 sm:gap-24">
-        <StatNumber
-          value={3.4}
-          unit="mlyr"
-          label="günlük oltalama e-postası"
-          color="#f43f5e"
-          delay={0.2}
-          active={isActive}
-        />
-        <StatNumber
-          value={39}
-          unit="sn"
-          label="iki saldırı arası süre"
-          color="#fbbf24"
-          delay={0.5}
-          active={isActive}
-        />
-        <StatNumber
-          value={4.88}
-          unit="M$"
-          label="ortalama veri ihlali maliyeti"
-          color="#22d3ee"
-          delay={0.8}
-          active={isActive}
-        />
-      </div>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isActive ? 1 : 0 }}
-        transition={{ delay: 2.0 }}
-        className="mt-16 mcb-meta text-zinc-500 mcb-mono"
-      >
-        IBM Cost of a Data Breach 2024 · Maryland Univ. · Statista
-      </motion.p>
-    </Centered>
+    <div className="relative w-full h-full">
+      <PhishingEmailRain active={isActive} />
+      <Centered>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mcb-mono mcb-tag text-rose-400 mb-4 relative z-10"
+        >
+          <span className="inline-flex items-center gap-2">
+            <span
+              className="w-2 h-2 rounded-full bg-rose-400"
+              style={{
+                animation: "mcb-blink 1s infinite",
+                boxShadow: "0 0 12px rgba(244,63,94,0.8)",
+              }}
+            />
+            SON 24 SAATTE · KÜRESEL
+          </span>
+        </motion.div>
+        <h2 className="mcb-h2 text-white mb-14 max-w-[80vw] relative z-10">
+          Bu konuşmayı dinlerken bile saldırı durmuyor.
+        </h2>
+        <div className="flex flex-wrap items-start justify-center gap-12 sm:gap-24 relative z-10">
+          <StatNumber
+            value={3.4}
+            unit="mlyr"
+            label="günlük oltalama e-postası"
+            color="#f43f5e"
+            delay={0.2}
+            active={isActive}
+          />
+          <StatNumber
+            value={39}
+            unit="sn"
+            label="iki saldırı arası süre"
+            color="#fbbf24"
+            delay={0.7}
+            active={isActive}
+          />
+          <StatNumber
+            value={4.88}
+            unit="M$"
+            label="ortalama veri ihlali maliyeti"
+            color="#22d3ee"
+            delay={1.2}
+            active={isActive}
+          />
+        </div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isActive ? 1 : 0 }}
+          transition={{ delay: 2.4 }}
+          className="mt-16 mcb-meta text-zinc-500 mcb-mono relative z-10"
+        >
+          IBM Cost of a Data Breach 2024 · Maryland Univ. · Statista
+        </motion.p>
+      </Centered>
+    </div>
   );
 }
 
 function MitnickQuote() {
+  const quote =
+    "Sosyal mühendislik, dünyanın en güvenli sistemini bile bypass eder. Çünkü insan değişmez.";
+  const words = quote.split(" ");
   return (
     <Centered>
+      {/* pulse ring backdrop */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            initial={{ scale: 0.4, opacity: 0 }}
+            animate={{ scale: 1.6, opacity: [0, 0.35, 0] }}
+            transition={{
+              repeat: Infinity,
+              duration: 5,
+              delay: i * 1.5,
+              ease: "easeOut",
+            }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
+            style={{
+              borderColor: "rgba(34,211,238,0.35)",
+              width: "min(60vmin,720px)",
+              height: "min(60vmin,720px)",
+            }}
+          />
+        ))}
+      </div>
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring" }}
-        className="mb-10"
+        initial={{ scale: 0, rotate: -20 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 140 }}
+        className="mb-10 relative z-10"
       >
         <Brain
           style={{
@@ -1194,20 +1271,26 @@ function MitnickQuote() {
           }}
         />
       </motion.div>
-      <motion.blockquote
-        initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        transition={{ delay: 0.3, duration: 0.7 }}
-        className="mcb-h1 font-light italic text-zinc-100 max-w-[85vw] leading-tight"
-      >
-        “Sosyal mühendislik, dünyanın en güvenli sistemini bile bypass eder.
-        Çünkü insan değişmez.”
-      </motion.blockquote>
+      <blockquote className="mcb-h1 font-light italic text-zinc-100 max-w-[85vw] leading-tight relative z-10">
+        <span className="text-cyan-400/80">“</span>
+        {words.map((w, i) => (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: 0.4 + i * 0.08, duration: 0.5 }}
+            className="inline-block mr-[0.25em]"
+          >
+            {w}
+          </motion.span>
+        ))}
+        <span className="text-cyan-400/80">”</span>
+      </blockquote>
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.1 }}
-        className="mt-12 mcb-lead text-zinc-400 mcb-mono tracking-widest"
+        transition={{ delay: 0.4 + words.length * 0.08 + 0.4 }}
+        className="mt-12 mcb-lead text-zinc-400 mcb-mono tracking-widest relative z-10"
       >
         — Kevin Mitnick
       </motion.p>
@@ -1216,47 +1299,256 @@ function MitnickQuote() {
 }
 
 function RealStory({ isActive }: { isActive: boolean }) {
-  const lines = useMemo(
+  const dialogue = useMemo(
     () => [
-      "Annemi aradılar.",
-      "",
-      "  ‘Hanımefendi, bankadan arıyoruz.’",
-      "  ‘Hesabınızdan şüpheli bir işlem yapıldı.’",
-      "  ‘Doğrulamak için size bir kod göndereceğiz…’",
-      "",
-      "Telefonda 7 dakika geçti.",
-      "Annem onayladı.",
-      "",
-      "Sabah: hesap boştu.",
-      "",
-      "> Saldırgan tek bir satır kod yazmadı.",
-      "> Sadece konuştu.",
+      {
+        text: "Hanımefendi, bankadan arıyoruz.",
+        delay: 1.4,
+      },
+      {
+        text: "Hesabınızdan şüpheli bir işlem yapıldı.",
+        delay: 2.8,
+      },
+      {
+        text: "Doğrulamak için size bir kod göndereceğiz…",
+        delay: 4.4,
+      },
     ],
     [],
   );
-  const { out, done } = useTypewriter(lines, 24, isActive);
+
+  // 7-minute timer fill (visual only, fast)
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    if (!isActive) {
+      setProgress(0);
+      return;
+    }
+    const start = performance.now();
+    const dur = 7000; // visual 7s instead of 7 dk
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / dur, 1);
+      setProgress(p);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    const t = setTimeout(() => {
+      raf = requestAnimationFrame(tick);
+    }, 5800);
+    return () => {
+      clearTimeout(t);
+      cancelAnimationFrame(raf);
+    };
+  }, [isActive]);
+
+  // Bank balance dramatic drop after timer hits 100%
+  const [drained, setDrained] = useState(false);
+  useEffect(() => {
+    if (!isActive) {
+      setDrained(false);
+      return;
+    }
+    const t = setTimeout(() => setDrained(true), 13200);
+    return () => clearTimeout(t);
+  }, [isActive]);
+
+  const initialBalance = 47820;
+  const balance = drained ? 0 : initialBalance;
+  const animatedBalance = useCountUp(balance, 1100, 0, isActive);
+
   return (
-    <div className="relative w-full h-full">
-      <MatrixRain density={0.4} />
-      <div className="relative z-10 flex items-center justify-center h-full px-6">
-        <pre className="mcb-mono mcb-h3 text-zinc-100 max-w-[88vw] leading-relaxed whitespace-pre-wrap">
-          {out.map((l, i) => (
-            <div
-              key={i}
-              className={
-                l.startsWith(">")
-                  ? "text-emerald-400 mt-3"
-                  : l.startsWith("  ‘")
-                    ? "text-rose-300"
-                    : ""
-              }
+    <div className="relative w-full h-full overflow-hidden">
+      <MatrixRain density={0.35} />
+      {/* dramatic red flash at the moment of drain */}
+      <AnimatePresence>
+        {drained && (
+          <motion.div
+            initial={{ opacity: 0.55 }}
+            animate={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="absolute inset-0 pointer-events-none z-20"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, rgba(244,63,94,0.5) 0%, rgba(244,63,94,0) 65%)",
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="relative z-10 flex items-center justify-center h-full px-6 sm:px-12">
+        <div className="grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center w-full max-w-[1500px]">
+          {/* dialog column */}
+          <div className="min-w-0">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={isActive ? { opacity: 1 } : { opacity: 0 }}
+              className="mcb-mono mcb-tag text-rose-400 mb-4"
             >
-              {l || " "}
+              <span className="inline-flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full bg-rose-400"
+                  style={{
+                    animation: "mcb-blink 1s infinite",
+                    boxShadow: "0 0 12px rgba(244,63,94,0.8)",
+                  }}
+                />
+                CANLI · GERÇEK SENARYO
+              </span>
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 15 }}
+              animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mcb-h1 font-black text-white mb-6"
+            >
+              Annemi aradılar.
+            </motion.h2>
+            <div className="space-y-3 mb-8">
+              {dialogue.map((d, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={isActive ? { opacity: 1, x: 0 } : { opacity: 0 }}
+                  transition={{ delay: d.delay, duration: 0.5 }}
+                  className="rounded-xl bg-zinc-900/70 border border-rose-400/25 p-4"
+                >
+                  <div className="mcb-mono mcb-tag text-rose-400/80 mb-1">
+                    BANKA · 0212-***-**-**
+                  </div>
+                  <p className="mcb-lead text-zinc-100">"{d.text}"</p>
+                </motion.div>
+              ))}
             </div>
-          ))}
-          {!done && <span className="mcb-cursor" />}
-        </pre>
+
+            {/* timer */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={isActive ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ delay: 5.8 }}
+              className="mb-7"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="mcb-mono mcb-tag text-amber-400">
+                  TELEFONDA GEÇEN SÜRE
+                </span>
+                <span className="mcb-mono mcb-meta text-zinc-300 tabular-nums">
+                  {Math.floor(progress * 7)} dk {Math.floor((progress * 7 * 60) % 60)} sn
+                </span>
+              </div>
+              <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                <motion.div
+                  className="h-full"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, #fbbf24, #f97316, #f43f5e)",
+                    boxShadow: "0 0 12px rgba(244,63,94,0.6)",
+                    width: `${progress * 100}%`,
+                  }}
+                />
+              </div>
+            </motion.div>
+
+            {/* outcome statements */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={
+                isActive && drained
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: 10 }
+              }
+              transition={{ duration: 0.6 }}
+              className="space-y-2"
+            >
+              <p className="mcb-h3 text-zinc-100">Annem onayladı.</p>
+              <p className="mcb-h3 text-rose-300 font-bold">
+                Sabah: hesap boştu.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Mock bank app card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={
+              isActive ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }
+            }
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="rounded-3xl border border-zinc-700 bg-gradient-to-br from-zinc-900 to-zinc-950 p-7 shadow-2xl"
+            style={{
+              width: "min(420px, 85vw)",
+              boxShadow: drained
+                ? "0 0 80px rgba(244,63,94,0.45)"
+                : "0 0 40px rgba(0,0,0,0.6)",
+              borderColor: drained
+                ? "rgba(244,63,94,0.5)"
+                : "rgba(63,63,70,0.8)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="mcb-mono text-xs tracking-[0.3em] text-zinc-500 mb-1">
+                  BANKAM · MOBİL
+                </div>
+                <div className="text-zinc-300 text-base">Vadesiz Hesap</div>
+              </div>
+              <div
+                className="w-9 h-9 rounded-full"
+                style={{
+                  background: drained
+                    ? "linear-gradient(135deg, #f43f5e, #be123c)"
+                    : "linear-gradient(135deg, #06b6d4, #0891b2)",
+                }}
+              />
+            </div>
+            <div className="mcb-mono text-zinc-500 text-xs tracking-[0.3em] mb-2">
+              BAKİYE
+            </div>
+            <motion.div
+              animate={drained ? { scale: [1, 1.05, 1] } : { scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="font-bold tabular-nums leading-none"
+              style={{
+                fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
+                color: drained ? "#f43f5e" : "#fafafa",
+                textShadow: drained
+                  ? "0 0 25px rgba(244,63,94,0.6)"
+                  : "none",
+              }}
+            >
+              ₺{Math.round(animatedBalance).toLocaleString("tr-TR")}
+            </motion.div>
+            <AnimatePresence>
+              {drained && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-5 rounded-xl bg-rose-500/15 border border-rose-400/40 p-3"
+                >
+                  <div className="mcb-mono text-[10px] tracking-[0.3em] text-rose-300 mb-1">
+                    SON İŞLEM
+                  </div>
+                  <div className="flex justify-between text-rose-100">
+                    <span>EFT · 03:14</span>
+                    <span className="mcb-mono">−₺47.820,00</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
       </div>
+
+      {/* footer punchline */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={isActive && drained ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ delay: 1.5, duration: 0.6 }}
+        className="absolute bottom-16 left-0 right-0 z-10 text-center px-6"
+      >
+        <p className="mcb-h2 text-emerald-400 font-bold">
+          Saldırgan tek bir satır kod yazmadı. Sadece konuştu.
+        </p>
+      </motion.div>
     </div>
   );
 }
@@ -1483,6 +1775,94 @@ function TwoFAExplainer() {
   );
 }
 
+function PhishingTechniqueCard({
+  label,
+  bad,
+  good,
+  note,
+  cardDelay,
+}: {
+  label: string;
+  bad: string;
+  good: string;
+  note: string;
+  cardDelay: number;
+}) {
+  // Animate the bad URL typing in, then briefly highlight the diff
+  const [phase, setPhase] = useState<"hidden" | "typing" | "highlight" | "done">(
+    "hidden",
+  );
+  const [typed, setTyped] = useState("");
+
+  useEffect(() => {
+    let raf: ReturnType<typeof setTimeout>;
+    raf = setTimeout(() => {
+      setPhase("typing");
+      let i = 0;
+      const typeNext = () => {
+        i++;
+        setTyped(bad.slice(0, i));
+        if (i < bad.length) {
+          raf = setTimeout(typeNext, 35);
+        } else {
+          raf = setTimeout(() => setPhase("highlight"), 400);
+          raf = setTimeout(() => setPhase("done"), 1500);
+        }
+      };
+      typeNext();
+    }, cardDelay * 1000);
+    return () => clearTimeout(raf);
+  }, [bad, cardDelay]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: cardDelay }}
+      className="rounded-2xl border border-zinc-800 bg-black/40 p-7 min-w-0"
+    >
+      <div className="mcb-mono mcb-tag text-amber-400 mb-4">{label}</div>
+      <div className="space-y-3">
+        <div className="relative mcb-mono mcb-h3 break-all min-h-[1.4em]">
+          <span className="text-rose-300">✗ </span>
+          <motion.span
+            animate={
+              phase === "highlight"
+                ? { color: ["#fca5a5", "#fef08a", "#fca5a5"] }
+                : {}
+            }
+            transition={{ duration: 0.4, repeat: 2 }}
+            className="text-rose-300"
+          >
+            {typed}
+          </motion.span>
+          {phase === "typing" && (
+            <span className="text-rose-300 animate-pulse">▌</span>
+          )}
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={
+            phase === "done" ? { opacity: 1, y: 0 } : { opacity: 0, y: 5 }
+          }
+          transition={{ duration: 0.4 }}
+          className="mcb-mono mcb-h3 text-emerald-300 break-all"
+        >
+          ✓ {good}
+        </motion.div>
+      </div>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={phase === "done" ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mt-4 mcb-body text-zinc-300"
+      >
+        {note}
+      </motion.p>
+    </motion.div>
+  );
+}
+
 function PhishingTechniques() {
   const items = [
     {
@@ -1520,26 +1900,14 @@ function PhishingTechniques() {
       </p>
       <div className="grid md:grid-cols-2 gap-5 w-full max-w-[1400px]">
         {items.map((it, i) => (
-          <motion.div
+          <PhishingTechniqueCard
             key={it.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 * i }}
-            className="rounded-2xl border border-zinc-800 bg-black/40 p-7"
-          >
-            <div className="mcb-mono mcb-tag text-amber-400 mb-4">
-              {it.label}
-            </div>
-            <div className="space-y-3">
-              <div className="mcb-mono mcb-h3 text-rose-300 break-all">
-                ✗ {it.bad}
-              </div>
-              <div className="mcb-mono mcb-h3 text-emerald-300 break-all">
-                ✓ {it.good}
-              </div>
-            </div>
-            <p className="mt-4 mcb-body text-zinc-300">{it.note}</p>
-          </motion.div>
+            label={it.label}
+            bad={it.bad}
+            good={it.good}
+            note={it.note}
+            cardDelay={0.4 + i * 0.5}
+          />
         ))}
       </div>
     </FullCenter>
@@ -2159,65 +2527,132 @@ function AIAttacks2026() {
 }
 
 function QuizReveal() {
+  const cards = [
+    {
+      ok: true,
+      email: "no-reply@accounts.google.com",
+      note: "Google'ın gerçek bildirim adresi.",
+    },
+    {
+      ok: false,
+      email: "destek@goog1e-security.com",
+      note: "1 = l. Üstelik 'security' paniği tetikler.",
+      isAnswer: true,
+    },
+    {
+      ok: true,
+      email: "kampanya@trendyol.com",
+      note: "Spam olabilir ama phishing değil.",
+    },
+    {
+      ok: true,
+      email: "noreply@github.com",
+      note: "GitHub'ın resmî bildirimi.",
+    },
+  ];
   return (
     <Centered>
-      <CheckCircle2
-        className="text-emerald-400 mb-6"
-        style={{
-          width: "clamp(3.5rem, 5vw, 5.5rem)",
-          height: "clamp(3.5rem, 5vw, 5.5rem)",
-          filter: "drop-shadow(0 0 25px rgba(0,255,136,0.6))",
-        }}
-      />
-      <h2 className="mcb-h2 font-bold text-white mb-5 max-w-[90vw]">
+      <motion.div
+        initial={{ scale: 0, rotate: -45 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 180, damping: 12 }}
+        className="mb-6"
+      >
+        <CheckCircle2
+          className="text-emerald-400"
+          style={{
+            width: "clamp(3.5rem, 5vw, 5.5rem)",
+            height: "clamp(3.5rem, 5vw, 5.5rem)",
+            filter: "drop-shadow(0 0 25px rgba(0,255,136,0.6))",
+          }}
+        />
+      </motion.div>
+      <motion.h2
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mcb-h2 font-bold text-white mb-5 max-w-[90vw]"
+      >
         Doğru cevap:{" "}
         <span className="text-emerald-400 mcb-mono">
           B · goog1e-security.com
         </span>
-      </h2>
-      <p className="mcb-lead text-zinc-300 max-w-[80vw] mb-10">
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="mcb-lead text-zinc-300 max-w-[80vw] mb-10"
+      >
         L harfi yerine 1 (bir) rakamı. Klasik typosquat.
-      </p>
+      </motion.p>
       <div className="grid sm:grid-cols-2 gap-4 w-full max-w-[1300px] text-left">
-        {[
-          {
-            ok: true,
-            email: "no-reply@accounts.google.com",
-            note: "Google'ın gerçek bildirim adresi.",
-          },
-          {
-            ok: false,
-            email: "destek@goog1e-security.com",
-            note: "1 = l. Üstelik 'security' paniği tetikler.",
-          },
-          {
-            ok: true,
-            email: "kampanya@trendyol.com",
-            note: "Spam olabilir ama phishing değil.",
-          },
-          {
-            ok: true,
-            email: "noreply@github.com",
-            note: "GitHub'ın resmî bildirimi.",
-          },
-        ].map((it) => (
-          <div
+        {cards.map((it, i) => (
+          <motion.div
             key={it.email}
-            className={`rounded-2xl border p-6 ${
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{
+              delay: 0.6 + i * 0.18,
+              type: "spring",
+              stiffness: 140,
+              damping: 16,
+            }}
+            className={`relative rounded-2xl border-2 p-6 min-w-0 ${
               it.ok
                 ? "border-emerald-400/40 bg-emerald-400/5"
                 : "border-rose-400 bg-rose-500/15"
             }`}
+            style={
+              it.isAnswer
+                ? { boxShadow: "0 0 35px rgba(244,63,94,0.45)" }
+                : undefined
+            }
           >
+            {/* Animated badge */}
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{
+                delay: 0.85 + i * 0.18,
+                type: "spring",
+                stiffness: 220,
+                damping: 12,
+              }}
+              className={`absolute -top-3 -right-3 w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${
+                it.ok
+                  ? "bg-emerald-400 text-black"
+                  : "bg-rose-500 text-white"
+              }`}
+              style={{
+                boxShadow: it.ok
+                  ? "0 0 18px rgba(0,255,136,0.5)"
+                  : "0 0 18px rgba(244,63,94,0.7)",
+              }}
+            >
+              {it.ok ? "✓" : "✗"}
+            </motion.div>
+
             <div
               className={`mcb-mono mcb-h3 break-all ${
                 it.ok ? "text-emerald-200" : "text-rose-200"
               }`}
             >
-              {it.ok ? "✓" : "✗"} {it.email}
+              {it.email}
             </div>
             <p className="mcb-body text-zinc-300 mt-2">{it.note}</p>
-          </div>
+
+            {it.isAnswer && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.6 }}
+                className="mt-3 mcb-mono mcb-tag text-rose-300"
+              >
+                ↑ TUZAK
+              </motion.div>
+            )}
+          </motion.div>
         ))}
       </div>
     </Centered>
@@ -2234,81 +2669,203 @@ function Checklist({ isActive }: { isActive: boolean }) {
     "Sosyal medyada 'doğum tarihi, şehir, anne kızlık' bilgilerini gizle.",
     "haveibeenpwned.com'da e-postanı kontrol et.",
   ];
+  // sequential check stagger: each item gets checked 0.7s after previous
+  const stagger = 0.55;
+  const baseDelay = 0.4;
+
   return (
     <Centered>
-      <ShieldCheck
-        className="text-emerald-400 mb-5"
-        style={{
-          width: "clamp(3.5rem, 5vw, 5.5rem)",
-          height: "clamp(3.5rem, 5vw, 5.5rem)",
-        }}
-      />
+      <motion.div
+        initial={{ scale: 0, rotate: -45 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 160 }}
+        className="mb-5"
+      >
+        <ShieldCheck
+          className="text-emerald-400"
+          style={{
+            width: "clamp(3.5rem, 5vw, 5.5rem)",
+            height: "clamp(3.5rem, 5vw, 5.5rem)",
+            filter: "drop-shadow(0 0 20px rgba(0,255,136,0.5))",
+          }}
+        />
+      </motion.div>
       <div className="mcb-mono mcb-tag text-emerald-400 mb-4">BU GECE</div>
       <h2 className="mcb-h2 font-bold text-white mb-10">
         7 dakika. 7 madde. 7 kat güvenli.
       </h2>
       <div className="space-y-3 w-full max-w-[1200px]">
-        {items.map((t, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: isActive ? 1 : 0, x: 0 }}
-            transition={{ delay: 0.1 * i }}
-            className="flex items-center gap-5 p-5 rounded-xl border border-emerald-400/25 bg-emerald-400/5"
-          >
-            <span
-              className="rounded-lg bg-emerald-400 text-black mcb-mono font-black flex items-center justify-center shrink-0"
-              style={{
-                width: "clamp(2.5rem, 4vw, 4rem)",
-                height: "clamp(2.5rem, 4vw, 4rem)",
-                fontSize: "clamp(1.25rem, 2vw, 2rem)",
-              }}
+        {items.map((t, i) => {
+          const itemDelay = baseDelay + i * stagger;
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -30 }}
+              animate={
+                isActive ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }
+              }
+              transition={{ delay: itemDelay, duration: 0.45 }}
+              className="flex items-center gap-5 p-5 rounded-xl border border-emerald-400/25 bg-emerald-400/5 relative overflow-hidden"
             >
-              {i + 1}
-            </span>
-            <span className="mcb-lead text-zinc-100 text-left">{t}</span>
-          </motion.div>
-        ))}
+              {/* sweep line that goes across when checked */}
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={isActive ? { x: "100%" } : { x: "-100%" }}
+                transition={{ delay: itemDelay + 0.15, duration: 0.7 }}
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(0,255,136,0.18), transparent)",
+                }}
+              />
+              <motion.span
+                initial={{ scale: 0, rotate: -90 }}
+                animate={
+                  isActive
+                    ? { scale: 1, rotate: 0 }
+                    : { scale: 0, rotate: -90 }
+                }
+                transition={{
+                  delay: itemDelay + 0.4,
+                  type: "spring",
+                  stiffness: 220,
+                  damping: 14,
+                }}
+                className="rounded-lg bg-emerald-400 text-black mcb-mono font-black flex items-center justify-center shrink-0 relative z-10"
+                style={{
+                  width: "clamp(2.5rem, 4vw, 4rem)",
+                  height: "clamp(2.5rem, 4vw, 4rem)",
+                  fontSize: "clamp(1.25rem, 2vw, 2rem)",
+                  boxShadow: "0 0 14px rgba(0,255,136,0.4)",
+                }}
+              >
+                ✓
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0.5 }}
+                animate={isActive ? { opacity: 1 } : { opacity: 0.5 }}
+                transition={{ delay: itemDelay + 0.45 }}
+                className="mcb-lead text-zinc-100 text-left relative z-10"
+              >
+                {t}
+              </motion.span>
+            </motion.div>
+          );
+        })}
       </div>
+      {/* tally */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={
+          isActive ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.85 }
+        }
+        transition={{
+          delay: baseDelay + items.length * stagger + 0.2,
+          type: "spring",
+          stiffness: 180,
+        }}
+        className="mt-9 mcb-mono mcb-tag text-emerald-400 flex items-center gap-3"
+      >
+        <span
+          className="w-3 h-3 rounded-full bg-emerald-400"
+          style={{ boxShadow: "0 0 16px rgba(0,255,136,0.7)" }}
+        />
+        <span>{items.length} / {items.length} TAMAMLANDI</span>
+      </motion.div>
     </Centered>
   );
 }
 
 function Manifesto() {
+  const line1 = "Saldırgan saatte bir saldırır.".split(" ");
+  const line2 = "Sen bir ömür savunursun.".split(" ");
   return (
     <div className="relative w-full h-full">
-      <MatrixRain density={0.65} />
+      <MatrixRain density={0.7} />
+      {/* concentric pulse rings backdrop */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {[0, 1, 2, 3].map((i) => (
+          <motion.div
+            key={i}
+            initial={{ scale: 0.4, opacity: 0 }}
+            animate={{ scale: 2.0, opacity: [0, 0.4, 0] }}
+            transition={{
+              repeat: Infinity,
+              duration: 6,
+              delay: i * 1.4,
+              ease: "easeOut",
+            }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
+            style={{
+              borderColor: "rgba(0,255,136,0.45)",
+              width: "min(35vmin,420px)",
+              height: "min(35vmin,420px)",
+            }}
+          />
+        ))}
+      </div>
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 120 }}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 120, damping: 14 }}
         >
           <ShieldCheck
             className="text-emerald-400 mb-10"
             style={{
               width: "clamp(6rem, 11vw, 13rem)",
               height: "clamp(6rem, 11vw, 13rem)",
-              filter: "drop-shadow(0 0 35px rgba(0,255,136,0.7))",
+              filter: "drop-shadow(0 0 40px rgba(0,255,136,0.7))",
             }}
           />
         </motion.div>
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
+        <h2
           className="mcb-h1 font-black text-white max-w-[90vw] leading-tight"
           style={{ textShadow: "0 0 35px rgba(0,255,136,0.4)" }}
         >
-          Saldırgan saatte bir saldırır.
+          {line1.map((w, i) => (
+            <motion.span
+              key={`a-${i}`}
+              initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ delay: 0.4 + i * 0.12, duration: 0.6 }}
+              className="inline-block mr-[0.25em]"
+            >
+              {w}
+            </motion.span>
+          ))}
           <br />
-          Sen bir ömür savunursun.
-        </motion.h2>
+          {line2.map((w, i) => (
+            <motion.span
+              key={`b-${i}`}
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                delay: 0.4 + line1.length * 0.12 + 0.4 + i * 0.14,
+                type: "spring",
+                stiffness: 180,
+                damping: 14,
+              }}
+              className="inline-block mr-[0.25em] text-emerald-200"
+              style={{ textShadow: "0 0 30px rgba(0,255,136,0.5)" }}
+            >
+              {w}
+            </motion.span>
+          ))}
+        </h2>
         <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="mt-12 mcb-h2 text-emerald-300"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            delay:
+              0.4 +
+              line1.length * 0.12 +
+              0.4 +
+              line2.length * 0.14 +
+              0.4,
+            duration: 0.6,
+          }}
+          className="mt-14 mcb-h2 text-emerald-300"
         >
           <Glitch text="Sen savunmanın ilk hattısın." />
         </motion.p>
