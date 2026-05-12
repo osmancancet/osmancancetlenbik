@@ -6,10 +6,43 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type ComponentType,
+  type SVGProps,
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "qrcode";
+import {
+  AlertOctagon,
+  BookOpen,
+  Bot,
+  Brain,
+  Building2,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Drama,
+  Fish,
+  Gift,
+  HardDrive,
+  Handshake,
+  KeyRound,
+  Landmark,
+  Lock,
+  Mail,
+  Package,
+  Phone,
+  RefreshCw,
+  Shield,
+  ShieldAlert,
+  Skull,
+  Smartphone,
+  Swords,
+  X as XIcon,
+} from "lucide-react";
 import "./styles.css";
+
+type IconType = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; strokeWidth?: number | string }>;
 
 /* ================================================================
    TYPES
@@ -121,7 +154,56 @@ function GlitchText({ text, className = "" }: { text: string; className?: string
   return <span className={`mcb-glitch ${className}`} data-text={text}>{text}</span>;
 }
 
-function SectionTitle({ icon, title, subtitle, color = "#00ff88" }: { icon: string; title: string; subtitle: string; color?: string }) {
+/* ── Kurumsal logo · cover ve thanks slaytlarında ──────────────── */
+function LogoMark({ size = "clamp(4.5rem, 11vmin, 8rem)", glow = "rgba(0,255,136,0.45)" }: { size?: string; glow?: string }) {
+  return (
+    <div
+      className="relative shrink-0"
+      style={{
+        width: size,
+        height: size,
+        filter: `drop-shadow(0 0 22px ${glow})`,
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/logomcbukaf.png"
+        alt="MCBÜ Teknik Bilimler MYO"
+        className="w-full h-full object-contain"
+      />
+    </div>
+  );
+}
+
+/* ── Tekrarlayan ikon kutusu · ölçü + renk + stroke uniform ─── */
+function IconBadge({ icon: I, size = "clamp(3.5rem, 9vmin, 6rem)", color = "#00ff88", strokeWidth = 1.4 }: {
+  icon: IconType;
+  size?: string;
+  color?: string;
+  strokeWidth?: number;
+}) {
+  return (
+    <div
+      className="inline-flex items-center justify-center"
+      style={{
+        width: size,
+        height: size,
+        color,
+        filter: `drop-shadow(0 0 18px ${color}55)`,
+      }}
+    >
+      <I width="100%" height="100%" strokeWidth={strokeWidth} />
+    </div>
+  );
+}
+
+function SectionTitle({ icon, number, title, subtitle, color = "#00ff88" }: {
+  icon: IconType;
+  number?: string;
+  title: string;
+  subtitle: string;
+  color?: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-6 sm:px-10 relative overflow-hidden">
       <motion.div className="absolute inset-0 z-0" animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ repeat: Infinity, duration: 3 }}
@@ -131,8 +213,17 @@ function SectionTitle({ icon, title, subtitle, color = "#00ff88" }: { icon: stri
         animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.3, 0.6, 0.3] }}
         transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} />
       <div className="relative z-10 flex flex-col items-center max-w-full">
-        <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 10 }}
-          style={{ fontSize: "clamp(3.5rem, 9vw, 6rem)", filter: `drop-shadow(0 0 20px ${color}50)`, marginBottom: "clamp(1rem, 3vh, 2rem)" }}>{icon}</motion.div>
+        {number && (
+          <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            className="mcb-tag mcb-mono mb-3" style={{ color: `${color}cc` }}>
+            BÖLÜM · {number}
+          </motion.p>
+        )}
+        <motion.div initial={{ scale: 0, rotate: -12 }} animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 120, damping: 12 }}
+          style={{ marginBottom: "clamp(1rem, 3vh, 2rem)" }}>
+          <IconBadge icon={icon} color={color} />
+        </motion.div>
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }}
           className="mcb-h1 font-black tracking-tight mb-4" style={{ color, textShadow: `0 0 20px ${color}60, 0 0 60px ${color}25` }}>
           <GlitchText text={title} />
@@ -146,35 +237,50 @@ function SectionTitle({ icon, title, subtitle, color = "#00ff88" }: { icon: stri
   );
 }
 
+const ACCENT_COLORS = {
+  emerald: "#00ff88",
+  rose: "#f43f5e",
+  cyan: "#22d3ee",
+  amber: "#fbbf24",
+} as const;
+type AccentKey = keyof typeof ACCENT_COLORS;
+
 function BulletSlide({ title, icon, items, note, accent = "emerald" }: {
   title: string;
-  icon: string;
-  items: { emoji: string; text: string }[];
+  icon: IconType;
+  items: { icon: IconType; text: string }[];
   note?: string;
-  accent?: "emerald" | "rose" | "cyan" | "amber";
+  accent?: AccentKey;
 }) {
-  const borderClr = {
-    emerald: "border-emerald-500/60",
-    rose: "border-rose-500/60",
-    cyan: "border-cyan-500/60",
-    amber: "border-amber-500/60",
-  }[accent];
+  const accentColor = ACCENT_COLORS[accent];
   return (
     <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-20 overflow-y-auto">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-center gap-3 sm:gap-5 mb-5 sm:mb-8 flex-wrap">
-        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}
-          style={{ fontSize: "clamp(2rem, 6vw, 4rem)" }}>{icon}</motion.span>
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
+          <IconBadge icon={icon} color={accentColor} size="clamp(2.5rem, 6vmin, 4rem)" />
+        </motion.div>
         <h2 className="mcb-h2 font-bold text-center">{title}</h2>
       </motion.div>
       <div className="space-y-2.5 sm:space-y-4 w-full max-w-6xl">
-        {items.map((item, i) => (
-          <motion.div key={i} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.12 * (i + 1), type: "spring", stiffness: 80 }}
-            className={`flex items-start gap-3 sm:gap-5 border-l-4 ${borderClr} bg-white/[0.03] backdrop-blur-sm rounded-r-xl pl-4 sm:pl-7 pr-3 py-3 sm:py-4`}>
-            <span className="shrink-0" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.4rem)" }}>{item.emoji}</span>
-            <p className="mcb-body text-gray-200">{item.text}</p>
-          </motion.div>
-        ))}
+        {items.map((item, i) => {
+          const ItemIcon = item.icon;
+          return (
+            <motion.div key={i} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.12 * (i + 1), type: "spring", stiffness: 80 }}
+              className="flex items-start gap-3 sm:gap-5 border-l-4 bg-white/[0.03] backdrop-blur-sm rounded-r-xl pl-4 sm:pl-7 pr-3 py-3 sm:py-4"
+              style={{ borderColor: accentColor }}>
+              <div className="shrink-0 inline-flex items-center justify-center mt-0.5"
+                style={{
+                  width: "clamp(1.75rem, 3.6vmin, 2.4rem)",
+                  height: "clamp(1.75rem, 3.6vmin, 2.4rem)",
+                  color: accentColor,
+                }}>
+                <ItemIcon width="100%" height="100%" strokeWidth={1.6} />
+              </div>
+              <p className="mcb-body text-gray-200">{item.text}</p>
+            </motion.div>
+          );
+        })}
       </div>
       {note && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-6 mcb-meta text-gray-500 italic text-center max-w-4xl">{note}</motion.p>}
     </div>
@@ -207,14 +313,21 @@ function StatSlide({ title, stats }: { title: string; stats: { value: string; la
   );
 }
 
-function QuoteSlide({ quote, author, emoji }: { quote: string; author: string; emoji: string }) {
+function QuoteSlide({ quote, author, icon, color = "#00ff88" }: {
+  quote: string;
+  author: string;
+  icon: IconType;
+  color?: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 sm:px-16 md:px-24 text-center">
-      <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}
-        style={{ fontSize: "clamp(3rem, 8vw, 5.5rem)", marginBottom: "clamp(1.25rem, 3.5vh, 2.5rem)" }}>{emoji}</motion.span>
+      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}
+        style={{ marginBottom: "clamp(1.25rem, 3.5vh, 2.5rem)" }}>
+        <IconBadge icon={icon} color={color} size="clamp(3rem, 7.5vmin, 5rem)" />
+      </motion.div>
       <motion.blockquote initial={{ opacity: 0, y: 30, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ delay: 0.3, duration: 0.7 }}
         className="mcb-h3 font-light italic text-gray-200 max-w-5xl"
-        style={{ textShadow: "0 0 30px rgba(0,255,136,0.12)" }}>&ldquo;{quote}&rdquo;</motion.blockquote>
+        style={{ textShadow: `0 0 30px ${color}1f` }}>&ldquo;{quote}&rdquo;</motion.blockquote>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
         className="mcb-lead text-gray-500" style={{ marginTop: "clamp(1.5rem, 4vh, 2.5rem)" }}>— {author}</motion.p>
     </div>
@@ -237,7 +350,7 @@ function BigTextSlide({ text, subtext, color = "#00ff88" }: { text: string; subt
 
 function TwoColumnSlide({ title, icon, left, right }: {
   title: string;
-  icon: string;
+  icon: IconType;
   left: { title: string; items: string[]; color?: string };
   right: { title: string; items: string[]; color?: string };
 }) {
@@ -247,7 +360,7 @@ function TwoColumnSlide({ title, icon, left, right }: {
     <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-20 overflow-y-auto">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-center gap-3 sm:gap-5 mb-5 sm:mb-8 flex-wrap text-center">
-        <span style={{ fontSize: "clamp(2rem, 6vw, 4rem)" }}>{icon}</span>
+        <IconBadge icon={icon} color="#22d3ee" size="clamp(2.25rem, 5.5vmin, 3.6rem)" />
         <h2 className="mcb-h2 font-bold text-center">{title}</h2>
       </motion.div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-6xl">
@@ -258,7 +371,8 @@ function TwoColumnSlide({ title, icon, left, right }: {
           <ul className="space-y-2.5 sm:space-y-3">
             {left.items.map((item, i) => (
               <li key={i} className="mcb-body text-gray-300 flex items-start gap-2 sm:gap-3">
-                <span style={{ color: lc }} className="mt-0.5 shrink-0">✕</span><span>{item}</span>
+                <XIcon className="shrink-0 mt-1" style={{ color: lc, width: "1.1em", height: "1.1em" }} strokeWidth={2.2} />
+                <span>{item}</span>
               </li>
             ))}
           </ul>
@@ -270,7 +384,8 @@ function TwoColumnSlide({ title, icon, left, right }: {
           <ul className="space-y-2.5 sm:space-y-3">
             {right.items.map((item, i) => (
               <li key={i} className="mcb-body text-gray-300 flex items-start gap-2 sm:gap-3">
-                <span style={{ color: rc }} className="mt-0.5 shrink-0">✓</span><span>{item}</span>
+                <Check className="shrink-0 mt-1" style={{ color: rc, width: "1.1em", height: "1.1em" }} strokeWidth={2.4} />
+                <span>{item}</span>
               </li>
             ))}
           </ul>
@@ -285,7 +400,7 @@ function TwoColumnSlide({ title, icon, left, right }: {
    ================================================================ */
 function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", footer }: {
   title: string;
-  icon: string;
+  icon: IconType;
   layers: { label: string; body: ReactNode }[];
   ctx: SlideCtx;
   accent?: string;
@@ -321,7 +436,7 @@ function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", footer }: {
       style={{ cursor: shown < layers.length ? "pointer" : "default" }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-center gap-3 sm:gap-4 mb-3 sm:mb-5 flex-wrap text-center">
-        <span style={{ fontSize: "clamp(2.25rem, 6vw, 4rem)" }}>{icon}</span>
+        <IconBadge icon={icon} color={accent} size="clamp(2.25rem, 5.5vmin, 3.6rem)" />
         <h2 className="mcb-h2 font-bold text-center">{title}</h2>
       </motion.div>
 
@@ -342,15 +457,20 @@ function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", footer }: {
         </AnimatePresence>
       </div>
 
-      <div className="mt-3 sm:mt-4 mb-1 flex items-center gap-2 sm:gap-3 mcb-meta mcb-mono text-gray-400 select-none text-center">
+      <div className="mt-3 sm:mt-4 mb-1 flex items-center justify-center gap-2 sm:gap-3 mcb-meta mcb-mono text-gray-400 select-none">
         {remaining > 0 ? (
           <>
             <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
-              style={{ color: accent }}>▶</motion.span>
+              className="inline-flex items-center" style={{ color: accent }}>
+              <ChevronRight strokeWidth={2.2} style={{ width: "1.2em", height: "1.2em" }} />
+            </motion.span>
             <span>tıkla / Enter / → · {remaining} ipucu daha</span>
           </>
         ) : (
-          <span style={{ color: accent }}>✓ Tüm ipuçları açıldı — devam edin</span>
+          <span className="inline-flex items-center gap-1.5" style={{ color: accent }}>
+            <Check strokeWidth={2.4} style={{ width: "1.1em", height: "1.1em" }} />
+            Tüm ipuçları açıldı — devam edin
+          </span>
         )}
       </div>
       {footer && shown >= layers.length && (
@@ -383,7 +503,14 @@ function CountdownTimer({ seconds = 300, ctx }: { seconds?: number; ctx: SlideCt
           initial={{ opacity: 0 }} animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ repeat: Infinity, duration: 0.9 }} />
       )}
       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 120 }}
-        style={{ fontSize: "clamp(3rem, 8vw, 5.5rem)", marginBottom: "clamp(0.75rem, 2vh, 1.5rem)" }}>{expired ? "💀" : "🔒"}</motion.div>
+        style={{ marginBottom: "clamp(0.75rem, 2vh, 1.5rem)" }}>
+        <IconBadge
+          icon={expired ? Skull : Lock}
+          color={expired ? "#ef4444" : "#fbbf24"}
+          size="clamp(3rem, 8vmin, 5rem)"
+          strokeWidth={1.5}
+        />
+      </motion.div>
       <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         className="mcb-h3 font-black mb-2 sm:mb-3 max-w-5xl"
         style={{ color: expired ? "#ef4444" : "#fbbf24",
@@ -727,9 +854,11 @@ function LivePasswordExperiment({ ctx }: { ctx: SlideCtx }) {
             </motion.div>
 
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
-              className="absolute bottom-2 left-1/2 -translate-x-1/2 mcb-mono text-[10px] sm:text-xs text-gray-500 select-none">
+              className="absolute bottom-2 left-1/2 -translate-x-1/2 mcb-mono text-[10px] sm:text-xs text-gray-500 select-none inline-flex items-center gap-1.5">
               <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.4 }}
-                style={{ color: "#00ff88" }}>▶</motion.span>{" "}
+                className="inline-flex items-center" style={{ color: "#00ff88" }}>
+                <ChevronRight strokeWidth={2.2} style={{ width: "1.1em", height: "1.1em" }} />
+              </motion.span>
               boşluk / → · ekrana yansıt
             </motion.p>
           </motion.div>
@@ -791,7 +920,10 @@ function LivePasswordExperiment({ ctx }: { ctx: SlideCtx }) {
                 <div className="h-full flex items-center justify-center text-center">
                   <div>
                     <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.6 }}
-                      className="mcb-mono text-emerald-400/70 text-sm mb-2">▶ canlı bağlı</motion.div>
+                      className="mcb-mono text-emerald-400/70 text-sm mb-2 inline-flex items-center gap-1.5 justify-center">
+                      <ChevronRight strokeWidth={2.2} style={{ width: "1.1em", height: "1.1em" }} />
+                      canlı bağlı
+                    </motion.div>
                     <p className="mcb-meta text-gray-500">İlk testin bekleniyor…</p>
                     <p className="mcb-meta text-gray-600 mt-1">Telefonundan QR&apos;ı tarat.</p>
                   </div>
@@ -845,9 +977,12 @@ const slides: Slide[] = [
       <motion.div className="absolute rounded-full border border-cyan-500/10 z-0"
         style={{ width: "min(420px, 55vmin)", height: "min(420px, 55vmin)" }}
         animate={{ scale: [1.1, 0.85, 1.1], opacity: [0.3, 0.6, 0.3] }} transition={{ repeat: Infinity, duration: 4 }} />
-      <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 100 }}
+      <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 14 }}
         className="relative z-10"
-        style={{ fontSize: "clamp(3.5rem, 9vw, 6rem)", marginBottom: "clamp(0.75rem, 2.5vh, 1.5rem)", filter: "drop-shadow(0 0 18px rgba(0,255,136,0.5))" }}>🛡️</motion.span>
+        style={{ marginBottom: "clamp(1rem, 3vh, 1.75rem)" }}>
+        <LogoMark size="clamp(5rem, 13vmin, 9rem)" />
+      </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.7 }}
         className="mcb-h1 font-black mb-3 relative z-10 max-w-6xl"
         style={{ color: "#00ff88", textShadow: "0 0 28px rgba(0,255,136,0.5), 0 0 70px rgba(0,255,136,0.2)" }}>
@@ -861,7 +996,7 @@ const slides: Slide[] = [
         className="relative z-10" style={{ marginTop: "clamp(1.5rem, 4.5vh, 3rem)" }}>
         <p className="mcb-meta text-emerald-400/70 mcb-mono tracking-widest mb-2">MCBÜKAF · 2026</p>
         <p className="mcb-body text-gray-200">Öğr. Gör. Osman Can Çetlenbik</p>
-        <p className="mcb-meta text-gray-500 mt-1">Manisa Celal Bayar Üniversitesi · Kırkağaç MYO</p>
+        <p className="mcb-meta text-gray-500 mt-1">Manisa Celal Bayar Üniversitesi · Teknik Bilimler Meslek Yüksekokulu</p>
       </motion.div>
     </div>
   )},
@@ -873,20 +1008,20 @@ const slides: Slide[] = [
     { value: "%900", label: "Deepfake artış oranı", color: "#a855f7" },
   ]} /> },
 
-  { id: "quote-intro", content: <QuoteSlide emoji="🧠"
+  { id: "quote-intro", content: <QuoteSlide icon={Brain}
     quote="İnsanlar hacklenmez, ikna edilir."
     author="Sosyal Mühendislik Gerçeği" /> },
 
   /* ── BÖLÜM 01 · OLTALAMA ── */
   { id: "sec-oltalama", section: "Oltalama", content: <SectionTitle
-    icon="🎣" title="Oltalama Saldırıları"
+    icon={Fish} number="01" title="Oltalama Saldırıları"
     subtitle="Bir mesaj. Bir link. Bir saniyelik düşüncesizlik."
     color="#f43f5e" /> },
 
   { id: "phishing-anatomy", content: (ctx) => (
     <ClickReveal
       ctx={ctx}
-      icon="📩"
+      icon={Mail}
       title="Sahte SMS'in Anatomisi"
       accent="#f43f5e"
       layers={[
@@ -932,16 +1067,16 @@ const slides: Slide[] = [
   )},
 
   { id: "phishing-cases", content: <BulletSlide
-    icon="📖" title="Türkiye'den Güncel Vakalar" accent="rose"
+    icon={BookOpen} title="Türkiye'den Güncel Vakalar" accent="rose"
     items={[
-      { emoji: "📦", text: "Kargo gümrük SMS'i: 24,90 TL ödeme talebi → arkada 24.500 TL'lik 3D Secure onayı geliyor." },
-      { emoji: "🏛️", text: "Sahte e-Devlet uyarısı: \"Ehliyetiniz iptal edilecek\" — kart ve kimlik bilgileriyle pişmanlık." },
-      { emoji: "🏦", text: "Banka SMS'i: \"Hesabınızda şüpheli işlem\" → sahte giriş sayfası, parolanız saldırgana akar." },
+      { icon: Package, text: "Kargo gümrük SMS'i: 24,90 TL ödeme talebi → arkada 24.500 TL'lik 3D Secure onayı geliyor." },
+      { icon: Landmark, text: "Sahte e-Devlet uyarısı: \"Ehliyetiniz iptal edilecek\" — kart ve kimlik bilgileriyle pişmanlık." },
+      { icon: Building2, text: "Banka SMS'i: \"Hesabınızda şüpheli işlem\" → sahte giriş sayfası, parolanız saldırgana akar." },
     ]} /> },
 
   /* ── BÖLÜM 02 · ŞİFRELER ── */
   { id: "sec-sifre", section: "Şifreler", content: <SectionTitle
-    icon="🔐" title="Şifre Güvenliği"
+    icon={Lock} number="02" title="Şifre Güvenliği"
     subtitle="Tek şifre = domino. Birinden çalınırsa hepsi düşer."
     color="#22d3ee" /> },
 
@@ -960,9 +1095,9 @@ const slides: Slide[] = [
     color="#f43f5e" /> },
 
   { id: "passphrase-2fa", content: <TwoColumnSlide
-    icon="🔑" title="Daha İyisi: Cümle-Şifre + 2FA"
+    icon={KeyRound} title="Daha İyisi: Cümle-Şifre + 2FA"
     left={{
-      title: "❌ Yapmayın",
+      title: "Yapmayın",
       color: "#f43f5e",
       items: [
         "Aynı parolayı her sitede kullanmak",
@@ -972,7 +1107,7 @@ const slides: Slide[] = [
       ],
     }}
     right={{
-      title: "✓ Yapın",
+      title: "Yapın",
       color: "#00ff88",
       items: [
         "Cümle-şifre: \"Manisa-üzümleri-2026-tatlı!\"",
@@ -984,24 +1119,24 @@ const slides: Slide[] = [
 
   /* ── BÖLÜM 03 · SOSYAL MÜHENDİSLİK ── */
   { id: "sec-soc", section: "Sosyal Müh.", content: <SectionTitle
-    icon="🎭" title="Sosyal Mühendislik"
+    icon={Drama} number="03" title="Sosyal Mühendislik"
     subtitle="Güvenlik duvarı geçilemiyorsa, kullanıcı ikna edilir."
     color="#f43f5e" /> },
 
   { id: "weapons", content: <BulletSlide
-    icon="⚔️" title="Saldırganın 5 Silahı" accent="rose"
+    icon={Swords} title="Saldırganın 5 Silahı" accent="rose"
     items={[
-      { emoji: "⏰", text: "Aciliyet — \"Şimdi yapmazsan kaybedeceksin.\"" },
-      { emoji: "👮", text: "Otorite — savcı, polis, banka müdürü, BTK." },
-      { emoji: "😱", text: "Korku — hesabın kapanacak, suç işledin, kazaya karıştın." },
-      { emoji: "🎁", text: "Ödül — \"İPhone kazandın, kargo ücreti yatır.\"" },
-      { emoji: "🤝", text: "Güven — \"Tanıdığım, akraban, eski sınıf arkadaşın.\"" },
+      { icon: Clock, text: "Aciliyet — \"Şimdi yapmazsan kaybedeceksin.\"" },
+      { icon: ShieldAlert, text: "Otorite — savcı, polis, banka müdürü, BTK." },
+      { icon: AlertOctagon, text: "Korku — hesabın kapanacak, suç işledin, kazaya karıştın." },
+      { icon: Gift, text: "Ödül — \"İPhone kazandın, kargo ücreti yatır.\"" },
+      { icon: Handshake, text: "Güven — \"Tanıdığım, akraban, eski sınıf arkadaşın.\"" },
     ]} /> },
 
   { id: "scam-script", content: (ctx) => (
     <ClickReveal
       ctx={ctx}
-      icon="📞"
+      icon={Phone}
       title="Telefon Dolandırıcılığı · Senaryo"
       accent="#f43f5e"
       layers={[
@@ -1033,14 +1168,14 @@ const slides: Slide[] = [
 
   /* ── BÖLÜM 04 · 2026 TEHDİTLERİ ── */
   { id: "sec-2026", section: "2026 Tehditleri", content: <SectionTitle
-    icon="🤖" title="2026'nın Yeni Tehditleri"
+    icon={Bot} number="04" title="2026'nın Yeni Tehditleri"
     subtitle="Deepfake, parmak izi, fidye yazılımı — sıra sizde."
     color="#a855f7" /> },
 
   { id: "deepfake", content: (ctx) => (
     <ClickReveal
       ctx={ctx}
-      icon="🎭"
+      icon={Drama}
       title="Deepfake'i Nasıl Anlarsınız?"
       accent="#a855f7"
       layers={[
@@ -1070,18 +1205,18 @@ const slides: Slide[] = [
 
   /* ── BÖLÜM 05 · KORUNMA ── */
   { id: "sec-protect", section: "Korunma", content: <SectionTitle
-    icon="🛡️" title="Kendinizi Koruyun"
+    icon={Shield} number="05" title="Kendinizi Koruyun"
     subtitle="Bugün, salondan çıkmadan uygulayabileceğiniz adımlar."
     color="#00ff88" /> },
 
   { id: "five-steps", content: <BulletSlide
-    icon="✅" title="5 Dakikada 5 Adım" accent="emerald"
+    icon={CheckCircle2} title="5 Dakikada 5 Adım" accent="emerald"
     items={[
-      { emoji: "🔑", text: "Şifre yöneticisi kurun: 1Password, Bitwarden veya Apple/Google parolaları." },
-      { emoji: "📲", text: "Banka, e-posta ve sosyal medyaya authenticator-tabanlı 2FA açın." },
-      { emoji: "🔄", text: "Telefon ve bilgisayar güncellemelerini otomatik bırakın — yamalar canınızı kurtarır." },
-      { emoji: "💾", text: "Haftada bir, ayrı bir diskte ya da bulutta yedek alın (3-2-1 kuralı)." },
-      { emoji: "🤔", text: "3 saniye dur. Linke tıklamadan, mesajı kontrol et." },
+      { icon: KeyRound, text: "Şifre yöneticisi kurun: 1Password, Bitwarden veya Apple/Google parolaları." },
+      { icon: Smartphone, text: "Banka, e-posta ve sosyal medyaya authenticator-tabanlı 2FA açın." },
+      { icon: RefreshCw, text: "Telefon ve bilgisayar güncellemelerini otomatik bırakın — yamalar canınızı kurtarır." },
+      { icon: HardDrive, text: "Haftada bir, ayrı bir diskte ya da bulutta yedek alın (3-2-1 kuralı)." },
+      { icon: Brain, text: "3 saniye dur. Linke tıklamadan, mesajı kontrol et." },
     ]} /> },
 
   { id: "three-second-rule", content: <BigTextSlide
@@ -1091,14 +1226,17 @@ const slides: Slide[] = [
 
   /* ── KAPANIŞ ── */
   { id: "manifesto", content: <QuoteSlide
-    emoji="🛡️"
+    icon={Shield}
     quote="En zayıf halka değiliz, en güçlü farkındalığız."
     author="MCBÜKAF '26" /> },
 
   { id: "thanks", content: (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 sm:px-8">
-      <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 110 }}
-        style={{ fontSize: "clamp(3.5rem, 9vw, 6rem)", marginBottom: "clamp(0.75rem, 2.5vh, 1.5rem)" }}>🙏</motion.span>
+      <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 110, damping: 14 }}
+        style={{ marginBottom: "clamp(1rem, 3vh, 1.75rem)" }}>
+        <LogoMark size="clamp(4.5rem, 11vmin, 7.5rem)" />
+      </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
         className="mcb-h1 font-black mb-4 sm:mb-6"
         style={{ color: "#00ff88", textShadow: "0 0 28px rgba(0,255,136,0.5)" }}>
@@ -1114,7 +1252,7 @@ const slides: Slide[] = [
       </motion.div>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}
         className="mt-3 mcb-meta text-gray-500 px-2">
-        @osmancancetlenbik · MCBÜ Kırkağaç MYO
+        Öğr. Gör. Osman Can Çetlenbik · MCBÜ Teknik Bilimler MYO
       </motion.p>
     </div>
   )},
