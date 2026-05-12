@@ -574,157 +574,6 @@ function CountdownTimer({ seconds = 300, ctx }: { seconds?: number; ctx: SlideCt
   );
 }
 
-/* ================================================================
-   PASSWORD STRENGTH SPECTRUM — uzunluk animasyonu
-   ================================================================ */
-function fmtCrackTime(sec: number): string {
-  if (sec < 1) return "anında";
-  if (sec < 60) return `${Math.round(sec)} saniye`;
-  const m = sec / 60;
-  if (m < 60) return `${Math.round(m)} dakika`;
-  const h = m / 60;
-  if (h < 24) return `${Math.round(h)} saat`;
-  const d = h / 24;
-  if (d < 365) return `${Math.round(d)} gün`;
-  const y = d / 365;
-  if (y < 1e3) return `${Math.round(y)} yıl`;
-  if (y < 1e6) return `${(y / 1e3).toFixed(1)} bin yıl`;
-  if (y < 1e9) return `${(y / 1e6).toFixed(1)} milyon yıl`;
-  if (y < 1e12) return `${(y / 1e9).toFixed(1)} milyar yıl`;
-  return "∞";
-}
-
-function PasswordSpectrumSlide({ ctx }: { ctx: SlideCtx }) {
-  const minLen = 4;
-  const maxLen = 18;
-  const [len, setLen] = useState(minLen);
-  const dirRef = useRef<1 | -1>(1);
-
-  useEffect(() => {
-    if (!ctx.isActive) { setLen(minLen); dirRef.current = 1; return; }
-    setLen(minLen);
-    dirRef.current = 1;
-    const iv = window.setInterval(() => {
-      setLen((l) => {
-        let next = l + dirRef.current;
-        if (next > maxLen) { dirRef.current = -1; next = maxLen - 1; }
-        if (next < minLen) { dirRef.current = 1; next = minLen + 1; }
-        return next;
-      });
-    }, 720);
-    return () => window.clearInterval(iv);
-  }, [ctx.isActive]);
-
-  // Assume mixed alphabet (a-z A-Z 0-9 + 8 symbols ≈ 70 chars), guesses/sec = 1e11 (offline GPU)
-  const charset = 70;
-  const combos = Math.pow(charset, len);
-  const sec = combos / 1e11;
-  const crackText = fmtCrackTime(sec);
-
-  // Strength tiering
-  let tier: { label: string; color: string; pct: number };
-  if (len <= 5)       tier = { label: "ÇOK ZAYIF", color: "#ef4444", pct: 12 };
-  else if (len <= 7)  tier = { label: "ZAYIF",      color: "#fb923c", pct: 28 };
-  else if (len <= 9)  tier = { label: "ORTA",       color: "#fbbf24", pct: 48 };
-  else if (len <= 11) tier = { label: "İYİ",        color: "#22d3ee", pct: 70 };
-  else if (len <= 14) tier = { label: "MÜKEMMEL",   color: "#00ff88", pct: 90 };
-  else                tier = { label: "ASKERİ",     color: "#10b981", pct: 100 };
-
-  const sampleChars = "Tr#n85_kL!m2X4Vp@9q".slice(0, len);
-
-  return (
-    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 items-center justify-center overflow-hidden">
-      <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-        className="mcb-tag mcb-mono text-cyan-300/85 mb-1">
-        ŞİFRE UZUNLUĞU · KIRILMA SÜRESİ
-      </motion.p>
-      <motion.h2 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-        className="mcb-h2 font-black text-center mb-4 sm:mb-5">
-        Her karakter saldırganın ömrünü ikiye katlar
-      </motion.h2>
-
-      {/* Live password sample */}
-      <div className="w-full max-w-3xl rounded-xl bg-black/60 border px-4 sm:px-6 py-3 sm:py-4 mb-3 sm:mb-4 text-center"
-        style={{
-          borderColor: `${tier.color}50`,
-          boxShadow: `0 0 22px ${tier.color}30, inset 0 0 30px ${tier.color}08`,
-        }}>
-        <motion.p key={len}
-          initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-          className="mcb-mono font-bold tracking-widest tabular-nums break-all"
-          style={{
-            color: tier.color,
-            fontSize: "clamp(1.4rem, 4vw, 3rem)",
-            textShadow: `0 0 16px ${tier.color}55`,
-            letterSpacing: "0.08em",
-          }}>
-          {sampleChars}
-        </motion.p>
-      </div>
-
-      {/* Length indicator + meter */}
-      <div className="w-full max-w-3xl rounded-2xl bg-black/45 border border-white/10 px-4 sm:px-6 py-4 sm:py-5"
-        style={{ boxShadow: `inset 0 0 30px ${tier.color}06` }}>
-        <div className="flex items-baseline justify-between mb-2">
-          <div className="flex items-baseline gap-2 sm:gap-3">
-            <span className="mcb-mono text-gray-400 text-xs sm:text-sm">uzunluk:</span>
-            <motion.span key={len}
-              initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="font-black mcb-mono tabular-nums"
-              style={{
-                color: tier.color,
-                fontSize: "clamp(1.5rem, 4vw, 2.75rem)",
-                textShadow: `0 0 14px ${tier.color}55`,
-              }}>
-              {len}
-            </motion.span>
-            <span className="mcb-mono text-gray-500 text-xs sm:text-sm">karakter</span>
-          </div>
-          <motion.span key={tier.label}
-            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-            className="mcb-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded"
-            style={{
-              color: tier.color,
-              background: `${tier.color}18`,
-              border: `1px solid ${tier.color}50`,
-              fontSize: "clamp(0.65rem, 1.2vmin, 0.85rem)",
-            }}>
-            {tier.label}
-          </motion.span>
-        </div>
-
-        <div className="w-full h-2.5 bg-zinc-900 rounded-full overflow-hidden mb-3 border border-white/5">
-          <motion.div
-            animate={{ width: `${tier.pct}%` }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="h-full"
-            style={{
-              background: `linear-gradient(90deg, ${tier.color}, ${tier.color}cc)`,
-              boxShadow: `0 0 14px ${tier.color}80`,
-            }} />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="mcb-mono text-gray-500 text-xs sm:text-sm">offline GPU saldırısı kırılma süresi:</span>
-          <motion.span key={crackText}
-            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-            className="font-black mcb-mono tabular-nums"
-            style={{
-              color: tier.color,
-              fontSize: "clamp(0.95rem, 2.4vw, 1.65rem)",
-              textShadow: `0 0 14px ${tier.color}55`,
-            }}>
-            {crackText}
-          </motion.span>
-        </div>
-      </div>
-
-      <p className="mcb-meta text-gray-500 text-center mt-3 sm:mt-4 max-w-2xl">
-        12+ karakter, karışık küme · saldırgan vazgeçer
-      </p>
-    </div>
-  );
-}
 
 /* ================================================================
    PASSWORD CRACK SIM — auto brute-force animasyonu
@@ -1430,84 +1279,6 @@ function DeepfakeSlide() {
   );
 }
 
-/* ================================================================
-   REAL SURVEY — gerçek değerlendirme + çekiliş QR'ı (sunum sonu)
-   ================================================================ */
-const REAL_SURVEY_URL = "/mcbukaf/anket"; // ← gerçek Google Forms / Typeform URL'sini buraya yaz
-
-function RealSurveySlide({ ctx }: { ctx: SlideCtx }) {
-  const [origin, setOrigin] = useState("");
-  useEffect(() => {
-    if (typeof window !== "undefined") setOrigin(window.location.origin);
-  }, []);
-  const absoluteUrl = REAL_SURVEY_URL.startsWith("http")
-    ? REAL_SURVEY_URL
-    : origin
-      ? `${origin}${REAL_SURVEY_URL}`
-      : "";
-  const qrDataUrl = useQrDataUrl(absoluteUrl || " ", 720);
-  const { total, lastAt } = useQrTrapPoll(ctx.isActive, "anket");
-
-  return (
-    <div className="flex flex-col h-full px-4 sm:px-10 items-center justify-center text-center">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-2 sm:gap-3 mb-3">
-        <span className="inline-flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl"
-          style={{ background: "#fbbf24", boxShadow: "0 0 24px rgba(251,191,36,0.55)" }}>
-          <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-black" strokeWidth={2.2} />
-        </span>
-        <span className="mcb-mono font-bold text-amber-300 tracking-widest text-xs sm:text-sm uppercase">
-          Çekiliş + Değerlendirme
-        </span>
-      </motion.div>
-
-      <motion.h2 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="mcb-h2 font-black mb-2"
-        style={{ color: "#fbbf24", textShadow: "0 0 26px rgba(251,191,36,0.55)" }}>
-        Sunum Değerlendirmesi
-      </motion.h2>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-        className="mcb-lead text-gray-300 mb-4 sm:mb-5 max-w-3xl px-2">
-        Geri bildiriminiz daha iyi içerikler için yol göstericidir.
-        <br className="hidden sm:inline" />
-        Anketi tamamlayanlar arasından sürpriz ödül çekilişi yapılacaktır.
-      </motion.p>
-
-      <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 130, damping: 14, delay: 0.2 }}
-        className="relative rounded-2xl overflow-hidden"
-        style={{
-          width: "min(52vmin, 420px)",
-          height: "min(52vmin, 420px)",
-          background: "white",
-          padding: "clamp(0.5rem, 1.5vmin, 1rem)",
-          boxShadow: "0 0 36px rgba(251,191,36,0.35), inset 0 0 30px rgba(0,0,0,0.05)",
-        }}>
-        {qrDataUrl ? (
-          <img src={qrDataUrl} alt="QR · Çekiliş + Değerlendirme Anketi" className="w-full h-full object-contain" draggable={false} />
-        ) : (
-          <div className="w-full h-full bg-zinc-200 animate-pulse" />
-        )}
-      </motion.div>
-
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
-        className="mcb-mono text-amber-300/80 text-xs sm:text-sm tracking-widest break-all px-2 mt-4 sm:mt-5">
-        {absoluteUrl ? absoluteUrl.replace(/^https?:\/\//, "") : "—"}
-      </motion.p>
-
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
-        className="mt-2 flex items-center gap-2">
-        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.6 }}
-          className="w-1.5 h-1.5 rounded-full bg-amber-300" />
-        <span className="mcb-mono text-amber-300/85 text-[10px] sm:text-xs tracking-widest tabular-nums">
-          {total > 0
-            ? `${total} kişi katıldı${lastAt ? ` · son: ${relTime(lastAt)}` : ""}`
-            : "anket aktif · ilk katılım bekleniyor…"}
-        </span>
-      </motion.div>
-    </div>
-  );
-}
 
 /* ================================================================
    QR PHISHING TRAP — bait + reveal slaytları
@@ -1763,6 +1534,151 @@ function WhatsAppScamSim({ ctx }: { ctx: SlideCtx }) {
               </p>
               <p className="relative z-10 mcb-mono text-rose-400/85 text-xs sm:text-sm tracking-widest mt-4 uppercase">
                 Tek bir tıklama. Bütün ağ.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   VISHING SIM — sahte savcılık telefon araması
+   ================================================================ */
+const VISHING_SCRIPT = [
+  { weapon: "OTORİTE",  text: "İyi günler, ben Ankara Cumhuriyet Başsavcılığı'ndan Komiser Yılmaz." },
+  { weapon: "KORKU",    text: "Adınıza açılmış bir soruşturma var. Hesabınızdan terör örgütüne para transferi yapılmış." },
+  { weapon: "ACİLİYET", text: "15 dakika içinde ifadenizi alamazsak gözaltı kararı çıkacak." },
+  { weapon: "İZOLASYON",text: "Konuşmamız gizli — aileniz, banka çalışanı, kimseyle paylaşamazsınız." },
+  { weapon: "VURGUN",   text: "Şimdi tüm paranızı 'emanet hesabına' aktaracaksınız. ATM'ye gidin, ben telefonda kalıyorum." },
+];
+
+function fmtDuration(sec: number) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+function VishingSim({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<"ringing" | "call" | "hack">("ringing");
+  const [linesShown, setLinesShown] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    if (!ctx.isActive) { setPhase("ringing"); setLinesShown(0); setDuration(0); return; }
+    setPhase("ringing"); setLinesShown(0); setDuration(0);
+    const t = window.setTimeout(() => setPhase("call"), 1600);
+    return () => window.clearTimeout(t);
+  }, [ctx.isActive]);
+
+  useEffect(() => {
+    if (phase !== "call") return;
+    const iv = window.setInterval(() => setDuration((d) => d + 1), 1000);
+    return () => window.clearInterval(iv);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "call") return;
+    if (linesShown < VISHING_SCRIPT.length) {
+      const t = window.setTimeout(() => setLinesShown((p) => p + 1), 1900);
+      return () => window.clearTimeout(t);
+    }
+    const t = window.setTimeout(() => setPhase("hack"), 2200);
+    return () => window.clearTimeout(t);
+  }, [phase, linesShown]);
+
+  return (
+    <div className="flex flex-col h-full px-3 sm:px-8 pt-1 pb-2 items-center min-h-0">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 sm:gap-3 mt-1 mb-2">
+        <IconBadge icon={Phone} color="#f43f5e" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
+        <h2 className="mcb-h3 font-bold text-center">Vishing · Sahte Savcılık Araması</h2>
+      </motion.div>
+
+      <div className="flex-1 min-h-0 w-full max-w-md flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {phase === "ringing" && (
+            <motion.div key="ringing"
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              className="w-full rounded-3xl bg-gradient-to-b from-zinc-800 to-zinc-900 shadow-2xl overflow-hidden p-6 text-center"
+              style={{ border: "1px solid rgba(244,63,94,0.4)" }}>
+              <p className="text-xs mcb-mono text-rose-300/85 uppercase tracking-[0.3em] mb-6">gelen arama</p>
+              <motion.div
+                animate={{ scale: [1, 1.06, 1], opacity: [0.7, 1, 0.7] }}
+                transition={{ repeat: Infinity, duration: 1.2 }}
+                className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-rose-500/20 mb-4"
+                style={{ boxShadow: "0 0 40px rgba(244,63,94,0.5)" }}>
+                <Phone className="w-12 h-12 text-rose-400" strokeWidth={1.6} />
+              </motion.div>
+              <p className="text-xl font-bold text-white mb-1">Ankara Cumhuriyet Başsavcılığı</p>
+              <p className="mcb-mono text-rose-300/70 text-sm">+90 312 0X XX XX · numara doğrulanmadı</p>
+            </motion.div>
+          )}
+
+          {phase === "call" && (
+            <motion.div key="call"
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="w-full rounded-3xl bg-zinc-900/80 shadow-2xl overflow-hidden"
+              style={{ border: "1px solid rgba(244,63,94,0.35)", boxShadow: "0 0 28px rgba(244,63,94,0.2)" }}>
+              <div className="bg-zinc-800/60 border-b border-white/5 px-4 py-3 flex items-center gap-3">
+                <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1 }}
+                  className="w-2 h-2 rounded-full bg-rose-500"
+                  style={{ boxShadow: "0 0 8px #f43f5e" }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-medium text-sm truncate">Ankara Cumhuriyet Başsavcılığı</p>
+                  <p className="mcb-mono text-rose-300/70 text-[10px] tabular-nums">CANLI · {fmtDuration(duration)}</p>
+                </div>
+                <span className="mcb-mono text-emerald-400 text-[10px] tracking-widest">CANLI YAZIYA DÖKÜLÜYOR</span>
+              </div>
+              <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-2 min-h-[18rem] sm:min-h-[20rem]">
+                {VISHING_SCRIPT.slice(0, linesShown).map((line, i) => (
+                  <motion.div key={i}
+                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="rounded-xl bg-zinc-800/60 border border-white/5 px-3 py-2">
+                    <p className="mcb-mono text-[9px] text-rose-300/80 uppercase tracking-widest font-bold mb-1">
+                      silah · {line.weapon}
+                    </p>
+                    <p className="text-sm text-zinc-100 leading-snug">&ldquo;{line.text}&rdquo;</p>
+                  </motion.div>
+                ))}
+                {linesShown < VISHING_SCRIPT.length && (
+                  <div className="rounded-xl bg-zinc-800/40 px-3 py-2 w-24 mcb-mono text-xs text-gray-400">
+                    <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }}>
+                      konuşuyor…
+                    </motion.span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {phase === "hack" && (
+            <motion.div key="hack"
+              initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 130, damping: 14 }}
+              className="w-full rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, rgba(244,63,94,0.14), rgba(244,63,94,0.04))",
+                border: "1px solid rgba(244,63,94,0.4)",
+                boxShadow: "0 0 40px rgba(244,63,94,0.25), inset 0 0 30px rgba(244,63,94,0.06)",
+              }}>
+              <motion.div className="absolute inset-0 mcb-stripes opacity-25"
+                animate={{ opacity: [0.15, 0.35, 0.15] }} transition={{ repeat: Infinity, duration: 2.4 }} />
+              <motion.div className="relative z-10 inline-flex mb-3"
+                animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 0.9 }}>
+                <IconBadge icon={AlertOctagon} color="#f43f5e" size="clamp(2.75rem, 6vmin, 4rem)" strokeWidth={1.6} />
+              </motion.div>
+              <p className="relative z-10 mcb-h3 font-black mb-3"
+                style={{ color: "#f43f5e", textShadow: "0 0 22px rgba(244,63,94,0.55)" }}>
+                Devlet asla telefonda para istemez.
+              </p>
+              <p className="relative z-10 mcb-body text-gray-200 max-w-md mx-auto leading-snug">
+                Bu kalıp 5 silahı arka arkaya kullanır: <strong className="text-rose-300">otorite → korku → aciliyet → izolasyon → vurgun</strong>.
+              </p>
+              <p className="relative z-10 mcb-mono text-rose-300/85 text-xs sm:text-sm tracking-widest mt-4 uppercase">
+                Kapat · Aile / banka 444'ünü kendin ara · İhbar: 155
               </p>
             </motion.div>
           )}
@@ -2099,74 +2015,99 @@ const LEAKS: { year: string; name: string; count: string; detail: string; color:
 
 function DataLeakTimelineSlide() {
   return (
-    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 overflow-hidden">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-center gap-3 mt-1 mb-1 flex-wrap">
-        <IconBadge icon={HardDrive} color="#22d3ee" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.6} />
-        <h2 className="mcb-h2 font-bold text-center">TR Sızıntı Zaman Çizelgesi</h2>
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-2 pb-3 overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-center gap-2.5 sm:gap-3 mb-1">
+        <IconBadge icon={HardDrive} color="#22d3ee" size="clamp(1.5rem, 3.4vmin, 2rem)" strokeWidth={1.6} />
+        <h2 className="mcb-h3 font-bold text-center">TR Sızıntı Zaman Çizelgesi</h2>
       </motion.div>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}
-        className="mcb-meta text-gray-400 text-center mb-4 sm:mb-6">
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.12 }}
+        className="mcb-meta text-gray-400 text-center mb-3">
         Hiçbir kurum &ldquo;hiçbir şey çalınmadı&rdquo; diyemiyor.
       </motion.p>
 
-      <div className="relative flex-1 min-h-0 w-full max-w-6xl mx-auto">
-        {/* Center horizontal line */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px]"
-          style={{
-            background: "linear-gradient(90deg, transparent, rgba(34,211,238,0.5), rgba(244,63,94,0.6), rgba(34,211,238,0.5), transparent)",
-            boxShadow: "0 0 12px rgba(34,211,238,0.3)",
-          }} />
-
-        <div className="flex items-stretch justify-between h-full gap-1 sm:gap-2 overflow-x-auto pr-2">
+      <div className="flex-1 min-h-0 w-full max-w-6xl mx-auto flex items-center justify-center">
+        <div className="w-full flex items-stretch gap-1 sm:gap-1.5 overflow-x-auto px-1">
           {LEAKS.map((leak, i) => {
             const above = i % 2 === 0;
             return (
-              <motion.div key={i}
-                initial={{ opacity: 0, y: above ? -16 : 16 }}
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: above ? -12 : 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.18, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="relative flex-1 min-w-[8.5rem] sm:min-w-[10rem] flex flex-col"
-                style={{ justifyContent: above ? "flex-start" : "flex-end" }}>
-                {/* Card */}
-                <div className={`${above ? "mb-auto" : "mt-auto"} rounded-lg bg-black/45 border backdrop-blur-sm overflow-hidden`}
-                  style={{
-                    borderColor: `${leak.color}40`,
-                    boxShadow: `0 0 16px ${leak.color}25, inset 0 0 24px ${leak.color}08`,
-                    padding: "clamp(0.5rem, 1.3vmin, 0.85rem)",
-                  }}>
-                  <p className="mcb-mono text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-0.5" style={{ color: leak.color }}>
-                    {leak.year}
-                  </p>
-                  <p className="font-black mcb-mono tabular-nums leading-none mb-1"
-                    style={{
-                      color: leak.color,
-                      fontSize: "clamp(1.1rem, 2.4vmin, 1.8rem)",
-                      textShadow: `0 0 14px ${leak.color}40`,
-                    }}>
-                    {leak.count}
-                  </p>
-                  <p className="font-bold text-white text-[10px] sm:text-xs mb-0.5 truncate">{leak.name}</p>
-                  <p className="mcb-meta text-gray-400 text-[9px] sm:text-[10px] leading-tight line-clamp-2">{leak.detail}</p>
+                transition={{ delay: 0.25 + i * 0.13, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className="flex-1 min-w-[7.5rem] sm:min-w-[8.5rem] flex flex-col items-stretch"
+              >
+                {/* Above card slot */}
+                <div className="h-[8.5rem] sm:h-[10rem] flex">
+                  {above && <LeakCard leak={leak} />}
                 </div>
 
-                {/* Connector dot on the line */}
-                <motion.div
-                  initial={{ scale: 0 }} animate={{ scale: 1 }}
-                  transition={{ delay: 0.3 + i * 0.18 + 0.2, type: "spring", stiffness: 200, damping: 12 }}
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                  style={{
-                    width: "clamp(0.6rem, 1.4vmin, 0.9rem)",
-                    height: "clamp(0.6rem, 1.4vmin, 0.9rem)",
-                    background: leak.color,
-                    boxShadow: `0 0 16px ${leak.color}, 0 0 32px ${leak.color}80`,
-                    border: "2px solid #02050a",
-                  }} />
+                {/* Timeline dot row */}
+                <div className="relative h-2.5 my-1 flex items-center justify-center">
+                  {/* Line segment (extends to siblings) */}
+                  <div
+                    className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px]"
+                    style={{
+                      background: `linear-gradient(90deg, ${i === 0 ? "transparent" : "rgba(34,211,238,0.4)"}, ${leak.color}, ${i === LEAKS.length - 1 ? "transparent" : "rgba(34,211,238,0.4)"})`,
+                    }}
+                  />
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.25 + i * 0.13 + 0.2, type: "spring", stiffness: 200, damping: 12 }}
+                    className="relative rounded-full"
+                    style={{
+                      width: "clamp(0.7rem, 1.4vmin, 1rem)",
+                      height: "clamp(0.7rem, 1.4vmin, 1rem)",
+                      background: leak.color,
+                      boxShadow: `0 0 14px ${leak.color}, 0 0 28px ${leak.color}80`,
+                      border: "2px solid #02050a",
+                    }}
+                  />
+                </div>
+
+                {/* Below card slot */}
+                <div className="h-[8.5rem] sm:h-[10rem] flex">
+                  {!above && <LeakCard leak={leak} />}
+                </div>
               </motion.div>
             );
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+function LeakCard({ leak }: { leak: typeof LEAKS[number] }) {
+  return (
+    <div
+      className="w-full rounded-lg bg-black/55 border backdrop-blur-sm overflow-hidden flex flex-col"
+      style={{
+        borderColor: `${leak.color}40`,
+        boxShadow: `0 0 14px ${leak.color}25, inset 0 0 22px ${leak.color}08`,
+        padding: "clamp(0.5rem, 1.3vmin, 0.8rem)",
+      }}
+    >
+      <p
+        className="mcb-mono text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-0.5"
+        style={{ color: leak.color }}
+      >
+        {leak.year}
+      </p>
+      <p
+        className="font-black mcb-mono tabular-nums leading-none mb-1"
+        style={{
+          color: leak.color,
+          fontSize: "clamp(1.05rem, 2.3vmin, 1.7rem)",
+          textShadow: `0 0 12px ${leak.color}40`,
+        }}
+      >
+        {leak.count}
+      </p>
+      <p className="font-bold text-white text-[10px] sm:text-xs mb-0.5 leading-tight">{leak.name}</p>
+      <p className="mcb-meta text-gray-400 text-[9px] sm:text-[10px] leading-snug">{leak.detail}</p>
     </div>
   );
 }
@@ -2429,6 +2370,7 @@ function PhishingTypesSlide() {
    ================================================================ */
 type AcademicEmailConfig = {
   title: string;
+  icon?: IconType;
   from: string;
   subject: string;
   preview: string;
@@ -2495,6 +2437,33 @@ const YOK_CONFIG: AcademicEmailConfig = {
   hackFooter: "Doğru kanal: e-Devlet · KYK uygulaması · 444 1 962",
 };
 
+const WHALING_CONFIG: AcademicEmailConfig = {
+  title: "Phishing · CEO Vurgunu (Whaling)",
+  icon: Crown,
+  from: "celebiler.cem@turknet-ofis.com",
+  subject: "[ACİL & GİZLİ] Bugün öğleden önce transfer · onayım sende",
+  preview: "Ahmet, acil bir avans göndermen lazım, ben telefonda erişimde değilim…",
+  body: [
+    "Sevgili Ahmet,",
+    "Bugün öğleden önce halletmemiz gereken bir transfer var.",
+    "Yeni iş anlaşmamız için tedarikçimize 38.500 ₺ avans göndermen gerek.",
+    "Avukatla görüşmedeyim, telefonda erişimim yok. Cumhurbaşkanlığı için dışarıdayım.",
+    "IBAN ektedir. Konu kimseyle paylaşılmasın — sadece sana güveniyorum.",
+  ],
+  highlight: (line) => line.includes("38.500"),
+  payLabel: "Transferi Onayla · 38.500 ₺ →",
+  accent: "#f97316",
+  accentRgb: "249,115,22",
+  accentText: "text-orange-300",
+  hackHeadline: "CEO Vurgunu (Whaling)",
+  hackPoints: [
+    { lead: "Yetkili (CEO/CFO)", rest: " e-postasının kaynağı kontrol edilmeli — alan adı genelde uydurma (-ofis.com, -direktor.com vb.)." },
+    { lead: "“Sadece sana güveniyorum”", rest: " — manipülasyon kalıbı; gerçek yöneticiler süreç dışı talep yapmaz." },
+    { lead: "Acil + Gizli + Nakit", rest: " — bu üçü bir aradaysa: telefonla yöneticiyi DOĞRULA." },
+  ],
+  hackFooter: "Hong Kong · Arup şirketi 2024'te bu yolla 25,6 milyon $ kaybetti.",
+};
+
 const CONF_CONFIG: AcademicEmailConfig = {
   title: "Akademik Phishing · Sahte Konferans Davetiyesi",
   from: "secretariat@icas-bangkok-2026.com",
@@ -2551,7 +2520,7 @@ function AcademicEmailSim({ ctx, config }: { ctx: SlideCtx; config: AcademicEmai
     <div className="flex flex-col h-full px-3 sm:px-8 pt-1 pb-2 items-center min-h-0">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-2 sm:gap-3 mt-1 mb-2">
-        <IconBadge icon={GraduationCap} color={config.accent} size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
+        <IconBadge icon={config.icon ?? GraduationCap} color={config.accent} size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
         <h2 className="mcb-h3 font-bold text-center">{config.title}</h2>
       </motion.div>
 
@@ -2756,10 +2725,10 @@ const SECTIONS = [
   { name: "Açılış", start: 0 },
   { name: "Oltalama", start: 3 },
   { name: "Şifreler", start: 7 },
-  { name: "Sosyal Müh.", start: 14 },
-  { name: "2026 Tehditleri", start: 22 },
-  { name: "Korunma", start: 27 },
-  { name: "Kapanış", start: 30 },
+  { name: "Sosyal Müh.", start: 13 },
+  { name: "2026 Tehditleri", start: 23 },
+  { name: "Korunma", start: 28 },
+  { name: "Kapanış", start: 31 },
 ];
 
 /* ================================================================
@@ -2946,8 +2915,6 @@ const slides: Slide[] = [
 
   { id: "common-passwords", content: <CommonPasswordsSlide /> },
 
-  { id: "password-spectrum", content: (ctx) => <PasswordSpectrumSlide ctx={ctx} /> },
-
   { id: "password-crack", content: (ctx) => <PasswordCrackSim ctx={ctx} /> },
 
   { id: "live-sifre", content: (ctx) => <LivePasswordExperiment ctx={ctx} /> },
@@ -2996,6 +2963,8 @@ const slides: Slide[] = [
 
   { id: "whatsapp-scam", content: (ctx) => <WhatsAppScamSim ctx={ctx} /> },
 
+  { id: "vishing-call", content: (ctx) => <VishingSim ctx={ctx} /> },
+
   { id: "predatory-journal", content: (ctx) => <AcademicEmailSim ctx={ctx} config={PJ_CONFIG} /> },
 
   { id: "fake-conference", content: (ctx) => <AcademicEmailSim ctx={ctx} config={CONF_CONFIG} /> },
@@ -3003,6 +2972,8 @@ const slides: Slide[] = [
   { id: "yok-burs", content: (ctx) => <AcademicEmailSim ctx={ctx} config={YOK_CONFIG} /> },
 
   { id: "journal-recognition", content: (ctx) => <JournalRecognitionSlide ctx={ctx} /> },
+
+  { id: "whaling-ceo", content: (ctx) => <AcademicEmailSim ctx={ctx} config={WHALING_CONFIG} /> },
 
   { id: "golden-rule", content: <BigTextSlide
     text="Devlet asla telefonda para, altın veya şifre istemez."
@@ -3040,8 +3011,6 @@ const slides: Slide[] = [
     icon={Shield}
     quote="En zayıf halka değiliz, en güçlü farkındalığız."
     author="MCBÜKAF '26" /> },
-
-  { id: "real-survey", content: (ctx) => <RealSurveySlide ctx={ctx} /> },
 
   { id: "thanks", content: (
     <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-16">
