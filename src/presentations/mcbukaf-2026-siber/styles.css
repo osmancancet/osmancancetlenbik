@@ -171,7 +171,7 @@
 .mcb-lead   { font-size: clamp(1rem, 2.2vw, 2.2rem);   line-height: 1.35; }
 .mcb-body   { font-size: clamp(0.9rem, 1.7vw, 1.7rem); line-height: 1.45; }
 .mcb-meta   { font-size: clamp(0.78rem, 1.2vw, 1.2rem);line-height: 1.4; }
-.mcb-stat   { font-size: clamp(3.2rem, 10vw, 10.5rem); line-height: 0.95; letter-spacing: -0.03em; }
+.mcb-stat   { font-size: clamp(2.75rem, 6.6vw, 7.5rem); line-height: 0.95; letter-spacing: -0.025em; }
 .mcb-stat-unit { font-size: clamp(1.4rem, 3.4vw, 3.4rem); line-height: 1; }
 .mcb-mono-lg{ font-size: clamp(0.95rem, 1.5vw, 1.55rem); }
 .mcb-tag    { font-size: clamp(0.75rem, 1vw, 1rem); letter-spacing: 0.4em; }

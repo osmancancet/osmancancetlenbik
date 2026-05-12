@@ -124,3 +124,12 @@ model PasswordDrop {
 
   @@index([session, createdAt])
 }
+
+model QrTrapHit {
+  id        String   @id @default(cuid())
+  session   String   @default("default")
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([session, createdAt])
+}

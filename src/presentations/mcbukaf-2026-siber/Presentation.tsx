@@ -14,23 +14,21 @@ import QRCode from "qrcode";
 import {
   AlertOctagon,
   BookOpen,
-  Bot,
   Brain,
-  Building2,
   Check,
   CheckCircle2,
   ChevronRight,
   Clock,
   Drama,
   Fish,
+  GraduationCap,
   Gift,
   HardDrive,
   Handshake,
+  Inbox,
   KeyRound,
-  Landmark,
   Lock,
   Mail,
-  Package,
   Phone,
   RefreshCw,
   Shield,
@@ -154,22 +152,22 @@ function GlitchText({ text, className = "" }: { text: string; className?: string
   return <span className={`mcb-glitch ${className}`} data-text={text}>{text}</span>;
 }
 
-/* ── Kurumsal logo · cover ve thanks slaytlarında ──────────────── */
-function LogoMark({ size = "clamp(4.5rem, 11vmin, 8rem)", glow = "rgba(0,255,136,0.45)" }: { size?: string; glow?: string }) {
+function LogoMark({ height = "clamp(2.75rem, 6vmin, 5rem)", glow = "rgba(0,255,136,0.4)" }: { height?: string; glow?: string }) {
   return (
     <div
       className="relative shrink-0"
       style={{
-        width: size,
-        height: size,
-        filter: `drop-shadow(0 0 22px ${glow})`,
+        height,
+        aspectRatio: "734 / 176",
+        filter: `drop-shadow(0 0 18px ${glow})`,
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/logomcbukaf.png"
-        alt="MCBÜ Teknik Bilimler MYO"
+        alt="MCBÜKAF '26 · MCBÜ Teknik Bilimler MYO"
         className="w-full h-full object-contain"
+        draggable={false}
       />
     </div>
   );
@@ -245,11 +243,10 @@ const ACCENT_COLORS = {
 } as const;
 type AccentKey = keyof typeof ACCENT_COLORS;
 
-function BulletSlide({ title, icon, items, note, accent = "emerald" }: {
+function BulletSlide({ title, icon, items, accent = "emerald" }: {
   title: string;
   icon: IconType;
   items: { icon: IconType; text: string }[];
-  note?: string;
   accent?: AccentKey;
 }) {
   const accentColor = ACCENT_COLORS[accent];
@@ -282,32 +279,94 @@ function BulletSlide({ title, icon, items, note, accent = "emerald" }: {
           );
         })}
       </div>
-      {note && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-6 mcb-meta text-gray-500 italic text-center max-w-4xl">{note}</motion.p>}
     </div>
   );
 }
 
 function AnimatedStat({ value, label, color, delay }: { value: string; label: string; color: string; delay: number }) {
-  const animated = useCountUp(value, 1500, delay * 1000);
+  const animated = useCountUp(value, 1400, delay * 1000);
+  const len = value.length;
+  const fontSize =
+    len > 7 ? "clamp(2.25rem, 5.2vw, 5.5rem)"
+    : len > 4 ? "clamp(2.5rem, 6vw, 6.5rem)"
+    : "clamp(2.75rem, 7vw, 7.5rem)";
   return (
-    <motion.div initial={{ opacity: 0, y: 40, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay, duration: 0.6, type: "spring", stiffness: 100 }}
-      className="text-center flex flex-col items-center" style={{ flex: "1 1 12rem", minWidth: 0, maxWidth: "16rem" }}>
-      <p className="mcb-stat font-black mcb-mono mb-2 sm:mb-3 break-words"
-        style={{ color, textShadow: `0 0 18px ${color}55, 0 0 45px ${color}25` }}>{animated}</p>
-      <p className="mcb-meta text-gray-400">{label}</p>
+    <motion.div
+      initial={{ opacity: 0, y: 28, scale: 0.94 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      className="relative flex flex-col items-center justify-center text-center rounded-2xl bg-white/[0.025] backdrop-blur-sm overflow-hidden"
+      style={{
+        padding: "clamp(1rem, 2.6vmin, 2.25rem) clamp(0.75rem, 2vmin, 1.75rem)",
+        border: `1px solid ${color}30`,
+        boxShadow: `0 0 28px ${color}18, inset 0 0 40px ${color}08`,
+        minHeight: "clamp(10rem, 22vmin, 16rem)",
+      }}
+    >
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: delay + 0.15, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute top-0 left-0 h-[2px] origin-left"
+        style={{ width: "100%", background: `linear-gradient(90deg, transparent, ${color}, transparent)`, boxShadow: `0 0 12px ${color}` }}
+      />
+      <p
+        className="font-black mcb-mono tabular-nums leading-none whitespace-nowrap"
+        style={{
+          fontSize,
+          letterSpacing: "-0.025em",
+          color,
+          textShadow: `0 0 26px ${color}55, 0 0 70px ${color}25`,
+          marginBottom: "clamp(0.65rem, 1.6vmin, 1.25rem)",
+        }}
+      >
+        {animated}
+      </p>
+      <p className="mcb-meta text-gray-300 max-w-[18ch] mx-auto leading-snug">{label}</p>
     </motion.div>
   );
 }
 
-function StatSlide({ title, stats }: { title: string; stats: { value: string; label: string; color: string }[] }) {
+function StatSlide({ title, eyebrow, stats }: { title: string; eyebrow?: string; stats: { value: string; label: string; color: string }[] }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-16 overflow-y-auto">
-      <motion.h2 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-        className="mcb-h2 font-bold text-center" style={{ marginBottom: "clamp(1.5rem, 5vh, 4rem)" }}>{title}</motion.h2>
-      <div className="flex flex-wrap items-start justify-center w-full max-w-6xl"
-        style={{ gap: "clamp(1.25rem, 3.5vw, 4rem)" }}>
-        {stats.map((s, i) => <AnimatedStat key={i} value={s.value} label={s.label} color={s.color} delay={0.25 * (i + 1)} />)}
+    <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-16">
+      {eyebrow && (
+        <motion.p
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mcb-tag mcb-mono text-emerald-400/70 mb-2 sm:mb-3"
+        >
+          {eyebrow}
+        </motion.p>
+      )}
+      <motion.h2
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mcb-h2 font-black text-center text-white"
+        style={{
+          marginBottom: "clamp(1.25rem, 4vh, 3rem)",
+          textShadow: "0 0 22px rgba(255,255,255,0.12)",
+        }}
+      >
+        {title}
+      </motion.h2>
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="h-[2px] rounded-full mb-6 sm:mb-10"
+        style={{
+          width: "min(18rem, 40vw)",
+          background: "linear-gradient(90deg, transparent, rgba(0,255,136,0.7), transparent)",
+        }}
+      />
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 w-full max-w-5xl"
+        style={{ gap: "clamp(0.9rem, 2.2vmin, 1.5rem)" }}
+      >
+        {stats.map((s, i) => (
+          <AnimatedStat key={i} value={s.value} label={s.label} color={s.color} delay={0.15 + 0.15 * i} />
+        ))}
       </div>
     </div>
   );
@@ -398,13 +457,12 @@ function TwoColumnSlide({ title, icon, left, right }: {
 /* ================================================================
    CLICK REVEAL — slayt içi katmanları tıkla / Enter / Sağ ok ile aç
    ================================================================ */
-function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", footer }: {
+function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88" }: {
   title: string;
   icon: IconType;
   layers: { label: string; body: ReactNode }[];
   ctx: SlideCtx;
   accent?: string;
-  footer?: ReactNode;
 }) {
   const [shown, setShown] = useState(0);
   const shownRef = useRef(0);
@@ -457,24 +515,14 @@ function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", footer }: {
         </AnimatePresence>
       </div>
 
-      <div className="mt-3 sm:mt-4 mb-1 flex items-center justify-center gap-2 sm:gap-3 mcb-meta mcb-mono text-gray-400 select-none">
-        {remaining > 0 ? (
-          <>
-            <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
-              className="inline-flex items-center" style={{ color: accent }}>
-              <ChevronRight strokeWidth={2.2} style={{ width: "1.2em", height: "1.2em" }} />
-            </motion.span>
-            <span>tıkla / Enter / → · {remaining} ipucu daha</span>
-          </>
-        ) : (
-          <span className="inline-flex items-center gap-1.5" style={{ color: accent }}>
-            <Check strokeWidth={2.4} style={{ width: "1.1em", height: "1.1em" }} />
-            Tüm ipuçları açıldı — devam edin
-          </span>
-        )}
-      </div>
-      {footer && shown >= layers.length && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-1 mcb-meta text-gray-400 text-center max-w-3xl px-2">{footer}</motion.div>
+      {remaining > 0 && (
+        <div className="mt-3 sm:mt-4 mb-1 flex items-center justify-center gap-2 sm:gap-3 mcb-meta mcb-mono text-gray-400 select-none">
+          <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
+            className="inline-flex items-center" style={{ color: accent }}>
+            <ChevronRight strokeWidth={2.2} style={{ width: "1.2em", height: "1.2em" }} />
+          </motion.span>
+          <span>{remaining} ipucu daha</span>
+        </div>
       )}
     </div>
   );
@@ -543,30 +591,118 @@ function CountdownTimer({ seconds = 300, ctx }: { seconds?: number; ctx: SlideCt
 }
 
 /* ================================================================
-   LIVE EXPERIMENT — sunum içinde canlı deney rotalarını embed eder
+   COMMON PASSWORDS LEADERBOARD
    ================================================================ */
-function LiveExperiment({ src, label, hint }: { src: string; label: string; hint?: string }) {
-  const [key, setKey] = useState(0);
+function CommonPasswordsSlide() {
+  const list: { rank: number; pw: string; crack: string; pct: number; color: string; tag: string }[] = [
+    { rank: 1, pw: "123456",      crack: "<1 sn",  pct: 100, color: "#ef4444", tag: "ÇOK ZAYIF" },
+    { rank: 2, pw: "123456789",   crack: "<1 sn",  pct: 100, color: "#ef4444", tag: "ÇOK ZAYIF" },
+    { rank: 3, pw: "password",    crack: "<1 sn",  pct: 100, color: "#ef4444", tag: "ÇOK ZAYIF" },
+    { rank: 4, pw: "qwerty",      crack: "<1 sn",  pct: 100, color: "#ef4444", tag: "ÇOK ZAYIF" },
+    { rank: 5, pw: "111111",      crack: "<1 sn",  pct: 100, color: "#ef4444", tag: "ÇOK ZAYIF" },
+    { rank: 6, pw: "fenerbahce",  crack: "5 sn",   pct: 92,  color: "#fb923c", tag: "ZAYIF" },
+    { rank: 7, pw: "galatasaray", crack: "8 sn",   pct: 88,  color: "#fb923c", tag: "ZAYIF" },
+    { rank: 8, pw: "ankara1453",  crack: "3 dk",   pct: 70,  color: "#fbbf24", tag: "ZAYIF" },
+  ];
   return (
-    <div className="flex flex-col h-full px-2 sm:px-3 pt-1 pb-1 min-h-0">
-      <div className="flex items-center justify-between gap-2 mb-1.5 sm:mb-2 px-1 sm:px-2 flex-wrap">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.3 }}
-            className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 shrink-0" style={{ boxShadow: "0 0 10px #f43f5e" }} />
-          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] mcb-mono text-rose-300 shrink-0">CANLI DENEY</span>
-          <span className="text-[10px] sm:text-xs mcb-mono text-emerald-400/80 truncate">{label}</span>
-        </div>
-        <button onClick={() => setKey((k) => k + 1)}
-          className="text-[10px] sm:text-xs mcb-mono px-2 sm:px-3 py-1 sm:py-1.5 rounded-md border border-white/15 text-white/70 hover:text-white hover:border-white/40 bg-black/40 transition-colors cursor-pointer shrink-0">
-          ↻ Yeniden Başlat
-        </button>
+    <div className="flex flex-col h-full px-3 sm:px-10 md:px-16 pt-1 pb-2 overflow-hidden">
+      <motion.p
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mcb-tag mcb-mono text-rose-400/85 text-center mt-1"
+      >
+        TÜRKİYE 2024–2025 · EN ÇOK KULLANILAN ŞİFRELER
+      </motion.p>
+      <motion.h2
+        initial={{ opacity: 0, y: -14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mcb-h2 font-black text-center mt-2 mb-1"
+      >
+        Listede senin şifren var mı?
+      </motion.h2>
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: 0.25, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="h-[2px] rounded-full mx-auto mb-3 sm:mb-4"
+        style={{
+          width: "min(14rem, 38vw)",
+          background: "linear-gradient(90deg, transparent, rgba(244,63,94,0.7), transparent)",
+        }}
+      />
+      <div className="w-full max-w-4xl mx-auto flex-1 min-h-0 flex flex-col justify-center gap-1.5 sm:gap-2">
+        {list.map((row, i) => (
+          <motion.div
+            key={row.rank}
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.06 * i + 0.35, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-2 sm:gap-4 rounded-lg bg-black/45 border backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-2.5"
+            style={{
+              borderColor: `${row.color}40`,
+              boxShadow: `0 0 14px ${row.color}18`,
+            }}
+          >
+            <span
+              className="mcb-mono font-bold tabular-nums shrink-0 text-right"
+              style={{
+                color: `${row.color}cc`,
+                fontSize: "clamp(0.85rem, 1.4vw, 1.15rem)",
+                width: "clamp(2.25rem, 4vw, 3rem)",
+              }}
+            >
+              #{row.rank.toString().padStart(2, "0")}
+            </span>
+            <span
+              className="mcb-mono font-bold tracking-wider truncate"
+              style={{
+                color: row.color,
+                fontSize: "clamp(1.05rem, 2.4vw, 1.85rem)",
+                textShadow: `0 0 14px ${row.color}50`,
+                flex: "0 1 18ch",
+                minWidth: 0,
+              }}
+            >
+              {row.pw}
+            </span>
+            <div className="flex-1 min-w-0 hidden sm:block">
+              <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${row.pct}%` }}
+                  transition={{ delay: 0.06 * i + 0.55, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full"
+                  style={{ background: row.color, boxShadow: `0 0 8px ${row.color}` }}
+                />
+              </div>
+            </div>
+            <span
+              className="mcb-mono tabular-nums shrink-0 text-right font-bold"
+              style={{
+                color: row.color,
+                fontSize: "clamp(0.85rem, 1.5vw, 1.2rem)",
+                minWidth: "clamp(2.75rem, 5vw, 4rem)",
+              }}
+            >
+              {row.crack}
+            </span>
+            <span
+              className="mcb-mono uppercase tracking-widest font-bold shrink-0 px-1.5 sm:px-2 py-0.5 rounded hidden md:inline-block"
+              style={{
+                color: row.color,
+                background: `${row.color}18`,
+                border: `1px solid ${row.color}40`,
+                fontSize: "clamp(0.6rem, 0.85vw, 0.75rem)",
+                minWidth: "5.5rem",
+                textAlign: "center",
+              }}
+            >
+              {row.tag}
+            </span>
+          </motion.div>
+        ))}
       </div>
-      <div className="flex-1 min-h-0 rounded-xl overflow-hidden border border-emerald-500/20 mcb-glow-green bg-black">
-        <iframe key={key} src={src} title={label}
-          className="w-full h-full block"
-          sandbox="allow-scripts allow-forms allow-same-origin allow-popups" />
-      </div>
-      {hint && <p className="mt-1 text-center mcb-meta text-gray-500 px-2 line-clamp-2">{hint}</p>}
     </div>
   );
 }
@@ -801,15 +937,6 @@ function LivePasswordExperiment({ ctx }: { ctx: SlideCtx }) {
             transition={{ duration: 0.4 }}
             className="flex-1 flex flex-col items-center justify-center min-h-0"
           >
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-              className="mb-3 flex items-center gap-2 sm:gap-3">
-              <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.3 }}
-                className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500"
-                style={{ boxShadow: "0 0 10px #f43f5e" }} />
-              <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] mcb-mono text-rose-300">CANLI DENEY</span>
-              <span className="text-[10px] sm:text-xs mcb-mono text-emerald-400/80 hidden sm:inline">/mcbukaf/sifre</span>
-            </motion.div>
-
             <motion.h2 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
               className="mcb-h2 font-black text-center mb-1"
               style={{ color: "#00ff88", textShadow: "0 0 22px rgba(0,255,136,0.5)" }}>
@@ -918,15 +1045,7 @@ function LivePasswordExperiment({ ctx }: { ctx: SlideCtx }) {
             <div className="flex-1 min-h-0 overflow-y-auto pr-1">
               {total === 0 ? (
                 <div className="h-full flex items-center justify-center text-center">
-                  <div>
-                    <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.6 }}
-                      className="mcb-mono text-emerald-400/70 text-sm mb-2 inline-flex items-center gap-1.5 justify-center">
-                      <ChevronRight strokeWidth={2.2} style={{ width: "1.1em", height: "1.1em" }} />
-                      canlı bağlı
-                    </motion.div>
-                    <p className="mcb-meta text-gray-500">İlk testin bekleniyor…</p>
-                    <p className="mcb-meta text-gray-600 mt-1">Telefonundan QR&apos;ı tarat.</p>
-                  </div>
+                  <p className="mcb-meta text-gray-500">İlk testin bekleniyor…</p>
                 </div>
               ) : (
                 <div className="space-y-1.5 sm:space-y-2">
@@ -939,14 +1058,630 @@ function LivePasswordExperiment({ ctx }: { ctx: SlideCtx }) {
               )}
             </div>
 
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-              className="mt-2 mcb-meta text-gray-500 text-center px-2">
-              Yukarıdaki her satır <span className="text-rose-300">birinizin parolasının parmak izi</span>.
-              Sahte sayfa olsaydı şifrenin <strong className="text-rose-300">kendisi</strong> de orada olacaktı.
-            </motion.p>
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/* ================================================================
+   DEEPFAKE SLIDE — video embed + vakalar + ipuçları
+   ================================================================ */
+function DeepfakeSlide() {
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-8 md:px-12 pt-1 pb-2 min-h-0">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-center gap-3 sm:gap-4 mb-2">
+        <IconBadge icon={Drama} color="#a855f7" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.6} />
+        <h2 className="mcb-h3 font-bold text-center">Bu Morgan Freeman değil.</h2>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full mx-auto rounded-2xl overflow-hidden border bg-black"
+        style={{
+          maxWidth: "min(58vh * 16 / 9, 100%)",
+          aspectRatio: "16 / 9",
+          borderColor: "rgba(168,85,247,0.4)",
+          boxShadow: "0 0 32px rgba(168,85,247,0.25), inset 0 0 30px rgba(168,85,247,0.06)",
+        }}
+      >
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/oxXpB9pSETo?rel=0&modestbranding=1"
+          title="This is not Morgan Freeman — A Deepfake Singularity"
+          className="w-full h-full block"
+          allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+        className="mcb-meta text-gray-400 text-center mt-2 sm:mt-3 max-w-4xl mx-auto px-2"
+      >
+        Hong Kong &middot; <span className="text-purple-300 font-bold">Arup 25,6 M$</span> · Türkiye &middot; <span className="text-purple-300 font-bold">MİT Erdoğan ses klonunu yakaladı</span>
+      </motion.p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-3 sm:mt-4 w-full max-w-5xl mx-auto">
+        {[
+          { label: "Göz", text: "Göz kırpma anormal — ya hiç olmaz ya makine ritminde." },
+          { label: "Dudak senkronu", text: "Sert ünsüzlerde milisaniyelik kayma — P, M, B." },
+          { label: "Ton + nefes", text: "Klonlanmış seste nefes yok, duygu eğrisi düz." },
+        ].map((tip, i) => (
+          <motion.div
+            key={tip.label}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 + i * 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-lg bg-black/45 border backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-2.5"
+            style={{
+              borderColor: "rgba(168,85,247,0.35)",
+              boxShadow: "0 0 14px rgba(168,85,247,0.15)",
+            }}
+          >
+            <p className="mcb-mono text-purple-300 text-xs uppercase tracking-widest font-bold mb-1">{tip.label}</p>
+            <p className="mcb-meta text-gray-200 leading-snug">{tip.text}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   QR PHISHING TRAP — bait + reveal slaytları
+   ================================================================ */
+function useQrTrapPoll(active: boolean, intervalMs = 1500) {
+  const [total, setTotal] = useState(0);
+  const [lastAt, setLastAt] = useState<string | null>(null);
+  const [, force] = useState(0);
+
+  useEffect(() => {
+    if (!active) return;
+    let cancelled = false;
+    let timer: number | undefined;
+
+    const tick = async () => {
+      try {
+        const r = await fetch(`/api/mcbukaf/qr-tuzak?session=default&min=120`, { cache: "no-store" });
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        if (cancelled) return;
+        setTotal(data.total ?? 0);
+        setLastAt(data.hits?.[0]?.createdAt ?? null);
+      } catch {
+        /* keep prior */
+      } finally {
+        if (!cancelled) timer = window.setTimeout(tick, intervalMs);
+      }
+    };
+    tick();
+
+    const refresh = window.setInterval(() => force((x) => x + 1), 5000);
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+      window.clearInterval(refresh);
+    };
+  }, [active, intervalMs]);
+
+  return { total, lastAt };
+}
+
+function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.origin);
+  }, []);
+  const targetUrl = origin ? `${origin}/mcbukaf/qr-tuzak` : "";
+  const qrDataUrl = useQrDataUrl(targetUrl, 720);
+  const { total, lastAt } = useQrTrapPoll(ctx.isActive);
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-8 pt-1 pb-2 min-h-0 items-center">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 sm:gap-3 mt-1 mb-2">
+        <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500 shadow-lg shadow-emerald-500/40">
+          <Check strokeWidth={3} className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        </span>
+        <span className="mcb-mono text-emerald-400 font-bold text-sm sm:text-base tracking-wide">
+          Etkinlik Anketi
+        </span>
+      </motion.div>
+
+      <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+        className="mcb-h2 font-black text-center mb-1.5"
+        style={{ color: "#00ff88", textShadow: "0 0 22px rgba(0,255,136,0.45)" }}>
+        Bu sunum nasıl gidiyor?
+      </motion.h2>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
+        className="mcb-lead text-gray-300 text-center mb-4 sm:mb-5 max-w-3xl px-2">
+        QR&apos;ı tarat · 30 saniyelik kısa anketi doldur
+      </motion.p>
+
+      <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 130, damping: 14, delay: 0.2 }}
+        className="relative rounded-2xl overflow-hidden mcb-glow-green"
+        style={{
+          width: "min(50vmin, 420px)",
+          height: "min(50vmin, 420px)",
+          background: "white",
+          padding: "clamp(0.5rem, 1.5vmin, 1rem)",
+        }}>
+        {qrDataUrl ? (
+          <img src={qrDataUrl} alt="QR · /mcbukaf/qr-tuzak" className="w-full h-full object-contain" />
+        ) : (
+          <div className="w-full h-full bg-zinc-200 animate-pulse" />
+        )}
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
+        className="mt-4 flex flex-col items-center gap-1.5">
+        <p className="mcb-mono text-emerald-400/70 text-xs sm:text-sm tracking-widest break-all px-2 text-center">
+          {origin ? `${origin.replace(/^https?:\/\//, "")}/mcbukaf/qr-tuzak` : "—"}
+        </p>
+        <div className="flex items-center gap-2">
+          <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
+            className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="mcb-mono text-[10px] sm:text-xs text-emerald-400/70 tracking-widest">
+            {total > 0
+              ? `${total} kişi katıldı${lastAt ? ` · son: ${relTime(lastAt)}` : ""}`
+              : "anket aktif · ilk katılım bekleniyor…"}
+          </span>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function QrRevealSlide({ ctx }: { ctx: SlideCtx }) {
+  const { total } = useQrTrapPoll(ctx.isActive);
+  const animated = useCountUp(String(total), 1200, 200);
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-16 items-center justify-center text-center overflow-hidden relative">
+      <motion.div className="absolute inset-0 mcb-stripes z-0"
+        initial={{ opacity: 0 }} animate={{ opacity: [0.08, 0.18, 0.08] }} transition={{ repeat: Infinity, duration: 3 }} />
+
+      <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        className="relative z-10 mcb-tag mcb-mono text-rose-400/85 mb-3">
+        ANKET DİYE DUYURDUM — AMA…
+      </motion.p>
+
+      <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.15 }}
+        className="relative z-10 font-black mcb-mono tabular-nums leading-none"
+        style={{
+          fontSize: "clamp(5rem, 18vw, 16rem)",
+          color: "#f43f5e",
+          textShadow: "0 0 40px rgba(244,63,94,0.6), 0 0 120px rgba(244,63,94,0.3)",
+          letterSpacing: "-0.04em",
+        }}>
+        {animated}
+      </motion.div>
+
+      <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+        className="relative z-10 mcb-h3 font-bold text-white mt-3 mb-2 max-w-4xl">
+        kişi sahte bir QR&apos;a güvendi.
+      </motion.p>
+
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}
+        className="relative z-10 mcb-lead text-gray-300 max-w-3xl px-2">
+        QR &nbsp;=&nbsp; <span className="text-rose-300">link</span>. &nbsp;Tıklamadan önce nereye gittiğini kontrol et.
+      </motion.p>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}
+        className="relative z-10 mt-5 sm:mt-7 mcb-mono text-emerald-400/60 text-xs sm:text-sm tracking-widest">
+        Bu sefer öğretti — bir sonrakinde 2,8 milyon TurkNet abonesi gibi olabilirsin.
+      </motion.div>
+    </div>
+  );
+}
+
+/* ================================================================
+   WHATSAPP SCAM SIM — chat oynar, sonra hack reveal
+   ================================================================ */
+type ChatMsg = { from: "them" | "you"; text: string; time: string };
+
+const WA_MESSAGES: ChatMsg[] = [
+  { from: "them", text: "Merhaba! TikTok ajansından arıyoruz — kampanyamızda yer almak ister misin?", time: "14:23" },
+  { from: "them", text: "Günlük 800–2500 ₺ kazanırsın · sadece beğeni atacaksın", time: "14:23" },
+  { from: "them", text: "İlk göreve başlamak için: bit.ly/gorev-2026", time: "14:24" },
+  { from: "you", text: "tmm bakayım", time: "14:25" },
+  { from: "them", text: "Tebrikler — 250 ₺ kazandın! Çekmek için 5.000 ₺ teminat gerekiyor", time: "14:26" },
+];
+
+function WhatsAppScamSim({ ctx }: { ctx: SlideCtx }) {
+  const [msgs, setMsgs] = useState(0);
+  const [phase, setPhase] = useState<"chat" | "hack">("chat");
+
+  useEffect(() => {
+    if (!ctx.isActive) { setMsgs(0); setPhase("chat"); return; }
+  }, [ctx.isActive]);
+
+  useEffect(() => {
+    if (!ctx.isActive) return;
+    if (phase === "chat" && msgs < WA_MESSAGES.length) {
+      const t = setTimeout(() => setMsgs((p) => p + 1), 1700);
+      return () => clearTimeout(t);
+    }
+    if (phase === "chat" && msgs >= WA_MESSAGES.length) {
+      const t = setTimeout(() => setPhase("hack"), 2200);
+      return () => clearTimeout(t);
+    }
+  }, [phase, msgs, ctx.isActive]);
+
+  return (
+    <div className="flex flex-col h-full px-3 sm:px-8 pt-1 pb-2 items-center min-h-0">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 sm:gap-3 mt-1 mb-2">
+        <IconBadge icon={Smartphone} color="#25d366" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
+        <h2 className="mcb-h3 font-bold text-center">WhatsApp · İş Teklifi Tuzağı</h2>
+      </motion.div>
+
+      <div className="flex-1 min-h-0 w-full max-w-md flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {phase === "chat" && (
+            <motion.div key="chat"
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}
+              className="w-full bg-[#0b141a] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+              <div className="bg-[#1f2c34] px-3 sm:px-4 py-2.5 flex items-center gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-600 flex items-center justify-center">
+                  <Smartphone className="w-5 h-5 sm:w-5 sm:h-5 text-white" strokeWidth={2} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-white font-medium text-sm truncate">+91 98XX XXXX XX</p>
+                  <p className="text-emerald-400 text-[11px]">online</p>
+                </div>
+              </div>
+              <div className="p-3 sm:p-4 space-y-2 min-h-[300px] sm:min-h-[340px]">
+                {WA_MESSAGES.slice(0, msgs).map((msg, i) => (
+                  <motion.div key={i}
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.25 }}
+                    className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${msg.from === "them"
+                      ? "bg-[#1f2c34] text-gray-100 mr-auto" : "bg-[#005c4b] text-white ml-auto"}`}>
+                    <p className="leading-snug">{msg.text}</p>
+                    <p className="text-[10px] text-gray-400 text-right mt-1 mcb-mono">{msg.time}</p>
+                  </motion.div>
+                ))}
+                {msgs < WA_MESSAGES.length && (
+                  <div className="bg-[#1f2c34] text-gray-400 text-xs rounded-xl px-3 py-2 w-20 mr-auto mcb-mono">
+                    <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }}>
+                      yazıyor…
+                    </motion.span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {phase === "hack" && (
+            <motion.div key="hack"
+              initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 130, damping: 14 }}
+              className="w-full rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, rgba(244,63,94,0.12), rgba(244,63,94,0.04))",
+                border: "1px solid rgba(244,63,94,0.4)",
+                boxShadow: "0 0 40px rgba(244,63,94,0.25), inset 0 0 30px rgba(244,63,94,0.06)",
+              }}>
+              <motion.div className="absolute inset-0 mcb-stripes opacity-30"
+                animate={{ opacity: [0.15, 0.35, 0.15] }} transition={{ repeat: Infinity, duration: 2.2 }} />
+              <motion.div className="relative z-10 inline-flex mb-3"
+                animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 0.8 }}>
+                <IconBadge icon={AlertOctagon} color="#f43f5e" size="clamp(2.75rem, 6vmin, 4rem)" strokeWidth={1.6} />
+              </motion.div>
+              <p className="relative z-10 mcb-h3 font-black mb-2"
+                style={{ color: "#f43f5e", textShadow: "0 0 22px rgba(244,63,94,0.55)" }}>
+                Hesabın Çalındı
+              </p>
+              <p className="relative z-10 mcb-body text-gray-200 leading-snug max-w-md mx-auto">
+                Linke tıkladığın an WhatsApp QR girişin saldırgana geçti.
+                Rehberindeki <strong className="text-rose-300">347 kişi</strong> şu anda aynı mesajı senden alıyor.
+              </p>
+              <p className="relative z-10 mcb-mono text-rose-400/85 text-xs sm:text-sm tracking-widest mt-4 uppercase">
+                Tek bir tıklama. Bütün ağ.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   PREDATORY JOURNAL SIM — akademik dolandırıcılık animasyonu
+   ================================================================ */
+const PJ_BODY = [
+  "Dear Esteemed Researcher,",
+  "Manuscript ID: IJAR-2026-44293 — ACCEPTED.",
+  "Peer review completed in 18 hours · Impact Factor (RIIF): 8.4*",
+  "Article Processing Charge: $349 USD",
+  "Click below to complete payment and proceed to publication.",
+];
+
+function PredatoryJournalSim({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<"inbox" | "open" | "hack">("inbox");
+  const [lines, setLines] = useState(0);
+
+  useEffect(() => {
+    if (!ctx.isActive) { setPhase("inbox"); setLines(0); return; }
+  }, [ctx.isActive]);
+
+  useEffect(() => {
+    if (!ctx.isActive) return;
+    if (phase === "inbox") {
+      const t = setTimeout(() => setPhase("open"), 1600);
+      return () => clearTimeout(t);
+    }
+    if (phase === "open" && lines < PJ_BODY.length) {
+      const t = setTimeout(() => setLines((p) => p + 1), 1100);
+      return () => clearTimeout(t);
+    }
+    if (phase === "open" && lines >= PJ_BODY.length) {
+      const t = setTimeout(() => setPhase("hack"), 2200);
+      return () => clearTimeout(t);
+    }
+  }, [phase, lines, ctx.isActive]);
+
+  return (
+    <div className="flex flex-col h-full px-3 sm:px-8 pt-1 pb-2 items-center min-h-0">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 sm:gap-3 mt-1 mb-2">
+        <IconBadge icon={GraduationCap} color="#a855f7" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
+        <h2 className="mcb-h3 font-bold text-center">Akademik Phishing · Predatory Dergi</h2>
+      </motion.div>
+
+      <div className="flex-1 min-h-0 w-full max-w-2xl flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {phase === "inbox" && (
+            <motion.div key="inbox"
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}
+              className="w-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-zinc-200">
+              <div className="bg-zinc-50 border-b border-zinc-200 px-4 py-3 flex items-center gap-3">
+                <Inbox className="w-5 h-5 text-zinc-500" strokeWidth={2} />
+                <span className="text-zinc-700 font-medium text-sm">Gelen Kutusu</span>
+                <span className="ml-auto inline-flex items-center justify-center text-[10px] font-bold w-5 h-5 rounded-full bg-rose-500 text-white">1</span>
+              </div>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 120, damping: 14 }}
+                className="px-4 py-3 border-b border-zinc-100 bg-blue-50/40">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="mcb-mono text-[11px] text-zinc-500 truncate">editor@ijar-publishing.net</span>
+                  <span className="mcb-mono text-[10px] text-zinc-400 ml-auto">şimdi</span>
+                </div>
+                <p className="text-sm font-bold text-zinc-900 truncate">[ACCEPTED] Your Manuscript IJAR-2026-44293</p>
+                <p className="text-xs text-zinc-500 truncate mt-0.5">We are pleased to inform you that your paper has been accepted…</p>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {phase === "open" && (
+            <motion.div key="open"
+              initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              className="w-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-zinc-200">
+              <div className="bg-zinc-50 border-b border-zinc-200 px-4 py-2.5 flex items-center gap-2">
+                <ChevronRight className="w-4 h-4 text-zinc-500 rotate-180" />
+                <span className="text-zinc-600 text-xs">Gelen Kutusu</span>
+              </div>
+              <div className="px-4 sm:px-5 pt-3 pb-2 border-b border-zinc-100">
+                <p className="text-base sm:text-lg font-bold text-zinc-900 leading-snug mb-1.5">
+                  [ACCEPTED] Your Manuscript IJAR-2026-44293
+                </p>
+                <div className="flex items-center gap-2 text-[11px] text-zinc-500">
+                  <Mail className="w-3.5 h-3.5" strokeWidth={2} />
+                  <span className="mcb-mono">editor@ijar-publishing.net</span>
+                </div>
+              </div>
+              <div className="px-4 sm:px-5 py-3 sm:py-4 space-y-2 text-sm text-zinc-800 min-h-[14rem] sm:min-h-[16rem]">
+                {PJ_BODY.slice(0, lines).map((line, i) => {
+                  const isCharge = line.startsWith("Article Processing");
+                  return (
+                    <motion.p key={i}
+                      initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className={`leading-snug ${isCharge ? "font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-md border border-rose-200" : ""}`}>
+                      {line}
+                    </motion.p>
+                  );
+                })}
+                {lines >= PJ_BODY.length && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="pt-2">
+                    <motion.div
+                      animate={{ boxShadow: ["0 0 0 0 rgba(34,197,94,0.5)", "0 0 0 10px rgba(34,197,94,0)"] }}
+                      transition={{ repeat: Infinity, duration: 1.4 }}
+                      className="inline-block rounded-md">
+                      <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-5 py-2.5 rounded-md shadow">
+                        Pay $349 &amp; Publish →
+                      </button>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {phase === "hack" && (
+            <motion.div key="hack"
+              initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 130, damping: 14 }}
+              className="w-full rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, rgba(168,85,247,0.14), rgba(168,85,247,0.04))",
+                border: "1px solid rgba(168,85,247,0.4)",
+                boxShadow: "0 0 40px rgba(168,85,247,0.25), inset 0 0 30px rgba(168,85,247,0.06)",
+              }}>
+              <motion.div className="absolute inset-0 mcb-stripes opacity-25"
+                animate={{ opacity: [0.15, 0.3, 0.15] }} transition={{ repeat: Infinity, duration: 2.4 }} />
+
+              <motion.div className="relative z-10 inline-flex mb-3"
+                animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 0.9 }}>
+                <IconBadge icon={AlertOctagon} color="#a855f7" size="clamp(2.75rem, 6vmin, 4rem)" strokeWidth={1.6} />
+              </motion.div>
+
+              <p className="relative z-10 mcb-h3 font-black mb-3"
+                style={{ color: "#c084fc", textShadow: "0 0 22px rgba(168,85,247,0.55)" }}>
+                Predatory Dergi
+              </p>
+
+              <div className="relative z-10 max-w-xl mx-auto space-y-2.5 text-left">
+                <p className="mcb-body text-gray-200 leading-snug">
+                  <strong className="text-purple-300">18 saatte hakem onayı</strong> diye bir şey yok. Bu süre hakem değil, kredi kartı bekleme süresi.
+                </p>
+                <p className="mcb-body text-gray-200 leading-snug">
+                  <strong className="text-purple-300">RIIF / GIF / IIIF</strong> &quot;impact factor&quot; uydurmaları — gerçek Web of Science / Scopus indeksi değil.
+                </p>
+                <p className="mcb-body text-gray-200 leading-snug">
+                  Ödeme yapan akademisyenin makalesi <strong className="text-purple-300">akademik özgeçmişe sayılmaz</strong>, alan dışı atıf almaz, ÜAK reddeder.
+                </p>
+              </div>
+
+              <p className="relative z-10 mcb-mono text-purple-300/85 text-xs sm:text-sm tracking-widest mt-5 uppercase">
+                Kontrol et: DOAJ · Beall's List · ULAKBİM TR-Dizin
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   SOCIAL QR — kapanış öncesi takip linkleri
+   ================================================================ */
+const SOCIALS = [
+  {
+    key: "linkedin",
+    url: "https://linkedin.com/in/osmancancetlenbik",
+    label: "LinkedIn",
+    handle: "/in/osmancancetlenbik",
+    color: "#0a66c2",
+    svg: (
+      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.86-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.86 3.36-1.86 3.59 0 4.26 2.37 4.26 5.45v6.3zM5.34 7.44a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.01H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z" />
+    ),
+  },
+  {
+    key: "instagram",
+    url: "https://instagram.com/osmancancetlenbik",
+    label: "Instagram",
+    handle: "@osmancancetlenbik",
+    color: "#e1306c",
+    svg: (
+      <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07 5.77.13 4.9.33 4.14.63a5.9 5.9 0 0 0-2.13 1.39A5.9 5.9 0 0 0 .62 4.15C.33 4.9.13 5.77.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91a5.9 5.9 0 0 0 1.39 2.13 5.9 5.9 0 0 0 2.13 1.39c.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56a5.9 5.9 0 0 0 2.13-1.39 5.9 5.9 0 0 0 1.39-2.13c.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91a5.9 5.9 0 0 0-1.39-2.13A5.9 5.9 0 0 0 19.86.63C19.1.33 18.23.13 16.95.07 15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32zm0 10.16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.85a1.44 1.44 0 1 1 0 2.88 1.44 1.44 0 0 1 0-2.88z" />
+    ),
+  },
+  {
+    key: "github",
+    url: "https://github.com/osmancancet",
+    label: "GitHub",
+    handle: "/osmancancet",
+    color: "#a3a3a3",
+    svg: (
+      <path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.3-3.2-.2-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2a4.6 4.6 0 0 1 1.2 3.2c0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.2.9 2.4v3.5c0 .3.2.7.8.6A12 12 0 0 0 12 .3" />
+    ),
+  },
+  {
+    key: "website",
+    url: "https://www.osmancancetlenbik.com",
+    label: "Web",
+    handle: "osmancancetlenbik.com",
+    color: "#00ff88",
+    svg: (
+      <path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm9.4 7.2h-3.4a18 18 0 0 0-1.6-4.2 9.7 9.7 0 0 1 5 4.2zM12 2.2c.9 0 2.4 1.4 3.4 5h-6.8c1-3.6 2.5-5 3.4-5zM2.6 14.4a9.8 9.8 0 0 1 0-4.8h3.9a25 25 0 0 0 0 4.8H2.6zm1 2.4h3.4a18 18 0 0 0 1.6 4.2 9.7 9.7 0 0 1-5-4.2zm3.4-9.6H3.6a9.7 9.7 0 0 1 5-4.2 18 18 0 0 0-1.6 4.2zM12 21.8c-.9 0-2.4-1.4-3.4-5h6.8c-1 3.6-2.5 5-3.4 5zm3.8-7.4H8.2a22 22 0 0 1 0-4.8h7.6a22 22 0 0 1 0 4.8zm.7 6.6a18 18 0 0 0 1.6-4.2h3.4a9.7 9.7 0 0 1-5 4.2zm2-6.6a25 25 0 0 0 0-4.8h3.9a9.8 9.8 0 0 1 0 4.8h-3.9z" />
+    ),
+  },
+];
+
+function SocialQrCard({ s, i }: { s: typeof SOCIALS[number]; i: number }) {
+  const qrDataUrl = useQrDataUrl(s.url, 560);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay: 0.2 + i * 0.12, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col items-center"
+    >
+      <motion.div
+        animate={{ boxShadow: [`0 0 18px ${s.color}25`, `0 0 56px ${s.color}55`, `0 0 18px ${s.color}25`] }}
+        transition={{ repeat: Infinity, duration: 2.8, delay: i * 0.25, ease: "easeInOut" }}
+        className="relative rounded-2xl overflow-hidden"
+        style={{
+          background: "white",
+          padding: "clamp(0.5rem, 1.5vmin, 1rem)",
+          width: "clamp(8rem, 22vmin, 14rem)",
+          height: "clamp(8rem, 22vmin, 14rem)",
+        }}
+      >
+        {qrDataUrl ? (
+          <img src={qrDataUrl} alt={s.label} className="w-full h-full object-contain" draggable={false} />
+        ) : (
+          <div className="w-full h-full bg-zinc-200 animate-pulse" />
+        )}
+      </motion.div>
+
+      <div className="mt-3 sm:mt-4 flex items-center gap-2"
+        style={{ filter: `drop-shadow(0 0 14px ${s.color}55)` }}>
+        <svg viewBox="0 0 24 24" fill={s.color}
+          style={{ width: "clamp(1.1rem, 2vmin, 1.6rem)", height: "clamp(1.1rem, 2vmin, 1.6rem)" }}>
+          {s.svg}
+        </svg>
+        <span className="mcb-h3 font-bold" style={{ color: s.color, fontSize: "clamp(1.05rem, 2.2vmin, 1.6rem)" }}>
+          {s.label}
+        </span>
+      </div>
+      <p className="mcb-mono text-gray-400 mt-1 text-center px-2"
+        style={{ fontSize: "clamp(0.7rem, 1.1vmin, 0.95rem)" }}>
+        {s.handle}
+      </p>
+    </motion.div>
+  );
+}
+
+function SocialQrSlide() {
+  return (
+    <div className="flex flex-col h-full items-center justify-center px-4 sm:px-10 md:px-16">
+      <motion.p
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mcb-tag mcb-mono text-emerald-400/80 mb-2"
+      >
+        BENİ TAKİP ET · SORU SOR
+      </motion.p>
+      <motion.h2
+        initial={{ opacity: 0, y: -14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mcb-h2 font-black text-center mb-3"
+        style={{ color: "#00ff88", textShadow: "0 0 22px rgba(0,255,136,0.45)" }}
+      >
+        Bağlantıda kal
+      </motion.h2>
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="h-[2px] rounded-full mb-6 sm:mb-10"
+        style={{
+          width: "min(18rem, 40vw)",
+          background: "linear-gradient(90deg, transparent, rgba(0,255,136,0.7), transparent)",
+        }}
+      />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 sm:gap-8 md:gap-12 w-full max-w-6xl place-items-center">
+        {SOCIALS.map((s, i) => (
+          <SocialQrCard key={s.key} s={s} i={i} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -956,9 +1691,9 @@ function LivePasswordExperiment({ ctx }: { ctx: SlideCtx }) {
    ================================================================ */
 const SECTIONS = [
   { name: "Açılış", start: 0 },
-  { name: "Oltalama", start: 3 },
-  { name: "Şifreler", start: 6 },
-  { name: "Sosyal Müh.", start: 11 },
+  { name: "Oltalama", start: 2 },
+  { name: "Şifreler", start: 5 },
+  { name: "Sosyal Müh.", start: 10 },
   { name: "2026 Tehditleri", start: 15 },
   { name: "Korunma", start: 19 },
   { name: "Kapanış", start: 22 },
@@ -970,49 +1705,108 @@ const SECTIONS = [
 const slides: Slide[] = [
   /* ── AÇILIŞ ── */
   { id: "cover", content: (
-    <div className="flex flex-col items-center justify-center h-full text-center px-4 sm:px-8 relative overflow-hidden">
-      <motion.div className="absolute rounded-full border border-emerald-500/10 z-0"
-        style={{ width: "min(640px, 80vmin)", height: "min(640px, 80vmin)" }}
-        animate={{ scale: [0.85, 1.1, 0.85], opacity: [0.2, 0.5, 0.2] }} transition={{ repeat: Infinity, duration: 5 }} />
-      <motion.div className="absolute rounded-full border border-cyan-500/10 z-0"
-        style={{ width: "min(420px, 55vmin)", height: "min(420px, 55vmin)" }}
-        animate={{ scale: [1.1, 0.85, 1.1], opacity: [0.3, 0.6, 0.3] }} transition={{ repeat: Infinity, duration: 4 }} />
-      <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 100, damping: 14 }}
+    <div className="flex flex-col items-center justify-center h-full text-center px-4 sm:px-10 relative overflow-hidden">
+      <motion.div
+        className="absolute rounded-full z-0"
+        style={{
+          width: "min(720px, 88vmin)",
+          height: "min(720px, 88vmin)",
+          border: "1px solid rgba(0,255,136,0.08)",
+        }}
+        animate={{ scale: [0.9, 1.08, 0.9], opacity: [0.25, 0.55, 0.25] }}
+        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute rounded-full z-0"
+        style={{
+          width: "min(460px, 58vmin)",
+          height: "min(460px, 58vmin)",
+          border: "1px solid rgba(34,211,238,0.08)",
+        }}
+        animate={{ scale: [1.08, 0.9, 1.08], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: -18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10"
-        style={{ marginBottom: "clamp(1rem, 3vh, 1.75rem)" }}>
-        <LogoMark size="clamp(5rem, 13vmin, 9rem)" />
+        style={{ marginBottom: "clamp(1.25rem, 4vh, 2.5rem)" }}
+      >
+        <LogoMark height="clamp(3.25rem, 7.5vmin, 6rem)" />
       </motion.div>
-      <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.7 }}
-        className="mcb-h1 font-black mb-3 relative z-10 max-w-6xl"
-        style={{ color: "#00ff88", textShadow: "0 0 28px rgba(0,255,136,0.5), 0 0 70px rgba(0,255,136,0.2)" }}>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.15, duration: 0.5 }}
+        className="mcb-tag mcb-mono text-emerald-400/80 relative z-10"
+        style={{ marginBottom: "clamp(0.75rem, 2vh, 1.25rem)" }}
+      >
+        MCBÜKAF · 2026
+      </motion.p>
+
+      <motion.h1
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="mcb-h1 font-black relative z-10 max-w-6xl"
+        style={{
+          color: "#00ff88",
+          textShadow: "0 0 32px rgba(0,255,136,0.55), 0 0 90px rgba(0,255,136,0.22)",
+          letterSpacing: "-0.02em",
+        }}
+      >
         <GlitchText text="İnteraktif Siber Güvenlik" />
       </motion.h1>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-        className="mcb-lead text-gray-300 max-w-3xl relative z-10 px-2">
-        Son kullanıcı zafiyetleri ve sosyal mühendislik — sahnede canlı.
+
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: 0.55, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 h-[2px] rounded-full"
+        style={{
+          width: "min(20rem, 45vw)",
+          background: "linear-gradient(90deg, transparent, #00ff88, transparent)",
+          boxShadow: "0 0 12px #00ff88",
+          marginTop: "clamp(0.75rem, 2vh, 1.25rem)",
+          marginBottom: "clamp(1rem, 3vh, 1.75rem)",
+        }}
+      />
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
+        className="mcb-lead text-gray-300 max-w-3xl relative z-10 px-2"
+      >
+        Son kullanıcı zafiyetleri ve sosyal mühendislik.
       </motion.p>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}
-        className="relative z-10" style={{ marginTop: "clamp(1.5rem, 4.5vh, 3rem)" }}>
-        <p className="mcb-meta text-emerald-400/70 mcb-mono tracking-widest mb-2">MCBÜKAF · 2026</p>
-        <p className="mcb-body text-gray-200">Öğr. Gör. Osman Can Çetlenbik</p>
-        <p className="mcb-meta text-gray-500 mt-1">Manisa Celal Bayar Üniversitesi · Teknik Bilimler Meslek Yüksekokulu</p>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1, duration: 0.6 }}
+        className="relative z-10"
+        style={{ marginTop: "clamp(2rem, 6vh, 3.5rem)" }}
+      >
+        <p className="mcb-body font-semibold text-white">Öğr. Gör. Osman Can Çetlenbik</p>
+        <p className="mcb-meta text-gray-500 mt-1.5">Manisa Celal Bayar Üniversitesi · Teknik Bilimler MYO</p>
       </motion.div>
     </div>
   )},
 
-  { id: "hook-stat", content: <StatSlide title="Türkiye · 2025–2026" stats={[
-    { value: "1.2M+", label: "Günlük saldırı girişimi (USOM)", color: "#ef4444" },
-    { value: "%62", label: "Oltalama vakası artışı", color: "#fbbf24" },
-    { value: "49M", label: "Tek sızıntıda açığa çıkan kayıt", color: "#22d3ee" },
-    { value: "%900", label: "Deepfake artış oranı", color: "#a855f7" },
-  ]} /> },
+  { id: "hook-stat", content: <StatSlide
+    eyebrow="TÜRKİYE · 2024–2026"
+    title="Tablo karanlık."
+    stats={[
+      { value: "11M+", label: "Günlük engellenen zararlı erişim · USOM", color: "#ef4444" },
+      { value: "2.8M", label: "TurkNet sızıntısı — CEO dahil · Mart 2025", color: "#fbbf24" },
+      { value: "50M ₺", label: "Tek 'Savcılık' çetesi vurgunu · 85 gözaltı", color: "#22d3ee" },
+      { value: "%900", label: "Deepfake artışı 2023→2025 · Buffalo Üni.", color: "#a855f7" },
+    ]} /> },
 
-  { id: "quote-intro", content: <QuoteSlide icon={Brain}
-    quote="İnsanlar hacklenmez, ikna edilir."
-    author="Sosyal Mühendislik Gerçeği" /> },
-
-  /* ── BÖLÜM 01 · OLTALAMA ── */
   { id: "sec-oltalama", section: "Oltalama", content: <SectionTitle
     icon={Fish} number="01" title="Oltalama Saldırıları"
     subtitle="Bir mesaj. Bir link. Bir saniyelik düşüncesizlik."
@@ -1062,30 +1856,28 @@ const slides: Slide[] = [
           ),
         },
       ]}
-      footer="Bu dört ipucundan biri varsa: durun. İkisi varsa: tıklamayın. Üçü varsa: ihbar edin (USOM)."
     />
   )},
 
   { id: "phishing-cases", content: <BulletSlide
-    icon={BookOpen} title="Türkiye'den Güncel Vakalar" accent="rose"
+    icon={BookOpen} title="Türkiye'den 2024–2026 Vakaları" accent="rose"
     items={[
-      { icon: Package, text: "Kargo gümrük SMS'i: 24,90 TL ödeme talebi → arkada 24.500 TL'lik 3D Secure onayı geliyor." },
-      { icon: Landmark, text: "Sahte e-Devlet uyarısı: \"Ehliyetiniz iptal edilecek\" — kart ve kimlik bilgileriyle pişmanlık." },
-      { icon: Building2, text: "Banka SMS'i: \"Hesabınızda şüpheli işlem\" → sahte giriş sayfası, parolanız saldırgana akar." },
+      { icon: HardDrive, text: "TurkNet (Mart 2025): 2,8 milyon abone sızdı — TC, ev adresi, pasaport. Şirket önce \"244 bin\" dedi; dump'ta CEO'nun erişim bilgileri bile vardı." },
+      { icon: Phone, text: "İstanbul-İzmir \"Savcılık\" çetesi (2025): \"Adınız terör örgütüne karıştı.\" 20 ilde operasyon, 85 gözaltı, ~50 milyon ₺ vurgun." },
+      { icon: KeyRound, text: "16 milyar parola dump'ı (Haziran 2025): Türk devlet portalları Apple-Google-Facebook ile yan yana listede. Tek bir tekrar kullanılan parola = her hesabın anahtarı." },
     ]} /> },
 
-  /* ── BÖLÜM 02 · ŞİFRELER ── */
-  { id: "sec-sifre", section: "Şifreler", content: <SectionTitle
-    icon={Lock} number="02" title="Şifre Güvenliği"
-    subtitle="Tek şifre = domino. Birinden çalınırsa hepsi düşer."
-    color="#22d3ee" /> },
-
-  { id: "password-stats", content: <StatSlide title="Şifre Gerçekleri" stats={[
+  { id: "password-stats", section: "Şifreler", content: <StatSlide
+    eyebrow="BÖLÜM 02 · ŞİFRELER"
+    title="Tek şifre = domino"
+    stats={[
     { value: "0,001 sn", label: "\"123456\" kırılma süresi", color: "#ef4444" },
     { value: "%83", label: "Kullanıcı şifresini tekrar kullanıyor", color: "#fbbf24" },
     { value: "8", label: "Ortalama TR şifre uzunluğu", color: "#22d3ee" },
     { value: "3.000 yıl", label: "12 karışık karakter (rastgele)", color: "#00ff88" },
   ]} /> },
+
+  { id: "common-passwords", content: <CommonPasswordsSlide /> },
 
   { id: "live-sifre", content: (ctx) => <LivePasswordExperiment ctx={ctx} /> },
 
@@ -1117,9 +1909,8 @@ const slides: Slide[] = [
       ],
     }} /> },
 
-  /* ── BÖLÜM 03 · SOSYAL MÜHENDİSLİK ── */
   { id: "sec-soc", section: "Sosyal Müh.", content: <SectionTitle
-    icon={Drama} number="03" title="Sosyal Mühendislik"
+    icon={Drama} number="02" title="Sosyal Mühendislik"
     subtitle="Güvenlik duvarı geçilemiyorsa, kullanıcı ikna edilir."
     color="#f43f5e" /> },
 
@@ -1133,79 +1924,25 @@ const slides: Slide[] = [
       { icon: Handshake, text: "Güven — \"Tanıdığım, akraban, eski sınıf arkadaşın.\"" },
     ]} /> },
 
-  { id: "scam-script", content: (ctx) => (
-    <ClickReveal
-      ctx={ctx}
-      icon={Phone}
-      title="Telefon Dolandırıcılığı · Senaryo"
-      accent="#f43f5e"
-      layers={[
-        {
-          label: "Açılış · OTORİTE",
-          body: <p>&quot;İyi günler, ben <strong className="text-rose-300">Ankara Cumhuriyet Başsavcılığı&apos;ndan</strong> Komiser Yılmaz. Adınıza açılmış bir soruşturma dosyası var.&quot;</p>,
-        },
-        {
-          label: "Yükselme · KORKU",
-          body: <p>&quot;Hesabınızdan terör örgütüne para transferi yapılmış. <strong className="text-rose-300">15 dakika içinde</strong> ifadenizi alamazsak gözaltı kararı çıkacak.&quot;</p>,
-        },
-        {
-          label: "İzolasyon · GÜVEN",
-          body: <p>&quot;Konuşmamız <strong className="text-rose-300">gizli</strong>. Aileniz, banka çalışanı, kimseyle paylaşamazsınız — soruşturma sırrı.&quot;</p>,
-        },
-        {
-          label: "Vurgun · ACİLİYET",
-          body: <p>&quot;Şimdi <strong className="text-rose-300">tüm paranızı emanet hesabına</strong> aktaracaksınız. Sonra geri yatırılacak. ATM'ye gidin, ben telefonda kalıyorum.&quot;</p>,
-        },
-      ]}
-      footer="Her satırın yanındaki silahı görüyor musunuz? Bu kalıp 60+ yaş, 18–24 yaş ayrı demez."
-    />
-  )},
+  { id: "whatsapp-scam", content: (ctx) => <WhatsAppScamSim ctx={ctx} /> },
+
+  { id: "predatory-journal", content: (ctx) => <PredatoryJournalSim ctx={ctx} /> },
 
   { id: "golden-rule", content: <BigTextSlide
     text="Devlet asla telefonda para, altın veya şifre istemez."
     subtext="Bu cümleyi bir yere yazın. Ailenize öğretin. Hayat kurtarır."
     color="#f43f5e" /> },
 
-  /* ── BÖLÜM 04 · 2026 TEHDİTLERİ ── */
-  { id: "sec-2026", section: "2026 Tehditleri", content: <SectionTitle
-    icon={Bot} number="04" title="2026'nın Yeni Tehditleri"
-    subtitle="Deepfake, parmak izi, fidye yazılımı — sıra sizde."
-    color="#a855f7" /> },
+  { id: "deepfake", section: "2026 Tehditleri", content: <DeepfakeSlide /> },
 
-  { id: "deepfake", content: (ctx) => (
-    <ClickReveal
-      ctx={ctx}
-      icon={Drama}
-      title="Deepfake'i Nasıl Anlarsınız?"
-      accent="#a855f7"
-      layers={[
-        {
-          label: "İpucu 1 · Göz",
-          body: <p>Göz kırpma <strong className="text-purple-300">anormal</strong> — ya hiç olmaz ya da makine ritminde. Bakışlar yapay biçimde sabit.</p>,
-        },
-        {
-          label: "İpucu 2 · Dudak senkronu",
-          body: <p>Ses ve dudak hareketi <strong className="text-purple-300">milisaniyelik</strong> kayar. &ldquo;P&rdquo;, &ldquo;M&rdquo;, &ldquo;B&rdquo; gibi sert ünsüzlerde fark belirgin.</p>,
-        },
-        {
-          label: "İpucu 3 · Ton + nefes",
-          body: <p>Klonlanmış seste <strong className="text-purple-300">nefes ve duraksamalar</strong> eksiktir. Cümleler fazla pürüzsüz, duygu eğrisi düz.</p>,
-        },
-      ]}
-      footer="Aile bireyi sesiyle para isterse: telefonu kapatın, kendi numarasından geri arayın. Önceden belirlenmiş bir 'aile parolası' soru olarak çok işe yarar."
-    />
-  )},
+  { id: "qr-bait", content: (ctx) => <QrBaitSlide ctx={ctx} /> },
 
-  { id: "live-cihaz", content: <LiveExperiment
-    src="/mcbukaf/cihaz"
-    label="/mcbukaf/cihaz"
-    hint="Bir site sizden 'izin' istemeden neleri görebilir? Salondan birkaç telefonla aynı linki açıp karşılaştırın." /> },
+  { id: "qr-reveal", content: (ctx) => <QrRevealSlide ctx={ctx} /> },
 
   { id: "ransomware", content: (ctx) => <CountdownTimer seconds={300} ctx={ctx} /> },
 
-  /* ── BÖLÜM 05 · KORUNMA ── */
   { id: "sec-protect", section: "Korunma", content: <SectionTitle
-    icon={Shield} number="05" title="Kendinizi Koruyun"
+    icon={Shield} number="03" title="Kendinizi Koruyun"
     subtitle="Bugün, salondan çıkmadan uygulayabileceğiniz adımlar."
     color="#00ff88" /> },
 
@@ -1230,12 +1967,14 @@ const slides: Slide[] = [
     quote="En zayıf halka değiliz, en güçlü farkındalığız."
     author="MCBÜKAF '26" /> },
 
+  { id: "social-qr", content: <SocialQrSlide /> },
+
   { id: "thanks", content: (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 sm:px-8">
       <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 110, damping: 14 }}
         style={{ marginBottom: "clamp(1rem, 3vh, 1.75rem)" }}>
-        <LogoMark size="clamp(4.5rem, 11vmin, 7.5rem)" />
+        <LogoMark height="clamp(3rem, 7vmin, 5.5rem)" />
       </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
         className="mcb-h1 font-black mb-4 sm:mb-6"
