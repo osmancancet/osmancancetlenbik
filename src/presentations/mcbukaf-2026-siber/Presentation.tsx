@@ -575,6 +575,169 @@ function CountdownTimer({ seconds = 300, ctx }: { seconds?: number; ctx: SlideCt
 }
 
 /* ================================================================
+   PASSWORD CRACK SIM — auto brute-force animasyonu
+   ================================================================ */
+const CRACK_PASSWORDS = [
+  { pw: "123456",            time: "<0,001 sn", detail: "Türkiye'de #1 şifre",        color: "#ef4444", weak: true,  maxProg: 100 },
+  { pw: "ankara06",          time: "0,3 sn",    detail: "Şehir + plaka kodu",          color: "#f97316", weak: true,  maxProg: 100 },
+  { pw: "Kalem42!",          time: "7 dakika",  detail: "8 karışık karakter",           color: "#fbbf24", weak: true,  maxProg: 100 },
+  { pw: "Tr#n85_kL!m2",      time: "3.000 yıl", detail: "12 karışık · saldırgan vazgeçer", color: "#22d3ee", weak: false, maxProg: 12 },
+  { pw: "Manisa-uzumleri-2026!", time: "∞",     detail: "Cümle-şifre · kırılmaz",        color: "#00ff88", weak: false, maxProg: 4 },
+];
+
+const CRACK_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%&";
+
+function PasswordCrackSim({ ctx }: { ctx: SlideCtx }) {
+  const [idx, setIdx] = useState(-1);
+  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<"idle" | "cracking" | "result">("idle");
+  const [masked, setMasked] = useState("");
+
+  useEffect(() => {
+    if (!ctx.isActive) { setIdx(-1); setProgress(0); setPhase("idle"); setMasked(""); return; }
+    const t = setTimeout(() => setIdx(0), 700);
+    return () => clearTimeout(t);
+  }, [ctx.isActive]);
+
+  useEffect(() => {
+    if (idx < 0 || idx >= CRACK_PASSWORDS.length) return;
+    setPhase("cracking");
+    setProgress(0);
+    setMasked("*".repeat(CRACK_PASSWORDS[idx].pw.length));
+  }, [idx]);
+
+  useEffect(() => {
+    if (phase !== "cracking" || idx < 0) return;
+    const cur = CRACK_PASSWORDS[idx];
+    const speed = cur.weak ? 32 : 70;
+    const iv = setInterval(() => {
+      setProgress((p) => {
+        if (p >= cur.maxProg) {
+          clearInterval(iv);
+          setPhase("result");
+          if (cur.weak) setMasked(cur.pw);
+          window.setTimeout(() => {
+            setIdx((i) => (i < CRACK_PASSWORDS.length - 1 ? i + 1 : i));
+          }, 2400);
+          return cur.maxProg;
+        }
+        return p + 1;
+      });
+    }, speed);
+    return () => clearInterval(iv);
+  }, [phase, idx]);
+
+  useEffect(() => {
+    if (phase !== "cracking" || idx < 0) return;
+    const len = CRACK_PASSWORDS[idx].pw.length;
+    const iv = setInterval(() => {
+      setMasked(
+        Array.from({ length: len }, () => CRACK_CHARS[Math.floor(Math.random() * CRACK_CHARS.length)]).join(""),
+      );
+    }, 55);
+    return () => clearInterval(iv);
+  }, [phase, idx]);
+
+  if (idx < 0) return <div className="flex flex-col h-full" />;
+  const cur = CRACK_PASSWORDS[idx];
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 items-center justify-center overflow-hidden">
+      <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="mcb-tag mcb-mono text-rose-400/85 mb-1">
+        BRUTE-FORCE · CANLI SİMÜLASYON
+      </motion.p>
+      <motion.h2 initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+        className="mcb-h3 font-black text-center mb-4 sm:mb-5">
+        Şifrene kaç saniye dayanır?
+      </motion.h2>
+
+      <div className="w-full max-w-3xl rounded-2xl bg-black/70 border backdrop-blur-sm overflow-hidden"
+        style={{
+          borderColor: `${cur.color}50`,
+          boxShadow: `0 0 32px ${cur.color}25, inset 0 0 30px ${cur.color}08`,
+        }}>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-black/40">
+          <span className="mcb-mono text-[10px] sm:text-xs uppercase tracking-widest" style={{ color: cur.color }}>
+            HEDEF #{idx + 1}/{CRACK_PASSWORDS.length} · {cur.detail}
+          </span>
+          <span className="mcb-mono text-[10px] sm:text-xs tabular-nums" style={{ color: cur.color }}>
+            {Math.min(progress, cur.maxProg)}%
+          </span>
+        </div>
+
+        <div className="px-5 sm:px-8 py-6 sm:py-8 bg-black">
+          <motion.p key={masked}
+            className="font-black mcb-mono tracking-widest text-center break-all"
+            style={{
+              color: phase === "result" && cur.weak ? "#ef4444" : cur.color,
+              fontSize: "clamp(1.5rem, 4.5vw, 3.5rem)",
+              textShadow: `0 0 18px ${cur.color}55`,
+              letterSpacing: "0.05em",
+            }}>
+            {masked}
+          </motion.p>
+        </div>
+
+        <div className="px-5 sm:px-8 py-4">
+          <div className="w-full bg-zinc-900 rounded-full h-2.5 overflow-hidden border border-white/5">
+            <motion.div
+              className="h-full rounded-full transition-all"
+              animate={{ width: `${Math.min(progress, 100)}%` }}
+              transition={{ duration: 0.1 }}
+              style={{
+                background:
+                  phase === "result" && cur.weak
+                    ? "linear-gradient(90deg, #ef4444, #f97316)"
+                    : `linear-gradient(90deg, ${cur.color}, ${cur.color}dd)`,
+                boxShadow: `0 0 12px ${cur.color}80`,
+              }}
+            />
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {phase === "result" && (
+            <motion.div key={`r-${idx}`}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              transition={{ type: "spring", stiffness: 120, damping: 14 }}
+              className="px-5 sm:px-8 pb-5 pt-1 text-center border-t border-white/5">
+              <p className="mcb-meta text-gray-500 mb-1">Kırılma süresi</p>
+              <p className="font-black mcb-mono"
+                style={{
+                  color: cur.color,
+                  fontSize: "clamp(2rem, 5vw, 4rem)",
+                  textShadow: `0 0 22px ${cur.color}70`,
+                }}>
+                {cur.time}
+              </p>
+              <p className="mcb-meta mt-1" style={{ color: cur.weak ? "#ef4444" : "#00ff88" }}>
+                {cur.weak ? "KIRILDI" : "SALDIRGAN VAZGEÇER"}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="flex items-center gap-2 sm:gap-3 mt-4">
+        {CRACK_PASSWORDS.map((p, i) => (
+          <motion.span
+            key={i}
+            className="w-2.5 h-2.5 rounded-full transition-all"
+            animate={{ scale: i === idx ? [1, 1.4, 1] : 1 }}
+            transition={i === idx ? { repeat: Infinity, duration: 1 } : {}}
+            style={{
+              background: i < idx ? (CRACK_PASSWORDS[i].weak ? "#ef4444" : "#00ff88") : i === idx ? p.color : "#374151",
+              boxShadow: i === idx ? `0 0 10px ${p.color}` : "none",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
    COMMON PASSWORDS LEADERBOARD
    ================================================================ */
 function CommonPasswordsSlide() {
@@ -1120,7 +1283,7 @@ function DeepfakeSlide() {
    ================================================================ */
 const REAL_SURVEY_URL = "/mcbukaf/anket"; // ← gerçek Google Forms / Typeform URL'sini buraya yaz
 
-function RealSurveySlide() {
+function RealSurveySlide({ ctx }: { ctx: SlideCtx }) {
   const [origin, setOrigin] = useState("");
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);
@@ -1131,6 +1294,7 @@ function RealSurveySlide() {
       ? `${origin}${REAL_SURVEY_URL}`
       : "";
   const qrDataUrl = useQrDataUrl(absoluteUrl || " ", 720);
+  const { total, lastAt } = useQrTrapPoll(ctx.isActive, "anket");
 
   return (
     <div className="flex flex-col h-full px-4 sm:px-10 items-center justify-center text-center">
@@ -1176,10 +1340,17 @@ function RealSurveySlide() {
         className="mcb-mono text-amber-300/80 text-xs sm:text-sm tracking-widest break-all px-2 mt-4 sm:mt-5">
         {absoluteUrl ? absoluteUrl.replace(/^https?:\/\//, "") : "—"}
       </motion.p>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
-        className="mcb-meta text-gray-500 mt-1.5 px-2">
-        Bu QR güvenli · MCBÜ TBMYO etkinlik anketi
-      </motion.p>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
+        className="mt-2 flex items-center gap-2">
+        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.6 }}
+          className="w-1.5 h-1.5 rounded-full bg-amber-300" />
+        <span className="mcb-mono text-amber-300/85 text-[10px] sm:text-xs tracking-widest tabular-nums">
+          {total > 0
+            ? `${total} kişi katıldı${lastAt ? ` · son: ${relTime(lastAt)}` : ""}`
+            : "anket aktif · ilk katılım bekleniyor…"}
+        </span>
+      </motion.div>
     </div>
   );
 }
@@ -1187,7 +1358,7 @@ function RealSurveySlide() {
 /* ================================================================
    QR PHISHING TRAP — bait + reveal slaytları
    ================================================================ */
-function useQrTrapPoll(active: boolean, intervalMs = 1500) {
+function useQrTrapPoll(active: boolean, session: string = "default", intervalMs = 1500) {
   const [total, setTotal] = useState(0);
   const [lastAt, setLastAt] = useState<string | null>(null);
   const [, force] = useState(0);
@@ -1199,7 +1370,7 @@ function useQrTrapPoll(active: boolean, intervalMs = 1500) {
 
     const tick = async () => {
       try {
-        const r = await fetch(`/api/mcbukaf/qr-tuzak?session=default&min=120`, { cache: "no-store" });
+        const r = await fetch(`/api/mcbukaf/qr-tuzak?session=${encodeURIComponent(session)}&min=120`, { cache: "no-store" });
         if (!r.ok) throw new Error();
         const data = await r.json();
         if (cancelled) return;
@@ -1219,7 +1390,7 @@ function useQrTrapPoll(active: boolean, intervalMs = 1500) {
       if (timer) window.clearTimeout(timer);
       window.clearInterval(refresh);
     };
-  }, [active, intervalMs]);
+  }, [active, intervalMs, session]);
 
   return { total, lastAt };
 }
@@ -1448,6 +1619,271 @@ function WhatsAppScamSim({ ctx }: { ctx: SlideCtx }) {
 }
 
 /* ================================================================
+   DATA LEAK TIMELINE — TR sızıntıları yatay timeline
+   ================================================================ */
+const LEAKS: { year: string; name: string; count: string; detail: string; color: string }[] = [
+  { year: "2022", name: "108M TC İddiası",    count: "108M",  detail: "Bakan kısmen onayladı · pandemi dönemi sızıntısı",  color: "#fbbf24" },
+  { year: "2024", name: "215K+ saldırı",      count: "215K",  detail: "USOM yıllık rapor · işletmecilerden bildirim",        color: "#f97316" },
+  { year: "2025-03", name: "TurkNet",         count: "2.8M",  detail: "CEO dahil · TC + adres + pasaport · şirket önce 244K dedi", color: "#ef4444" },
+  { year: "2025-05", name: "Antalya Otelleri", count: "—",     detail: "Turizm sektörü ransomware dalgası · BTK uyarısı",   color: "#22d3ee" },
+  { year: "2025-06", name: "16 Milyar Parola",count: "16B",   detail: "Tarihin en büyük credential dump'ı · TR portalları dahil", color: "#a855f7" },
+  { year: "2025",    name: "3.3M Mülteci",     count: "3.3M",  detail: "Kişisel veri + pasaport kopyaları",                   color: "#ec4899" },
+  { year: "2026-Q1", name: "Baydöner",         count: "1.5M",  detail: "Müşteri kayıtları · şikayetvar 212K · ardı ardına",   color: "#00ff88" },
+];
+
+function DataLeakTimelineSlide() {
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-center gap-3 mt-1 mb-1 flex-wrap">
+        <IconBadge icon={HardDrive} color="#22d3ee" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.6} />
+        <h2 className="mcb-h2 font-bold text-center">TR Sızıntı Zaman Çizelgesi</h2>
+      </motion.div>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}
+        className="mcb-meta text-gray-400 text-center mb-4 sm:mb-6">
+        Hiçbir kurum &ldquo;hiçbir şey çalınmadı&rdquo; diyemiyor.
+      </motion.p>
+
+      <div className="relative flex-1 min-h-0 w-full max-w-6xl mx-auto">
+        {/* Center horizontal line */}
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px]"
+          style={{
+            background: "linear-gradient(90deg, transparent, rgba(34,211,238,0.5), rgba(244,63,94,0.6), rgba(34,211,238,0.5), transparent)",
+            boxShadow: "0 0 12px rgba(34,211,238,0.3)",
+          }} />
+
+        <div className="flex items-stretch justify-between h-full gap-1 sm:gap-2 overflow-x-auto pr-2">
+          {LEAKS.map((leak, i) => {
+            const above = i % 2 === 0;
+            return (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: above ? -16 : 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + i * 0.18, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="relative flex-1 min-w-[8.5rem] sm:min-w-[10rem] flex flex-col"
+                style={{ justifyContent: above ? "flex-start" : "flex-end" }}>
+                {/* Card */}
+                <div className={`${above ? "mb-auto" : "mt-auto"} rounded-lg bg-black/45 border backdrop-blur-sm overflow-hidden`}
+                  style={{
+                    borderColor: `${leak.color}40`,
+                    boxShadow: `0 0 16px ${leak.color}25, inset 0 0 24px ${leak.color}08`,
+                    padding: "clamp(0.5rem, 1.3vmin, 0.85rem)",
+                  }}>
+                  <p className="mcb-mono text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-0.5" style={{ color: leak.color }}>
+                    {leak.year}
+                  </p>
+                  <p className="font-black mcb-mono tabular-nums leading-none mb-1"
+                    style={{
+                      color: leak.color,
+                      fontSize: "clamp(1.1rem, 2.4vmin, 1.8rem)",
+                      textShadow: `0 0 14px ${leak.color}40`,
+                    }}>
+                    {leak.count}
+                  </p>
+                  <p className="font-bold text-white text-[10px] sm:text-xs mb-0.5 truncate">{leak.name}</p>
+                  <p className="mcb-meta text-gray-400 text-[9px] sm:text-[10px] leading-tight line-clamp-2">{leak.detail}</p>
+                </div>
+
+                {/* Connector dot on the line */}
+                <motion.div
+                  initial={{ scale: 0 }} animate={{ scale: 1 }}
+                  transition={{ delay: 0.3 + i * 0.18 + 0.2, type: "spring", stiffness: 200, damping: 12 }}
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    width: "clamp(0.6rem, 1.4vmin, 0.9rem)",
+                    height: "clamp(0.6rem, 1.4vmin, 0.9rem)",
+                    background: leak.color,
+                    boxShadow: `0 0 16px ${leak.color}, 0 0 32px ${leak.color}80`,
+                    border: "2px solid #02050a",
+                  }} />
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   THREE-SECOND RULE — cinematic countdown + sahte SMS demo
+   ================================================================ */
+function ThreeSecondRuleSlide({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<"counting" | "marked" | "saved">("counting");
+  const [count, setCount] = useState(3);
+
+  useEffect(() => {
+    if (!ctx.isActive) { setPhase("counting"); setCount(3); return; }
+    setPhase("counting"); setCount(3);
+    const iv = setInterval(() => {
+      setCount((c) => {
+        if (c <= 1) { clearInterval(iv); return 0; }
+        return c - 1;
+      });
+    }, 950);
+    const markT = window.setTimeout(() => setPhase("marked"), 3100);
+    const saveT = window.setTimeout(() => setPhase("saved"), 5400);
+    return () => { clearInterval(iv); window.clearTimeout(markT); window.clearTimeout(saveT); };
+  }, [ctx.isActive]);
+
+  const isCounting = phase === "counting";
+  const showMarks = phase === "marked" || phase === "saved";
+  const saved = phase === "saved";
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 items-center justify-center overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="mcb-tag mcb-mono text-emerald-400/85 mb-2">
+        3 SANİYE KURALI
+      </motion.div>
+
+      <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-6 sm:gap-10 w-full max-w-5xl items-center">
+        {/* Sahte SMS preview */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="relative rounded-2xl bg-zinc-900/70 backdrop-blur-sm overflow-hidden"
+          style={{
+            border: saved ? "1px solid rgba(0,255,136,0.5)" : "1px solid rgba(244,63,94,0.45)",
+            boxShadow: saved ? "0 0 32px rgba(0,255,136,0.25)" : "0 0 32px rgba(244,63,94,0.22)",
+          }}>
+          <div className="bg-zinc-800/80 border-b border-zinc-700 px-4 py-2.5 flex items-center gap-2.5">
+            <span className="inline-flex w-7 h-7 rounded-full bg-zinc-700 items-center justify-center">
+              <MessageSquare className="w-3.5 h-3.5 text-zinc-400" strokeWidth={2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="mcb-mono text-zinc-200 text-xs sm:text-sm truncate">
+                {showMarks ? (
+                  <>
+                    <SpotMark active>+90 555 0X XX XX</SpotMark>
+                  </>
+                ) : "+90 555 0X XX XX"}
+              </p>
+              <p className="mcb-mono text-[10px] text-zinc-500">SMS · 14:23</p>
+            </div>
+          </div>
+          <div className="px-4 sm:px-5 py-4 sm:py-5 text-sm sm:text-base text-zinc-100 leading-relaxed space-y-2">
+            <p>
+              PTT KARGO: Gönderiniz gümrükte bekliyor.{" "}
+              {showMarks ? (
+                <SpotMark active>24 saat içinde</SpotMark>
+              ) : "24 saat içinde"}{" "}
+              <strong>24,90 ₺</strong> ödenmezse iade edilecektir.
+            </p>
+            <p>
+              {showMarks ? (
+                <SpotMark active mono>hxxps://ptt-tr-kargo.com/ode</SpotMark>
+              ) : <span className="mcb-mono text-emerald-400/85">hxxps://ptt-tr-kargo.com/ode</span>}
+            </p>
+          </div>
+
+          {/* Decision overlay */}
+          <AnimatePresence>
+            {saved && (
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(244,63,94,0.18), rgba(244,63,94,0.04))",
+                  backdropFilter: "blur(2px)",
+                }}>
+                <motion.div
+                  initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: -8 }}
+                  transition={{ type: "spring", stiffness: 130, damping: 12 }}
+                  className="mcb-mono font-black px-5 py-2 rounded-md"
+                  style={{
+                    color: "#f43f5e",
+                    border: "3px solid #f43f5e",
+                    background: "rgba(0,0,0,0.7)",
+                    fontSize: "clamp(1.3rem, 3vw, 2.2rem)",
+                    boxShadow: "0 0 22px rgba(244,63,94,0.6)",
+                  }}>
+                  TIKLAMA
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Right: countdown + lesson */}
+        <div className="flex flex-col items-center md:items-start">
+          <AnimatePresence mode="wait">
+            {isCounting && (
+              <motion.div key={`cnt-${count}`}
+                initial={{ opacity: 0, scale: 0.4 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.6 }}
+                transition={{ type: "spring", stiffness: 120, damping: 14 }}
+                className="font-black mcb-mono tabular-nums leading-none mb-3"
+                style={{
+                  fontSize: "clamp(5rem, 14vw, 11rem)",
+                  color: "#00ff88",
+                  textShadow: "0 0 40px rgba(0,255,136,0.6), 0 0 100px rgba(0,255,136,0.3)",
+                }}>
+                {count > 0 ? count : "0"}
+              </motion.div>
+            )}
+            {showMarks && (
+              <motion.div key="markedBlock"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mb-3 space-y-2 w-full">
+                <MarkLine label="Kişisel numara" color="#f43f5e" />
+                <MarkLine label="Yanlış alan adı" color="#fb923c" />
+                <MarkLine label="Aciliyet baskısı" color="#fbbf24" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mcb-h3 font-black text-left md:text-left text-center max-w-sm"
+            style={{
+              color: saved ? "#00ff88" : "#fff",
+              textShadow: saved ? "0 0 22px rgba(0,255,136,0.4)" : "none",
+            }}>
+            {saved ? "Yakaladın." : isCounting ? "Dur. Bak." : "İşaretleri gör."}
+          </motion.h2>
+          <p className="mcb-meta text-gray-400 mt-2 max-w-sm text-left md:text-left text-center">
+            {saved
+              ? "3 saniye + 3 ipucu = kapatılan link."
+              : isCounting
+                ? "Tıklamadan önce mesaja bir kez daha bak."
+                : "Her oltalama mesajında bu üç işaret var."}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SpotMark({ children, active, mono }: { children: React.ReactNode; active: boolean; mono?: boolean }) {
+  return (
+    <motion.span
+      animate={active ? { backgroundColor: "rgba(244,63,94,0.22)" } : { backgroundColor: "rgba(244,63,94,0)" }}
+      transition={{ duration: 0.4 }}
+      className={`rounded px-1 ${active ? "outline outline-1 outline-rose-400/70 text-rose-200" : ""} ${mono ? "mcb-mono" : ""}`}>
+      {children}
+    </motion.span>
+  );
+}
+
+function MarkLine({ label, color }: { label: string; color: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+      transition={{ type: "spring", stiffness: 100, damping: 14 }}
+      className="flex items-center gap-2.5">
+      <span className="inline-flex w-5 h-5 rounded-full items-center justify-center shrink-0"
+        style={{ background: `${color}25`, border: `1px solid ${color}` }}>
+        <Check className="w-3 h-3" style={{ color }} strokeWidth={3} />
+      </span>
+      <span className="mcb-meta font-bold" style={{ color }}>{label}</span>
+    </motion.div>
+  );
+}
+
+/* ================================================================
    PHISHING TYPES — oltalama tür kataloğu
    ================================================================ */
 function PhishingTypesSlide() {
@@ -1565,6 +2001,32 @@ const PJ_CONFIG: AcademicEmailConfig = {
     { lead: "Ödeme yapan", rest: " akademik özgeçmişe sayılmaz, alan dışı atıf almaz, ÜAK reddeder." },
   ],
   hackFooter: "Kontrol et: DOAJ · Beall's List · ULAKBİM TR-Dizin",
+};
+
+const YOK_CONFIG: AcademicEmailConfig = {
+  title: "Akademik Phishing · YÖK Burs Bildirimi",
+  from: "bilgi@yok-burs2026.gov-tr.com",
+  subject: "[ONAY] 2026/2027 Lisans Bursu Hesabınıza Yatırılacak",
+  preview: "Aylık 5.800 ₺ tutarındaki burs ödemeniz onaylandı…",
+  body: [
+    "Sayın Öğrencimiz,",
+    "2026/2027 dönemi için tarafınıza Yüksek Lisans / Lisans Bursu tahsis edilmiştir.",
+    "Aylık tutar: 5.800 ₺ · IBAN'ınızı sistem üzerinde doğrulamanız gerekmektedir.",
+    "Doğrulama Hizmet Bedeli: 49,90 ₺ (banka kesintisi, geri iade edilecektir).",
+    "İşlemi 24 saat içinde tamamlamazsanız hak kaybı yaşarsınız.",
+  ],
+  highlight: (line) => line.startsWith("Doğrulama Hizmet"),
+  payLabel: "IBAN'ı Doğrula · 49,90 ₺ →",
+  accent: "#22d3ee",
+  accentRgb: "34,211,238",
+  accentText: "text-cyan-300",
+  hackHeadline: "Sahte YÖK Bursu",
+  hackPoints: [
+    { lead: "YÖK / KYK", rest: " burs doğrulaması için ücret istemez — &ldquo;hizmet bedeli&rdquo; uydurma." },
+    { lead: "Resmi alan adı", rest: " yok.gov.tr veya kyk.gov.tr — &ldquo;.gov-tr.com&rdquo; sahte alan adıdır." },
+    { lead: "&ldquo;24 saat içinde&rdquo;", rest: " aciliyet kalıbı — saldırgan düşünmenize fırsat vermek istemez." },
+  ],
+  hackFooter: "Doğru kanal: e-Devlet · KYK uygulaması · 444 1 962",
 };
 
 const CONF_CONFIG: AcademicEmailConfig = {
@@ -1826,12 +2288,12 @@ function SocialQrCard({ s, i }: { s: typeof SOCIALS[number]; i: number }) {
    ================================================================ */
 const SECTIONS = [
   { name: "Açılış", start: 0 },
-  { name: "Oltalama", start: 2 },
-  { name: "Şifreler", start: 6 },
-  { name: "Sosyal Müh.", start: 11 },
-  { name: "2026 Tehditleri", start: 17 },
-  { name: "Korunma", start: 21 },
-  { name: "Kapanış", start: 24 },
+  { name: "Oltalama", start: 3 },
+  { name: "Şifreler", start: 7 },
+  { name: "Sosyal Müh.", start: 13 },
+  { name: "2026 Tehditleri", start: 20 },
+  { name: "Korunma", start: 24 },
+  { name: "Kapanış", start: 27 },
 ];
 
 /* ================================================================
@@ -1942,6 +2404,8 @@ const slides: Slide[] = [
       { value: "%900", label: "Deepfake artışı 2023→2025 · Buffalo Üni.", color: "#a855f7" },
     ]} /> },
 
+  { id: "data-leak-timeline", content: <DataLeakTimelineSlide /> },
+
   { id: "sec-oltalama", section: "Oltalama", content: <SectionTitle
     icon={Fish} number="01" title="Oltalama Saldırıları"
     subtitle="Bir mesaj. Bir link. Bir saniyelik düşüncesizlik."
@@ -2016,6 +2480,8 @@ const slides: Slide[] = [
 
   { id: "common-passwords", content: <CommonPasswordsSlide /> },
 
+  { id: "password-crack", content: (ctx) => <PasswordCrackSim ctx={ctx} /> },
+
   { id: "live-sifre", content: (ctx) => <LivePasswordExperiment ctx={ctx} /> },
 
   { id: "sifre-reveal-lesson", content: <BigTextSlide
@@ -2066,6 +2532,8 @@ const slides: Slide[] = [
 
   { id: "fake-conference", content: (ctx) => <AcademicEmailSim ctx={ctx} config={CONF_CONFIG} /> },
 
+  { id: "yok-burs", content: (ctx) => <AcademicEmailSim ctx={ctx} config={YOK_CONFIG} /> },
+
   { id: "golden-rule", content: <BigTextSlide
     text="Devlet asla telefonda para, altın veya şifre istemez."
     color="#f43f5e" /> },
@@ -2093,9 +2561,7 @@ const slides: Slide[] = [
       { icon: Brain, text: "3 saniye dur. Linke tıklamadan, mesajı kontrol et." },
     ]} /> },
 
-  { id: "three-second-rule", content: <BigTextSlide
-    text="3 saniye dur. Bir kez daha bak. Sonra tıkla."
-    color="#00ff88" /> },
+  { id: "three-second-rule", content: (ctx) => <ThreeSecondRuleSlide ctx={ctx} /> },
 
   /* ── KAPANIŞ ── */
   { id: "manifesto", content: <QuoteSlide
@@ -2103,7 +2569,7 @@ const slides: Slide[] = [
     quote="En zayıf halka değiliz, en güçlü farkındalığız."
     author="MCBÜKAF '26" /> },
 
-  { id: "real-survey", content: <RealSurveySlide /> },
+  { id: "real-survey", content: (ctx) => <RealSurveySlide ctx={ctx} /> },
 
   { id: "thanks", content: (
     <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-16">
