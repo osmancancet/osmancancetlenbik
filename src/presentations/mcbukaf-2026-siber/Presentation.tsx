@@ -1344,7 +1344,7 @@ function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
       <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="mcb-h2 font-black text-center mb-1.5"
         style={{ color: "#00ff88", textShadow: "0 0 22px rgba(0,255,136,0.45)" }}>
-        Değerlendirme ve Hediye Çekilişi
+        Değerlendirme ve Çekiliş
       </motion.h2>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
         className="mcb-lead text-gray-300 text-center mb-4 sm:mb-5 max-w-3xl px-2">
@@ -1368,19 +1368,14 @@ function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
       </motion.div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
-        className="mt-4 flex flex-col items-center gap-1.5">
-        <p className="mcb-mono text-emerald-400/70 text-xs sm:text-sm tracking-widest break-all px-2 text-center">
-          {origin ? `${origin.replace(/^https?:\/\//, "")}/mcbukaf/anket` : "—"}
-        </p>
-        <div className="flex items-center gap-2">
-          <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
-            className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span className="mcb-mono text-[10px] sm:text-xs text-emerald-400/70 tracking-widest">
-            {total > 0
-              ? `${total} kişi katıldı${lastAt ? ` · son: ${relTime(lastAt)}` : ""}`
-              : "anket aktif · ilk katılım bekleniyor…"}
-          </span>
-        </div>
+        className="mt-4 flex items-center gap-2">
+        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
+          className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+        <span className="mcb-mono text-[10px] sm:text-xs text-emerald-400/70 tracking-widest">
+          {total > 0
+            ? `${total} kişi katıldı${lastAt ? ` · son: ${relTime(lastAt)}` : ""}`
+            : "anket aktif · ilk katılım bekleniyor…"}
+        </span>
       </motion.div>
     </div>
   );
