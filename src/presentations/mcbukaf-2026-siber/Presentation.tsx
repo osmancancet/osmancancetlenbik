@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
+  Crown,
   Drama,
   Fish,
   GraduationCap,
@@ -29,7 +30,10 @@ import {
   KeyRound,
   Lock,
   Mail,
+  MessageSquare,
   Phone,
+  QrCode,
+  Target,
   RefreshCw,
   Shield,
   ShieldAlert,
@@ -457,7 +461,7 @@ function TwoColumnSlide({ title, icon, left, right }: {
 /* ================================================================
    CLICK REVEAL — slayt içi katmanları tıkla / Enter / Sağ ok ile aç
    ================================================================ */
-function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", stepMs = 2400 }: {
+function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", stepMs = 1500 }: {
   title: string;
   icon: IconType;
   layers: { label: string; body: ReactNode }[];
@@ -476,7 +480,7 @@ function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", stepMs = 24
       setShown(i);
       if (i < layers.length) timer = window.setTimeout(reveal, stepMs);
     };
-    let timer = window.setTimeout(reveal, 600);
+    let timer = window.setTimeout(reveal, 300);
     return () => window.clearTimeout(timer);
   }, [ctx.isActive, layers.length, stepMs]);
 
@@ -1112,6 +1116,75 @@ function DeepfakeSlide() {
 }
 
 /* ================================================================
+   REAL SURVEY — gerçek değerlendirme + çekiliş QR'ı (sunum sonu)
+   ================================================================ */
+const REAL_SURVEY_URL = "/mcbukaf/anket"; // ← gerçek Google Forms / Typeform URL'sini buraya yaz
+
+function RealSurveySlide() {
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.origin);
+  }, []);
+  const absoluteUrl = REAL_SURVEY_URL.startsWith("http")
+    ? REAL_SURVEY_URL
+    : origin
+      ? `${origin}${REAL_SURVEY_URL}`
+      : "";
+  const qrDataUrl = useQrDataUrl(absoluteUrl || " ", 720);
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 items-center justify-center text-center">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 sm:gap-3 mb-3">
+        <span className="inline-flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl"
+          style={{ background: "#fbbf24", boxShadow: "0 0 24px rgba(251,191,36,0.55)" }}>
+          <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-black" strokeWidth={2.2} />
+        </span>
+        <span className="mcb-mono font-bold text-amber-300 tracking-widest text-xs sm:text-sm uppercase">
+          Çekiliş + Değerlendirme
+        </span>
+      </motion.div>
+
+      <motion.h2 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+        className="mcb-h2 font-black mb-2"
+        style={{ color: "#fbbf24", textShadow: "0 0 26px rgba(251,191,36,0.55)" }}>
+        Görüşünü yaz, çekilişe katıl
+      </motion.h2>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
+        className="mcb-lead text-gray-300 mb-4 sm:mb-5 max-w-3xl px-2">
+        QR&apos;ı tarat · 60 saniyelik kısa anketi doldur · sürpriz hediye çekilişine adını yaz
+      </motion.p>
+
+      <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 130, damping: 14, delay: 0.2 }}
+        className="relative rounded-2xl overflow-hidden"
+        style={{
+          width: "min(52vmin, 420px)",
+          height: "min(52vmin, 420px)",
+          background: "white",
+          padding: "clamp(0.5rem, 1.5vmin, 1rem)",
+          boxShadow: "0 0 36px rgba(251,191,36,0.35), inset 0 0 30px rgba(0,0,0,0.05)",
+        }}>
+        {qrDataUrl ? (
+          <img src={qrDataUrl} alt="QR · Çekiliş + Değerlendirme Anketi" className="w-full h-full object-contain" draggable={false} />
+        ) : (
+          <div className="w-full h-full bg-zinc-200 animate-pulse" />
+        )}
+      </motion.div>
+
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
+        className="mcb-mono text-amber-300/80 text-xs sm:text-sm tracking-widest break-all px-2 mt-4 sm:mt-5">
+        {absoluteUrl ? absoluteUrl.replace(/^https?:\/\//, "") : "—"}
+      </motion.p>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
+        className="mcb-meta text-gray-500 mt-1.5 px-2">
+        Bu QR güvenli · MCBÜ TBMYO etkinlik anketi
+      </motion.p>
+    </div>
+  );
+}
+
+/* ================================================================
    QR PHISHING TRAP — bait + reveal slaytları
    ================================================================ */
 function useQrTrapPoll(active: boolean, intervalMs = 1500) {
@@ -1375,6 +1448,81 @@ function WhatsAppScamSim({ ctx }: { ctx: SlideCtx }) {
 }
 
 /* ================================================================
+   PHISHING TYPES — oltalama tür kataloğu
+   ================================================================ */
+function PhishingTypesSlide() {
+  const types: { icon: IconType; name: string; sub: string; text: string; color: string }[] = [
+    { icon: MessageSquare, name: "Smishing", sub: "SMS oltalama", text: "Kargo, banka, e-Devlet adına sahte mesaj — TR'de en yaygın varyant.", color: "#ef4444" },
+    { icon: Mail, name: "Phishing", sub: "E-posta oltalama", text: "Sahte gönderici + sahte link · klasik &ldquo;şifrenizi sıfırlayın&rdquo;.", color: "#f97316" },
+    { icon: Phone, name: "Vishing", sub: "Sesli oltalama", text: "Savcı, polis, BTK adına arama — 50 M ₺'lik çete bu yöntemle çalıştı.", color: "#fbbf24" },
+    { icon: QrCode, name: "Quishing", sub: "QR oltalama", text: "Restoran menü, anket, sahte park ödemesi — taradığın siteyi okumadan.", color: "#22d3ee" },
+    { icon: Target, name: "Spear Phishing", sub: "Hedefli", text: "İsim, pozisyon, proje detayıyla — akademisyen, muhasebe çalışanı vurulur.", color: "#a855f7" },
+    { icon: Crown, name: "Whaling", sub: "CEO sahtekarlığı", text: "Patron sesi/maili klonlanır, finanstan acil havale istenir — Arup 25 M $.", color: "#ec4899" },
+  ];
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-16 pt-1 pb-2 overflow-y-auto">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-center gap-3 sm:gap-4 mt-1 mb-2 flex-wrap">
+        <IconBadge icon={Fish} color="#f43f5e" size="clamp(2rem, 4.5vmin, 3rem)" strokeWidth={1.6} />
+        <h2 className="mcb-h2 font-bold text-center">Oltalama Türleri</h2>
+      </motion.div>
+      <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+        transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="h-[2px] rounded-full mx-auto mb-4 sm:mb-6"
+        style={{
+          width: "min(14rem, 38vw)",
+          background: "linear-gradient(90deg, transparent, rgba(244,63,94,0.7), transparent)",
+        }} />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-6xl mx-auto">
+        {types.map((t, i) => {
+          const Ico = t.icon;
+          return (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.25 + i * 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="rounded-xl bg-white/[0.025] backdrop-blur-sm overflow-hidden relative"
+              style={{
+                border: `1px solid ${t.color}40`,
+                boxShadow: `0 0 18px ${t.color}18, inset 0 0 30px ${t.color}06`,
+                padding: "clamp(0.75rem, 1.8vmin, 1.25rem) clamp(0.85rem, 2vmin, 1.4rem)",
+              }}
+            >
+              <div
+                className="absolute top-0 left-0 h-[2px] origin-left"
+                style={{
+                  width: "100%",
+                  background: `linear-gradient(90deg, transparent, ${t.color}, transparent)`,
+                  boxShadow: `0 0 10px ${t.color}`,
+                }}
+              />
+              <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
+                <div
+                  className="inline-flex items-center justify-center shrink-0"
+                  style={{ width: "clamp(1.5rem, 3.5vmin, 2.2rem)", height: "clamp(1.5rem, 3.5vmin, 2.2rem)", color: t.color }}
+                >
+                  <Ico width="100%" height="100%" strokeWidth={1.7} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-black truncate" style={{ color: t.color, fontSize: "clamp(1rem, 2.1vmin, 1.5rem)", textShadow: `0 0 12px ${t.color}40` }}>
+                    {t.name}
+                  </p>
+                  <p className="mcb-mono text-[10px] sm:text-xs text-gray-400 uppercase tracking-widest truncate">{t.sub}</p>
+                </div>
+              </div>
+              <p className="mcb-meta text-gray-200 leading-snug" dangerouslySetInnerHTML={{ __html: t.text }} />
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
    ACADEMIC EMAIL SIM — animasyonlu akademik phishing
    ================================================================ */
 type AcademicEmailConfig = {
@@ -1617,16 +1765,6 @@ const SOCIALS = [
     ),
   },
   {
-    key: "github",
-    url: "https://github.com/osmancancet",
-    label: "GitHub",
-    handle: "/osmancancet",
-    color: "#a3a3a3",
-    svg: (
-      <path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.3-3.2-.2-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2a4.6 4.6 0 0 1 1.2 3.2c0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.2.9 2.4v3.5c0 .3.2.7.8.6A12 12 0 0 0 12 .3" />
-    ),
-  },
-  {
     key: "website",
     url: "https://www.osmancancetlenbik.com",
     label: "Web",
@@ -1654,8 +1792,8 @@ function SocialQrCard({ s, i }: { s: typeof SOCIALS[number]; i: number }) {
         style={{
           background: "white",
           padding: "clamp(0.5rem, 1.5vmin, 1rem)",
-          width: "clamp(8rem, 22vmin, 14rem)",
-          height: "clamp(8rem, 22vmin, 14rem)",
+          width: "clamp(10rem, 30vmin, 18rem)",
+          height: "clamp(10rem, 30vmin, 18rem)",
         }}
       >
         {qrDataUrl ? (
@@ -1689,11 +1827,11 @@ function SocialQrCard({ s, i }: { s: typeof SOCIALS[number]; i: number }) {
 const SECTIONS = [
   { name: "Açılış", start: 0 },
   { name: "Oltalama", start: 2 },
-  { name: "Şifreler", start: 5 },
-  { name: "Sosyal Müh.", start: 10 },
-  { name: "2026 Tehditleri", start: 16 },
-  { name: "Korunma", start: 20 },
-  { name: "Kapanış", start: 23 },
+  { name: "Şifreler", start: 6 },
+  { name: "Sosyal Müh.", start: 11 },
+  { name: "2026 Tehditleri", start: 17 },
+  { name: "Korunma", start: 21 },
+  { name: "Kapanış", start: 24 },
 ];
 
 /* ================================================================
@@ -1808,6 +1946,8 @@ const slides: Slide[] = [
     icon={Fish} number="01" title="Oltalama Saldırıları"
     subtitle="Bir mesaj. Bir link. Bir saniyelik düşüncesizlik."
     color="#f43f5e" /> },
+
+  { id: "phishing-types", content: <PhishingTypesSlide /> },
 
   { id: "phishing-anatomy", content: (ctx) => (
     <ClickReveal
@@ -1963,24 +2103,22 @@ const slides: Slide[] = [
     quote="En zayıf halka değiliz, en güçlü farkındalığız."
     author="MCBÜKAF '26" /> },
 
+  { id: "real-survey", content: <RealSurveySlide /> },
+
   { id: "thanks", content: (
     <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-16">
       <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 110, damping: 14 }}
-        className="mb-2 sm:mb-3">
-        <LogoMark height="clamp(2.5rem, 5vmin, 4rem)" />
+        className="mb-2">
+        <LogoMark height="clamp(2.25rem, 4.5vmin, 3.5rem)" />
       </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="mcb-h2 font-black mb-1"
+        className="mcb-h2 font-black mb-5 sm:mb-7"
         style={{ color: "#00ff88", textShadow: "0 0 28px rgba(0,255,136,0.5)" }}>
         <GlitchText text="Teşekkürler" />
       </motion.h1>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
-        className="mcb-meta text-gray-300 text-center max-w-2xl mb-4 sm:mb-6 px-2">
-        Bağlantıda kal · soru sor · geri bildirim ver
-      </motion.p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-7 md:gap-10 w-full max-w-5xl place-items-center mb-3 sm:mb-5">
+      <div className="grid grid-cols-3 gap-6 sm:gap-10 md:gap-14 w-full max-w-5xl place-items-center mb-4 sm:mb-6">
         {SOCIALS.map((s, i) => (
           <SocialQrCard key={s.key} s={s} i={i} />
         ))}
