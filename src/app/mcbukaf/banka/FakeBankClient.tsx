@@ -5,8 +5,18 @@ import { useEffect, useState } from "react";
 export function FakeBankClient() {
   const [tc, setTc] = useState("");
   const [pw, setPw] = useState("");
-  const [phase, setPhase] = useState<"login" | "reveal">("login");
+  const [phase, setPhase] = useState<
+    "alert" | "login" | "verifying" | "reveal"
+  >("alert");
   const [keystrokes, setKeystrokes] = useState<string[]>([]);
+  const [pastedField, setPastedField] = useState<null | "tc" | "pw">(null);
+
+  // alert ekranı 2sn → login (gerilim teatri)
+  useEffect(() => {
+    if (phase !== "alert") return;
+    const t = setTimeout(() => setPhase("login"), 2000);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   // log each keystroke (length only, never actual chars saved) to make the reveal visceral
   useEffect(() => {
@@ -18,13 +28,21 @@ export function FakeBankClient() {
     ]);
   }, [tc, pw, phase]);
 
+  // submit'te sahte "doğrulanıyor" + sonra reveal
+  useEffect(() => {
+    if (phase !== "verifying") return;
+    const t = setTimeout(() => setPhase("reveal"), 700);
+    return () => clearTimeout(t);
+  }, [phase]);
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPhase("reveal");
+    setPhase("verifying");
   };
 
+  if (phase === "alert") return <AlertView />;
   if (phase === "reveal") {
-    return <RevealView tcLen={tc.length} pwLen={pw.length} />;
+    return <RevealView tcLen={tc.length} pwLen={pw.length} pasted={pastedField} />;
   }
 
   return (
@@ -70,6 +88,7 @@ export function FakeBankClient() {
             maxLength={11}
             value={tc}
             onChange={(e) => setTc(e.target.value.replace(/\D/g, ""))}
+            onPaste={() => setPastedField((p) => p ?? "tc")}
             placeholder="11 haneli kimlik"
             className="w-full rounded-lg bg-white text-zinc-900 px-4 py-3 text-base outline-none placeholder-zinc-400 font-mono tabular-nums"
             autoComplete="off"
@@ -84,6 +103,7 @@ export function FakeBankClient() {
             type="password"
             value={pw}
             onChange={(e) => setPw(e.target.value)}
+            onPaste={() => setPastedField("pw")}
             placeholder="Şifre"
             className="w-full rounded-lg bg-white text-zinc-900 px-4 py-3 text-base outline-none placeholder-zinc-400 font-mono"
             autoComplete="off"
@@ -92,10 +112,17 @@ export function FakeBankClient() {
 
         <button
           type="submit"
-          disabled={tc.length < 4 || pw.length < 3}
-          className="mt-2 w-full bg-yellow-400 text-[#0a2a4a] font-bold py-4 rounded-xl text-lg shadow-lg disabled:opacity-50 active:scale-[0.98]"
+          disabled={tc.length < 4 || pw.length < 3 || phase === "verifying"}
+          className="mt-2 w-full bg-yellow-400 text-[#0a2a4a] font-bold py-4 rounded-xl text-lg shadow-lg disabled:opacity-50 active:scale-[0.98] flex items-center justify-center gap-2"
         >
-          Hesabımı Doğrula
+          {phase === "verifying" ? (
+            <>
+              <span className="inline-block w-4 h-4 border-2 border-[#0a2a4a] border-t-transparent rounded-full animate-spin" />
+              Doğrulanıyor…
+            </>
+          ) : (
+            "Hesabımı Doğrula"
+          )}
         </button>
 
         {keystrokes.length > 0 && (
@@ -112,7 +139,52 @@ export function FakeBankClient() {
   );
 }
 
-function RevealView({ tcLen, pwLen }: { tcLen: number; pwLen: number }) {
+function AlertView() {
+  return (
+    <div
+      className="min-h-dvh bg-gradient-to-b from-[#0a2a4a] to-[#0e3a66] text-white flex flex-col items-center justify-center px-6 text-center font-sans"
+      style={{
+        paddingTop: "max(2rem, env(safe-area-inset-top))",
+        paddingBottom: "max(2rem, env(safe-area-inset-bottom))",
+      }}
+    >
+      <style>{`
+        @keyframes bankPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.55); }
+          50% { box-shadow: 0 0 0 22px rgba(239,68,68,0); }
+        }
+        .bank-pulse { animation: bankPulse 1.4s ease-out infinite; }
+      `}</style>
+      <div className="w-20 h-20 rounded-full bg-rose-500/20 border-2 border-rose-400 flex items-center justify-center text-4xl mb-6 bank-pulse">
+        ⚠️
+      </div>
+      <div className="font-mono text-[10px] tracking-[0.4em] text-rose-300 mb-2">
+        BANKAM · GÜVENLİK UYARISI
+      </div>
+      <h1 className="text-2xl font-bold mb-3 leading-tight max-w-xs">
+        Hesabınızda şüpheli işlem tespit edildi.
+      </h1>
+      <p className="text-white/70 text-sm max-w-xs mb-8">
+        Hesabınız geçici olarak kilitlenmiştir. Doğrulama için kimlik
+        bilgilerinizi onaylayın.
+      </p>
+      <div className="flex items-center gap-2 text-xs text-white/60">
+        <span className="inline-block w-3 h-3 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
+        Güvenli doğrulama açılıyor…
+      </div>
+    </div>
+  );
+}
+
+function RevealView({
+  tcLen,
+  pwLen,
+  pasted,
+}: {
+  tcLen: number;
+  pwLen: number;
+  pasted: null | "tc" | "pw";
+}) {
   return (
     <div
       className="min-h-dvh bg-black text-white flex flex-col font-sans"
@@ -131,6 +203,18 @@ function RevealView({ tcLen, pwLen }: { tcLen: number; pwLen: number }) {
       </div>
 
       <div className="flex-1 px-5 py-6">
+        {pasted && (
+          <div className="mb-5 rounded-xl border-2 border-amber-400/60 bg-amber-400/10 p-4">
+            <div className="font-mono text-[10px] tracking-[0.4em] text-amber-300 mb-1">
+              YAPIŞTIRMA TESPİT EDİLDİ
+            </div>
+            <p className="text-amber-100 text-sm leading-relaxed">
+              {pasted === "pw"
+                ? "Şifre yöneticinden ŞİFRENİ yapıştırdın. Phishing sayfaları clipboard'ı zaten alabilir — gerçek saldırgan kullanıcı adın + şifrenin tamamı eline geçmiş olurdu."
+                : "TC kimliğini yapıştırdın. Kimlik numarası kalıcı bir veridir, bir kez sızarsa geri alınamaz."}
+            </p>
+          </div>
+        )}
         {pwLen > 0 ? (
           <>
             <p className="text-zinc-200 text-lg mb-5">

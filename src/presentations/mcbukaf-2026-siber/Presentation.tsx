@@ -32,6 +32,12 @@ import {
   Sparkles,
   Zap,
   RefreshCw,
+  Car,
+  Home,
+  Package,
+  TrendingUp,
+  GraduationCap,
+  FileText,
 } from "lucide-react";
 import "./styles.css";
 
@@ -41,6 +47,8 @@ import "./styles.css";
 interface Slide {
   id: string;
   section?: string;
+  /** true ise HUD'da section etiketi gizlenir; tuzak bait slaytlarda kullanılır ki sahnede "KANCA" yazısı seyirciye tuzağı ele vermesin. */
+  hideHud?: boolean;
   render: (ctx: SlideCtx) => ReactNode;
 }
 
@@ -717,7 +725,7 @@ function PasswordCracker({
 
       <p className="mt-5 mcb-mono mcb-meta text-zinc-500">
         Not: Hiçbir yere gönderilmez — tarayıcında çalışır. Geç kaldıysan:{" "}
-        <span className="text-emerald-400">/mcbukaf/sifre-test</span>
+        <span className="text-emerald-400">/mcbukaf/sifre</span>
       </p>
     </div>
   );
@@ -1226,15 +1234,46 @@ function PollQRBait({
 
 function QRTuzakExplain() {
   const flags = [
-    { tag: "DOMAIN", body: "turktelekom-kampanya-mcbukaf.co — .co + tire + ek kelimeler = uydurma." },
-    { tag: "ACILİYET", body: "‘SON 4 SAAT’ — yapay kıtlık." },
-    { tag: "ÖDÜL", body: "‘1.000 TL bedava’ — bedava yemde değil, oltadasın." },
-    { tag: "GÖRSEL TAKLİT", body: "Logo + kurumsal renk Canva'da 1 dakikada yapılır." },
-    { tag: "YETKİSİZ QR", body: "Afişte/sergi yanında QR — üzerine yapıştırılmış olabilir." },
+    {
+      tag: "DOMAIN",
+      body: ".co + tire + ek kelime = uydurma alan adı.",
+      example: "Gerçek: turktelekom.com.tr · Sahte: turktelekom-kampanya-mcbukaf.co",
+    },
+    {
+      tag: "ACILİYET",
+      body: "‘Son X saat’ → düşünme süresi yok demek.",
+      example: "‘SON 4 SAAT’ · Trendyol ‘SON 1 SAAT %90 indirim’ kampanyaları",
+    },
+    {
+      tag: "ÖDÜL",
+      body: "Sebepsiz para = oltanın kendisi.",
+      example: "‘1.000 TL bedava internet’ · ‘iPhone 17 çekilişi’ · ‘Migros 500 TL puan’",
+    },
+    {
+      tag: "GÖRSEL TAKLİT",
+      body: "Logo + kurumsal renk Canva'da 1 dakikada yapılır.",
+      example: "Garanti yeşili, Türk Telekom mavisi, Ziraat kırmızısı — hepsi kopyalanabilir",
+    },
+    {
+      tag: "YETKİSİZ QR",
+      body: "Afiş/sergi yanındaki QR üstüne yapıştırılmış olabilir.",
+      example: "İBB park metro afişleri (2024) · Restoran menü QR'larına quishing sticker",
+    },
   ];
+  const [revealed, setRevealed] = useState(0);
+
+  // Sahnede tıklamasa bile bütün bayraklar 7sn içinde açılsın (safety net)
+  useEffect(() => {
+    if (revealed >= flags.length) return;
+    const t = setTimeout(() => setRevealed((r) => Math.min(flags.length, r + 1)), 1400);
+    return () => clearTimeout(t);
+  }, [revealed, flags.length]);
+
+  const advance = () => setRevealed((r) => Math.min(flags.length, r + 1));
+
   return (
     <FullCenter>
-      <div className="w-full max-w-[1500px]">
+      <div className="w-full max-w-[1500px]" onClick={advance}>
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1257,20 +1296,38 @@ function QRTuzakExplain() {
             <motion.div
               key={f.tag}
               initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i }}
+              animate={
+                i < revealed
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0.08, y: 6 }
+              }
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               className="rounded-2xl border border-rose-400/30 bg-rose-500/5 p-5 min-w-0"
             >
               <div className="mcb-mono mcb-tag text-rose-300 mb-2">
                 {String(i + 1).padStart(2, "0")} · {f.tag}
               </div>
-              <p className="mcb-body text-zinc-100">{f.body}</p>
+              <p className="mcb-body text-zinc-100 mb-3">
+                {i < revealed ? f.body : "•••••••••••••••••••"}
+              </p>
+              {i < revealed && (
+                <>
+                  <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+                    ÖRNEK
+                  </div>
+                  <p className="mcb-body text-amber-100/85 italic text-sm">
+                    {f.example}
+                  </p>
+                </>
+              )}
             </motion.div>
           ))}
         </div>
-        <p className="mt-8 text-center mcb-lead text-emerald-300">
-          ✓ Bilmediğin QR'a tıklama. Tıkladıysan adres çubuğunu oku.
-        </p>
+        <div className="mt-6 text-center mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+          {revealed < flags.length
+            ? `${String(revealed).padStart(2, "0")} / ${flags.length} · TIKLA AÇILSIN`
+            : "✓ Bilmediğin QR'a tıklama. Tıkladıysan adres çubuğunu oku."}
+        </div>
       </div>
     </FullCenter>
   );
@@ -1278,12 +1335,36 @@ function QRTuzakExplain() {
 
 function CihazIzExplain() {
   const leaks = [
-    { tag: "IP + KONUM", body: "Şehrini ve ISS sağlayıcını verir; reklam ağları için yeterli." },
-    { tag: "CİHAZ MARKASI", body: "iPhone 15 Pro mu Samsung A54 mü — hedefli kampanyada gümrük + paywall ayarlanır." },
-    { tag: "PIL / BAĞLANTI", body: "Pil seviyesi + Wi-Fi/4G durumu = anlık konum doğrulaması." },
-    { tag: "SAAT DİLİMİ", body: "Avrupa/Istanbul = iş saatleri saldırı zamanlaması." },
-    { tag: "DİL / EKRAN", body: "Türkçe + 6.7'' = Türk kullanıcı + mobil arayüz şablonu seç." },
-    { tag: "ÇEREZ / REFERER", body: "Hangi siteden geldin? Reklam ağı seni siteler arası takip eder." },
+    {
+      tag: "IP + KONUM",
+      body: "Şehrini ve ISS sağlayıcını verir.",
+      example: "Manisa · TurkNet → 'Şehrindeki şube' diye sahte SMS atılır.",
+    },
+    {
+      tag: "CİHAZ MARKASI",
+      body: "iPhone mu Samsung mu — hedefli kampanya ayarlanır.",
+      example: "iPhone 15 Pro → 'AppleID kilitlendi' phishing maili özel hazırlanır.",
+    },
+    {
+      tag: "PIL / BAĞLANTI",
+      body: "Pil seviyesi + 4G durumu = anlık konum doğrulaması.",
+      example: "Pil %12 + 4G → 'evden uzakta' sinyali → hemen şimdi tıklat.",
+    },
+    {
+      tag: "SAAT DİLİMİ",
+      body: "Avrupa/Istanbul = iş saatleri saldırı zamanlaması.",
+      example: "TR saati 14:30 → mesai saatinde 'bankadan acil arama'.",
+    },
+    {
+      tag: "DİL / EKRAN",
+      body: "Türkçe + 6.7'' = Türk + mobil arayüz şablonu.",
+      example: "Türkçe Accept-Language → Türk bankası klonu servis edilir.",
+    },
+    {
+      tag: "ÇEREZ / REFERER",
+      body: "Hangi siteden geldin? Reklam ağı siteler arası takip eder.",
+      example: "Trendyol'dan geldiysen → Trendyol kampanya phishing'i yer.",
+    },
   ];
   return (
     <FullCenter>
@@ -1304,11 +1385,17 @@ function CihazIzExplain() {
               key={l.tag}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 * i }}
+              transition={{ delay: 0.1 * i }}
               className="rounded-2xl border border-cyan-400/30 bg-cyan-400/5 p-5 min-w-0"
             >
               <div className="mcb-mono mcb-tag text-cyan-300 mb-2">{l.tag}</div>
-              <p className="mcb-body text-zinc-100">{l.body}</p>
+              <p className="mcb-body text-zinc-100 mb-3">{l.body}</p>
+              <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+                ÖRNEK
+              </div>
+              <p className="mcb-body text-amber-100/85 italic text-sm">
+                {l.example}
+              </p>
             </motion.div>
           ))}
         </div>
@@ -1335,39 +1422,45 @@ function SahteBankaExplain() {
             {
               tag: "DOMAIN ANATOMİSİ",
               bad: "bankam-guvenli-giris.co",
-              fix: "Gerçek bankaların domain'i kendi adıyla başlar ve .com.tr ile biter.",
+              fix: "Banka domain'i kendi adıyla başlar, .com.tr ile biter.",
+              example: "Garanti: garantibbva.com.tr · Sahte: garanti-mobil-giris.co",
             },
             {
               tag: "SSL ≠ GÜVENLİK",
-              bad: "🔒 yeşil kilit",
+              bad: "yeşil kilit ikonu",
               fix: "Sadece şifreli bağlantı. Saldırgan da bunu kolay alır.",
+              example: "2024 phishing sitelerinin %94'ü zaten SSL sertifikalı (APWG).",
             },
             {
               tag: "ŞİFRE TALEBİ",
-              bad: "İnternet bankacılık şifresini sayfada iste",
-              fix: "Hiçbir banka link / QR üzerinden şifre tamamını istemez.",
+              bad: "İnternet bankacılık şifresi formda",
+              fix: "Hiçbir banka link/QR üzerinden şifreyi istemez.",
+              example: "Ziraat, İşbankası, Akbank — hepsi resmi olarak duyurdu.",
             },
             {
               tag: "ACİL DOĞRULAMA",
               bad: "‘Hesap kilitlendi, doğrulayın’",
-              fix: "Hesabın gerçekten kilitlendiyse uygulamadan görürsün — link gelmez.",
+              fix: "Hesap gerçekten kilitliyse uygulamadan görürsün, link gelmez.",
+              example: "BTK 2025: ‘hesabınız geçici kilit’ tema %42 phishing maillerde.",
             },
             {
               tag: "GÖRSEL TAKLİT",
               bad: "Kurumsal renkler + logo",
               fix: "Sahte sayfa açmak bir saatlik iş. Görsel doğrulama yetmez.",
+              example: "İşbankası login klonu HTML/CSS = 1 saat. Telegram'da satılıyor.",
             },
             {
               tag: "TC + ŞİFRE BERABER",
               bad: "Tek formda iki kritik veri",
-              fix: "Banka ekranları çok adımlı, kademeli onaylar — tek seferlik değil.",
+              fix: "Banka ekranları çok adımlı, kademeli onaylar.",
+              example: "Gerçek mobil giriş: TC → SMS OTP → şifre (3 ayrı ekran).",
             },
           ].map((it, i) => (
             <motion.div
               key={it.tag}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 * i }}
+              transition={{ delay: 0.1 * i }}
               className="rounded-2xl border border-rose-400/30 bg-rose-500/5 p-5 min-w-0"
             >
               <div className="mcb-mono mcb-tag text-rose-300 mb-2">
@@ -1376,7 +1469,13 @@ function SahteBankaExplain() {
               <div className="mcb-mono mcb-meta text-rose-100/90 mb-2 break-all">
                 ✗ {it.bad}
               </div>
-              <p className="mcb-body text-zinc-100">{it.fix}</p>
+              <p className="mcb-body text-zinc-100 mb-3">{it.fix}</p>
+              <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+                ÖRNEK
+              </div>
+              <p className="mcb-body text-amber-100/85 italic text-sm">
+                {it.example}
+              </p>
             </motion.div>
           ))}
         </div>
@@ -1446,10 +1545,11 @@ function HookStat({ isActive }: { isActive: boolean }) {
             SON 24 SAATTE · KÜRESEL
           </span>
         </motion.div>
-        <h2 className="mcb-h2 text-white mb-14 max-w-[80vw] relative z-10">
+        <h2 className="mcb-h2 text-white mb-8 max-w-[80vw] relative z-10">
           Bu konuşmayı dinlerken bile saldırı durmuyor.
         </h2>
-        <div className="flex flex-wrap items-start justify-center gap-12 sm:gap-24 relative z-10">
+        <LivePhishingTicker active={isActive} />
+        <div className="mt-10 flex flex-wrap items-start justify-center gap-12 sm:gap-24 relative z-10">
           <StatNumber
             value={3.4}
             unit="mlyr"
@@ -1485,6 +1585,52 @@ function HookStat({ isActive }: { isActive: boolean }) {
         </motion.p>
       </Centered>
     </div>
+  );
+}
+
+/**
+ * Slayt aktif olduğunda her 100ms'de bir saniye başına ~39,351 (= 3.4 milyar/gün)
+ * mail tickleyen canlı sayaç. Sahnede vurgu için.
+ */
+function LivePhishingTicker({ active }: { active: boolean }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!active) {
+      setN(0);
+      return;
+    }
+    const startedAt = performance.now();
+    const RATE_PER_SEC = 39351;
+    const tick = () => {
+      const elapsed = (performance.now() - startedAt) / 1000;
+      setN(Math.floor(elapsed * RATE_PER_SEC));
+    };
+    const id = setInterval(tick, 80);
+    tick();
+    return () => clearInterval(id);
+  }, [active]);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: active ? 1 : 0, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="relative z-10 inline-flex items-center gap-4 px-5 py-3 rounded-full border border-rose-400/30 bg-rose-500/5"
+    >
+      <span
+        className="w-2.5 h-2.5 rounded-full bg-rose-400"
+        style={{
+          animation: "mcb-blink 0.9s infinite",
+          boxShadow: "0 0 10px rgba(244,63,94,0.8)",
+        }}
+      />
+      <span className="mcb-mono mcb-tag text-rose-300">CANLI</span>
+      <span className="mcb-mono text-white tabular-nums text-2xl sm:text-3xl font-bold">
+        {n.toLocaleString("tr-TR")}
+      </span>
+      <span className="mcb-mono text-zinc-400 text-xs">
+        e-posta · siz buradayken gönderildi
+      </span>
+    </motion.div>
   );
 }
 
@@ -1558,257 +1704,77 @@ function MitnickQuote() {
   );
 }
 
+/**
+ * Sahte banka araması — sadeleştirilmiş hali. Önceki sürümde 7-dakika
+ * timer + bakiye drain dramatizasyonu vardı; aşırı kalabalıktı.
+ * Şimdi: dialog kartları sıralı açılır + sonda tek punchline.
+ */
 function RealStory({ isActive }: { isActive: boolean }) {
   const dialogue = useMemo(
     () => [
-      {
-        text: "Hanımefendi, bankadan arıyoruz.",
-        delay: 1.4,
-      },
-      {
-        text: "Hesabınızdan şüpheli bir işlem yapıldı.",
-        delay: 2.8,
-      },
-      {
-        text: "Doğrulamak için size bir kod göndereceğiz…",
-        delay: 4.4,
-      },
+      { text: "Hanımefendi, bankadan arıyoruz.", delay: 1.2 },
+      { text: "Hesabınızdan şüpheli bir işlem yapıldı.", delay: 2.4 },
+      { text: "Doğrulamak için size bir kod göndereceğiz…", delay: 3.6 },
+      { text: "Kodu bize okumanız yeterli.", delay: 4.8 },
     ],
     [],
   );
 
-  // 7-minute timer fill (visual only, fast)
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    if (!isActive) {
-      setProgress(0);
-      return;
-    }
-    const start = performance.now();
-    const dur = 7000; // visual 7s instead of 7 dk
-    let raf = 0;
-    const tick = (now: number) => {
-      const p = Math.min((now - start) / dur, 1);
-      setProgress(p);
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    const t = setTimeout(() => {
-      raf = requestAnimationFrame(tick);
-    }, 5800);
-    return () => {
-      clearTimeout(t);
-      cancelAnimationFrame(raf);
-    };
-  }, [isActive]);
-
-  // Bank balance dramatic drop after timer hits 100%
-  const [drained, setDrained] = useState(false);
-  useEffect(() => {
-    if (!isActive) {
-      setDrained(false);
-      return;
-    }
-    const t = setTimeout(() => setDrained(true), 13200);
-    return () => clearTimeout(t);
-  }, [isActive]);
-
-  const initialBalance = 47820;
-  const balance = drained ? 0 : initialBalance;
-  const animatedBalance = useCountUp(balance, 1100, 0, isActive);
-
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <MatrixRain density={0.35} />
-      {/* dramatic red flash at the moment of drain */}
-      <AnimatePresence>
-        {drained && (
-          <motion.div
-            initial={{ opacity: 0.55 }}
-            animate={{ opacity: 0 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="absolute inset-0 pointer-events-none z-20"
-            style={{
-              background:
-                "radial-gradient(ellipse at center, rgba(244,63,94,0.5) 0%, rgba(244,63,94,0) 65%)",
-            }}
-          />
-        )}
-      </AnimatePresence>
-
+      <MatrixRain density={0.25} />
       <div className="relative z-10 flex items-center justify-center h-full px-6 sm:px-12">
-        <div className="grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center w-full max-w-[1500px]">
-          {/* dialog column */}
-          <div className="min-w-0">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={isActive ? { opacity: 1 } : { opacity: 0 }}
-              className="mcb-mono mcb-tag text-rose-400 mb-4"
-            >
-              <span className="inline-flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full bg-rose-400"
-                  style={{
-                    animation: "mcb-blink 1s infinite",
-                    boxShadow: "0 0 12px rgba(244,63,94,0.8)",
-                  }}
-                />
-                CANLI · GERÇEK SENARYO
-              </span>
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 15 }}
-              animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mcb-h1 font-black text-white mb-6"
-            >
-              Annemi aradılar.
-            </motion.h2>
-            <div className="space-y-3 mb-8">
-              {dialogue.map((d, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={isActive ? { opacity: 1, x: 0 } : { opacity: 0 }}
-                  transition={{ delay: d.delay, duration: 0.5 }}
-                  className="rounded-xl bg-zinc-900/70 border border-rose-400/25 p-4"
-                >
-                  <div className="mcb-mono mcb-tag text-rose-400/80 mb-1">
-                    BANKA · 0212-***-**-**
-                  </div>
-                  <p className="mcb-lead text-zinc-100">"{d.text}"</p>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* timer */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={isActive ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ delay: 5.8 }}
-              className="mb-7"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="mcb-mono mcb-tag text-amber-400">
-                  TELEFONDA GEÇEN SÜRE
-                </span>
-                <span className="mcb-mono mcb-meta text-zinc-300 tabular-nums">
-                  {Math.floor(progress * 7)} dk {Math.floor((progress * 7 * 60) % 60)} sn
-                </span>
-              </div>
-              <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-                <motion.div
-                  className="h-full"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, #fbbf24, #f97316, #f43f5e)",
-                    boxShadow: "0 0 12px rgba(244,63,94,0.6)",
-                    width: `${progress * 100}%`,
-                  }}
-                />
-              </div>
-            </motion.div>
-
-            {/* outcome statements */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={
-                isActive && drained
-                  ? { opacity: 1, y: 0 }
-                  : { opacity: 0, y: 10 }
-              }
-              transition={{ duration: 0.6 }}
-              className="space-y-2"
-            >
-              <p className="mcb-h3 text-zinc-100">Annem onayladı.</p>
-              <p className="mcb-h3 text-rose-300 font-bold">
-                Sabah: hesap boştu.
-              </p>
-            </motion.div>
-          </div>
-
-          {/* Mock bank app card */}
+        <div className="w-full max-w-[900px]">
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={
-              isActive ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }
-            }
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="rounded-3xl border border-zinc-700 bg-gradient-to-br from-zinc-900 to-zinc-950 p-7 shadow-2xl"
-            style={{
-              width: "min(420px, 85vw)",
-              boxShadow: drained
-                ? "0 0 80px rgba(244,63,94,0.45)"
-                : "0 0 40px rgba(0,0,0,0.6)",
-              borderColor: drained
-                ? "rgba(244,63,94,0.5)"
-                : "rgba(63,63,70,0.8)",
-            }}
+            initial={{ opacity: 0 }}
+            animate={isActive ? { opacity: 1 } : { opacity: 0 }}
+            className="mcb-mono mcb-tag text-rose-400 mb-4"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <div className="mcb-mono text-xs tracking-[0.3em] text-zinc-500 mb-1">
-                  BANKAM · MOBİL
-                </div>
-                <div className="text-zinc-300 text-base">Vadesiz Hesap</div>
-              </div>
-              <div
-                className="w-9 h-9 rounded-full"
+            <span className="inline-flex items-center gap-2">
+              <span
+                className="w-2 h-2 rounded-full bg-rose-400"
                 style={{
-                  background: drained
-                    ? "linear-gradient(135deg, #f43f5e, #be123c)"
-                    : "linear-gradient(135deg, #06b6d4, #0891b2)",
+                  animation: "mcb-blink 1s infinite",
+                  boxShadow: "0 0 12px rgba(244,63,94,0.8)",
                 }}
               />
-            </div>
-            <div className="mcb-mono text-zinc-500 text-xs tracking-[0.3em] mb-2">
-              BAKİYE
-            </div>
-            <motion.div
-              animate={drained ? { scale: [1, 1.05, 1] } : { scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="font-bold tabular-nums leading-none"
-              style={{
-                fontSize: "clamp(2.5rem, 5vw, 4.5rem)",
-                color: drained ? "#f43f5e" : "#fafafa",
-                textShadow: drained
-                  ? "0 0 25px rgba(244,63,94,0.6)"
-                  : "none",
-              }}
-            >
-              ₺{Math.round(animatedBalance).toLocaleString("tr-TR")}
-            </motion.div>
-            <AnimatePresence>
-              {drained && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-5 rounded-xl bg-rose-500/15 border border-rose-400/40 p-3"
-                >
-                  <div className="mcb-mono text-[10px] tracking-[0.3em] text-rose-300 mb-1">
-                    SON İŞLEM
-                  </div>
-                  <div className="flex justify-between text-rose-100">
-                    <span>EFT · 03:14</span>
-                    <span className="mcb-mono">−₺47.820,00</span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              GERÇEK SENARYO · BANKA ARAMASI
+            </span>
           </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 15 }}
+            animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mcb-h1 font-black text-white mb-8"
+          >
+            Annemi aradılar.
+          </motion.h2>
+          <div className="space-y-3 mb-10">
+            {dialogue.map((d, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={isActive ? { opacity: 1, x: 0 } : { opacity: 0 }}
+                transition={{ delay: d.delay, duration: 0.5 }}
+                className="rounded-xl bg-zinc-900/70 border border-rose-400/25 p-4"
+              >
+                <div className="mcb-mono mcb-tag text-rose-400/80 mb-1">
+                  BANKA · 0212-***-**-**
+                </div>
+                <p className="mcb-lead text-zinc-100">"{d.text}"</p>
+              </motion.div>
+            ))}
+          </div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={isActive ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 6.2, duration: 0.6 }}
+            className="mcb-h2 text-emerald-400 font-bold text-center"
+          >
+            Saldırgan tek satır kod yazmadı. Sadece konuştu.
+          </motion.p>
         </div>
       </div>
-
-      {/* footer punchline */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={isActive && drained ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ delay: 1.5, duration: 0.6 }}
-        className="absolute bottom-16 left-0 right-0 z-10 text-center px-6"
-      >
-        <p className="mcb-h2 text-emerald-400 font-bold">
-          Saldırgan tek bir satır kod yazmadı. Sadece konuştu.
-        </p>
-      </motion.div>
     </div>
   );
 }
@@ -1915,7 +1881,7 @@ function PasswordStats({ isActive }: { isActive: boolean }) {
             key={it.pw}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: isActive ? 1 : 0, x: 0 }}
-            transition={{ delay: 0.08 * i }}
+            transition={{ delay: 0.1 * i }}
             className="grid grid-cols-[80px_1fr_auto] items-center gap-5 p-5 rounded-xl border border-zinc-800 bg-black/40"
           >
             <span className="mcb-mono mcb-h3 text-zinc-600 tabular-nums">
@@ -1953,8 +1919,10 @@ function PassphraseFormula() {
         <div className="rounded-2xl p-7 border border-rose-500/40 bg-rose-500/5 mcb-stripes">
           <div className="mcb-mono mcb-tag text-rose-300 mb-3">ESKİ</div>
           <div className="mcb-mono mcb-h2 text-rose-100">Ankara2024!</div>
-          <div className="mcb-mono mcb-meta text-rose-300 mt-3">
-            ~33 bit · saniyeler içinde kırılır
+          <div className="mcb-mono mcb-meta text-rose-300 mt-3 flex items-center gap-2 flex-wrap">
+            <span>~</span>
+            <BitCountUp from={0} to={33} duration={1200} className="text-rose-200" />
+            <span>bit · saniyeler içinde kırılır</span>
           </div>
         </div>
         <div className="rounded-2xl p-7 border-2 border-emerald-400 bg-emerald-400/10">
@@ -1962,8 +1930,10 @@ function PassphraseFormula() {
           <div className="mcb-mono mcb-h2 text-emerald-100 break-all">
             kahve-yeşil-bisiklet-portal-2026
           </div>
-          <div className="mcb-mono mcb-meta text-emerald-300 mt-3">
-            ~110 bit · trilyon yıl gerekir
+          <div className="mcb-mono mcb-meta text-emerald-300 mt-3 flex items-center gap-2 flex-wrap">
+            <span>~</span>
+            <BitCountUp from={0} to={110} duration={2200} delay={600} className="text-emerald-200" />
+            <span>bit · trilyon yıl gerekir</span>
           </div>
         </div>
       </div>
@@ -1973,6 +1943,43 @@ function PassphraseFormula() {
       </p>
     </Centered>
   );
+}
+
+/**
+ * Slayt aktifken `from`'dan `to`'ya tikleyen sayı animasyonu.
+ * Tab dışı kalıp dönerken yeniden başlamasın diye basit performance.now() tabanlı.
+ */
+function BitCountUp({
+  from,
+  to,
+  duration,
+  delay = 0,
+  className,
+}: {
+  from: number;
+  to: number;
+  duration: number;
+  delay?: number;
+  className?: string;
+}) {
+  const [val, setVal] = useState(from);
+  useEffect(() => {
+    let raf = 0;
+    const startAt = performance.now() + delay;
+    const tick = (now: number) => {
+      if (now < startAt) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      const p = Math.min((now - startAt) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(from + (to - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [from, to, duration, delay]);
+  return <span className={`tabular-nums font-bold ${className ?? ""}`}>{val}</span>;
 }
 
 function TwoFAExplainer() {
@@ -2006,7 +2013,7 @@ function TwoFAExplainer() {
             key={c.title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 * i }}
+            transition={{ delay: 0.1 * i }}
             className="rounded-2xl p-8 border bg-black/40"
             style={{
               borderColor: `${c.color}55`,
@@ -2040,12 +2047,14 @@ function PhishingTechniqueCard({
   bad,
   good,
   note,
+  example,
   cardDelay,
 }: {
   label: string;
   bad: string;
   good: string;
   note: string;
+  example?: string;
   cardDelay: number;
 }) {
   // Animate the bad URL typing in, then briefly highlight the diff
@@ -2119,7 +2128,98 @@ function PhishingTechniqueCard({
       >
         {note}
       </motion.p>
+      {example && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={phase === "done" ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ delay: 0.45 }}
+          className="mt-3 pt-3 border-t border-zinc-800"
+        >
+          <div className="mcb-mono mcb-tag text-amber-400 mb-1">
+            ÖRNEK
+          </div>
+          <p className="mcb-body text-amber-100/85 italic text-sm">
+            {example}
+          </p>
+        </motion.div>
+      )}
     </motion.div>
+  );
+}
+
+/**
+ * "Phishing nedir?" — konsept açıklama slaytı.
+ * Teknikler ve örnekler bundan SONRA gelir.
+ */
+function PhishingWhatIs() {
+  const steps = [
+    {
+      n: "01",
+      label: "YEM",
+      body: "Tanıdık bir marka, banka veya kurumun ‘acil mesajı’.",
+      example:
+        "Türk Telekom: ‘1.000 TL bedava internet kazandınız, son 4 saat.’",
+    },
+    {
+      n: "02",
+      label: "OLTA",
+      body: "Link, QR veya ek dosya — bir tıklama yetiyor.",
+      example:
+        "PTT: ‘Kargonuz teslim edilemedi — kargocum.co.tr/abc123’",
+    },
+    {
+      n: "03",
+      label: "AĞ",
+      body: "Şifre, kart, kod — kimliğin karşı tarafa geçiyor.",
+      example:
+        "Bankam.tr.co/giris: TC + internet bankacılığı şifresi → 47.820 TL EFT.",
+    },
+  ];
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mcb-mono mcb-tag text-rose-400 mb-3 text-center"
+        >
+          PHISHING · OLTALAMA
+        </motion.div>
+        <h2 className="mcb-h1 font-black text-white mb-4 text-center max-w-[20ch] mx-auto">
+          Sistemi değil <span className="text-rose-400">seni</span> hack'liyorlar.
+        </h2>
+        <p className="mcb-lead text-zinc-200 mb-12 text-center max-w-[60ch] mx-auto">
+          Phishing, güvendiğin bir marka veya kurum gibi davranıp{" "}
+          <span className="text-white font-semibold">şifreni, kartını ya da kodunu</span>{" "}
+          gönüllü vermeni sağlayan saldırıdır. 3 adımda işler:
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {steps.map((s, i) => (
+            <motion.div
+              key={s.n}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * i }}
+              className="rounded-2xl border border-rose-400/30 bg-rose-500/5 p-6 min-w-0"
+            >
+              <div className="mcb-mono mcb-tag text-rose-300 mb-2">
+                {s.n} · {s.label}
+              </div>
+              <p className="mcb-lead text-zinc-100 mb-4">{s.body}</p>
+              <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+                ÖRNEK
+              </div>
+              <p className="mcb-body text-amber-100/90 italic">
+                "{s.example}"
+              </p>
+            </motion.div>
+          ))}
+        </div>
+        <p className="mt-10 text-center mcb-meta mcb-mono text-zinc-500">
+          Saldırgan yazılımı değil, dikkatini hedefler.
+        </p>
+      </div>
+    </FullCenter>
   );
 }
 
@@ -2127,27 +2227,31 @@ function PhishingTechniques() {
   const items = [
     {
       label: "IDN HOMOGRAPH",
-      bad: "gооgle.com",
-      good: "google.com",
-      note: "Kiril 'о' Latin 'o'na benzer, gözle ayrılmaz.",
+      bad: "gаrаnti.com.tr",
+      good: "garanti.com.tr",
+      note: "Kiril 'а' Latin 'a'ya benzer, gözle ayrılmaz.",
+      example: "2024 — sahte Garanti BBVA mailı bu yöntemle 200K kullanıcıya gitti.",
     },
     {
       label: "SUBDOMAIN TRICK",
-      bad: "google.com.security-update.xyz",
-      good: "google.com",
-      note: "Asıl domain en sondaki .xyz — google sadece subdomain.",
+      bad: "ptt.com.tr-takip.xyz",
+      good: "ptt.com.tr",
+      note: "Asıl domain en sondaki .xyz — PTT sadece subdomain.",
+      example: "Kargo SMS phishing'inde en sık görülen pattern (2024-25).",
     },
     {
       label: "TYPOSQUAT",
-      bad: "amaz0n.com",
-      good: "amazon.com",
-      note: "0 yerine o, l yerine 1.",
+      bad: "trendyo1.com",
+      good: "trendyol.com",
+      note: "0 yerine o, l yerine 1, harfler yer değiştirir.",
+      example: "trendy0l.com, trendyol-kampanya.com 2025'te 12 ay aktif kaldı.",
     },
     {
       label: "COMBOSQUAT",
-      bad: "facebook-login-secure.com",
-      good: "facebook.com",
-      note: "Tanıdık kelime + 'secure', 'login', 'verify'.",
+      bad: "iyzico-guvenli-odeme.com",
+      good: "iyzico.com",
+      note: "Tanıdık kelime + 'secure', 'guvenli', 'verify'.",
+      example: "BTK 2024 raporu: ödeme platformları en çok bu yöntemle taklit ediliyor.",
     },
   ];
   return (
@@ -2166,6 +2270,7 @@ function PhishingTechniques() {
             bad={it.bad}
             good={it.good}
             note={it.note}
+            example={it.example}
             cardDelay={0.4 + i * 0.5}
           />
         ))}
@@ -2244,85 +2349,6 @@ function OsintSlide() {
   );
 }
 
-function PhysicalAttacks() {
-  const cases = [
-    {
-      icon: "🔌",
-      tag: "USB DROP",
-      title: "Otoparkta ‘Maaş Listesi’",
-      body: "Buluntu USB. Takan kişi ‘ne var?’ diye merak eder. Cihaz aslında klavye gibi davranır, 0.4 saniyede komut çalıştırır.",
-      defense: "Buluntu USB'yi takmak = saldırıyı evine davet etmek.",
-    },
-    {
-      icon: "📡",
-      tag: "SAHTE Wi-Fi",
-      title: "‘Free_Guest_WiFi’",
-      body: "Kafede / havalimanında sahte AP. Bağlandıktan sonra HTTPS bile MITM proxy ile clear-text. Banka, e-posta, kurumsal — hepsi.",
-      defense: "Halka açık Wi-Fi yerine hücresel veri. Mecbursan VPN.",
-    },
-    {
-      icon: "🚪",
-      tag: "KUYRUK TAKİBİ",
-      title: "Kahve dolu ellerle giriyor",
-      body: "Saldırgan elinde laptop ve kahve. Sen kapıyı tutuyorsun. Profesyonel nezaket güvenlikten önemli değildir.",
-      defense: "Tek kişi — tek kart. Şüphede güvenliğe yönlendir.",
-    },
-    {
-      icon: "🍪",
-      tag: "OMUZ SÖRFÜ (Shoulder Surfing)",
-      title: "Otobüste şifre yazıyorsun",
-      body: "Yanındaki gözle takip eder, sonra hesabına bağlanır. PIN'i avcunla kapatmak hâlâ en güçlü 2FA biçimi.",
-      defense: "Ekran filtresi + parmaklarınla siper.",
-    },
-  ];
-  return (
-    <FullCenter>
-      <div className="w-full max-w-[1500px]">
-        <div className="mcb-mono mcb-tag text-amber-400/85 mb-3 text-center">
-          FİZİKSEL SOSYAL MÜHENDİSLİK
-        </div>
-        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
-          Saldırgan ekrandan değil, kapıdan girer.
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {cases.map((c, i) => (
-            <motion.div
-              key={c.tag}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.07 * i }}
-              className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6 flex gap-5 min-w-0"
-            >
-              <div
-                className="shrink-0"
-                style={{ fontSize: "clamp(2.5rem, 4vw, 3.5rem)" }}
-              >
-                {c.icon}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="mcb-mono mcb-tag text-amber-300 mb-2">
-                  {c.tag}
-                </div>
-                <div
-                  className="text-white font-bold leading-tight mb-2"
-                  style={{ fontSize: "clamp(1.4rem, 2.2vw, 2.25rem)" }}
-                >
-                  {c.title}
-                </div>
-                <p className="mcb-body text-zinc-200 mb-3">{c.body}</p>
-                <div className="mcb-mono mcb-tag text-emerald-300 mb-1">
-                  SAVUNMA
-                </div>
-                <p className="mcb-body text-emerald-100/90">{c.defense}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </FullCenter>
-  );
-}
-
 function RansomwareSlide() {
   return (
     <Centered>
@@ -2382,302 +2408,98 @@ function RansomwareSlide() {
   );
 }
 
-function AuthorityScamSlide({ isActive }: { isActive: boolean }) {
-  const dialogue = useMemo(
-    () => [
-      {
-        speaker: "Komiser Ahmet · 0212-***-**-**",
-        text: "Alo, hanımefendi. Ben emniyet müdürlüğünden Komiser Ahmet Yılmaz.",
-        delay: 1.2,
-      },
-      {
-        speaker: "Komiser Ahmet",
-        text: "Şahsınız üzerine açılmış bir MASAK soruşturması var. Hesabınızdan şüpheli işlem tespit edildi.",
-        delay: 2.6,
-      },
-      {
-        speaker: "Komiser Ahmet",
-        text: "Şu an Cumhuriyet Savcısı bey hatta. Lütfen bekleyin.",
-        delay: 4.2,
-      },
-      {
-        speaker: "‘Savcı’",
-        text: "Konuşma gizlidir. Banka, aile, kimseyle paylaşmayın.",
-        delay: 5.6,
-      },
-    ],
-    [],
-  );
-  return (
-    <FullCenter>
-      <div className="w-full max-w-[1500px]">
-        {/* Cinematic header — animated incoming call */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative flex items-center justify-center mb-5">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={
-                  isActive
-                    ? { scale: [0.6, 1.6], opacity: [0.6, 0] }
-                    : { scale: 0.6, opacity: 0 }
-                }
-                transition={{
-                  repeat: Infinity,
-                  duration: 2.4,
-                  delay: i * 0.8,
-                  ease: "easeOut",
-                }}
-                className="absolute rounded-full border-2 border-rose-400"
-                style={{
-                  width: "clamp(8rem, 12vw, 14rem)",
-                  height: "clamp(8rem, 12vw, 14rem)",
-                }}
-              />
-            ))}
-            <motion.div
-              animate={
-                isActive
-                  ? { rotate: [-8, 8, -8] }
-                  : { rotate: 0 }
-              }
-              transition={{ repeat: Infinity, duration: 0.6, ease: "easeInOut" }}
-              className="relative rounded-full bg-rose-500/15 border-2 border-rose-400 flex items-center justify-center"
-              style={{
-                width: "clamp(6rem, 8vw, 9rem)",
-                height: "clamp(6rem, 8vw, 9rem)",
-                boxShadow: "0 0 50px rgba(244,63,94,0.55)",
-              }}
-            >
-              <Phone
-                className="text-rose-300"
-                style={{
-                  width: "clamp(3rem, 4vw, 4.5rem)",
-                  height: "clamp(3rem, 4vw, 4.5rem)",
-                }}
-              />
-            </motion.div>
-          </div>
-          <div className="mcb-mono mcb-tag text-rose-400">
-            <span className="inline-flex items-center gap-2">
-              <span
-                className="w-2 h-2 rounded-full bg-rose-400 animate-pulse"
-                style={{ boxShadow: "0 0 12px rgba(244,63,94,0.8)" }}
-              />
-              GELEN ARAMA · OTORİTE TUZAĞI
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-5">
-          {/* Animated dialogue thread */}
-          <div className="rounded-2xl border border-rose-400/35 bg-gradient-to-br from-rose-500/5 to-rose-500/10 p-6 min-w-0">
-            <div className="mcb-mono mcb-tag text-rose-300 mb-4">
-              KONUŞMA · CANLI
-            </div>
-            <div className="space-y-4">
-              {dialogue.map((d, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0 }}
-                  transition={{ delay: d.delay, duration: 0.5 }}
-                  className="rounded-xl bg-zinc-900/70 border border-rose-400/20 p-4"
-                >
-                  <div className="mcb-mono mcb-tag text-rose-400/80 mb-1">
-                    {d.speaker}
-                  </div>
-                  <p className="mcb-body text-zinc-100">{d.text}</p>
-                </motion.div>
-              ))}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={isActive ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ delay: dialogue[dialogue.length - 1].delay + 1.2 }}
-                className="flex items-center gap-2 text-rose-300 mcb-body italic pl-1 pt-1"
-              >
-                <span className="inline-flex gap-1">
-                  <span
-                    className="w-2 h-2 bg-rose-300 rounded-full"
-                    style={{ animation: "mcb-blink 1s infinite" }}
-                  />
-                  <span
-                    className="w-2 h-2 bg-rose-300 rounded-full"
-                    style={{ animation: "mcb-blink 1s infinite 0.2s" }}
-                  />
-                  <span
-                    className="w-2 h-2 bg-rose-300 rounded-full"
-                    style={{ animation: "mcb-blink 1s infinite 0.4s" }}
-                  />
-                </span>
-                konuşmaya devam ediyor…
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Defense panel */}
-          <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-400/10 p-6 min-w-0">
-            <div className="mcb-mono mcb-tag text-emerald-300 mb-4">
-              GERÇEK · BÖYLE KORUNUR
-            </div>
-            <ul className="space-y-3 text-zinc-100 mcb-body">
-              <li>
-                ✓ <strong>Devlet</strong> telefonda altın/para istemez.
-              </li>
-              <li>
-                ✓ Savcılık SMS atmaz, "gizli soruşturma" diye konuşmaz.
-              </li>
-              <li>
-                ✓ Şüphede: <strong>kapat, 155'i kendin ara</strong>.
-              </li>
-              <li>
-                ✓ Yaşlılarına şu cümleyi öğret: "Hiçbir kuruma kuryeyle para
-                gitmez."
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </FullCenter>
-  );
-}
-
-function AcademicScams() {
+/**
+ * Birleşik gündelik + akademik 6 tuzak. Eski `AcademicScams` ve `EverydayScams`
+ * iki ayrı slaytı tek slaytta toplar — 2x3 grid, emoji-anchor, kısa body.
+ */
+function CommonScams() {
   const cases = [
     {
-      tag: "SAHTE KONFERANS",
-      title: "Barcelona'da bir hayal",
-      body: "Konferans daveti gelir, kayıt parası alınır, otel rezerve edilmiş gibi yapılır. Salonun adresi bile yoktur. SCOPUS taranıyor iddiası ile bilim insanı tuzağa düşürülür.",
-      defense: "Konferansı SCOPUS / WoS'tan elle teyit et. Profesyonel komite yoksa şüphe et.",
+      Icon: Car,
+      tag: "ARAÇ",
+      title: "Sazan sarmalı",
+      body: "Para ‘akrabaya’ yatar, ruhsat sahibine değil.",
+      defense: "Sadece ruhsat sahibi adına ödeme.",
     },
     {
-      tag: "PREDATORY JOURNAL",
-      title: "‘48 saatte yayın’ vaadi",
-      body: "Açık erişim adı altında düşük kaliteli derginin saldırgan e-postası: hızlı kabul + 850 USD APC. CV'ne sahte bir parlak ekleme uğruna paranı alıp gider.",
-      defense: "Beall's list, DOAJ, Think.Check.Submit. Editör kurulu kim? IF tutarlı mı?",
-    },
-    {
-      tag: "SPEAR PHISHING",
-      title: "Üniversite mail kopyası",
-      body: "Hedef sensin: ‘rektorluk-belge.tr’ alan adından ‘yıllık beyan formunuz’ konulu mail. ORCID + üniversite şifren tek formda istenir.",
-      defense: "Sıfır güven. Dosyayı/linki tarayıcıdan elle aç. Üst yazı + footer tutarsızlığını kontrol et.",
-    },
-  ];
-  return (
-    <FullCenter>
-      <div className="w-full max-w-[1500px]">
-        <div className="mcb-mono mcb-tag text-cyan-400/85 mb-3 text-center">
-          AKADEMİSYENE ÖZEL TUZAKLAR
-        </div>
-        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
-          Senin diplomanı bilen, senin tuzağını da kurar.
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {cases.map((c, i) => (
-            <motion.div
-              key={c.tag}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i }}
-              className="rounded-2xl border border-cyan-400/35 bg-cyan-400/5 p-6 min-w-0"
-              style={{ boxShadow: "0 0 25px rgba(34,211,238,0.12)" }}
-            >
-              <div className="mcb-mono mcb-tag text-cyan-300 mb-3">
-                {c.tag}
-              </div>
-              <div
-                className="text-white font-bold leading-tight mb-3"
-                style={{
-                  fontSize: "clamp(1.5rem, 2.4vw, 2.5rem)",
-                  lineHeight: 1.15,
-                }}
-              >
-                {c.title}
-              </div>
-              <p className="mcb-body text-zinc-200 mb-4">{c.body}</p>
-              <div className="mcb-mono mcb-tag text-emerald-300 mb-1">
-                SAVUNMA
-              </div>
-              <p className="mcb-body text-emerald-100/90">{c.defense}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </FullCenter>
-  );
-}
-
-function EverydayScams() {
-  const cases = [
-    {
-      emoji: "🚗",
-      tag: "SAZAN SARMALI",
-      title: "Araç alım-satımı",
-      body: "Para 'akrabaya' yatırıldı, ruhsat sahibinin hesabına değil — noterde ortalık karışır.",
-      defense: "Para, sadece ruhsat sahibi adına gider. Üçüncü kişi varsa dur.",
-    },
-    {
-      emoji: "🏠",
+      Icon: Home,
       tag: "EMLAK",
       title: "‘IBAN değişti’ mailı",
-      body: "Tapu için son ödeme arifesi. Sözde avukattan IBAN güncellemesi gelir. 1.5M TL sahte hesaba.",
-      defense: "Finansal değişiklik geldiğinde sesli teyit + avukat ofisinden geri arama.",
+      body: "Tapu öncesi sahte güncelleme — 1.5M TL gider.",
+      defense: "Finansal değişikliği telefonla teyit et.",
     },
     {
-      emoji: "📦",
-      tag: "KARGO SMS",
+      Icon: Package,
+      tag: "KARGO",
       title: "24 TL ödeme, 24.500 TL onay",
-      body: "Kargocum.co.tr/abc123 → 24 TL gümrük der. SMS onayında tutar 24.500 TL'dir.",
-      defense: "Onay kodu mesajındaki tutarı her zaman oku. Linke tıklamak zaten hata.",
+      body: "Linkte 24 TL gümrük, onay SMS'inde 24.500 TL.",
+      defense: "Onay tutarını okumadan kabul etme.",
     },
     {
-      emoji: "📈",
+      Icon: TrendingUp,
       tag: "DEEPFAKE YATIRIM",
       title: "Ünlü ekonomistin reklamı",
-      body: "Sosyal medyada CNBC kalitesinde reklam. Ünlü ile ‘canlı röportaj’ (deepfake). Panel 7 günde paranı 2x yapıyor — 8. gün hesap kayboluyor.",
-      defense: "SPK lisansı + bağımsız platformdan alıntı kontrol et. Sürpriz dönüş yok.",
+      body: "Deepfake röportaj + 7 günde 2x vaadi.",
+      defense: "SPK lisansı + bağımsız kaynak. Sürpriz dönüş yok.",
+    },
+    {
+      Icon: GraduationCap,
+      tag: "SAHTE KONFERANS",
+      title: "Barcelona'da bir hayal",
+      body: "Sözde SCOPUS, salonun adresi yok.",
+      defense: "Konferansı SCOPUS / WoS'tan elle teyit et.",
+    },
+    {
+      Icon: FileText,
+      tag: "PREDATORY JOURNAL",
+      title: "‘48 saatte yayın’ vaadi",
+      body: "850 USD APC, kalitesiz dergi, sahte parlama.",
+      defense: "Beall's · DOAJ · Think.Check.Submit.",
     },
   ];
   return (
     <FullCenter>
       <div className="w-full max-w-[1500px]">
         <div className="mcb-mono mcb-tag text-amber-400/85 mb-3 text-center">
-          GÜNDELİK · HERKESE OLABİLİR
+          GÜNDELİK + AKADEMİK · 6 TUZAK
         </div>
         <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
           Tek bir kötü gün, tek bir tıklama.
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {cases.map((c, i) => (
             <motion.div
               key={c.tag}
-              initial={{ opacity: 0, x: i % 2 ? 20 : -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.08 * i }}
-              className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-6 flex gap-5 min-w-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * i }}
+              className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-5 flex gap-4 min-w-0"
             >
-              <div
-                className="shrink-0 flex items-start"
-                style={{ fontSize: "clamp(2.5rem, 4vw, 3.5rem)" }}
-              >
-                {c.emoji}
+              <div className="shrink-0 flex items-start">
+                <c.Icon
+                  className="text-amber-300"
+                  style={{
+                    width: "clamp(2rem, 2.6vw, 2.6rem)",
+                    height: "clamp(2rem, 2.6vw, 2.6rem)",
+                  }}
+                  strokeWidth={1.6}
+                />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="mcb-mono mcb-tag text-amber-300 mb-2">
+                <div className="mcb-mono mcb-tag text-amber-300 mb-1.5">
                   {c.tag}
                 </div>
                 <div
-                  className="text-white font-bold leading-tight mb-2"
-                  style={{ fontSize: "clamp(1.4rem, 2.2vw, 2.25rem)" }}
+                  className="text-white font-bold leading-tight mb-1.5"
+                  style={{ fontSize: "clamp(1.1rem, 1.6vw, 1.6rem)" }}
                 >
                   {c.title}
                 </div>
-                <p className="mcb-body text-zinc-200 mb-3">{c.body}</p>
-                <div className="mcb-mono mcb-tag text-emerald-300 mb-1">
-                  SAVUNMA
-                </div>
-                <p className="mcb-body text-emerald-100/90">{c.defense}</p>
+                <p className="mcb-body text-zinc-200 mb-2">{c.body}</p>
+                <p className="mcb-body text-emerald-100/90">
+                  <span className="mcb-mono mcb-tag text-emerald-300">↳</span>{" "}
+                  {c.defense}
+                </p>
               </div>
             </motion.div>
           ))}
@@ -3232,24 +3054,67 @@ function ThanksSlide() {
 /* ================================================================
    SLIDE LIST
    ================================================================ */
+/*
+  AKIŞ (Simav-stili: phishing tek büyük bölüm, sosyal mühendislik şifrelerden sonra):
+    AÇILIŞ        — cold-open, title, hook-stat
+    01 OLTALAMA   — divider, nedir, teknikler, ödül+banka+cihaz canlı demolar, SMS poll
+    02 ŞİFRELER   — divider, stats, cracker bait+demo, passphrase, 2fa, 2fa poll
+    03 SOSYAL MÜH — divider, mitnick, real-story, osint
+    04 2026       — deepfake, ai-2026, ransomware
+    05 GÜNLÜK     — common-scams
+    06 KORUNMA    — phishing quiz poll(3), checklist
+    KAPANIŞ       — manifesto, thanks
+*/
 const SLIDES: Slide[] = [
+  // AÇILIŞ
   {
     id: "cold-open",
-    section: "OPEN",
+    section: "AÇILIŞ",
     render: ({ isActive }) => <ColdOpen isActive={isActive} />,
   },
   {
     id: "title",
-    section: "OPEN",
+    section: "AÇILIŞ",
     render: () => <TitleSlide />,
   },
   {
-    id: "qr-tuzak-bait",
-    section: "BÖLÜM 01 · İLK TUZAK",
+    id: "hook-stat",
+    section: "AÇILIŞ",
+    render: ({ isActive }) => <HookStat isActive={isActive} />,
+  },
+
+  // 01 · OLTALAMA (phishing — en büyük bölüm)
+  {
+    id: "section-oltalama",
+    section: "BÖLÜM 01 · OLTALAMA",
+    render: () => (
+      <SectionTitle
+        number="01"
+        title="OLTALAMA"
+        subtitle="Sistemi değil, dikkatini hedeflerler."
+        color="#f43f5e"
+        Icon={ShieldAlert}
+      />
+    ),
+  },
+  {
+    id: "phishing-what-is",
+    section: "BÖLÜM 01 · OLTALAMA",
+    render: () => <PhishingWhatIs />,
+  },
+  {
+    id: "phishing-tech",
+    section: "BÖLÜM 01 · OLTALAMA",
+    render: () => <PhishingTechniques />,
+  },
+  {
+    id: "odul-bait",
+    section: "BÖLÜM 01 · OLTALAMA",
+    hideHud: true,
     render: ({ origin }) => (
       <QRBaitSlide
         origin={origin}
-        path="/mcbukaf/qr-tuzak"
+        path="/mcbukaf/odul"
         brandTag="MCBÜKAF · KAMPANYA"
         brandColor="#fb923c"
         headline="1.000 TL bedava internet."
@@ -3259,55 +3124,55 @@ const SLIDES: Slide[] = [
     ),
   },
   {
-    id: "qr-tuzak-explain",
-    section: "BÖLÜM 01 · İLK TUZAK",
+    id: "odul-explain",
+    section: "BÖLÜM 01 · OLTALAMA",
     render: () => <QRTuzakExplain />,
   },
   {
-    id: "hook-stat",
-    section: "BÖLÜM 02 · MANZARA",
-    render: ({ isActive }) => <HookStat isActive={isActive} />,
-  },
-  {
-    id: "section-soc-eng",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
-    render: () => (
-      <SectionTitle
-        number="03"
-        title="SOSYAL MÜHENDİSLİK"
-        subtitle="Saldırının %98'i bir konuşmayla başlar."
-        color="#22d3ee"
-        Icon={Brain}
+    id: "banka-bait",
+    section: "BÖLÜM 01 · OLTALAMA",
+    hideHud: true,
+    render: ({ origin }) => (
+      <QRBaitSlide
+        origin={origin}
+        path="/mcbukaf/banka"
+        brandTag="BANKAM · MOBİL ŞUBE"
+        brandColor="#f43f5e"
+        headline="Hesabınızı doğrulayın."
+        subheadline="Şüpheli işlem tespit edildi. QR'ı tara, giriş yap."
+        ctaTone="alert"
       />
     ),
   },
   {
-    id: "mitnick",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
-    render: () => <MitnickQuote />,
+    id: "banka-explain",
+    section: "BÖLÜM 01 · OLTALAMA",
+    render: () => <SahteBankaExplain />,
   },
   {
-    id: "real-story",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
-    render: ({ isActive }) => (
-      <RealStory isActive={isActive} />
+    id: "cihaz-bait",
+    section: "BÖLÜM 01 · OLTALAMA",
+    hideHud: true,
+    render: ({ origin }) => (
+      <QRBaitSlide
+        origin={origin}
+        path="/mcbukaf/cihaz"
+        brandTag="DENEY · CİHAZ İZİ"
+        brandColor="#22d3ee"
+        headline="Sadece sayfayı aç. Yazma."
+        subheadline="QR'ı tara, telefonun anında ne söylüyor gör."
+        ctaTone="neutral"
+      />
     ),
   },
   {
-    id: "authority-scam",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
-    render: ({ isActive }) => (
-      <AuthorityScamSlide isActive={isActive} />
-    ),
-  },
-  {
-    id: "osint",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
-    render: () => <OsintSlide />,
+    id: "cihaz-explain",
+    section: "BÖLÜM 01 · OLTALAMA",
+    render: () => <CihazIzExplain />,
   },
   {
     id: "poll-2-bait",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
+    section: "BÖLÜM 01 · OLTALAMA",
     render: ({ origin }) => (
       <PollQRBait
         origin={origin}
@@ -3319,7 +3184,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: "poll-2",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
+    section: "BÖLÜM 01 · OLTALAMA",
     render: ({ origin, isActive }) => (
       <FullCenter>
         <SMSScene
@@ -3332,7 +3197,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: "poll-2-reveal",
-    section: "BÖLÜM 03 · İNSAN HACK'İ",
+    section: "BÖLÜM 01 · OLTALAMA",
     render: ({ origin, isActive }) => (
       <FullCenter>
         <SMSScene
@@ -3343,12 +3208,14 @@ const SLIDES: Slide[] = [
       </FullCenter>
     ),
   },
+
+  // 02 · ŞİFRELER
   {
     id: "section-passwords",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: () => (
       <SectionTitle
-        number="04"
+        number="02"
         title="ŞİFRELER"
         subtitle="Bir kelimenin arkasında durmak yetmez."
         color="#fbbf24"
@@ -3358,16 +3225,16 @@ const SLIDES: Slide[] = [
   },
   {
     id: "password-stats",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: ({ isActive }) => <PasswordStats isActive={isActive} />,
   },
   {
     id: "password-cracker-bait",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: ({ origin }) => (
       <QRBaitSlide
         origin={origin}
-        path="/mcbukaf/sifre-test"
+        path="/mcbukaf/sifre"
         brandTag="ŞİFRE TEST · CANLI"
         brandColor="#fbbf24"
         headline="Şifreni telefonda test et."
@@ -3377,7 +3244,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: "password-cracker",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: ({ isActive, origin }) => (
       <FullCenter>
         <PasswordCracker isActive={isActive} origin={origin} />
@@ -3386,17 +3253,17 @@ const SLIDES: Slide[] = [
   },
   {
     id: "passphrase",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: () => <PassphraseFormula />,
   },
   {
     id: "twofa",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: () => <TwoFAExplainer />,
   },
   {
     id: "poll-3-bait",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: ({ origin }) => (
       <PollQRBait
         origin={origin}
@@ -3408,7 +3275,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: "poll-3",
-    section: "BÖLÜM 04 · ŞİFRELER",
+    section: "BÖLÜM 02 · ŞİFRELER",
     render: ({ origin, isActive }) => (
       <FullCenter>
         <LivePoll
@@ -3420,97 +3287,65 @@ const SLIDES: Slide[] = [
       </FullCenter>
     ),
   },
+
+  // 03 · SOSYAL MÜHENDİSLİK
   {
-    id: "section-modern-threats",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    id: "section-soc-eng",
+    section: "BÖLÜM 03 · SOSYAL MÜHENDİSLİK",
     render: () => (
       <SectionTitle
-        number="05"
-        title="MODERN TEHDİTLER"
-        subtitle="AI saldırgana da çalışıyor."
-        color="#f43f5e"
-        Icon={ShieldAlert}
+        number="03"
+        title="SOSYAL MÜHENDİSLİK"
+        subtitle="Saldırının %98'i bir konuşmayla başlar."
+        color="#22d3ee"
+        Icon={Brain}
       />
     ),
   },
   {
-    id: "phishing-tech",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: () => <PhishingTechniques />,
+    id: "mitnick",
+    section: "BÖLÜM 03 · SOSYAL MÜHENDİSLİK",
+    render: () => <MitnickQuote />,
   },
   {
-    id: "cihaz-iz-bait",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: ({ origin }) => (
-      <QRBaitSlide
-        origin={origin}
-        path="/mcbukaf/cihaz-iz"
-        brandTag="DENEY · CİHAZ İZİ"
-        brandColor="#22d3ee"
-        headline="Sadece sayfayı aç. Yazma."
-        subheadline="QR'ı tara, telefonun anında ne söylüyor gör."
-        ctaTone="neutral"
-      />
-    ),
+    id: "real-story",
+    section: "BÖLÜM 03 · SOSYAL MÜHENDİSLİK",
+    render: ({ isActive }) => <RealStory isActive={isActive} />,
   },
   {
-    id: "cihaz-iz-explain",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: () => <CihazIzExplain />,
+    id: "osint",
+    section: "BÖLÜM 03 · SOSYAL MÜHENDİSLİK",
+    render: () => <OsintSlide />,
   },
-  {
-    id: "sahte-banka-bait",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: ({ origin }) => (
-      <QRBaitSlide
-        origin={origin}
-        path="/mcbukaf/sahte-banka"
-        brandTag="BANKAM · MOBİL ŞUBE"
-        brandColor="#f43f5e"
-        headline="Hesabınızı doğrulayın."
-        subheadline="Şüpheli işlem tespit edildi. QR'ı tara, giriş yap."
-        ctaTone="alert"
-      />
-    ),
-  },
-  {
-    id: "sahte-banka-explain",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: () => <SahteBankaExplain />,
-  },
-  {
-    id: "academic-scams",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: () => <AcademicScams />,
-  },
-  {
-    id: "everyday-scams",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: () => <EverydayScams />,
-  },
-  {
-    id: "physical-attacks",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: () => <PhysicalAttacks />,
-  },
-  {
-    id: "ransomware",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
-    render: () => <RansomwareSlide />,
-  },
+
+  // 04 · 2026 TEHDİTLERİ
   {
     id: "deepfake",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
     render: () => <DeepfakeSlide />,
   },
   {
     id: "ai-2026",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
     render: () => <AIAttacks2026 />,
   },
   {
+    id: "ransomware",
+    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
+    render: () => <RansomwareSlide />,
+  },
+
+  // 05 · GÜNLÜK TUZAKLAR
+  {
+    id: "common-scams",
+    section: "BÖLÜM 05 · GÜNLÜK TUZAKLAR",
+    render: () => <CommonScams />,
+  },
+
+  // 06 · KORUNMA
+  {
     id: "poll-4-bait",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 06 · KORUNMA",
     render: ({ origin }) => (
       <PollQRBait
         origin={origin}
@@ -3522,7 +3357,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: "poll-4",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 06 · KORUNMA",
     render: ({ origin, isActive }) => (
       <FullCenter>
         <LivePoll
@@ -3536,20 +3371,20 @@ const SLIDES: Slide[] = [
   },
   {
     id: "quiz-reveal",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 06 · KORUNMA",
     render: () => <QuizReveal />,
   },
   {
     id: "checklist",
-    section: "BÖLÜM 06 · BU GECE",
+    section: "BÖLÜM 06 · KORUNMA",
     render: ({ isActive }) => <Checklist isActive={isActive} />,
   },
+
+  // KAPANIŞ
   {
     id: "manifesto",
     section: "KAPANIŞ",
-    render: ({ isActive }) => (
-      <Manifesto />
-    ),
+    render: () => <Manifesto />,
   },
   {
     id: "thanks",
@@ -3564,6 +3399,8 @@ const SLIDES: Slide[] = [
 export default function Presentation() {
   const [idx, setIdx] = useState(0);
   const [origin, setOrigin] = useState("");
+  const [blank, setBlank] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   // ses devre dışı
   const swipeStart = useRef<number | null>(null);
 
@@ -3578,8 +3415,29 @@ export default function Presentation() {
     [],
   );
 
+  const toggleFullscreen = useCallback(() => {
+    if (typeof document === "undefined") return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Help overlay'i bir sahne tuşu basınca kapat
+      if (showHelp && e.key !== "?" && e.key !== "h") {
+        setShowHelp(false);
+      }
+      // Blank durumdayken sadece Esc / B / . açar
+      if (blank) {
+        if (e.key === "Escape" || e.key === "b" || e.key === ".") {
+          e.preventDefault();
+          setBlank(false);
+        }
+        return;
+      }
       if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
         e.preventDefault();
         go(1);
@@ -3590,11 +3448,22 @@ export default function Presentation() {
         setIdx(0);
       } else if (e.key === "End") {
         setIdx(SLIDES.length - 1);
+      } else if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.key === "b" || e.key === "B" || e.key === ".") {
+        e.preventDefault();
+        setBlank(true);
+      } else if (e.key === "?" || e.key === "h" || e.key === "H") {
+        e.preventDefault();
+        setShowHelp((v) => !v);
+      } else if (e.key === "Escape") {
+        setShowHelp(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
+  }, [go, toggleFullscreen, blank, showHelp]);
 
   const cur = SLIDES[idx];
 
@@ -3625,14 +3494,18 @@ export default function Presentation() {
         />
       </div>
 
-      {/* HUD top */}
-      <div className="absolute top-4 left-5 z-30 flex items-center gap-3 mcb-mono text-sm tracking-widest text-emerald-400/80">
-        <span className="mcb-tick">●</span>
-        <span>{cur.section}</span>
-      </div>
-      <div className="absolute top-4 right-20 z-30 mcb-mono text-sm tracking-widest text-zinc-400 tabular-nums">
-        {String(idx + 1).padStart(2, "0")} / {SLIDES.length}
-      </div>
+      {/* HUD top — bait slaytlarda gizli (seyirciye tuzak olduğunu ele vermesin) */}
+      {!cur.hideHud && (
+        <>
+          <div className="absolute top-4 left-5 z-30 flex items-center gap-3 mcb-mono text-sm tracking-widest text-emerald-400/80">
+            <span className="mcb-tick">●</span>
+            <span>{cur.section}</span>
+          </div>
+          <div className="absolute top-4 right-20 z-30 mcb-mono text-sm tracking-widest text-zinc-400 tabular-nums">
+            {String(idx + 1).padStart(2, "0")} / {SLIDES.length}
+          </div>
+        </>
+      )}
 
       {/* slides */}
       <AnimatePresence mode="wait">
@@ -3683,9 +3556,65 @@ export default function Presentation() {
       </div>
 
       {/* keyboard hint (low-key) */}
-      <div className="absolute bottom-4 left-5 z-30 mcb-mono text-xs tracking-widest text-zinc-600 hidden sm:block">
-        ← · →
-      </div>
+      <button
+        type="button"
+        onClick={() => setShowHelp((v) => !v)}
+        className="absolute bottom-4 left-5 z-30 mcb-mono text-xs tracking-widest text-zinc-600 hover:text-zinc-300 hidden sm:block transition-colors"
+        aria-label="Kısayollar"
+      >
+        ← · → · F · B · ?
+      </button>
+
+      {/* blank screen (B / .) — sahne karartma */}
+      {blank && (
+        <div
+          className="fixed inset-0 z-[80] bg-black cursor-none"
+          onClick={() => setBlank(false)}
+          aria-hidden
+        />
+      )}
+
+      {/* help overlay (? / h) — sahne kısayolları */}
+      {showHelp && !blank && (
+        <div
+          className="absolute inset-0 z-[70] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            className="rounded-2xl border border-emerald-400/30 bg-zinc-950/95 p-8 max-w-sm w-[92%] mcb-mono text-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-emerald-400 tracking-[0.4em] text-[10px] mb-4">
+              KISAYOLLAR
+            </div>
+            <ul className="space-y-2 text-zinc-300">
+              <li className="flex justify-between gap-6">
+                <span>İleri / Geri</span>
+                <span className="text-zinc-500">← → Space</span>
+              </li>
+              <li className="flex justify-between gap-6">
+                <span>Başa / Sona</span>
+                <span className="text-zinc-500">Home / End</span>
+              </li>
+              <li className="flex justify-between gap-6">
+                <span>Tam ekran</span>
+                <span className="text-zinc-500">F</span>
+              </li>
+              <li className="flex justify-between gap-6">
+                <span>Sahneyi karart</span>
+                <span className="text-zinc-500">B · .</span>
+              </li>
+              <li className="flex justify-between gap-6">
+                <span>Bu yardımı kapat</span>
+                <span className="text-zinc-500">Esc · ?</span>
+              </li>
+            </ul>
+            <div className="mt-5 pt-4 border-t border-zinc-800 text-[10px] tracking-widest text-zinc-600">
+              {SLIDES.length} SLAYT · MCBÜKAF'26
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

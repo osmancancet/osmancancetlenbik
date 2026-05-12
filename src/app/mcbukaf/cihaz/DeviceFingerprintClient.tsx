@@ -56,10 +56,23 @@ export function DeviceFingerprintClient({
   userAgent: string;
   acceptLang: string;
 }) {
-  const [phase, setPhase] = useState<"scan" | "done">("scan");
+  const [phase, setPhase] = useState<"lure" | "scan" | "done">("lure");
   const [client, setClient] = useState<ClientInfo | null>(null);
+  const [lureCountdown, setLureCountdown] = useState(6);
+
+  // Lure fazında 6sn geri sayım; bitince otomatik scan başlat (seyircinin tıklamama ihtimaline karşı)
+  useEffect(() => {
+    if (phase !== "lure") return;
+    if (lureCountdown <= 0) {
+      setPhase("scan");
+      return;
+    }
+    const t = setTimeout(() => setLureCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [phase, lureCountdown]);
 
   useEffect(() => {
+    if (phase !== "scan") return;
     if (typeof window === "undefined") return;
     const nav = navigator as Navigator & {
       deviceMemory?: number;
@@ -103,7 +116,7 @@ export function DeviceFingerprintClient({
     setClient(info);
     const t = setTimeout(() => setPhase("done"), 1800);
     return () => clearTimeout(t);
-  }, []);
+  }, [phase]);
 
   const browser = detectBrowser(userAgent);
   const os = detectOS(userAgent);
@@ -127,6 +140,86 @@ export function DeviceFingerprintClient({
     { label: "Çerez aktif", value: client?.cookieEnabled ? "evet" : "hayır" },
     { label: "Çevrimiçi", value: client?.online ? "evet" : "hayır" },
   ];
+
+  if (phase === "lure") {
+    return (
+      <div
+        className="min-h-dvh bg-gradient-to-b from-[#06121f] to-[#0a1a2e] text-white flex flex-col font-sans"
+        style={{
+          paddingTop: "max(1.5rem, env(safe-area-inset-top))",
+          paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))",
+        }}
+      >
+        {/* fake brand bar */}
+        <div className="px-5 py-3 flex items-center justify-between border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center font-black text-[#06121f]">
+              ⚡
+            </div>
+            <div>
+              <div className="font-bold text-sm leading-tight">
+                NetSpeed · TR
+              </div>
+              <div className="text-[10px] text-white/50 tracking-wider">
+                BAĞLANTI KALİTE ARAÇLARI
+              </div>
+            </div>
+          </div>
+          <div className="text-[10px] text-white/50">🔒 SSL</div>
+        </div>
+
+        <div className="flex-1 px-6 flex flex-col items-center justify-center text-center">
+          <div className="text-cyan-400 font-mono text-[10px] tracking-[0.4em] mb-3">
+            HIZLI BAĞLANTI TESTİ
+          </div>
+          <h1 className="text-3xl font-bold mb-3 leading-tight">
+            İnternet hızını
+            <br />
+            <span className="text-cyan-300">2 saniyede</span> öğren.
+          </h1>
+          <p className="text-white/70 text-sm mb-8 max-w-xs leading-relaxed">
+            En yakın sunucuyu seçip cihazına uygun ölçüm yapacağız. Test
+            sırasında cihaz ve bağlantı bilgilerine erişim verilir.
+          </p>
+
+          {/* fake speedometer dial */}
+          <div className="relative w-44 h-44 mb-8">
+            <div className="absolute inset-0 rounded-full border-[6px] border-white/10" />
+            <div
+              className="absolute inset-0 rounded-full border-[6px] border-cyan-400/60"
+              style={{
+                clipPath:
+                  "polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%, 50% 50%)",
+              }}
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-[10px] text-white/50 tracking-widest mb-1">
+                Mbps
+              </div>
+              <div className="text-4xl font-black text-cyan-300 tabular-nums">
+                ---
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setPhase("scan")}
+            className="w-full max-w-xs bg-gradient-to-b from-cyan-400 to-cyan-500 text-[#06121f] font-bold py-4 rounded-xl text-base shadow-lg shadow-cyan-500/30 active:scale-[0.98] transition-transform"
+          >
+            TESTİ BAŞLAT
+          </button>
+
+          <div className="mt-4 text-[10px] text-white/40 tracking-widest">
+            otomatik başlama: {lureCountdown}s
+          </div>
+        </div>
+
+        <div className="mt-auto px-5 pb-2 text-center text-[10px] text-white/30 tracking-widest">
+          netspeed-tr.co · v2.4
+        </div>
+      </div>
+    );
+  }
 
   if (phase === "scan") {
     return (
@@ -162,12 +255,12 @@ export function DeviceFingerprintClient({
     >
       <div className="px-5 py-4 border-b border-rose-500/40 bg-rose-500/10">
         <div className="font-mono text-[10px] tracking-[0.4em] text-rose-300 mb-1">
-          QR'A TIKLADIN · CİHAZIN KONUŞTU
+          MCBÜKAF · İNTERAKTİF GÜVENLİK
         </div>
         <div className="text-2xl font-bold text-rose-200 leading-tight">
-          Sadece sayfayı açtın.
+          Tek tıkladın.
           <br />
-          Saldırgan şunları öğrendi:
+          Saldırgan profil çıkardı:
         </div>
       </div>
 

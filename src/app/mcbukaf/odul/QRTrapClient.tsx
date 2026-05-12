@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Gift, Lock, MessageSquare } from "lucide-react";
 
 export function QRTrapClient() {
-  const [phase, setPhase] = useState<"bait" | "loading" | "reveal">("bait");
+  const [phase, setPhase] = useState<"sms" | "bait" | "loading" | "reveal">(
+    "sms",
+  );
   const [progress, setProgress] = useState(0);
+  const [glitch, setGlitch] = useState(false);
 
-  // When user "claims" the prize, run a fake loader, then reveal
+  // When user "claims" the prize, run a fake loader, then reveal w/ glitch
   const handleClaim = () => {
     setPhase("loading");
     const start = performance.now();
@@ -16,11 +20,25 @@ export function QRTrapClient() {
       const p = Math.min((now - start) / dur, 1);
       setProgress(p * 100);
       if (p < 1) raf = requestAnimationFrame(tick);
-      else setTimeout(() => setPhase("reveal"), 220);
+      else
+        setTimeout(() => {
+          setGlitch(true);
+          setTimeout(() => {
+            setPhase("reveal");
+            setGlitch(false);
+          }, 320);
+        }, 220);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   };
+
+  // SMS önizlemesinden bait'e otomatik geçiş (1.5s)
+  useEffect(() => {
+    if (phase !== "sms") return;
+    const t = setTimeout(() => setPhase("bait"), 1500);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   // Auto-trigger after 4s if user hesitates (still gets the reveal)
   useEffect(() => {
@@ -29,11 +47,14 @@ export function QRTrapClient() {
     return () => clearTimeout(t);
   }, [phase]);
 
+  if (phase === "sms") return <SMSPreview />;
   if (phase === "reveal") return <RevealView />;
 
   return (
     <div
-      className="min-h-dvh bg-white text-zinc-900 flex flex-col font-sans"
+      className={`min-h-dvh bg-white text-zinc-900 flex flex-col font-sans ${
+        glitch ? "qrt-glitch" : ""
+      }`}
       style={{
         paddingTop: "max(2rem, env(safe-area-inset-top))",
         paddingBottom: "max(2rem, env(safe-area-inset-bottom))",
@@ -52,6 +73,14 @@ export function QRTrapClient() {
         <span className="text-[10px] bg-yellow-400 text-zinc-900 px-2 py-0.5 rounded font-bold">
           SON 4 SAAT
         </span>
+      </div>
+
+      {/* "SMS'den geldin" rozeti — seyirciye anlatım sinyali */}
+      <div className="px-5 pt-2">
+        <div className="inline-flex items-center gap-1.5 text-[10px] text-zinc-500 bg-zinc-100 border border-zinc-200 rounded-full px-2 py-1">
+          <span>📱</span>
+          <span>SMS bağlantısından geldin</span>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
@@ -198,6 +227,60 @@ function RevealView() {
         <p className="mt-8 text-center font-mono text-[10px] tracking-widest text-zinc-600">
           OSMANCANCETLENBIK.COM · MCBÜKAF 2026
         </p>
+      </div>
+    </div>
+  );
+}
+
+function SMSPreview() {
+  return (
+    <div
+      className="min-h-dvh bg-black text-white flex flex-col items-center px-5 font-sans qrt-fade-in"
+      style={{
+        paddingTop: "max(3rem, env(safe-area-inset-top))",
+        paddingBottom: "max(2rem, env(safe-area-inset-bottom))",
+      }}
+    >
+      <style>{`
+        @keyframes qrtFadeIn {
+          0% { opacity: 0; transform: translateY(-8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .qrt-fade-in { animation: qrtFadeIn .35s ease-out both; }
+        @keyframes qrtGlitch {
+          0%, 100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
+          20% { transform: translate(-3px, 1px); filter: hue-rotate(15deg); }
+          40% { transform: translate(2px, -2px) skewX(1.5deg); filter: hue-rotate(-12deg) contrast(1.2); }
+          60% { transform: translate(-2px, 2px); filter: hue-rotate(8deg); }
+          80% { transform: translate(1px, -1px) skewX(-1deg); filter: hue-rotate(-6deg) contrast(1.1); }
+        }
+        .qrt-glitch { animation: qrtGlitch .32s steps(2) both; }
+      `}</style>
+      <div className="text-zinc-500 text-[11px] tracking-widest mb-1">
+        15:42
+      </div>
+      <div className="text-zinc-400 text-[10px] tracking-[0.4em] mb-6">
+        BİLDİRİM · MESAJLAR
+      </div>
+      <div className="w-full max-w-sm bg-zinc-900 rounded-2xl p-4 shadow-2xl shadow-blue-500/10 border border-zinc-800">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-6 h-6 rounded bg-blue-600 flex items-center justify-center font-bold text-[10px]">
+            TT
+          </div>
+          <div className="font-semibold text-sm">Türk Telekom</div>
+          <div className="ml-auto text-[10px] text-zinc-500">şimdi</div>
+        </div>
+        <div className="text-sm text-zinc-200 leading-snug">
+          Tebrikler! MCBÜKAF katılımcılarına özel{" "}
+          <span className="font-bold text-white">1.000 TL bedava internet</span>
+          {" "}kampanyasını kazandınız. Ödülünüzü almak için:
+        </div>
+        <div className="mt-2 text-xs text-blue-400 break-all">
+          turktelekom-kampanya-mcbukaf.co/odul
+        </div>
+      </div>
+      <div className="mt-6 text-zinc-500 text-xs tracking-wider">
+        ↓ açılıyor
       </div>
     </div>
   );

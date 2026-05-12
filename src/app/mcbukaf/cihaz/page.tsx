@@ -3,8 +3,8 @@ import { headers } from "next/headers";
 import { DeviceFingerprintClient } from "./DeviceFingerprintClient";
 
 export const metadata: Metadata = {
-  title: "Cihaz İzi · MCBÜKAF",
-  description: "Bir QR tıklamada saldırgan ne öğrenir?",
+  title: "Cihaz Kontrolü",
+  description: "Cihazınız taranıyor.",
   robots: { index: false, follow: false },
 };
 
