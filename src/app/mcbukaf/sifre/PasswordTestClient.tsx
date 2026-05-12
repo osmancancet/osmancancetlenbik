@@ -4,19 +4,48 @@ import { useMemo, useState } from "react";
 import {
   passwordEntropy,
   crackTime,
+  crackSeconds,
   strengthLabel,
   isLeaked,
 } from "@/lib/passwordStrength";
 
+type SendState = "idle" | "sending" | "sent" | "error";
+
 export function PasswordTestClient() {
   const [pw, setPw] = useState("");
   const [show, setShow] = useState(false);
+  const [sendState, setSendState] = useState<SendState>("idle");
 
   const bits = useMemo(() => passwordEntropy(pw), [pw]);
   const strength = useMemo(() => strengthLabel(bits), [bits]);
   const time = useMemo(() => crackTime(bits), [bits]);
   const leaked = useMemo(() => isLeaked(pw), [pw]);
   const meterPct = Math.min(100, (bits / 100) * 100);
+
+  async function submitToScreen() {
+    if (!pw || sendState === "sending") return;
+    setSendState("sending");
+    try {
+      const r = await fetch("/api/mcbukaf/sifre-canli", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          session: "default",
+          length: pw.length,
+          entropy: Number(bits.toFixed(2)),
+          crackSec: Math.min(1e29, crackSeconds(bits)),
+          strength: strength.label,
+          leaked,
+        }),
+      });
+      if (!r.ok) throw new Error("send failed");
+      setSendState("sent");
+      setTimeout(() => setSendState("idle"), 4000);
+    } catch {
+      setSendState("error");
+      setTimeout(() => setSendState("idle"), 3000);
+    }
+  }
 
   return (
     <div
@@ -45,7 +74,7 @@ export function PasswordTestClient() {
           Şifreni yaz, gerçeği gör.
         </h1>
         <p className="text-center text-zinc-400 text-sm mb-7">
-          Sayfa hiçbir yere veri göndermez. Tüm hesap tarayıcında yapılır.
+          Hesaplama tarayıcında yapılır. İstersen sonucu (yalnız uzunluk + güç) salondaki ekrana yansıtabilirsin.
         </p>
 
         <div className="relative">
@@ -150,6 +179,33 @@ export function PasswordTestClient() {
             </div>
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={submitToScreen}
+          disabled={!pw || sendState === "sending" || sendState === "sent"}
+          className="mt-6 w-full rounded-2xl px-5 py-4 font-mono text-base font-bold tracking-wider transition-all disabled:cursor-not-allowed disabled:opacity-50"
+          style={{
+            background: sendState === "sent"
+              ? "rgba(0, 255, 136, 0.18)"
+              : sendState === "error"
+                ? "rgba(244, 63, 94, 0.18)"
+                : "linear-gradient(135deg, #00ff88 0%, #22d3ee 100%)",
+            color: sendState === "sent" ? "#00ff88" : sendState === "error" ? "#fda4af" : "#02050a",
+            border: sendState === "sent" ? "2px solid #00ff88" : sendState === "error" ? "2px solid #f43f5e" : "none",
+            boxShadow: pw && sendState === "idle" ? "0 0 28px rgba(0,255,136,0.35)" : undefined,
+          }}
+        >
+          {sendState === "sending" && "GÖNDERİLİYOR…"}
+          {sendState === "sent" && "✓ EKRANA YANSITILDI"}
+          {sendState === "error" && "HATA — TEKRAR DENE"}
+          {sendState === "idle" && "SONUCU EKRANA YANSIT"}
+        </button>
+
+        <p className="mt-3 text-center text-[11px] tracking-wider font-mono text-zinc-600 leading-relaxed px-2">
+          Yansıtılan veri: uzunluk, entropi, güç etiketi, sızıntı durumu.<br />
+          Şifrenin <span className="text-zinc-500">kendisi</span> gönderilmez.
+        </p>
 
         <p className="mt-6 text-center text-[11px] tracking-widest font-mono text-zinc-600">
           OSMANCANCETLENBIK.COM

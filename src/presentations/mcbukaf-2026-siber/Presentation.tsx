@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import QRCode from "qrcode";
 import "./styles.css";
 
 /* ================================================================
@@ -444,16 +445,391 @@ function LiveExperiment({ src, label, hint }: { src: string; label: string; hint
 }
 
 /* ================================================================
+   LIVE PASSWORD EXPERIMENT — QR + canlı feed (wow reveal)
+   ================================================================ */
+type Drop = {
+  id: string;
+  length: number;
+  entropy: number;
+  crackSec: number;
+  strength: string;
+  leaked: boolean;
+  createdAt: string;
+};
+
+const STRENGTH_COLOR: Record<string, string> = {
+  "ÇOK ZAYIF": "#f43f5e",
+  "ZAYIF": "#fb923c",
+  "ORTA": "#fbbf24",
+  "İYİ": "#22d3ee",
+  "MÜKEMMEL": "#00ff88",
+};
+
+function fmtCrack(sec: number): string {
+  if (sec < 1) return "<1 sn";
+  if (sec < 60) return `${Math.round(sec)} sn`;
+  const m = sec / 60;
+  if (m < 60) return `${Math.round(m)} dk`;
+  const h = m / 60;
+  if (h < 24) return `${Math.round(h)} sa`;
+  const d = h / 24;
+  if (d < 365) return `${Math.round(d)} gün`;
+  const y = d / 365;
+  if (y < 1e3) return `${Math.round(y)} yıl`;
+  if (y < 1e6) return `${(y / 1e3).toFixed(1)}K yıl`;
+  if (y < 1e9) return `${(y / 1e6).toFixed(1)}M yıl`;
+  return "∞";
+}
+
+function relTime(iso: string): string {
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 5) return "şimdi";
+  if (s < 60) return `${s} sn önce`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m} dk önce`;
+  return `${Math.floor(m / 60)} sa önce`;
+}
+
+function useQrDataUrl(text: string, size = 720) {
+  const [dataUrl, setDataUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!text) return;
+    let cancelled = false;
+    QRCode.toDataURL(text, {
+      width: size,
+      margin: 2,
+      errorCorrectionLevel: "H",
+      color: { dark: "#02050a", light: "#ffffffff" },
+    })
+      .then((url) => { if (!cancelled) setDataUrl(url); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [text, size]);
+  return dataUrl;
+}
+
+function useLiveDrops(active: boolean, intervalMs = 1500) {
+  const [drops, setDrops] = useState<Drop[]>([]);
+  const [dist, setDist] = useState<Record<string, number>>({});
+  const [leakedCount, setLeakedCount] = useState(0);
+  const [, force] = useState(0);
+
+  useEffect(() => {
+    if (!active) return;
+    let cancelled = false;
+    let timer: number | undefined;
+
+    const tick = async () => {
+      try {
+        const r = await fetch(`/api/mcbukaf/sifre-canli?session=default&min=120`, {
+          cache: "no-store",
+        });
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        if (cancelled) return;
+        setDrops(data.drops ?? []);
+        setDist(data.dist ?? {});
+        setLeakedCount(data.leakedCount ?? 0);
+      } catch {
+        /* keep prior */
+      } finally {
+        if (!cancelled) timer = window.setTimeout(tick, intervalMs);
+      }
+    };
+    tick();
+
+    // ticker to update "şimdi/sn önce" labels
+    const refresh = window.setInterval(() => force((x) => x + 1), 5000);
+
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+      window.clearInterval(refresh);
+    };
+  }, [active, intervalMs]);
+
+  return { drops, dist, leakedCount };
+}
+
+function DropRow({ drop, fresh }: { drop: Drop; fresh: boolean }) {
+  const color = STRENGTH_COLOR[drop.strength] ?? "#22d3ee";
+  const dots = "•".repeat(Math.min(drop.length, 24));
+  const entropyPct = Math.min(100, (drop.entropy / 100) * 100);
+  return (
+    <motion.div
+      layout
+      initial={fresh ? { opacity: 0, x: 30, scale: 0.96 } : { opacity: 0 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{ type: "spring", stiffness: 200, damping: 22 }}
+      className="rounded-lg bg-black/55 border backdrop-blur-sm overflow-hidden"
+      style={{
+        borderColor: drop.leaked ? "#f43f5e80" : `${color}40`,
+        boxShadow: fresh
+          ? `0 0 24px ${color}50, 0 0 60px ${color}25`
+          : `0 0 10px ${color}18`,
+      }}
+    >
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5">
+        <div className="flex flex-col items-start min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="mcb-mono font-bold text-white tabular-nums text-base sm:text-lg tracking-wider truncate"
+              style={{ color }}>{dots}</span>
+            <span className="mcb-mono text-[10px] sm:text-xs text-gray-500 shrink-0">{drop.length} krk</span>
+          </div>
+          <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${entropyPct}%` }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full rounded-full"
+              style={{ background: color, boxShadow: `0 0 10px ${color}90` }}
+            />
+          </div>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="mcb-mono font-bold text-[10px] sm:text-xs tracking-widest" style={{ color }}>
+            {drop.strength}
+          </div>
+          <div className="mcb-mono text-[10px] sm:text-xs text-gray-400 tabular-nums">
+            kırılır: <span style={{ color }}>{fmtCrack(drop.crackSec)}</span>
+          </div>
+        </div>
+        {drop.leaked && (
+          <motion.div
+            initial={{ scale: 0 }} animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200 }}
+            className="mcb-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 rounded shrink-0"
+            style={{ background: "#f43f5e25", color: "#fda4af", border: "1px solid #f43f5e60" }}
+          >
+            SIZINTI
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function LivePasswordExperiment({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<0 | 1>(0);
+  const phaseRef = useRef(0);
+
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
+
+  useEffect(() => {
+    if (!ctx.isActive) {
+      phaseRef.current = 0;
+      setPhase(0);
+      return;
+    }
+    ctx.consumeAdvance(() => {
+      if (phaseRef.current === 0) {
+        phaseRef.current = 1;
+        setPhase(1);
+        return true;
+      }
+      return false;
+    });
+  }, [ctx]);
+
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.origin);
+  }, []);
+
+  const targetUrl = origin ? `${origin}/mcbukaf/sifre` : "";
+  const qrDataUrl = useQrDataUrl(targetUrl, 720);
+
+  const { drops, dist, leakedCount } = useLiveDrops(ctx.isActive);
+
+  const lastIdRef = useRef<string | null>(null);
+  const freshIds = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (drops.length === 0) return;
+    const newest = drops[0].id;
+    if (newest !== lastIdRef.current) {
+      const prev = lastIdRef.current;
+      lastIdRef.current = newest;
+      if (prev !== null) {
+        freshIds.current.add(newest);
+        window.setTimeout(() => freshIds.current.delete(newest), 4500);
+      }
+    }
+  }, [drops]);
+
+  const total = drops.length;
+  const weakish = (dist["ZAYIF"] ?? 0) + (dist["ÇOK ZAYIF"] ?? 0);
+  const strong = (dist["İYİ"] ?? 0) + (dist["MÜKEMMEL"] ?? 0);
+  const mid = dist["ORTA"] ?? 0;
+
+  return (
+    <div className="flex flex-col h-full px-3 sm:px-6 pt-1 pb-1 min-h-0">
+      {/* Phase 0 — Invitation: big QR centered, subtle feed peek */}
+      <AnimatePresence mode="wait">
+        {phase === 0 && (
+          <motion.div
+            key="invite"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 0.4 }}
+            className="flex-1 flex flex-col items-center justify-center min-h-0"
+          >
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+              className="mb-3 flex items-center gap-2 sm:gap-3">
+              <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.3 }}
+                className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500"
+                style={{ boxShadow: "0 0 10px #f43f5e" }} />
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] mcb-mono text-rose-300">CANLI DENEY</span>
+              <span className="text-[10px] sm:text-xs mcb-mono text-emerald-400/80 hidden sm:inline">/mcbukaf/sifre</span>
+            </motion.div>
+
+            <motion.h2 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="mcb-h2 font-black text-center mb-1"
+              style={{ color: "#00ff88", textShadow: "0 0 22px rgba(0,255,136,0.5)" }}>
+              Sırada SEN varsın
+            </motion.h2>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
+              className="mcb-lead text-gray-300 text-center mb-4 sm:mb-6 max-w-3xl px-2">
+              QR&apos;ı tarat · şifreni gir · &ldquo;Sonucu Ekrana Yansıt&rdquo;a bas
+            </motion.p>
+
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 130, damping: 14, delay: 0.15 }}
+              className="relative rounded-2xl overflow-hidden mcb-glow-green"
+              style={{
+                width: "min(56vmin, 460px)",
+                height: "min(56vmin, 460px)",
+                background: "white",
+                padding: "clamp(0.5rem, 1.5vmin, 1rem)",
+              }}>
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="QR · /mcbukaf/sifre"
+                  className="w-full h-full object-contain" />
+              ) : (
+                <div className="w-full h-full bg-zinc-200 animate-pulse" />
+              )}
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+              className="mt-4 sm:mt-5 flex flex-col items-center gap-1">
+              <p className="mcb-mono text-emerald-400/70 text-xs sm:text-sm tracking-widest break-all px-2 text-center">
+                {origin ? `${origin.replace(/^https?:\/\//, "")}/mcbukaf/sifre` : "—"}
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.6 }}
+                  className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="mcb-mono text-[10px] sm:text-[11px] text-emerald-400/60 tracking-widest">
+                  {total > 0
+                    ? `${total} test alındı · son: ${relTime(drops[0].createdAt)}`
+                    : "bağlı · ilk testin bekleniyor…"}
+                </span>
+              </div>
+            </motion.div>
+
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
+              className="absolute bottom-2 left-1/2 -translate-x-1/2 mcb-mono text-[10px] sm:text-xs text-gray-500 select-none">
+              <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.4 }}
+                style={{ color: "#00ff88" }}>▶</motion.span>{" "}
+              boşluk / → · ekrana yansıt
+            </motion.p>
+          </motion.div>
+        )}
+
+        {/* Phase 1 — Reveal: feed dominates, QR small corner */}
+        {phase === 1 && (
+          <motion.div
+            key="reveal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="flex-1 flex flex-col min-h-0"
+          >
+            {/* Header */}
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between gap-2 sm:gap-4 mb-2 sm:mb-3 px-1 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <motion.span animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.3 }}
+                  className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 shrink-0"
+                  style={{ boxShadow: "0 0 10px #f43f5e" }} />
+                <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] mcb-mono text-rose-300 shrink-0">PARMAK İZLERİNİZ</span>
+                <span className="mcb-mono text-[10px] sm:text-xs text-emerald-400/70 tabular-nums">
+                  {total} test · {leakedCount} sızıntı
+                </span>
+              </div>
+              {/* mini QR */}
+              {qrDataUrl && (
+                <div className="rounded-lg overflow-hidden border border-emerald-500/30 bg-white shrink-0"
+                  style={{ width: "clamp(48px, 7vmin, 80px)", height: "clamp(48px, 7vmin, 80px)", padding: "2px" }}>
+                  <img src={qrDataUrl} alt="QR" className="w-full h-full object-contain" />
+                </div>
+              )}
+            </motion.div>
+
+            {/* Distribution bar */}
+            <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+              transition={{ delay: 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="h-2 rounded-full overflow-hidden bg-zinc-900/80 mb-2 sm:mb-3 origin-left flex">
+              {total > 0 && (
+                <>
+                  {weakish > 0 && <div className="h-full" style={{ width: `${(weakish / total) * 100}%`, background: "linear-gradient(90deg, #f43f5e, #fb923c)" }} />}
+                  {mid > 0 && <div className="h-full" style={{ width: `${(mid / total) * 100}%`, background: "#fbbf24" }} />}
+                  {strong > 0 && <div className="h-full" style={{ width: `${(strong / total) * 100}%`, background: "linear-gradient(90deg, #22d3ee, #00ff88)" }} />}
+                </>
+              )}
+            </motion.div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-3 sm:gap-5 mb-2 sm:mb-3 mcb-mono text-[10px] sm:text-xs flex-wrap px-1">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-rose-500" /><span className="text-gray-300">ZAYIF {weakish}</span></span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-amber-400" /><span className="text-gray-300">ORTA {mid}</span></span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-emerald-400" /><span className="text-gray-300">GÜÇLÜ {strong}</span></span>
+            </div>
+
+            {/* Feed */}
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+              {total === 0 ? (
+                <div className="h-full flex items-center justify-center text-center">
+                  <div>
+                    <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.6 }}
+                      className="mcb-mono text-emerald-400/70 text-sm mb-2">▶ canlı bağlı</motion.div>
+                    <p className="mcb-meta text-gray-500">İlk testin bekleniyor…</p>
+                    <p className="mcb-meta text-gray-600 mt-1">Telefonundan QR&apos;ı tarat.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5 sm:space-y-2">
+                  <AnimatePresence initial={false}>
+                    {drops.slice(0, 12).map((d) => (
+                      <DropRow key={d.id} drop={d} fresh={freshIds.current.has(d.id)} />
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
+
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
+              className="mt-2 mcb-meta text-gray-500 text-center px-2">
+              Yukarıdaki her satır <span className="text-rose-300">birinizin parolasının parmak izi</span>.
+              Sahte sayfa olsaydı şifrenin <strong className="text-rose-300">kendisi</strong> de orada olacaktı.
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ================================================================
    SECTIONS (HUD)
    ================================================================ */
 const SECTIONS = [
   { name: "Açılış", start: 0 },
   { name: "Oltalama", start: 3 },
   { name: "Şifreler", start: 6 },
-  { name: "Sosyal Müh.", start: 10 },
-  { name: "2026 Tehditleri", start: 14 },
-  { name: "Korunma", start: 18 },
-  { name: "Kapanış", start: 21 },
+  { name: "Sosyal Müh.", start: 11 },
+  { name: "2026 Tehditleri", start: 15 },
+  { name: "Korunma", start: 19 },
+  { name: "Kapanış", start: 22 },
 ];
 
 /* ================================================================
@@ -576,10 +952,12 @@ const slides: Slide[] = [
     { value: "3.000 yıl", label: "12 karışık karakter (rastgele)", color: "#00ff88" },
   ]} /> },
 
-  { id: "live-sifre", content: <LiveExperiment
-    src="/mcbukaf/sifre"
-    label="/mcbukaf/sifre"
-    hint="Salondan bir gönüllü kendi parolasını girsin (gerçek değil — örnek parola). Entropi ve sızıntı veritabanı sonucu canlı görünür." /> },
+  { id: "live-sifre", content: (ctx) => <LivePasswordExperiment ctx={ctx} /> },
+
+  { id: "sifre-reveal-lesson", content: <BigTextSlide
+    text="Şifrenizi tanımadığınız bir sayfaya verdiniz."
+    subtext="Bu sefer biz sadece parmak izini aldık. Sahte phishing sayfası şifrenin kendisini de alır."
+    color="#f43f5e" /> },
 
   { id: "passphrase-2fa", content: <TwoColumnSlide
     icon="🔑" title="Daha İyisi: Cümle-Şifre + 2FA"

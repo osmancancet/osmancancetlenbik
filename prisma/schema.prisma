@@ -111,3 +111,16 @@ model CourseWeek {
 
   @@unique([courseId, weekNumber])
 }
+
+model PasswordDrop {
+  id        String   @id @default(cuid())
+  session   String   @default("default")
+  length    Int
+  entropy   Float
+  crackSec  Float
+  strength  String
+  leaked    Boolean
+  createdAt DateTime @default(now())
+
+  @@index([session, createdAt])
+}

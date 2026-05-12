@@ -74,6 +74,13 @@ export function passwordEntropy(pw: string): number {
   return Math.log2(space) * pw.length;
 }
 
+export function crackSeconds(bits: number): number {
+  if (bits <= 0) return 0;
+  const guesses = Math.pow(2, bits) / 2;
+  const rate = 1e11;
+  return guesses / rate;
+}
+
 export function crackTime(bits: number): string {
   if (bits <= 0) return "anında";
   const guesses = Math.pow(2, bits) / 2;
