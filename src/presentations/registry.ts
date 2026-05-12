@@ -37,7 +37,7 @@ export const presentations: Record<string, Entry> = {
       title:
         "İnteraktif Siber Güvenlik: Son Kullanıcı Zafiyetleri ve Sosyal Mühendislik",
       description:
-        "MCBÜKAF'26 için sıfırdan kurgulanmış sinematik sunum: canlı QR anketleri, şifre kırma simülatörü, deepfake / AI tehdit senaryoları, prosedürel ses tasarımı.",
+        "MCBÜKAF'26 için sıfırdan kurgulanmış 23 slaytlık sunum: tıkla-açıl oltalama anatomisi, sahnede canlı şifre kırıcı ve cihaz parmak izi deneyi, deepfake ipuçları ve 5 dakikalık ransomware geri sayımı.",
     },
     Component: dynamic(() => import("./mcbukaf-2026-siber/Presentation"), {
       ssr: false,
