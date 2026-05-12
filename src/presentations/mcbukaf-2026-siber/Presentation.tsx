@@ -19,7 +19,6 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
-  Wifi,
   AlertTriangle,
   ShieldAlert,
   ShieldCheck,
@@ -1094,34 +1093,229 @@ function TitleSlide() {
   );
 }
 
-function QROnboarding({ origin }: { origin: string }) {
-  const url = `${origin}/poll/mcb-1-attack-surface`;
+function QRBaitSlide({
+  origin,
+  path,
+  brandTag,
+  brandColor,
+  headline,
+  subheadline,
+  ctaTone,
+}: {
+  origin: string;
+  path: string;
+  brandTag: string;
+  brandColor: string;
+  headline: string;
+  subheadline: string;
+  ctaTone: "warm" | "alert" | "neutral";
+}) {
+  const url = `${origin}${path}`;
+  const ctaBg =
+    ctaTone === "warm"
+      ? "from-orange-400 to-rose-500"
+      : ctaTone === "alert"
+        ? "from-rose-500 to-rose-700"
+        : "from-emerald-400 to-cyan-500";
   return (
-    <div className="relative w-full h-full">
-      <MatrixRain density={0.55} />
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center gap-7">
-        <Wifi
-          className="text-emerald-400"
-          style={{
-            width: "clamp(3.5rem, 5vw, 5.5rem)",
-            height: "clamp(3.5rem, 5vw, 5.5rem)",
-          }}
-        />
-        <h2 className="mcb-h1 font-black text-white">Telefonunu çıkar.</h2>
-        <p className="mcb-lead text-zinc-200 max-w-[80vw]">
-          QR'ı tara · butona bas · cevabın 2 saniyede ekrana düşsün.
-        </p>
-        <div className="my-4">
+    <FullCenter>
+      <div className="w-full max-w-[1500px] grid lg:grid-cols-[1fr_auto] gap-12 items-center">
+        <div className="min-w-0">
+          <div className="mcb-mono mcb-tag mb-4" style={{ color: brandColor }}>
+            <span className="inline-flex items-center gap-2">
+              <span
+                className="w-2.5 h-2.5 rounded-full"
+                style={{
+                  background: brandColor,
+                  animation: "mcb-blink 1.2s infinite",
+                  boxShadow: `0 0 14px ${brandColor}99`,
+                }}
+              />
+              {brandTag}
+            </span>
+          </div>
+          <h2 className="mcb-h1 font-black text-white max-w-[16ch] leading-[1.05] mb-6">
+            {headline}
+          </h2>
+          <p className="mcb-lead text-zinc-200 max-w-[22ch] mb-8">
+            {subheadline}
+          </p>
+          <div
+            className={`inline-flex items-center gap-2 rounded-2xl px-7 py-4 mcb-h3 font-bold text-white bg-gradient-to-r ${ctaBg}`}
+            style={{ boxShadow: `0 0 40px ${brandColor}44` }}
+          >
+            <span>Telefonla tara →</span>
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-3">
           <QR url={url} size={420} />
+          <div className="mcb-mono mcb-meta text-zinc-400 tracking-widest break-all max-w-[420px] text-center">
+            {url.replace(/^https?:\/\//, "")}
+          </div>
         </div>
-        <div className="mcb-mono mcb-h3 text-emerald-400 tracking-widest break-all">
-          {url.replace(/^https?:\/\//, "")}
+      </div>
+    </FullCenter>
+  );
+}
+
+function QRTuzakExplain() {
+  const flags = [
+    { tag: "DOMAIN", body: "turktelekom-kampanya-mcbukaf.co — .co + tire + ek kelimeler = uydurma." },
+    { tag: "ACILİYET", body: "‘SON 4 SAAT’ — yapay kıtlık." },
+    { tag: "ÖDÜL", body: "‘1.000 TL bedava’ — bedava yemde değil, oltadasın." },
+    { tag: "GÖRSEL TAKLİT", body: "Logo + kurumsal renk Canva'da 1 dakikada yapılır." },
+    { tag: "YETKİSİZ QR", body: "Afişte/sergi yanında QR — üzerine yapıştırılmış olabilir." },
+  ];
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mcb-mono mcb-tag text-rose-400 mb-3 text-center"
+        >
+          QUISHING · QR PHISHING
+        </motion.div>
+        <h2 className="mcb-h2 font-bold text-white mb-3 text-center">
+          Telefonuna ne yansıdı?
+        </h2>
+        <p className="mcb-lead text-zinc-200 mb-8 text-center max-w-[60ch] mx-auto">
+          O sayfanın bir sonraki adımı{" "}
+          <span className="text-rose-300 font-semibold">
+            kimlik, telefon ve banka kartı
+          </span>{" "}
+          istemekti. Gerçek bir saldırı olsaydı, hepsi karşı tarafta olurdu.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {flags.map((f, i) => (
+            <motion.div
+              key={f.tag}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * i }}
+              className="rounded-2xl border border-rose-400/30 bg-rose-500/5 p-5 min-w-0"
+            >
+              <div className="mcb-mono mcb-tag text-rose-300 mb-2">
+                {String(i + 1).padStart(2, "0")} · {f.tag}
+              </div>
+              <p className="mcb-body text-zinc-100">{f.body}</p>
+            </motion.div>
+          ))}
         </div>
-        <p className="mcb-mono mcb-meta text-zinc-500 tracking-widest mt-2">
-          Wi-Fi ya da mobil veri yeterli.
+        <p className="mt-8 text-center mcb-lead text-emerald-300">
+          ✓ Bilmediğin QR'a tıklama. Tıkladıysan adres çubuğunu oku.
         </p>
       </div>
-    </div>
+    </FullCenter>
+  );
+}
+
+function CihazIzExplain() {
+  const leaks = [
+    { tag: "IP + KONUM", body: "Şehrini ve ISS sağlayıcını verir; reklam ağları için yeterli." },
+    { tag: "CİHAZ MARKASI", body: "iPhone 15 Pro mu Samsung A54 mü — hedefli kampanyada gümrük + paywall ayarlanır." },
+    { tag: "PIL / BAĞLANTI", body: "Pil seviyesi + Wi-Fi/4G durumu = anlık konum doğrulaması." },
+    { tag: "SAAT DİLİMİ", body: "Avrupa/Istanbul = iş saatleri saldırı zamanlaması." },
+    { tag: "DİL / EKRAN", body: "Türkçe + 6.7'' = Türk kullanıcı + mobil arayüz şablonu seç." },
+    { tag: "ÇEREZ / REFERER", body: "Hangi siteden geldin? Reklam ağı seni siteler arası takip eder." },
+  ];
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <div className="mcb-mono mcb-tag text-cyan-400/85 mb-3 text-center">
+          PARMAK İZİ · QR'A TIKLADIĞIN ANDA
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-3 text-center">
+          Sayfayı açtın. Hiçbir şey yazmadın.
+        </h2>
+        <p className="mcb-lead text-zinc-200 mb-8 text-center max-w-[60ch] mx-auto">
+          Yine de tarayıcın bir <strong>profil</strong> oluşturdu. Reklam ağları
+          bunu 100+ sitede senin "izin" diye okur.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {leaks.map((l, i) => (
+            <motion.div
+              key={l.tag}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 * i }}
+              className="rounded-2xl border border-cyan-400/30 bg-cyan-400/5 p-5 min-w-0"
+            >
+              <div className="mcb-mono mcb-tag text-cyan-300 mb-2">{l.tag}</div>
+              <p className="mcb-body text-zinc-100">{l.body}</p>
+            </motion.div>
+          ))}
+        </div>
+        <p className="mt-8 text-center mcb-lead text-emerald-300">
+          ✓ Tarayıcı reklam izleyicilerini engelle (Brave, uBlock Origin).
+        </p>
+      </div>
+    </FullCenter>
+  );
+}
+
+function SahteBankaExplain() {
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[1500px]">
+        <div className="mcb-mono mcb-tag text-rose-400 mb-3 text-center">
+          SAHTE BANKA TUZAĞI · KESİT ANALİZ
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-8 text-center max-w-[20ch] mx-auto">
+          Form çalışıyor. SSL var. Yine de tuzak.
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            {
+              tag: "DOMAIN ANATOMİSİ",
+              bad: "bankam-guvenli-giris.co",
+              fix: "Gerçek bankaların domain'i kendi adıyla başlar ve .com.tr ile biter.",
+            },
+            {
+              tag: "SSL ≠ GÜVENLİK",
+              bad: "🔒 yeşil kilit",
+              fix: "Sadece şifreli bağlantı. Saldırgan da bunu kolay alır.",
+            },
+            {
+              tag: "ŞİFRE TALEBİ",
+              bad: "İnternet bankacılık şifresini sayfada iste",
+              fix: "Hiçbir banka link / QR üzerinden şifre tamamını istemez.",
+            },
+            {
+              tag: "ACİL DOĞRULAMA",
+              bad: "‘Hesap kilitlendi, doğrulayın’",
+              fix: "Hesabın gerçekten kilitlendiyse uygulamadan görürsün — link gelmez.",
+            },
+            {
+              tag: "GÖRSEL TAKLİT",
+              bad: "Kurumsal renkler + logo",
+              fix: "Sahte sayfa açmak bir saatlik iş. Görsel doğrulama yetmez.",
+            },
+            {
+              tag: "TC + ŞİFRE BERABER",
+              bad: "Tek formda iki kritik veri",
+              fix: "Banka ekranları çok adımlı, kademeli onaylar — tek seferlik değil.",
+            },
+          ].map((it, i) => (
+            <motion.div
+              key={it.tag}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 * i }}
+              className="rounded-2xl border border-rose-400/30 bg-rose-500/5 p-5 min-w-0"
+            >
+              <div className="mcb-mono mcb-tag text-rose-300 mb-2">
+                {it.tag}
+              </div>
+              <div className="mcb-mono mcb-meta text-rose-100/90 mb-2 break-all">
+                ✗ {it.bad}
+              </div>
+              <p className="mcb-body text-zinc-100">{it.fix}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </FullCenter>
   );
 }
 
@@ -2984,23 +3178,24 @@ const SLIDES: Slide[] = [
     render: () => <TitleSlide />,
   },
   {
-    id: "qr-onboarding",
-    section: "BÖLÜM 01 · BAĞLAN",
-    render: ({ origin }) => <QROnboarding origin={origin} />,
+    id: "qr-tuzak-bait",
+    section: "BÖLÜM 01 · İLK TUZAK",
+    render: ({ origin }) => (
+      <QRBaitSlide
+        origin={origin}
+        path="/mcbukaf/qr-tuzak"
+        brandTag="MCBÜKAF · KAMPANYA"
+        brandColor="#fb923c"
+        headline="1.000 TL bedava internet."
+        subheadline="Sadece son adım kaldı. QR'ı tara, ödülünü al."
+        ctaTone="warm"
+      />
+    ),
   },
   {
-    id: "poll-1",
-    section: "BÖLÜM 01 · BAĞLAN",
-    render: ({ origin, isActive }) => (
-      <FullCenter>
-        <LivePoll
-          slug="mcb-1-attack-surface"
-          origin={origin}
-          isActive={isActive}
-          accent="#00ff88"
-        />
-      </FullCenter>
-    ),
+    id: "qr-tuzak-explain",
+    section: "BÖLÜM 01 · İLK TUZAK",
+    render: () => <QRTuzakExplain />,
   },
   {
     id: "hook-stat",
@@ -3138,6 +3333,46 @@ const SLIDES: Slide[] = [
     id: "phishing-tech",
     section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     render: () => <PhishingTechniques />,
+  },
+  {
+    id: "cihaz-iz-bait",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    render: ({ origin }) => (
+      <QRBaitSlide
+        origin={origin}
+        path="/mcbukaf/cihaz-iz"
+        brandTag="DENEY · CİHAZ İZİ"
+        brandColor="#22d3ee"
+        headline="Sadece sayfayı aç. Yazma."
+        subheadline="QR'ı tara, telefonun anında ne söylüyor gör."
+        ctaTone="neutral"
+      />
+    ),
+  },
+  {
+    id: "cihaz-iz-explain",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    render: () => <CihazIzExplain />,
+  },
+  {
+    id: "sahte-banka-bait",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    render: ({ origin }) => (
+      <QRBaitSlide
+        origin={origin}
+        path="/mcbukaf/sahte-banka"
+        brandTag="BANKAM · MOBİL ŞUBE"
+        brandColor="#f43f5e"
+        headline="Hesabınızı doğrulayın."
+        subheadline="Şüpheli işlem tespit edildi. QR'ı tara, giriş yap."
+        ctaTone="alert"
+      />
+    ),
+  },
+  {
+    id: "sahte-banka-explain",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    render: () => <SahteBankaExplain />,
   },
   {
     id: "academic-scams",
