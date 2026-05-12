@@ -1325,7 +1325,7 @@ function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);
   }, []);
-  const targetUrl = origin ? `${origin}/mcbukaf/anket` : "";
+  const targetUrl = origin ? `${origin}/mcbukaf/qr-tuzak` : "";
   const qrDataUrl = useQrDataUrl(targetUrl, 720);
   const { total, lastAt } = useQrTrapPoll(ctx.isActive);
 
