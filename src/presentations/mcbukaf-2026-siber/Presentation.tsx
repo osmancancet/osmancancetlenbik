@@ -457,41 +457,31 @@ function TwoColumnSlide({ title, icon, left, right }: {
 /* ================================================================
    CLICK REVEAL — slayt içi katmanları tıkla / Enter / Sağ ok ile aç
    ================================================================ */
-function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88" }: {
+function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88", stepMs = 2400 }: {
   title: string;
   icon: IconType;
   layers: { label: string; body: ReactNode }[];
   ctx: SlideCtx;
   accent?: string;
+  stepMs?: number;
 }) {
   const [shown, setShown] = useState(0);
-  const shownRef = useRef(0);
-  useEffect(() => { shownRef.current = shown; }, [shown]);
-
-  const advance = useCallback(() => {
-    if (shownRef.current >= layers.length) return false;
-    shownRef.current += 1;
-    setShown(shownRef.current);
-    return true;
-  }, [layers.length]);
 
   useEffect(() => {
-    if (!ctx.isActive) {
-      shownRef.current = 0;
-      setShown(0);
-      return;
-    }
-    ctx.consumeAdvance(advance);
-  }, [ctx, advance]);
-
-  const remaining = layers.length - shown;
+    if (!ctx.isActive) { setShown(0); return; }
+    setShown(0);
+    let i = 0;
+    const reveal = () => {
+      i += 1;
+      setShown(i);
+      if (i < layers.length) timer = window.setTimeout(reveal, stepMs);
+    };
+    let timer = window.setTimeout(reveal, 600);
+    return () => window.clearTimeout(timer);
+  }, [ctx.isActive, layers.length, stepMs]);
 
   return (
-    <div className="flex flex-col items-center justify-start h-full px-4 sm:px-10 md:px-16 pt-3 sm:pt-4 overflow-y-auto"
-      onClick={() => { advance(); }}
-      role="button"
-      tabIndex={-1}
-      style={{ cursor: shown < layers.length ? "pointer" : "default" }}>
+    <div className="flex flex-col items-center justify-start h-full px-4 sm:px-10 md:px-16 pt-3 sm:pt-4 overflow-y-auto">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-center gap-3 sm:gap-4 mb-3 sm:mb-5 flex-wrap text-center">
         <IconBadge icon={icon} color={accent} size="clamp(2.25rem, 5.5vmin, 3.6rem)" />
@@ -514,16 +504,6 @@ function ClickReveal({ title, icon, layers, ctx, accent = "#00ff88" }: {
           ))}
         </AnimatePresence>
       </div>
-
-      {remaining > 0 && (
-        <div className="mt-3 sm:mt-4 mb-1 flex items-center justify-center gap-2 sm:gap-3 mcb-meta mcb-mono text-gray-400 select-none">
-          <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
-            className="inline-flex items-center" style={{ color: accent }}>
-            <ChevronRight strokeWidth={2.2} style={{ width: "1.2em", height: "1.2em" }} />
-          </motion.span>
-          <span>{remaining} ipucu daha</span>
-        </div>
-      )}
     </div>
   );
 }
@@ -1648,44 +1628,6 @@ function SocialQrCard({ s, i }: { s: typeof SOCIALS[number]; i: number }) {
   );
 }
 
-function SocialQrSlide() {
-  return (
-    <div className="flex flex-col h-full items-center justify-center px-4 sm:px-10 md:px-16">
-      <motion.p
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mcb-tag mcb-mono text-emerald-400/80 mb-2"
-      >
-        BENİ TAKİP ET · SORU SOR
-      </motion.p>
-      <motion.h2
-        initial={{ opacity: 0, y: -14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mcb-h2 font-black text-center mb-3"
-        style={{ color: "#00ff88", textShadow: "0 0 22px rgba(0,255,136,0.45)" }}
-      >
-        Bağlantıda kal
-      </motion.h2>
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="h-[2px] rounded-full mb-6 sm:mb-10"
-        style={{
-          width: "min(18rem, 40vw)",
-          background: "linear-gradient(90deg, transparent, rgba(0,255,136,0.7), transparent)",
-        }}
-      />
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 sm:gap-8 md:gap-12 w-full max-w-6xl place-items-center">
-        {SOCIALS.map((s, i) => (
-          <SocialQrCard key={s.key} s={s} i={i} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ================================================================
    SECTIONS (HUD)
    ================================================================ */
@@ -1967,30 +1909,31 @@ const slides: Slide[] = [
     quote="En zayıf halka değiliz, en güçlü farkındalığız."
     author="MCBÜKAF '26" /> },
 
-  { id: "social-qr", content: <SocialQrSlide /> },
-
   { id: "thanks", content: (
-    <div className="flex flex-col items-center justify-center h-full text-center px-4 sm:px-8">
+    <div className="flex flex-col items-center justify-center h-full px-4 sm:px-10 md:px-16">
       <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 110, damping: 14 }}
-        style={{ marginBottom: "clamp(1rem, 3vh, 1.75rem)" }}>
-        <LogoMark height="clamp(3rem, 7vmin, 5.5rem)" />
+        className="mb-2 sm:mb-3">
+        <LogoMark height="clamp(2.5rem, 5vmin, 4rem)" />
       </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="mcb-h1 font-black mb-4 sm:mb-6"
+        className="mcb-h2 font-black mb-1"
         style={{ color: "#00ff88", textShadow: "0 0 28px rgba(0,255,136,0.5)" }}>
         <GlitchText text="Teşekkürler" />
       </motion.h1>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-        className="mcb-lead text-gray-300 max-w-3xl" style={{ marginBottom: "clamp(1.5rem, 4vh, 2.5rem)" }}>
-        Soru, paylaşım ve geri bildirim için:
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
+        className="mcb-meta text-gray-300 text-center max-w-2xl mb-4 sm:mb-6 px-2">
+        Bağlantıda kal · soru sor · geri bildirim ver
       </motion.p>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
-        className="mcb-body mcb-mono text-emerald-400 break-all px-2">
-        osmancancetlenbik.com
-      </motion.div>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}
-        className="mt-3 mcb-meta text-gray-500 px-2">
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-7 md:gap-10 w-full max-w-5xl place-items-center mb-3 sm:mb-5">
+        {SOCIALS.map((s, i) => (
+          <SocialQrCard key={s.key} s={s} i={i} />
+        ))}
+      </div>
+
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
+        className="mcb-meta text-gray-500 text-center px-2">
         Öğr. Gör. Osman Can Çetlenbik · MCBÜ Teknik Bilimler MYO
       </motion.p>
     </div>
