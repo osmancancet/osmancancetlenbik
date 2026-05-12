@@ -1366,16 +1366,26 @@ function CihazIzExplain() {
       example: "Trendyol'dan geldiysen → Trendyol kampanya phishing'i yer.",
     },
   ];
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (revealed >= leaks.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(leaks.length, r + 1)),
+      1500,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, leaks.length]);
+  const advance = () => setRevealed((r) => Math.min(leaks.length, r + 1));
   return (
     <FullCenter>
-      <div className="w-full max-w-[1500px]">
+      <div className="w-full max-w-[1500px]" onClick={advance}>
         <div className="mcb-mono mcb-tag text-cyan-400/85 mb-3 text-center">
           PARMAK İZİ · QR'A TIKLADIĞIN ANDA
         </div>
         <h2 className="mcb-h2 font-bold text-white mb-3 text-center">
           Sayfayı açtın. Hiçbir şey yazmadın.
         </h2>
-        <p className="mcb-lead text-zinc-200 mb-8 text-center max-w-[60ch] mx-auto">
+        <p className="mcb-lead text-zinc-200 mb-6 text-center max-w-[60ch] mx-auto">
           Yine de tarayıcın bir <strong>profil</strong> oluşturdu. Reklam ağları
           bunu 100+ sitede senin "izin" diye okur.
         </p>
@@ -1384,100 +1394,140 @@ function CihazIzExplain() {
             <motion.div
               key={l.tag}
               initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i }}
+              animate={
+                i < revealed
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0.1, y: 6 }
+              }
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="rounded-2xl border border-cyan-400/30 bg-cyan-400/5 p-5 min-w-0"
             >
-              <div className="mcb-mono mcb-tag text-cyan-300 mb-2">{l.tag}</div>
-              <p className="mcb-body text-zinc-100 mb-3">{l.body}</p>
-              <div className="mcb-mono mcb-tag text-amber-300 mb-1">
-                ÖRNEK
+              <div className="mcb-mono mcb-tag text-cyan-300 mb-2">
+                {String(i + 1).padStart(2, "0")} · {l.tag}
               </div>
-              <p className="mcb-body text-amber-100/85 italic text-sm">
-                {l.example}
-              </p>
+              {i < revealed ? (
+                <>
+                  <p className="mcb-body text-zinc-100 mb-3">{l.body}</p>
+                  <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+                    ÖRNEK
+                  </div>
+                  <p className="mcb-body text-amber-100/85 italic text-sm">
+                    {l.example}
+                  </p>
+                </>
+              ) : (
+                <p className="mcb-body text-zinc-500">•••••••••••••••</p>
+              )}
             </motion.div>
           ))}
         </div>
-        <p className="mt-8 text-center mcb-lead text-emerald-300">
-          ✓ Tarayıcı reklam izleyicilerini engelle (Brave, uBlock Origin).
-        </p>
+        <div className="mt-6 text-center mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+          {revealed < leaks.length
+            ? `${String(revealed).padStart(2, "0")} / ${leaks.length} · TIKLA AÇILSIN`
+            : "✓ Tarayıcı reklam izleyicilerini engelle (Brave, uBlock Origin)."}
+        </div>
       </div>
     </FullCenter>
   );
 }
 
 function SahteBankaExplain() {
+  const items = [
+    {
+      tag: "DOMAIN ANATOMİSİ",
+      bad: "bankam-guvenli-giris.co",
+      fix: "Banka domain'i kendi adıyla başlar, .com.tr ile biter.",
+      example: "Garanti: garantibbva.com.tr · Sahte: garanti-mobil-giris.co",
+    },
+    {
+      tag: "SSL ≠ GÜVENLİK",
+      bad: "yeşil kilit ikonu",
+      fix: "Sadece şifreli bağlantı. Saldırgan da bunu kolay alır.",
+      example: "2024 phishing sitelerinin %94'ü zaten SSL sertifikalı (APWG).",
+    },
+    {
+      tag: "ŞİFRE TALEBİ",
+      bad: "İnternet bankacılık şifresi formda",
+      fix: "Hiçbir banka link/QR üzerinden şifreyi istemez.",
+      example: "Ziraat, İşbankası, Akbank — hepsi resmi olarak duyurdu.",
+    },
+    {
+      tag: "ACİL DOĞRULAMA",
+      bad: "‘Hesap kilitlendi, doğrulayın’",
+      fix: "Hesap gerçekten kilitliyse uygulamadan görürsün, link gelmez.",
+      example: "BTK 2025: ‘hesabınız geçici kilit’ tema %42 phishing maillerde.",
+    },
+    {
+      tag: "GÖRSEL TAKLİT",
+      bad: "Kurumsal renkler + logo",
+      fix: "Sahte sayfa açmak bir saatlik iş. Görsel doğrulama yetmez.",
+      example: "İşbankası login klonu HTML/CSS = 1 saat. Telegram'da satılıyor.",
+    },
+    {
+      tag: "TC + ŞİFRE BERABER",
+      bad: "Tek formda iki kritik veri",
+      fix: "Banka ekranları çok adımlı, kademeli onaylar.",
+      example: "Gerçek mobil giriş: TC → SMS OTP → şifre (3 ayrı ekran).",
+    },
+  ];
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (revealed >= items.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(items.length, r + 1)),
+      1500,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, items.length]);
+  const advance = () => setRevealed((r) => Math.min(items.length, r + 1));
   return (
     <FullCenter>
-      <div className="w-full max-w-[1500px]">
+      <div className="w-full max-w-[1500px]" onClick={advance}>
         <div className="mcb-mono mcb-tag text-rose-400 mb-3 text-center">
           SAHTE BANKA TUZAĞI · KESİT ANALİZ
         </div>
-        <h2 className="mcb-h2 font-bold text-white mb-8 text-center max-w-[20ch] mx-auto">
+        <h2 className="mcb-h2 font-bold text-white mb-6 text-center max-w-[20ch] mx-auto">
           Form çalışıyor. SSL var. Yine de tuzak.
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[
-            {
-              tag: "DOMAIN ANATOMİSİ",
-              bad: "bankam-guvenli-giris.co",
-              fix: "Banka domain'i kendi adıyla başlar, .com.tr ile biter.",
-              example: "Garanti: garantibbva.com.tr · Sahte: garanti-mobil-giris.co",
-            },
-            {
-              tag: "SSL ≠ GÜVENLİK",
-              bad: "yeşil kilit ikonu",
-              fix: "Sadece şifreli bağlantı. Saldırgan da bunu kolay alır.",
-              example: "2024 phishing sitelerinin %94'ü zaten SSL sertifikalı (APWG).",
-            },
-            {
-              tag: "ŞİFRE TALEBİ",
-              bad: "İnternet bankacılık şifresi formda",
-              fix: "Hiçbir banka link/QR üzerinden şifreyi istemez.",
-              example: "Ziraat, İşbankası, Akbank — hepsi resmi olarak duyurdu.",
-            },
-            {
-              tag: "ACİL DOĞRULAMA",
-              bad: "‘Hesap kilitlendi, doğrulayın’",
-              fix: "Hesap gerçekten kilitliyse uygulamadan görürsün, link gelmez.",
-              example: "BTK 2025: ‘hesabınız geçici kilit’ tema %42 phishing maillerde.",
-            },
-            {
-              tag: "GÖRSEL TAKLİT",
-              bad: "Kurumsal renkler + logo",
-              fix: "Sahte sayfa açmak bir saatlik iş. Görsel doğrulama yetmez.",
-              example: "İşbankası login klonu HTML/CSS = 1 saat. Telegram'da satılıyor.",
-            },
-            {
-              tag: "TC + ŞİFRE BERABER",
-              bad: "Tek formda iki kritik veri",
-              fix: "Banka ekranları çok adımlı, kademeli onaylar.",
-              example: "Gerçek mobil giriş: TC → SMS OTP → şifre (3 ayrı ekran).",
-            },
-          ].map((it, i) => (
+          {items.map((it, i) => (
             <motion.div
               key={it.tag}
               initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i }}
+              animate={
+                i < revealed
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0.1, y: 6 }
+              }
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="rounded-2xl border border-rose-400/30 bg-rose-500/5 p-5 min-w-0"
             >
               <div className="mcb-mono mcb-tag text-rose-300 mb-2">
-                {it.tag}
+                {String(i + 1).padStart(2, "0")} · {it.tag}
               </div>
-              <div className="mcb-mono mcb-meta text-rose-100/90 mb-2 break-all">
-                ✗ {it.bad}
-              </div>
-              <p className="mcb-body text-zinc-100 mb-3">{it.fix}</p>
-              <div className="mcb-mono mcb-tag text-amber-300 mb-1">
-                ÖRNEK
-              </div>
-              <p className="mcb-body text-amber-100/85 italic text-sm">
-                {it.example}
-              </p>
+              {i < revealed ? (
+                <>
+                  <div className="mcb-mono mcb-meta text-rose-100/90 mb-2 break-all">
+                    ✗ {it.bad}
+                  </div>
+                  <p className="mcb-body text-zinc-100 mb-3">{it.fix}</p>
+                  <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+                    ÖRNEK
+                  </div>
+                  <p className="mcb-body text-amber-100/85 italic text-sm">
+                    {it.example}
+                  </p>
+                </>
+              ) : (
+                <p className="mcb-body text-zinc-500">•••••••••••••••</p>
+              )}
             </motion.div>
           ))}
+        </div>
+        <div className="mt-6 text-center mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+          {revealed < items.length
+            ? `${String(revealed).padStart(2, "0")} / ${items.length} · TIKLA AÇILSIN`
+            : "✓ Hepsi açıldı"}
         </div>
       </div>
     </FullCenter>
@@ -1867,36 +1917,58 @@ function PasswordStats({ isActive }: { isActive: boolean }) {
     { rank: 6, pw: "fenerbahce1907", count: "291K" },
     { rank: 7, pw: "galatasaray", count: "274K" },
   ];
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (!isActive) {
+      setRevealed(0);
+      return;
+    }
+    if (revealed >= items.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(items.length, r + 1)),
+      900,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, items.length, isActive]);
+  const advance = () => setRevealed((r) => Math.min(items.length, r + 1));
   return (
     <Centered>
       <div className="mcb-mono mcb-tag text-rose-400 mb-4">
         TÜRKİYE · SIZINTI ARŞİVLERİ
       </div>
-      <h2 className="mcb-h2 font-bold mb-10 text-white">
+      <h2 className="mcb-h2 font-bold mb-8 text-white">
         En çok kullanılan şifreler.
       </h2>
-      <div className="space-y-3 w-full max-w-[1100px]">
+      <div className="space-y-3 w-full max-w-[1100px]" onClick={advance}>
         {items.map((it, i) => (
           <motion.div
             key={it.pw}
             initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: isActive ? 1 : 0, x: 0 }}
-            transition={{ delay: 0.1 * i }}
+            animate={
+              i < revealed
+                ? { opacity: 1, x: 0 }
+                : { opacity: 0.1, x: -5 }
+            }
+            transition={{ duration: 0.4 }}
             className="grid grid-cols-[80px_1fr_auto] items-center gap-5 p-5 rounded-xl border border-zinc-800 bg-black/40"
           >
             <span className="mcb-mono mcb-h3 text-zinc-600 tabular-nums">
               #{it.rank}
             </span>
-            <span className="mcb-mono mcb-h3 text-rose-300">{it.pw}</span>
+            <span className="mcb-mono mcb-h3 text-rose-300">
+              {i < revealed ? it.pw : "•••••••••"}
+            </span>
             <span className="mcb-mono mcb-meta text-zinc-400 tabular-nums">
-              {it.count} hesap
+              {i < revealed ? `${it.count} hesap` : "—"}
             </span>
           </motion.div>
         ))}
       </div>
-      <p className="mt-10 mcb-lead text-zinc-300 max-w-3xl">
-        Hepsi 1 saniyeden kısa sürede kırılır.
-      </p>
+      <div className="mt-6 mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+        {revealed < items.length
+          ? `${String(revealed).padStart(2, "0")} / ${items.length} · TIKLA AÇILSIN`
+          : "Hepsi 1 saniyeden kısa sürede kırılır."}
+      </div>
     </Centered>
   );
 }
@@ -1990,43 +2062,61 @@ function BitCountUp({
 }
 
 function TwoFAExplainer() {
+  const layers = [
+    {
+      icon: Brain,
+      title: "BİLDİĞİN",
+      body: "Şifre, PIN.",
+      color: "#22d3ee",
+      example:
+        "TR'de bankaların hepsi tek başına şifreyi kabul etmiyor (BDDK 2024).",
+    },
+    {
+      icon: Phone,
+      title: "SAHİP OLDUĞUN",
+      body: "Telefon, donanım anahtarı.",
+      color: "#00ff88",
+      example:
+        "e-Devlet 2025: Google Authenticator + Yubikey desteği eklendi.",
+    },
+    {
+      icon: Fingerprint,
+      title: "SEN OLDUĞUN",
+      body: "Yüz, parmak izi.",
+      color: "#fbbf24",
+      example:
+        "iPhone Face ID + Android parmak izi: TR'de en yaygın 2FA katmanı.",
+    },
+  ];
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (revealed >= layers.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(layers.length, r + 1)),
+      1500,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, layers.length]);
+  const advance = () => setRevealed((r) => Math.min(layers.length, r + 1));
   return (
     <Centered>
-      <h2 className="mcb-h2 font-bold mb-12 text-white max-w-[90vw]">
+      <h2 className="mcb-h2 font-bold mb-10 text-white max-w-[90vw]">
         İki Adımlı Doğrulama: üç katmanlı kalkan.
       </h2>
-      <div className="grid sm:grid-cols-3 gap-6 w-full max-w-[1400px]">
-        {[
-          {
-            icon: Brain,
-            title: "BİLDİĞİN",
-            body: "Şifre, PIN.",
-            color: "#22d3ee",
-            example:
-              "TR'de bankaların hepsi tek başına şifreyi kabul etmiyor (BDDK 2024).",
-          },
-          {
-            icon: Phone,
-            title: "SAHİP OLDUĞUN",
-            body: "Telefon, donanım anahtarı.",
-            color: "#00ff88",
-            example:
-              "e-Devlet 2025: Google Authenticator + Yubikey desteği eklendi.",
-          },
-          {
-            icon: Fingerprint,
-            title: "SEN OLDUĞUN",
-            body: "Yüz, parmak izi.",
-            color: "#fbbf24",
-            example:
-              "iPhone Face ID + Android parmak izi: TR'de en yaygın 2FA katmanı.",
-          },
-        ].map((c, i) => (
+      <div
+        className="grid sm:grid-cols-3 gap-6 w-full max-w-[1400px]"
+        onClick={advance}
+      >
+        {layers.map((c, i) => (
           <motion.div
             key={c.title}
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 * i }}
+            animate={
+              i < revealed
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0.1, y: 6 }
+            }
+            transition={{ duration: 0.4 }}
             className="rounded-2xl p-8 border bg-black/40"
             style={{
               borderColor: `${c.color}55`,
@@ -2042,21 +2132,31 @@ function TwoFAExplainer() {
               }}
             />
             <div className="mcb-mono mcb-tag mb-3" style={{ color: c.color }}>
-              {c.title}
+              {String(i + 1).padStart(2, "0")} · {c.title}
             </div>
-            <p className="mcb-lead text-zinc-100 text-left mb-4">{c.body}</p>
-            <div className="mcb-mono mcb-tag text-amber-300 mb-1 text-left">
-              ÖRNEK
-            </div>
-            <p className="mcb-body text-amber-100/90 italic text-left">
-              {c.example}
-            </p>
+            {i < revealed ? (
+              <>
+                <p className="mcb-lead text-zinc-100 text-left mb-4">
+                  {c.body}
+                </p>
+                <div className="mcb-mono mcb-tag text-amber-300 mb-1 text-left">
+                  ÖRNEK
+                </div>
+                <p className="mcb-body text-amber-100/90 italic text-left">
+                  {c.example}
+                </p>
+              </>
+            ) : (
+              <p className="mcb-body text-zinc-500">•••••••••••••••</p>
+            )}
           </motion.div>
         ))}
       </div>
-      <p className="mt-12 mcb-lead text-zinc-200 max-w-[80vw]">
-        Kombinasyon = saldırının %99'unu durdurur. Microsoft 2024.
-      </p>
+      <div className="mt-8 mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+        {revealed < layers.length
+          ? `${String(revealed).padStart(2, "0")} / ${layers.length} · TIKLA AÇILSIN`
+          : "Kombinasyon = saldırının %99'unu durdurur. Microsoft 2024."}
+      </div>
     </Centered>
   );
 }
@@ -2331,13 +2431,23 @@ function OsintSlide() {
       reveal: "Fiziksel takip rutini",
     },
   ];
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (revealed >= items.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(items.length, r + 1)),
+      1500,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, items.length]);
+  const advance = () => setRevealed((r) => Math.min(items.length, r + 1));
   return (
     <FullCenter>
-      <div className="w-full max-w-[1500px]">
+      <div className="w-full max-w-[1500px]" onClick={advance}>
         <div className="mcb-mono mcb-tag text-rose-400/85 mb-3 text-center">
           OSINT · DİJİTAL AYAK İZİ
         </div>
-        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
+        <h2 className="mcb-h2 font-bold text-white mb-6 text-center">
           Saldırgan, sosyal medyandan başlar.
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -2345,30 +2455,54 @@ function OsintSlide() {
             <motion.div
               key={it.tag}
               initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.06 * i }}
+              animate={
+                i < revealed
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0.1, y: 6 }
+              }
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="rounded-2xl border border-rose-400/25 bg-rose-500/5 p-5 min-w-0"
             >
               <div className="mcb-mono mcb-tag text-rose-300 mb-2">
-                {it.tag}
+                {String(i + 1).padStart(2, "0")} · {it.tag}
               </div>
-              <div className="mcb-body text-zinc-100 mb-3">{it.bad}</div>
-              <div className="mcb-mono mcb-tag text-rose-400/80 mb-1">
-                SALDIRGAN GÖRÜR
-              </div>
-              <p className="mcb-body text-rose-100/85">{it.reveal}</p>
+              {i < revealed ? (
+                <>
+                  <div className="mcb-body text-zinc-100 mb-3">{it.bad}</div>
+                  <div className="mcb-mono mcb-tag text-rose-400/80 mb-1">
+                    SALDIRGAN GÖRÜR
+                  </div>
+                  <p className="mcb-body text-rose-100/85">{it.reveal}</p>
+                </>
+              ) : (
+                <p className="mcb-body text-zinc-500">•••••••••••••••</p>
+              )}
             </motion.div>
           ))}
         </div>
-        <p className="mcb-lead text-center text-emerald-300 mt-8">
-          Konumunu o an paylaşma. QR'lı yaka kartını sansürle. Anne kızlık sorusunu doğum yeri yap.
-        </p>
+        <div className="mt-6 text-center mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+          {revealed < items.length
+            ? `${String(revealed).padStart(2, "0")} / ${items.length} · TIKLA AÇILSIN`
+            : "✓ Konumu o an paylaşma. Yaka kartını sansürle."}
+        </div>
       </div>
     </FullCenter>
   );
 }
 
 function RansomwareSlide() {
+  // 72 saat geri sayım — slayt açıldığı an'dan itibaren saniye sayar.
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const start = Date.now();
+    const id = setInterval(() => setElapsed(Date.now() - start), 100);
+    return () => clearInterval(id);
+  }, []);
+  const totalSec = 72 * 3600;
+  const remainingSec = Math.max(0, totalSec - Math.floor(elapsed / 1000));
+  const h = Math.floor(remainingSec / 3600);
+  const m = Math.floor((remainingSec % 3600) / 60);
+  const s = remainingSec % 60;
   return (
     <Centered>
       <Skull
@@ -2382,13 +2516,21 @@ function RansomwareSlide() {
       <div className="mcb-mono mcb-tag text-rose-400 mb-4">
         FİDYE YAZILIMI · RANSOMWARE
       </div>
-      <h2 className="mcb-h1 font-black text-white max-w-[90vw] mb-7">
+      <h2 className="mcb-h1 font-black text-white max-w-[90vw] mb-5">
         Tüm dosyaların kilitli.
-        <br />
-        <span className="text-rose-400 mcb-stat-shadow">72 saat</span>
-        <span className="mcb-h1"> · </span>
-        <span className="text-rose-400 mcb-stat-shadow">2 BTC</span>
       </h2>
+      <div className="mb-6 rounded-2xl border-2 border-rose-400/60 bg-rose-500/10 px-8 py-5">
+        <div className="mcb-mono mcb-tag text-rose-300 mb-2 tracking-[0.4em]">
+          KALAN SÜRE
+        </div>
+        <div className="mcb-h1 font-black text-rose-200 tabular-nums">
+          {String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:
+          {String(s).padStart(2, "0")}
+        </div>
+        <div className="mcb-mono mcb-meta text-rose-300/80 mt-2">
+          Fidye: <span className="text-rose-200 font-bold">2 BTC</span>
+        </div>
+      </div>
       <p className="mcb-lead text-zinc-200 max-w-[80vw] mb-10">
         Tek bir tıklamadan sonra tezler, hasta kayıtları, müşteri verisi —
         hepsi şifreli. Ödesen bile %35'i geri dönmez.
@@ -2485,13 +2627,23 @@ function CommonScams() {
       defense: "Beall's · DOAJ · Think.Check.Submit.",
     },
   ];
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (revealed >= cases.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(cases.length, r + 1)),
+      1500,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, cases.length]);
+  const advance = () => setRevealed((r) => Math.min(cases.length, r + 1));
   return (
     <FullCenter>
-      <div className="w-full max-w-[1500px]">
+      <div className="w-full max-w-[1500px]" onClick={advance}>
         <div className="mcb-mono mcb-tag text-amber-400/85 mb-3 text-center">
           GÜNDELİK + AKADEMİK · 6 TUZAK
         </div>
-        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
+        <h2 className="mcb-h2 font-bold text-white mb-6 text-center">
           Tek bir kötü gün, tek bir tıklama.
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -2499,8 +2651,12 @@ function CommonScams() {
             <motion.div
               key={c.tag}
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i }}
+              animate={
+                i < revealed
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0.1, y: 6 }
+              }
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-5 flex gap-4 min-w-0"
             >
               <div className="shrink-0 flex items-start">
@@ -2515,22 +2671,33 @@ function CommonScams() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mcb-mono mcb-tag text-amber-300 mb-1.5">
-                  {c.tag}
+                  {String(i + 1).padStart(2, "0")} · {c.tag}
                 </div>
-                <div
-                  className="text-white font-bold leading-tight mb-1.5"
-                  style={{ fontSize: "clamp(1.1rem, 1.6vw, 1.6rem)" }}
-                >
-                  {c.title}
-                </div>
-                <p className="mcb-body text-zinc-200 mb-2">{c.body}</p>
-                <p className="mcb-body text-emerald-100/90">
-                  <span className="mcb-mono mcb-tag text-emerald-300">↳</span>{" "}
-                  {c.defense}
-                </p>
+                {i < revealed ? (
+                  <>
+                    <div
+                      className="text-white font-bold leading-tight mb-1.5"
+                      style={{ fontSize: "clamp(1.1rem, 1.6vw, 1.6rem)" }}
+                    >
+                      {c.title}
+                    </div>
+                    <p className="mcb-body text-zinc-200 mb-2">{c.body}</p>
+                    <p className="mcb-body text-emerald-100/90">
+                      <span className="mcb-mono mcb-tag text-emerald-300">↳</span>{" "}
+                      {c.defense}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mcb-body text-zinc-500">•••••••••••••••</p>
+                )}
               </div>
             </motion.div>
           ))}
+        </div>
+        <div className="mt-6 text-center mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+          {revealed < cases.length
+            ? `${String(revealed).padStart(2, "0")} / ${cases.length} · TIKLA AÇILSIN`
+            : "✓ Hepsi açıldı"}
         </div>
       </div>
     </FullCenter>
@@ -2832,6 +2999,33 @@ function PonziSim({ isActive }: { isActive: boolean }) {
 }
 
 function DeepfakeSlide() {
+  const cards = [
+    {
+      tag: "SES KLONLAMA",
+      body: "3 sn ses örneği yeterli.",
+      tone: "rose" as const,
+    },
+    {
+      tag: "VİDEO DEEPFAKE",
+      body: "Tek bir Instagram fotoğrafı.",
+      tone: "rose" as const,
+    },
+    {
+      tag: "SAVUNMA",
+      body: "Aile içi code word. Para isteyen aramada sor.",
+      tone: "emerald" as const,
+    },
+  ];
+  const [revealed, setRevealed] = useState(0);
+  useEffect(() => {
+    if (revealed >= cards.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(cards.length, r + 1)),
+      1500,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, cards.length]);
+  const advance = () => setRevealed((r) => Math.min(cards.length, r + 1));
   return (
     <Centered>
       <Radio
@@ -2849,31 +3043,49 @@ function DeepfakeSlide() {
         Bir CFO'nun sesiyle{" "}
         <span className="text-rose-400 mcb-stat-shadow">25M $</span> çalındı.
       </h2>
-      <p className="mcb-lead text-zinc-200 max-w-[80vw] mb-10">
+      <p className="mcb-lead text-zinc-200 max-w-[80vw] mb-8">
         Çalışan, bir Zoom'a katıldı. Karşısında üst yönetimden 7 kişi vardı.{" "}
         <strong>Hepsi deepfake'di.</strong>
       </p>
-      <div className="grid sm:grid-cols-3 gap-5 w-full max-w-[1300px] text-left">
-        <div className="rounded-2xl border border-rose-400/40 bg-rose-500/5 p-7">
-          <div className="mcb-mono mcb-tag text-rose-300 mb-3">
-            SES KLONLAMA
-          </div>
-          <p className="mcb-body text-zinc-100">3 sn ses örneği yeterli.</p>
-        </div>
-        <div className="rounded-2xl border border-rose-400/40 bg-rose-500/5 p-7">
-          <div className="mcb-mono mcb-tag text-rose-300 mb-3">
-            VİDEO DEEPFAKE
-          </div>
-          <p className="mcb-body text-zinc-100">Tek bir Instagram fotoğrafı.</p>
-        </div>
-        <div className="rounded-2xl border border-emerald-400/40 bg-emerald-400/5 p-7">
-          <div className="mcb-mono mcb-tag text-emerald-300 mb-3">SAVUNMA</div>
-          <p className="mcb-body text-zinc-100">
-            Aile içi <strong>code word</strong>. Para isteyen aramada sor.
-          </p>
-        </div>
+      <div
+        className="grid sm:grid-cols-3 gap-5 w-full max-w-[1300px] text-left"
+        onClick={advance}
+      >
+        {cards.map((c, i) => (
+          <motion.div
+            key={c.tag}
+            initial={{ opacity: 0, y: 15 }}
+            animate={
+              i < revealed
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0.1, y: 6 }
+            }
+            transition={{ duration: 0.4 }}
+            className={`rounded-2xl border p-7 ${
+              c.tone === "rose"
+                ? "border-rose-400/40 bg-rose-500/5"
+                : "border-emerald-400/40 bg-emerald-400/5"
+            }`}
+          >
+            <div
+              className={`mcb-mono mcb-tag mb-3 ${
+                c.tone === "rose" ? "text-rose-300" : "text-emerald-300"
+              }`}
+            >
+              {String(i + 1).padStart(2, "0")} · {c.tag}
+            </div>
+            <p className="mcb-body text-zinc-100">
+              {i < revealed ? c.body : "•••••••••••••••"}
+            </p>
+          </motion.div>
+        ))}
       </div>
-      <div className="mt-8 rounded-2xl border border-amber-400/30 bg-amber-400/5 px-6 py-4 max-w-[60ch] text-left">
+      <div className="mt-6 mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+        {revealed < cards.length
+          ? `${String(revealed).padStart(2, "0")} / ${cards.length} · TIKLA AÇILSIN`
+          : ""}
+      </div>
+      <div className="mt-6 rounded-2xl border border-amber-400/30 bg-amber-400/5 px-6 py-4 max-w-[60ch] text-left">
         <div className="mcb-mono mcb-tag text-amber-300 mb-1">
           TÜRKİYE · ÖRNEK
         </div>
@@ -3498,6 +3710,11 @@ const SLIDES: Slide[] = [
     render: () => <QRTuzakExplain />,
   },
   {
+    id: "kargo-sim",
+    section: "BÖLÜM 01 · OLTALAMA",
+    render: ({ isActive }) => <KargoSim isActive={isActive} />,
+  },
+  {
     id: "banka-bait",
     section: "BÖLÜM 01 · OLTALAMA",
     hideHud: true,
@@ -3610,11 +3827,6 @@ const SLIDES: Slide[] = [
     ),
   },
   {
-    id: "mitnick",
-    section: "BÖLÜM 03 · SOSYAL MÜHENDİSLİK",
-    render: () => <MitnickQuote />,
-  },
-  {
     id: "real-story",
     section: "BÖLÜM 03 · SOSYAL MÜHENDİSLİK",
     render: ({ isActive }) => <RealStory isActive={isActive} />,
@@ -3625,59 +3837,39 @@ const SLIDES: Slide[] = [
     render: () => <OsintSlide />,
   },
 
-  // 04 · CANLI DENEY (auto-play sims — Simav-stili)
-  {
-    id: "section-canli-deney",
-    section: "BÖLÜM 04 · CANLI DENEY",
-    render: () => (
-      <SectionTitle
-        number="04"
-        title="CANLI DENEY"
-        subtitle="Tuzak burada sahnede kuruluyor."
-        color="#fb923c"
-        Icon={ShieldAlert}
-      />
-    ),
-  },
-  {
-    id: "kargo-sim",
-    section: "BÖLÜM 04 · CANLI DENEY",
-    render: ({ isActive }) => <KargoSim isActive={isActive} />,
-  },
-  {
-    id: "ponzi-sim",
-    section: "BÖLÜM 04 · CANLI DENEY",
-    render: ({ isActive }) => <PonziSim isActive={isActive} />,
-  },
-
-  // 05 · 2026 TEHDİTLERİ
+  // 04 · 2026 TEHDİTLERİ + AI
   {
     id: "deepfake",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
     render: () => <DeepfakeSlide />,
   },
   {
     id: "ai-2026",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
     render: () => <AIAttacks2026 />,
   },
   {
+    id: "ponzi-sim",
+    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
+    render: ({ isActive }) => <PonziSim isActive={isActive} />,
+  },
+  {
     id: "ransomware",
-    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
     render: () => <RansomwareSlide />,
   },
 
-  // 06 · GÜNLÜK TUZAKLAR
+  // 05 · GÜNLÜK TUZAKLAR
   {
     id: "common-scams",
-    section: "BÖLÜM 06 · GÜNLÜK TUZAKLAR",
+    section: "BÖLÜM 05 · GÜNLÜK TUZAKLAR",
     render: () => <CommonScams />,
   },
 
-  // 07 · KORUNMA
+  // 06 · KORUNMA
   {
     id: "poll-4-bait",
-    section: "BÖLÜM 07 · KORUNMA",
+    section: "BÖLÜM 06 · KORUNMA",
     render: ({ origin }) => (
       <PollQRBait
         origin={origin}
@@ -3689,7 +3881,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: "poll-4",
-    section: "BÖLÜM 07 · KORUNMA",
+    section: "BÖLÜM 06 · KORUNMA",
     render: ({ origin, isActive }) => (
       <FullCenter>
         <LivePoll
@@ -3703,12 +3895,12 @@ const SLIDES: Slide[] = [
   },
   {
     id: "quiz-reveal",
-    section: "BÖLÜM 07 · KORUNMA",
+    section: "BÖLÜM 06 · KORUNMA",
     render: () => <QuizReveal />,
   },
   {
     id: "checklist",
-    section: "BÖLÜM 07 · KORUNMA",
+    section: "BÖLÜM 06 · KORUNMA",
     render: ({ isActive }) => <Checklist isActive={isActive} />,
   },
 
