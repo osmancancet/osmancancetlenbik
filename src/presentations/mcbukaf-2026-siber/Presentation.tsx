@@ -2887,6 +2887,42 @@ function DeepfakeSlide() {
 }
 
 function AIAttacks2026() {
+  const items = [
+    {
+      title: "GPT-grade phishing",
+      body: "Türkçe yazım hatasız, yerel argo, doğru tonlama.",
+      example: "ChatGPT TR ile 3 dk'da yazılan Garanti BBVA klonu.",
+    },
+    {
+      title: "Polimorfik malware",
+      body: "AI her hedef için kodu yeniden yazar — imza tutmaz.",
+      example: "2025: dakikada 200 varyant üreten Lumma C2 (BBC).",
+    },
+    {
+      title: "Bot ağları",
+      body: "Binlerce sahte profil, gerçek insan ritminde mesajlaşır.",
+      example: "X TR 2024: 80K AI-bot 'Bitcoin 100K' hype'ı yaydı.",
+    },
+    {
+      title: "Sıfır gün exploit'i",
+      body: "Otomatik fuzzing → açık → istismar. Saatler içinde.",
+      example: "Google Project Zero 2025: PoC→exploit 6h → 12 dk.",
+    },
+  ];
+  const [revealed, setRevealed] = useState(0);
+
+  // Sahnede tıklamasa bile 6sn içinde hepsi açılır (safety net)
+  useEffect(() => {
+    if (revealed >= items.length) return;
+    const t = setTimeout(
+      () => setRevealed((r) => Math.min(items.length, r + 1)),
+      1500,
+    );
+    return () => clearTimeout(t);
+  }, [revealed, items.length]);
+
+  const advance = () => setRevealed((r) => Math.min(items.length, r + 1));
+
   return (
     <Centered>
       <Zap
@@ -2899,48 +2935,43 @@ function AIAttacks2026() {
       <div className="mcb-mono mcb-tag text-amber-400 mb-4">
         2026 · YAPAY ZEKÂ DESTEKLİ SALDIRILAR
       </div>
-      <h2 className="mcb-h2 font-bold text-white max-w-[88vw] mb-12">
+      <h2 className="mcb-h2 font-bold text-white max-w-[88vw] mb-8">
         Saldırgan bir senaryoyu artık 2 saniyede üretiyor.
       </h2>
-      <div className="grid sm:grid-cols-2 gap-5 w-full max-w-[1300px]">
-        {[
-          {
-            title: "GPT-grade phishing",
-            body: "Türkçe yazım hatasız, yerel argo, doğru tonlama.",
-            example: "ChatGPT TR ile 3 dk'da yazılan Garanti BBVA klonu.",
-          },
-          {
-            title: "Polimorfik malware",
-            body: "AI her hedef için kodu yeniden yazar — imza tutmaz.",
-            example: "2025: dakikada 200 varyant üreten Lumma C2 (BBC).",
-          },
-          {
-            title: "Bot ağları",
-            body: "Binlerce sahte profil, gerçek insan ritminde mesajlaşır.",
-            example: "X TR 2024: 80K AI-bot 'Bitcoin 100K' hype'ı yaydı.",
-          },
-          {
-            title: "Sıfır gün exploit'i",
-            body: "Otomatik fuzzing → açık → istismar. Saatler içinde.",
-            example: "Google Project Zero 2025: PoC→exploit 6h → 12 dk.",
-          },
-        ].map((it, i) => (
+      <div
+        className="grid sm:grid-cols-2 gap-5 w-full max-w-[1300px] cursor-pointer"
+        onClick={advance}
+      >
+        {items.map((it, i) => (
           <motion.div
             key={it.title}
-            initial={{ opacity: 0, x: i % 2 ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 * i }}
-            className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-7 text-left"
+            initial={{ opacity: 0, y: 15 }}
+            animate={
+              i < revealed
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0.1, y: 6 }
+            }
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-7 text-left min-w-0"
           >
             <div className="mcb-mono mcb-tag text-amber-300 mb-3">
-              {it.title}
+              {String(i + 1).padStart(2, "0")} · {it.title}
             </div>
-            <p className="mcb-lead text-zinc-100 mb-3">{it.body}</p>
-            <p className="mcb-body text-amber-100/85 italic text-sm">
-              ↳ {it.example}
+            <p className="mcb-lead text-zinc-100 mb-3">
+              {i < revealed ? it.body : "•••••••••••••••••"}
             </p>
+            {i < revealed && (
+              <p className="mcb-body text-amber-100/85 italic text-sm">
+                ↳ {it.example}
+              </p>
+            )}
           </motion.div>
         ))}
+      </div>
+      <div className="mt-6 mcb-mono text-xs tracking-[0.4em] text-zinc-500">
+        {revealed < items.length
+          ? `${String(revealed).padStart(2, "0")} / ${items.length} · TIKLA AÇILSIN`
+          : "✓ Hepsi açıldı"}
       </div>
     </Centered>
   );
@@ -3508,44 +3539,7 @@ const SLIDES: Slide[] = [
     section: "BÖLÜM 01 · OLTALAMA",
     render: () => <CihazIzExplain />,
   },
-  {
-    id: "poll-2-bait",
-    section: "BÖLÜM 01 · OLTALAMA",
-    render: ({ origin }) => (
-      <PollQRBait
-        origin={origin}
-        slug="mcb-2-sms-trap"
-        question='"Kargonuz teslim edilemedi: ptt-tr.co/xyz" — ne yaparsın?'
-        accent="#fbbf24"
-      />
-    ),
-  },
-  {
-    id: "poll-2",
-    section: "BÖLÜM 01 · OLTALAMA",
-    render: ({ origin, isActive }) => (
-      <FullCenter>
-        <SMSScene
-          showHighlights={false}
-          origin={origin}
-          isActive={isActive}
-        />
-      </FullCenter>
-    ),
-  },
-  {
-    id: "poll-2-reveal",
-    section: "BÖLÜM 01 · OLTALAMA",
-    render: ({ origin, isActive }) => (
-      <FullCenter>
-        <SMSScene
-          showHighlights
-          origin={origin}
-          isActive={isActive}
-        />
-      </FullCenter>
-    ),
-  },
+  // (poll-2 SMS scam anketi kaldırıldı — KargoSim aynı senaryoyu canlı sahneliyor)
 
   // 02 · ŞİFRELER
   {
@@ -3599,32 +3593,7 @@ const SLIDES: Slide[] = [
     section: "BÖLÜM 02 · ŞİFRELER",
     render: () => <TwoFAExplainer />,
   },
-  {
-    id: "poll-3-bait",
-    section: "BÖLÜM 02 · ŞİFRELER",
-    render: ({ origin }) => (
-      <PollQRBait
-        origin={origin}
-        slug="mcb-3-2fa"
-        question="Hangi 2FA yöntemini kullanıyorsun?"
-        accent="#22d3ee"
-      />
-    ),
-  },
-  {
-    id: "poll-3",
-    section: "BÖLÜM 02 · ŞİFRELER",
-    render: ({ origin, isActive }) => (
-      <FullCenter>
-        <LivePoll
-          slug="mcb-3-2fa"
-          origin={origin}
-          isActive={isActive}
-          accent="#22d3ee"
-        />
-      </FullCenter>
-    ),
-  },
+  // (poll-3 2FA anketi kaldırıldı — TwoFAExplainer zaten 3 katmanı net anlatıyor)
 
   // 03 · SOSYAL MÜHENDİSLİK
   {
