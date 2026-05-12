@@ -2836,7 +2836,7 @@ const slides: Slide[] = [
         transition={{ delay: 0.7, duration: 0.5 }}
         className="mcb-lead text-gray-300 max-w-3xl relative z-10 px-2"
       >
-        Son kullanıcı zafiyetleri ve sosyal mühendislik.
+        Son Kullanıcı Zafiyetleri ve Sosyal Mühendislik.
       </motion.p>
 
       <motion.div
