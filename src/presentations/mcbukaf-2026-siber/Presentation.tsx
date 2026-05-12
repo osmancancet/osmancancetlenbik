@@ -1941,6 +1941,13 @@ function PassphraseFormula() {
         Hatırlanması kolay, kırılması imkansız. Bitwarden / 1Password bunu
         senin için üretir.
       </p>
+      <div className="mt-6 rounded-2xl border border-amber-400/30 bg-amber-400/5 px-6 py-4 max-w-[60ch]">
+        <div className="mcb-mono mcb-tag text-amber-300 mb-1">ÖRNEK</div>
+        <p className="mcb-body text-amber-100/90 italic">
+          RockYou2024 sızıntısı: en sık şifreler `123456`, `şifre`, `qwerty`.
+          14 milyon Türk hesabı bu listede.
+        </p>
+      </div>
     </Centered>
   );
 }
@@ -1995,18 +2002,24 @@ function TwoFAExplainer() {
             title: "BİLDİĞİN",
             body: "Şifre, PIN.",
             color: "#22d3ee",
+            example:
+              "TR'de bankaların hepsi tek başına şifreyi kabul etmiyor (BDDK 2024).",
           },
           {
             icon: Phone,
             title: "SAHİP OLDUĞUN",
             body: "Telefon, donanım anahtarı.",
             color: "#00ff88",
+            example:
+              "e-Devlet 2025: Google Authenticator + Yubikey desteği eklendi.",
           },
           {
             icon: Fingerprint,
             title: "SEN OLDUĞUN",
             body: "Yüz, parmak izi.",
             color: "#fbbf24",
+            example:
+              "iPhone Face ID + Android parmak izi: TR'de en yaygın 2FA katmanı.",
           },
         ].map((c, i) => (
           <motion.div
@@ -2031,7 +2044,13 @@ function TwoFAExplainer() {
             <div className="mcb-mono mcb-tag mb-3" style={{ color: c.color }}>
               {c.title}
             </div>
-            <p className="mcb-lead text-zinc-100 text-left">{c.body}</p>
+            <p className="mcb-lead text-zinc-100 text-left mb-4">{c.body}</p>
+            <div className="mcb-mono mcb-tag text-amber-300 mb-1 text-left">
+              ÖRNEK
+            </div>
+            <p className="mcb-body text-amber-100/90 italic text-left">
+              {c.example}
+            </p>
           </motion.div>
         ))}
       </div>
@@ -2404,6 +2423,15 @@ function RansomwareSlide() {
       <p className="mcb-lead text-emerald-300 mt-8">
         ✓ 3-2-1 kuralı tek başına sağlık sektöründe %70'i kurtarır.
       </p>
+      <div className="mt-6 rounded-2xl border border-amber-400/30 bg-amber-400/5 px-6 py-4 max-w-[60ch] text-left">
+        <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+          TÜRKİYE · ÖRNEK
+        </div>
+        <p className="mcb-body text-amber-100/90 italic">
+          2024-25: TR'de 3 hastane sistemleri ransomware ile durdu. Ortalama
+          geri dönüş süresi 17 gün; bazıları yedek olmadığı için ödedi.
+        </p>
+      </div>
     </Centered>
   );
 }
@@ -2509,6 +2537,300 @@ function CommonScams() {
   );
 }
 
+/**
+ * Auto-play kargo SMS phishing simulasyonu (4 faz). Simav AutoKargoSim
+ * pattern'ı; MCBÜKAF tipografisine uyarlanmış. Slayt aktifken state
+ * machine kendiliğinden ilerler; slayttan çıkınca idle'a döner.
+ */
+function KargoSim({ isActive }: { isActive: boolean }) {
+  const [phase, setPhase] = useState<
+    "idle" | "sms" | "site" | "trap" | "lesson"
+  >("idle");
+
+  useEffect(() => {
+    if (isActive) setPhase("sms");
+    else setPhase("idle");
+  }, [isActive]);
+
+  useEffect(() => {
+    if (phase === "sms") {
+      const t = setTimeout(() => setPhase("site"), 2500);
+      return () => clearTimeout(t);
+    }
+    if (phase === "site") {
+      const t = setTimeout(() => setPhase("trap"), 3000);
+      return () => clearTimeout(t);
+    }
+    if (phase === "trap") {
+      const t = setTimeout(() => setPhase("lesson"), 3500);
+      return () => clearTimeout(t);
+    }
+  }, [phase]);
+
+  if (phase === "idle") return null;
+
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[640px]">
+        <div className="mcb-mono mcb-tag text-rose-400/85 mb-3 text-center">
+          CANLI DENEY · KARGO SMS
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
+          24 TL ödeme, 24.500 TL onay.
+        </h2>
+        <AnimatePresence mode="wait">
+          {phase === "sms" && (
+            <motion.div
+              key="sms"
+              initial={{ y: -40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ opacity: 0, x: -100 }}
+              className="bg-zinc-100 text-zinc-900 rounded-2xl p-5 border-l-4 border-blue-500 shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
+                  PTT
+                </div>
+                <div className="font-bold text-base">PTT KARGO</div>
+                <div className="ml-auto text-[10px] text-zinc-500">
+                  şimdi
+                </div>
+              </div>
+              <p className="text-base text-zinc-700 leading-snug">
+                Kargonuz teslim edilemedi. 24 TL gümrük vergisini ödemek için
+                tıklayınız.
+              </p>
+              <p className="text-blue-600 text-xs font-mono mt-2 break-all">
+                hxxps://ptt-kargo-odeme.co/abc123
+              </p>
+            </motion.div>
+          )}
+          {phase === "site" && (
+            <motion.div
+              key="site"
+              initial={{ x: 80, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ opacity: 0, x: -80 }}
+              className="bg-white rounded-2xl overflow-hidden shadow-2xl text-zinc-900"
+            >
+              <div className="bg-blue-900 px-4 py-3 text-white font-bold">
+                PTT KARGO · Ödeme
+              </div>
+              <div className="p-5">
+                <div className="bg-amber-50 border border-amber-300 px-3 py-2 rounded text-amber-800 text-sm mb-4">
+                  ⚠ Teslimat başarısız
+                </div>
+                <div className="rounded border border-rose-200 bg-rose-50 p-4 mb-4">
+                  <div className="text-xs text-rose-500">Borç</div>
+                  <div className="font-bold text-rose-700 text-3xl tabular-nums">
+                    24,00 TL
+                  </div>
+                </div>
+                <div className="bg-blue-600 text-white py-3 rounded-xl text-center font-bold">
+                  Ödeme Yap
+                </div>
+              </div>
+            </motion.div>
+          )}
+          {phase === "trap" && (
+            <motion.div
+              key="trap"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="bg-white rounded-2xl overflow-hidden shadow-2xl text-zinc-900 p-5"
+            >
+              <h3 className="font-bold text-base mb-3 border-b border-zinc-200 pb-2">
+                3D Secure Doğrulama
+              </h3>
+              <div className="bg-zinc-100 p-4 rounded font-mono text-sm text-zinc-700 border border-zinc-300 leading-relaxed">
+                SMS: Kartınızla{" "}
+                <motion.span
+                  animate={{
+                    backgroundColor: ["#fef08a", "#fde047", "#fef08a"],
+                  }}
+                  transition={{ repeat: Infinity, duration: 0.6 }}
+                  className="font-bold px-1.5 rounded"
+                >
+                  24.500,00 TL
+                </motion.span>{" "}
+                tutarındaki işlem için şifreniz: 192381
+              </div>
+            </motion.div>
+          )}
+          {phase === "lesson" && (
+            <motion.div
+              key="lesson"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="rounded-2xl border-2 border-rose-400/60 bg-rose-500/10 p-6"
+            >
+              <div className="mcb-mono mcb-tag text-rose-300 mb-2">
+                DERS
+              </div>
+              <p className="mcb-h3 font-bold text-rose-200 mb-2">
+                24.500 TL dolandırıldın.
+              </p>
+              <p className="mcb-body text-zinc-200 mb-3">
+                Sitede 24 TL yazıyordu, banka SMS'inde 24.500 TL çekildi.
+              </p>
+              <p className="mcb-body text-amber-300 font-bold">
+                Onay SMS'indeki TUTARI mutlaka oku.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </FullCenter>
+  );
+}
+
+/**
+ * Auto-play ponzi/iş teklifi simulasyonu (4 faz + balance count-up).
+ */
+function PonziSim({ isActive }: { isActive: boolean }) {
+  const [phase, setPhase] = useState<
+    "idle" | "offer" | "earning" | "trap" | "lesson"
+  >("idle");
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    if (isActive) {
+      setPhase("offer");
+      setBalance(0);
+    } else {
+      setPhase("idle");
+    }
+  }, [isActive]);
+
+  useEffect(() => {
+    if (phase === "offer") {
+      const t = setTimeout(() => setPhase("earning"), 2500);
+      return () => clearTimeout(t);
+    }
+    if (phase === "trap") {
+      const t = setTimeout(() => setPhase("lesson"), 3500);
+      return () => clearTimeout(t);
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === "earning" && balance < 250) {
+      const t = setTimeout(() => setBalance((p) => p + 50), 350);
+      return () => clearTimeout(t);
+    }
+    if (phase === "earning" && balance >= 250) {
+      const t = setTimeout(() => setPhase("trap"), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [phase, balance]);
+
+  if (phase === "idle") return null;
+
+  return (
+    <FullCenter>
+      <div className="w-full max-w-[640px]">
+        <div className="mcb-mono mcb-tag text-emerald-400/85 mb-3 text-center">
+          CANLI DENEY · GÖREV DOLANDIRICILIĞI
+        </div>
+        <h2 className="mcb-h2 font-bold text-white mb-8 text-center">
+          Olta yemi: ilk 250 TL.
+        </h2>
+        <AnimatePresence mode="wait">
+          {phase === "offer" && (
+            <motion.div
+              key="offer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6"
+            >
+              <div className="mcb-mono mcb-tag text-emerald-300 mb-2">
+                WHATSAPP · BİLİNMEYEN
+              </div>
+              <p className="mcb-body text-zinc-100 mb-2">
+                "Günlük 500-2000 TL kazan. YouTube videolarına beğeni at."
+              </p>
+              <p className="mcb-body text-zinc-400 italic">
+                İlk görev ücretsiz. Hemen başla.
+              </p>
+            </motion.div>
+          )}
+          {phase === "earning" && (
+            <motion.div
+              key="earning"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="rounded-2xl border border-zinc-700 bg-zinc-950 p-6 text-center"
+            >
+              <div className="mcb-mono mcb-tag text-zinc-400 mb-2">
+                KAZANCIN
+              </div>
+              <motion.p
+                key={balance}
+                initial={{ scale: 1.3 }}
+                animate={{ scale: 1 }}
+                className="text-6xl font-black text-emerald-400 font-mono tabular-nums mb-4"
+              >
+                {balance} TL
+              </motion.p>
+              <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                <motion.div
+                  className="bg-emerald-500 h-2 rounded-full"
+                  animate={{ width: `${(balance / 250) * 100}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+            </motion.div>
+          )}
+          {phase === "trap" && (
+            <motion.div
+              key="trap"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-6"
+            >
+              <p className="mcb-h3 font-bold text-amber-300 mb-3">
+                250 TL kazandın!
+              </p>
+              <p className="mcb-body text-zinc-100">
+                Paranı çekmek için{" "}
+                <strong className="text-rose-300">
+                  20.000 TL teminat
+                </strong>{" "}
+                yatırman gerekiyor…
+              </p>
+            </motion.div>
+          )}
+          {phase === "lesson" && (
+            <motion.div
+              key="lesson"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="rounded-2xl border-2 border-rose-400/60 bg-rose-500/10 p-6"
+            >
+              <div className="mcb-mono mcb-tag text-rose-300 mb-2">
+                DERS
+              </div>
+              <p className="mcb-h3 font-bold text-rose-200 mb-2">
+                Klasik Ponzi tuzağı.
+              </p>
+              <p className="mcb-body text-zinc-200 mb-3">
+                İlk 250 TL olta yemi. Asıl hedef sizden 20.000 TL almak.
+              </p>
+              <p className="mcb-body text-amber-300 font-bold">
+                İşveren para istemez, öder.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </FullCenter>
+  );
+}
+
 function DeepfakeSlide() {
   return (
     <Centered>
@@ -2551,6 +2873,15 @@ function DeepfakeSlide() {
           </p>
         </div>
       </div>
+      <div className="mt-8 rounded-2xl border border-amber-400/30 bg-amber-400/5 px-6 py-4 max-w-[60ch] text-left">
+        <div className="mcb-mono mcb-tag text-amber-300 mb-1">
+          TÜRKİYE · ÖRNEK
+        </div>
+        <p className="mcb-body text-amber-100/90 italic">
+          2024: Bir AVM genel müdürünün AI ile klonlanmış sesi telefonla muhasebe
+          birimini aradı; 3.2M TL EFT talep edildi (USOM raporu).
+        </p>
+      </div>
     </Centered>
   );
 }
@@ -2575,19 +2906,23 @@ function AIAttacks2026() {
         {[
           {
             title: "GPT-grade phishing",
-            body: "Türkçe yazım hatasız, yerel argo, doğru tonlama. 'Yabancı dil hatası' artık ipucu değil.",
+            body: "Türkçe yazım hatasız, yerel argo, doğru tonlama.",
+            example: "ChatGPT TR ile 3 dk'da yazılan Garanti BBVA klonu.",
           },
           {
             title: "Polimorfik malware",
-            body: "AI her hedef için kodu yeniden yazar — antivirüs imzası tutmaz.",
+            body: "AI her hedef için kodu yeniden yazar — imza tutmaz.",
+            example: "2025: dakikada 200 varyant üreten Lumma C2 (BBC).",
           },
           {
             title: "Bot ağları",
-            body: "Binlerce sahte profil, gerçek insan ritminde mesaj atar.",
+            body: "Binlerce sahte profil, gerçek insan ritminde mesajlaşır.",
+            example: "X TR 2024: 80K AI-bot 'Bitcoin 100K' hype'ı yaydı.",
           },
           {
             title: "Sıfır gün exploit'i",
             body: "Otomatik fuzzing → açık → istismar. Saatler içinde.",
+            example: "Google Project Zero 2025: PoC→exploit 6h → 12 dk.",
           },
         ].map((it, i) => (
           <motion.div
@@ -2600,7 +2935,10 @@ function AIAttacks2026() {
             <div className="mcb-mono mcb-tag text-amber-300 mb-3">
               {it.title}
             </div>
-            <p className="mcb-lead text-zinc-100">{it.body}</p>
+            <p className="mcb-lead text-zinc-100 mb-3">{it.body}</p>
+            <p className="mcb-body text-amber-100/85 italic text-sm">
+              ↳ {it.example}
+            </p>
           </motion.div>
         ))}
       </div>
@@ -3318,34 +3656,59 @@ const SLIDES: Slide[] = [
     render: () => <OsintSlide />,
   },
 
-  // 04 · 2026 TEHDİTLERİ
+  // 04 · CANLI DENEY (auto-play sims — Simav-stili)
+  {
+    id: "section-canli-deney",
+    section: "BÖLÜM 04 · CANLI DENEY",
+    render: () => (
+      <SectionTitle
+        number="04"
+        title="CANLI DENEY"
+        subtitle="Tuzak burada sahnede kuruluyor."
+        color="#fb923c"
+        Icon={ShieldAlert}
+      />
+    ),
+  },
+  {
+    id: "kargo-sim",
+    section: "BÖLÜM 04 · CANLI DENEY",
+    render: ({ isActive }) => <KargoSim isActive={isActive} />,
+  },
+  {
+    id: "ponzi-sim",
+    section: "BÖLÜM 04 · CANLI DENEY",
+    render: ({ isActive }) => <PonziSim isActive={isActive} />,
+  },
+
+  // 05 · 2026 TEHDİTLERİ
   {
     id: "deepfake",
-    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     render: () => <DeepfakeSlide />,
   },
   {
     id: "ai-2026",
-    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     render: () => <AIAttacks2026 />,
   },
   {
     id: "ransomware",
-    section: "BÖLÜM 04 · 2026 TEHDİTLERİ",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     render: () => <RansomwareSlide />,
   },
 
-  // 05 · GÜNLÜK TUZAKLAR
+  // 06 · GÜNLÜK TUZAKLAR
   {
     id: "common-scams",
-    section: "BÖLÜM 05 · GÜNLÜK TUZAKLAR",
+    section: "BÖLÜM 06 · GÜNLÜK TUZAKLAR",
     render: () => <CommonScams />,
   },
 
-  // 06 · KORUNMA
+  // 07 · KORUNMA
   {
     id: "poll-4-bait",
-    section: "BÖLÜM 06 · KORUNMA",
+    section: "BÖLÜM 07 · KORUNMA",
     render: ({ origin }) => (
       <PollQRBait
         origin={origin}
@@ -3357,7 +3720,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: "poll-4",
-    section: "BÖLÜM 06 · KORUNMA",
+    section: "BÖLÜM 07 · KORUNMA",
     render: ({ origin, isActive }) => (
       <FullCenter>
         <LivePoll
@@ -3371,12 +3734,12 @@ const SLIDES: Slide[] = [
   },
   {
     id: "quiz-reveal",
-    section: "BÖLÜM 06 · KORUNMA",
+    section: "BÖLÜM 07 · KORUNMA",
     render: () => <QuizReveal />,
   },
   {
     id: "checklist",
-    section: "BÖLÜM 06 · KORUNMA",
+    section: "BÖLÜM 07 · KORUNMA",
     render: ({ isActive }) => <Checklist isActive={isActive} />,
   },
 
