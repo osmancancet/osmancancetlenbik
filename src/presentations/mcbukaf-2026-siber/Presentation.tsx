@@ -575,6 +575,158 @@ function CountdownTimer({ seconds = 300, ctx }: { seconds?: number; ctx: SlideCt
 }
 
 /* ================================================================
+   PASSWORD STRENGTH SPECTRUM — uzunluk animasyonu
+   ================================================================ */
+function fmtCrackTime(sec: number): string {
+  if (sec < 1) return "anında";
+  if (sec < 60) return `${Math.round(sec)} saniye`;
+  const m = sec / 60;
+  if (m < 60) return `${Math.round(m)} dakika`;
+  const h = m / 60;
+  if (h < 24) return `${Math.round(h)} saat`;
+  const d = h / 24;
+  if (d < 365) return `${Math.round(d)} gün`;
+  const y = d / 365;
+  if (y < 1e3) return `${Math.round(y)} yıl`;
+  if (y < 1e6) return `${(y / 1e3).toFixed(1)} bin yıl`;
+  if (y < 1e9) return `${(y / 1e6).toFixed(1)} milyon yıl`;
+  if (y < 1e12) return `${(y / 1e9).toFixed(1)} milyar yıl`;
+  return "∞";
+}
+
+function PasswordSpectrumSlide({ ctx }: { ctx: SlideCtx }) {
+  const minLen = 4;
+  const maxLen = 18;
+  const [len, setLen] = useState(minLen);
+  const dirRef = useRef<1 | -1>(1);
+
+  useEffect(() => {
+    if (!ctx.isActive) { setLen(minLen); dirRef.current = 1; return; }
+    setLen(minLen);
+    dirRef.current = 1;
+    const iv = window.setInterval(() => {
+      setLen((l) => {
+        let next = l + dirRef.current;
+        if (next > maxLen) { dirRef.current = -1; next = maxLen - 1; }
+        if (next < minLen) { dirRef.current = 1; next = minLen + 1; }
+        return next;
+      });
+    }, 720);
+    return () => window.clearInterval(iv);
+  }, [ctx.isActive]);
+
+  // Assume mixed alphabet (a-z A-Z 0-9 + 8 symbols ≈ 70 chars), guesses/sec = 1e11 (offline GPU)
+  const charset = 70;
+  const combos = Math.pow(charset, len);
+  const sec = combos / 1e11;
+  const crackText = fmtCrackTime(sec);
+
+  // Strength tiering
+  let tier: { label: string; color: string; pct: number };
+  if (len <= 5)       tier = { label: "ÇOK ZAYIF", color: "#ef4444", pct: 12 };
+  else if (len <= 7)  tier = { label: "ZAYIF",      color: "#fb923c", pct: 28 };
+  else if (len <= 9)  tier = { label: "ORTA",       color: "#fbbf24", pct: 48 };
+  else if (len <= 11) tier = { label: "İYİ",        color: "#22d3ee", pct: 70 };
+  else if (len <= 14) tier = { label: "MÜKEMMEL",   color: "#00ff88", pct: 90 };
+  else                tier = { label: "ASKERİ",     color: "#10b981", pct: 100 };
+
+  const sampleChars = "Tr#n85_kL!m2X4Vp@9q".slice(0, len);
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 items-center justify-center overflow-hidden">
+      <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="mcb-tag mcb-mono text-cyan-300/85 mb-1">
+        ŞİFRE UZUNLUĞU · KIRILMA SÜRESİ
+      </motion.p>
+      <motion.h2 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+        className="mcb-h2 font-black text-center mb-4 sm:mb-5">
+        Her karakter saldırganın ömrünü ikiye katlar
+      </motion.h2>
+
+      {/* Live password sample */}
+      <div className="w-full max-w-3xl rounded-xl bg-black/60 border px-4 sm:px-6 py-3 sm:py-4 mb-3 sm:mb-4 text-center"
+        style={{
+          borderColor: `${tier.color}50`,
+          boxShadow: `0 0 22px ${tier.color}30, inset 0 0 30px ${tier.color}08`,
+        }}>
+        <motion.p key={len}
+          initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+          className="mcb-mono font-bold tracking-widest tabular-nums break-all"
+          style={{
+            color: tier.color,
+            fontSize: "clamp(1.4rem, 4vw, 3rem)",
+            textShadow: `0 0 16px ${tier.color}55`,
+            letterSpacing: "0.08em",
+          }}>
+          {sampleChars}
+        </motion.p>
+      </div>
+
+      {/* Length indicator + meter */}
+      <div className="w-full max-w-3xl rounded-2xl bg-black/45 border border-white/10 px-4 sm:px-6 py-4 sm:py-5"
+        style={{ boxShadow: `inset 0 0 30px ${tier.color}06` }}>
+        <div className="flex items-baseline justify-between mb-2">
+          <div className="flex items-baseline gap-2 sm:gap-3">
+            <span className="mcb-mono text-gray-400 text-xs sm:text-sm">uzunluk:</span>
+            <motion.span key={len}
+              initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              className="font-black mcb-mono tabular-nums"
+              style={{
+                color: tier.color,
+                fontSize: "clamp(1.5rem, 4vw, 2.75rem)",
+                textShadow: `0 0 14px ${tier.color}55`,
+              }}>
+              {len}
+            </motion.span>
+            <span className="mcb-mono text-gray-500 text-xs sm:text-sm">karakter</span>
+          </div>
+          <motion.span key={tier.label}
+            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+            className="mcb-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded"
+            style={{
+              color: tier.color,
+              background: `${tier.color}18`,
+              border: `1px solid ${tier.color}50`,
+              fontSize: "clamp(0.65rem, 1.2vmin, 0.85rem)",
+            }}>
+            {tier.label}
+          </motion.span>
+        </div>
+
+        <div className="w-full h-2.5 bg-zinc-900 rounded-full overflow-hidden mb-3 border border-white/5">
+          <motion.div
+            animate={{ width: `${tier.pct}%` }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="h-full"
+            style={{
+              background: `linear-gradient(90deg, ${tier.color}, ${tier.color}cc)`,
+              boxShadow: `0 0 14px ${tier.color}80`,
+            }} />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="mcb-mono text-gray-500 text-xs sm:text-sm">offline GPU saldırısı kırılma süresi:</span>
+          <motion.span key={crackText}
+            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            className="font-black mcb-mono tabular-nums"
+            style={{
+              color: tier.color,
+              fontSize: "clamp(0.95rem, 2.4vw, 1.65rem)",
+              textShadow: `0 0 14px ${tier.color}55`,
+            }}>
+            {crackText}
+          </motion.span>
+        </div>
+      </div>
+
+      <p className="mcb-meta text-gray-500 text-center mt-3 sm:mt-4 max-w-2xl">
+        12+ karakter, karışık küme · saldırgan vazgeçer
+      </p>
+    </div>
+  );
+}
+
+/* ================================================================
    PASSWORD CRACK SIM — auto brute-force animasyonu
    ================================================================ */
 const CRACK_PASSWORDS = [
@@ -1312,11 +1464,13 @@ function RealSurveySlide({ ctx }: { ctx: SlideCtx }) {
       <motion.h2 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="mcb-h2 font-black mb-2"
         style={{ color: "#fbbf24", textShadow: "0 0 26px rgba(251,191,36,0.55)" }}>
-        Görüşünü yaz, çekilişe katıl
+        Sunum Değerlendirmesi
       </motion.h2>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
         className="mcb-lead text-gray-300 mb-4 sm:mb-5 max-w-3xl px-2">
-        QR&apos;ı tarat · 60 saniyelik kısa anketi doldur · sürpriz hediye çekilişine adını yaz
+        Geri bildiriminiz daha iyi içerikler için yol göstericidir.
+        <br className="hidden sm:inline" />
+        Anketi tamamlayanlar arasından sürpriz ödül çekilişi yapılacaktır.
       </motion.p>
 
       <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
@@ -1613,6 +1767,318 @@ function WhatsAppScamSim({ ctx }: { ctx: SlideCtx }) {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   JOURNAL RECOGNITION TEST — hangisi gerçek hangisi predatory
+   ================================================================ */
+function JournalRecognitionSlide({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<"reveal-cards" | "show-marks" | "verdict">("reveal-cards");
+
+  useEffect(() => {
+    if (!ctx.isActive) { setPhase("reveal-cards"); return; }
+    setPhase("reveal-cards");
+    const t1 = window.setTimeout(() => setPhase("show-marks"), 2400);
+    const t2 = window.setTimeout(() => setPhase("verdict"), 4800);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+  }, [ctx.isActive]);
+
+  const showMarks = phase === "show-marks" || phase === "verdict";
+  const showVerdict = phase === "verdict";
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 items-center overflow-hidden">
+      <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="mcb-tag mcb-mono text-purple-300/85 mb-1">
+        AKADEMİK PHISHING · TANIMA TESTİ
+      </motion.p>
+      <motion.h2 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+        className="mcb-h2 font-black text-center mb-4 sm:mb-5">
+        Hangisi gerçek dergi?
+      </motion.h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-5 w-full max-w-5xl">
+        {/* Card A — Predatory */}
+        <JournalCard
+          delay={0.15}
+          predatory
+          showMarks={showMarks}
+          showVerdict={showVerdict}
+          name="International Journal of Advanced Research (IJAR)"
+          publisher="IJAR Publishing Ltd · Mauritius"
+          impact="RIIF: 8.4*"
+          review="18 saat"
+          apc="$349 APC"
+          tags={[
+            { text: "RIIF (sahte impact factor)", bad: true },
+            { text: "18 saatte hakem onayı", bad: true },
+            { text: "Mauritius / Nijerya merkezli", bad: true },
+            { text: "$349 yayın ücreti baskısı", bad: true },
+          ]}
+        />
+        {/* Card B — Real */}
+        <JournalCard
+          delay={0.3}
+          predatory={false}
+          showMarks={showMarks}
+          showVerdict={showVerdict}
+          name="IEEE Transactions on Information Forensics and Security"
+          publisher="IEEE · Piscataway, NJ"
+          impact="JCR Q1 · IF: 6.8 (Web of Science)"
+          review="3–6 ay"
+          apc="Open access opsiyonel"
+          tags={[
+            { text: "Web of Science indeksli", bad: false },
+            { text: "Çift-kör hakem · 3-6 ay", bad: false },
+            { text: "IEEE Society yayını", bad: false },
+            { text: "Açık erişim ek ödeme isteğe bağlı", bad: false },
+          ]}
+        />
+      </div>
+    </div>
+  );
+}
+
+function JournalCard({ name, publisher, impact, review, apc, tags, predatory, showMarks, showVerdict, delay }: {
+  name: string; publisher: string; impact: string; review: string; apc: string;
+  tags: { text: string; bad: boolean }[];
+  predatory: boolean; showMarks: boolean; showVerdict: boolean; delay: number;
+}) {
+  const color = predatory ? "#a855f7" : "#00ff88";
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 18, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="relative rounded-2xl bg-black/55 border backdrop-blur-sm overflow-hidden flex flex-col"
+      style={{
+        borderColor: `${color}40`,
+        boxShadow: `0 0 24px ${color}20, inset 0 0 30px ${color}06`,
+      }}>
+      {/* Verdict overlay */}
+      <AnimatePresence>
+        {showVerdict && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="absolute top-3 right-3 z-10">
+            <motion.div
+              initial={{ scale: 0, rotate: -10 }} animate={{ scale: 1, rotate: -6 }}
+              transition={{ type: "spring", stiffness: 150, damping: 12 }}
+              className="mcb-mono font-black px-3 py-1 rounded-md text-xs sm:text-sm uppercase tracking-widest"
+              style={{
+                color: predatory ? "#f43f5e" : "#00ff88",
+                border: `2.5px solid ${predatory ? "#f43f5e" : "#00ff88"}`,
+                background: "rgba(0,0,0,0.7)",
+                boxShadow: `0 0 18px ${predatory ? "rgba(244,63,94,0.6)" : "rgba(0,255,136,0.6)"}`,
+              }}>
+              {predatory ? "PREDATORY" : "GERÇEK"}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="px-4 sm:px-5 py-3 border-b border-white/8">
+        <p className="font-bold text-white leading-snug" style={{ fontSize: "clamp(0.9rem, 1.65vmin, 1.15rem)" }}>{name}</p>
+        <p className="mcb-mono text-[10px] sm:text-xs text-gray-400 mt-1">{publisher}</p>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 border-b border-white/8 mcb-mono">
+        <Stat label="Etki" value={impact} />
+        <Stat label="Hakem" value={review} />
+        <Stat label="Ücret" value={apc} />
+      </div>
+      <div className="px-4 sm:px-5 py-3 flex-1 space-y-1.5">
+        {tags.map((t, i) => (
+          <motion.div key={i}
+            initial={{ opacity: 0, x: -8 }}
+            animate={showMarks ? { opacity: 1, x: 0 } : { opacity: 0.3, x: -4 }}
+            transition={{ delay: showMarks ? i * 0.12 : 0, duration: 0.35 }}
+            className="flex items-center gap-2 text-xs sm:text-sm">
+            <span className="inline-flex w-4 h-4 sm:w-5 sm:h-5 rounded items-center justify-center shrink-0"
+              style={{
+                background: showMarks ? (t.bad ? "rgba(244,63,94,0.2)" : "rgba(0,255,136,0.18)") : "rgba(255,255,255,0.05)",
+                border: showMarks ? `1px solid ${t.bad ? "#f43f5e" : "#00ff88"}` : "1px solid rgba(255,255,255,0.1)",
+              }}>
+              {showMarks && (t.bad
+                ? <XIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-rose-400" strokeWidth={3} />
+                : <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400" strokeWidth={3} />)}
+            </span>
+            <span className={showMarks ? (t.bad ? "text-rose-200" : "text-emerald-200") : "text-gray-500"}>
+              {t.text}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="text-center">
+      <p className="text-[9px] sm:text-[10px] uppercase text-gray-500 tracking-widest mb-0.5">{label}</p>
+      <p className="text-[10px] sm:text-xs text-white font-bold leading-tight">{value}</p>
+    </div>
+  );
+}
+
+/* ================================================================
+   ATTACK RADAR — canlı saldırı sahnesi (TR şehir hotspot'ları)
+   ================================================================ */
+const RADAR_CITIES: { name: string; x: number; y: number; weight: number }[] = [
+  { name: "İstanbul", x: 30, y: 24, weight: 5 },
+  { name: "Ankara",   x: 52, y: 38, weight: 4 },
+  { name: "İzmir",    x: 18, y: 50, weight: 3 },
+  { name: "Bursa",    x: 30, y: 32, weight: 3 },
+  { name: "Antalya",  x: 36, y: 62, weight: 2 },
+  { name: "Manisa",   x: 20, y: 47, weight: 2 },
+  { name: "Adana",    x: 60, y: 58, weight: 2 },
+  { name: "Konya",    x: 48, y: 50, weight: 2 },
+  { name: "Trabzon",  x: 72, y: 26, weight: 1 },
+  { name: "Gaziantep",x: 67, y: 56, weight: 2 },
+  { name: "Erzurum",  x: 80, y: 32, weight: 1 },
+  { name: "Diyarbakır",x: 75, y: 50, weight: 1 },
+];
+
+const ATTACK_TYPES = [
+  { tag: "PHISHING",   color: "#f43f5e" },
+  { tag: "RANSOMWARE", color: "#a855f7" },
+  { tag: "DDoS",       color: "#fb923c" },
+  { tag: "BRUTE-FORCE",color: "#22d3ee" },
+  { tag: "DEEPFAKE",   color: "#ec4899" },
+  { tag: "SMS-PHISH",  color: "#fbbf24" },
+];
+
+type RadarAttack = { id: number; city: string; type: typeof ATTACK_TYPES[number]; at: number; cx: number; cy: number };
+
+function AttackRadarSlide({ ctx }: { ctx: SlideCtx }) {
+  const [attacks, setAttacks] = useState<RadarAttack[]>([]);
+  const [counter, setCounter] = useState(0);
+  const idRef = useRef(0);
+
+  useEffect(() => {
+    if (!ctx.isActive) { setAttacks([]); setCounter(0); idRef.current = 0; return; }
+    const weighted: typeof RADAR_CITIES = [];
+    RADAR_CITIES.forEach((c) => { for (let i = 0; i < c.weight; i++) weighted.push(c); });
+
+    const iv = window.setInterval(() => {
+      const city = weighted[Math.floor(Math.random() * weighted.length)];
+      const type = ATTACK_TYPES[Math.floor(Math.random() * ATTACK_TYPES.length)];
+      idRef.current += 1;
+      const att: RadarAttack = { id: idRef.current, city: city.name, type, at: Date.now(), cx: city.x, cy: city.y };
+      setAttacks((prev) => [att, ...prev].slice(0, 7));
+      setCounter((n) => n + 1);
+    }, 600);
+    return () => window.clearInterval(iv);
+  }, [ctx.isActive]);
+
+  return (
+    <div className="flex flex-col h-full px-3 sm:px-8 pt-1 pb-2 min-h-0">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between gap-3 mt-1 mb-3 flex-wrap">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.1 }}
+            className="w-2.5 h-2.5 rounded-full bg-rose-500"
+            style={{ boxShadow: "0 0 12px #f43f5e" }} />
+          <span className="mcb-mono text-rose-300 text-[10px] sm:text-xs uppercase tracking-[0.3em]">CANLI SALDIRI · TÜRKİYE</span>
+        </div>
+        <div className="mcb-mono text-emerald-400/85 text-[10px] sm:text-xs tabular-nums">
+          {counter.toString().padStart(4, "0")} olay · son 60 sn
+        </div>
+      </motion.div>
+
+      <div className="grid grid-cols-1 md:grid-cols-[1.6fr_1fr] gap-3 sm:gap-5 flex-1 min-h-0">
+        {/* Radar visualization */}
+        <div className="relative rounded-2xl overflow-hidden bg-black/55 border border-emerald-500/20"
+          style={{ boxShadow: "0 0 30px rgba(0,255,136,0.12), inset 0 0 60px rgba(0,255,136,0.04)" }}>
+          <svg viewBox="0 0 100 80" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+            {/* concentric radar rings */}
+            {[10, 22, 34, 46].map((r, i) => (
+              <motion.circle key={r} cx="48" cy="42" r={r}
+                fill="none" stroke="rgba(0,255,136,0.18)" strokeWidth="0.15"
+                animate={{ opacity: [0.15, 0.35, 0.15] }}
+                transition={{ repeat: Infinity, duration: 3 + i * 0.3, ease: "easeInOut" }} />
+            ))}
+            {/* Crosshair */}
+            <line x1="0" y1="42" x2="100" y2="42" stroke="rgba(0,255,136,0.1)" strokeWidth="0.1" />
+            <line x1="48" y1="0" x2="48" y2="80" stroke="rgba(0,255,136,0.1)" strokeWidth="0.1" />
+            {/* Sweep beam */}
+            <motion.g animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+              style={{ transformOrigin: "48px 42px" }}>
+              <defs>
+                <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="rgba(0,255,136,0.4)" />
+                  <stop offset="100%" stopColor="rgba(0,255,136,0)" />
+                </linearGradient>
+              </defs>
+              <path d="M 48 42 L 94 42 A 46 46 0 0 0 84 13 Z" fill="url(#sweep)" />
+            </motion.g>
+            {/* City dots */}
+            {RADAR_CITIES.map((c) => (
+              <g key={c.name}>
+                <circle cx={c.x} cy={c.y} r="0.6"
+                  fill="rgba(0,255,136,0.7)" />
+                <text x={c.x} y={c.y - 1.5}
+                  className="mcb-mono"
+                  fontSize="1.5" fill="rgba(0,255,136,0.55)" textAnchor="middle"
+                  style={{ pointerEvents: "none" }}>
+                  {c.name}
+                </text>
+              </g>
+            ))}
+            {/* Attack pulses */}
+            <AnimatePresence>
+              {attacks.map((a) => (
+                <motion.g key={a.id}
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ duration: 2.4, ease: "easeOut" }}>
+                  <motion.circle cx={a.cx} cy={a.cy}
+                    initial={{ r: 0.5 }} animate={{ r: 4 }} transition={{ duration: 2.4, ease: "easeOut" }}
+                    fill="none" stroke={a.type.color} strokeWidth="0.25" />
+                  <motion.circle cx={a.cx} cy={a.cy}
+                    initial={{ r: 0.4, opacity: 1 }} animate={{ r: 1.4, opacity: 0.7 }} transition={{ duration: 0.4 }}
+                    fill={a.type.color} />
+                </motion.g>
+              ))}
+            </AnimatePresence>
+          </svg>
+        </div>
+
+        {/* Attack log feed */}
+        <div className="rounded-2xl bg-black/60 border border-rose-500/30 backdrop-blur-sm overflow-hidden flex flex-col"
+          style={{ boxShadow: "0 0 24px rgba(244,63,94,0.18)" }}>
+          <div className="px-3 py-2 border-b border-white/10 bg-black/40">
+            <span className="mcb-mono text-rose-300 text-[10px] uppercase tracking-widest font-bold">CANLI LOG</span>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1.5">
+            <AnimatePresence initial={false}>
+              {attacks.map((a) => {
+                const hh = new Date(a.at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                return (
+                  <motion.div key={a.id}
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 22 }}
+                    className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
+                    style={{
+                      background: `${a.type.color}12`,
+                      border: `1px solid ${a.type.color}35`,
+                    }}>
+                    <span className="mcb-mono text-[9px] tabular-nums" style={{ color: `${a.type.color}aa` }}>{hh}</span>
+                    <span className="mcb-mono font-bold text-[10px] uppercase tracking-widest" style={{ color: a.type.color }}>
+                      {a.type.tag}
+                    </span>
+                    <span className="mcb-mono text-[10px] text-white/85 truncate ml-auto">{a.city}</span>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -2022,9 +2488,9 @@ const YOK_CONFIG: AcademicEmailConfig = {
   accentText: "text-cyan-300",
   hackHeadline: "Sahte YÖK Bursu",
   hackPoints: [
-    { lead: "YÖK / KYK", rest: " burs doğrulaması için ücret istemez — &ldquo;hizmet bedeli&rdquo; uydurma." },
-    { lead: "Resmi alan adı", rest: " yok.gov.tr veya kyk.gov.tr — &ldquo;.gov-tr.com&rdquo; sahte alan adıdır." },
-    { lead: "&ldquo;24 saat içinde&rdquo;", rest: " aciliyet kalıbı — saldırgan düşünmenize fırsat vermek istemez." },
+    { lead: "YÖK / KYK", rest: " burs doğrulaması için ücret istemez — “hizmet bedeli” uydurma." },
+    { lead: "Resmi alan adı", rest: " yok.gov.tr veya kyk.gov.tr — “.gov-tr.com” sahte alan adıdır." },
+    { lead: "“24 saat içinde”", rest: " aciliyet kalıbı — saldırgan düşünmenize fırsat vermek istemez." },
   ],
   hackFooter: "Doğru kanal: e-Devlet · KYK uygulaması · 444 1 962",
 };
@@ -2290,10 +2756,10 @@ const SECTIONS = [
   { name: "Açılış", start: 0 },
   { name: "Oltalama", start: 3 },
   { name: "Şifreler", start: 7 },
-  { name: "Sosyal Müh.", start: 13 },
-  { name: "2026 Tehditleri", start: 20 },
-  { name: "Korunma", start: 24 },
-  { name: "Kapanış", start: 27 },
+  { name: "Sosyal Müh.", start: 14 },
+  { name: "2026 Tehditleri", start: 22 },
+  { name: "Korunma", start: 27 },
+  { name: "Kapanış", start: 30 },
 ];
 
 /* ================================================================
@@ -2480,6 +2946,8 @@ const slides: Slide[] = [
 
   { id: "common-passwords", content: <CommonPasswordsSlide /> },
 
+  { id: "password-spectrum", content: (ctx) => <PasswordSpectrumSlide ctx={ctx} /> },
+
   { id: "password-crack", content: (ctx) => <PasswordCrackSim ctx={ctx} /> },
 
   { id: "live-sifre", content: (ctx) => <LivePasswordExperiment ctx={ctx} /> },
@@ -2534,11 +3002,15 @@ const slides: Slide[] = [
 
   { id: "yok-burs", content: (ctx) => <AcademicEmailSim ctx={ctx} config={YOK_CONFIG} /> },
 
+  { id: "journal-recognition", content: (ctx) => <JournalRecognitionSlide ctx={ctx} /> },
+
   { id: "golden-rule", content: <BigTextSlide
     text="Devlet asla telefonda para, altın veya şifre istemez."
     color="#f43f5e" /> },
 
   { id: "deepfake", section: "2026 Tehditleri", content: <DeepfakeSlide /> },
+
+  { id: "attack-radar", content: (ctx) => <AttackRadarSlide ctx={ctx} /> },
 
   { id: "qr-bait", content: (ctx) => <QrBaitSlide ctx={ctx} /> },
 
