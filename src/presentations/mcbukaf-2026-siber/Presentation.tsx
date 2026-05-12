@@ -385,94 +385,94 @@ function LivePoll({
   const max = data
     ? Math.max(1, ...Object.values(data.counts), 1)
     : 1;
-  const url = `${origin}/poll/${slug}`;
 
   return (
-    <div className="grid md:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center w-full max-w-[1400px] mx-auto text-left">
-      <div className="min-w-0">
-        <motion.div
-          key={pulseKey}
-          initial={{ opacity: 0.5, scale: 1.08 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 18 }}
-          className="mcb-mono text-xs tracking-[0.4em] text-emerald-400/80 mb-3"
-        >
+    <div className="w-full max-w-[1500px] mx-auto text-left">
+      <motion.div
+        key={pulseKey}
+        initial={{ opacity: 0.5, scale: 1.08 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 18 }}
+        className="mcb-mono mcb-tag text-emerald-400/85 mb-4"
+      >
+        <span className="inline-flex items-center gap-2.5">
+          <span
+            className="w-2.5 h-2.5 rounded-full bg-emerald-400"
+            style={{
+              animation: "mcb-blink 1.2s infinite",
+              boxShadow: "0 0 14px rgba(0,255,136,0.7)",
+            }}
+          />
           CANLI ANKET · {data?.total ?? 0} OY
-        </motion.div>
-        {data ? (
-          <>
-            <h2 className="text-3xl sm:text-5xl font-bold leading-tight mb-8 text-white">
-              {data.question}
-            </h2>
-            <div className="space-y-4">
-              {data.options.map((o) => {
-                const c = data.counts[o.id] ?? 0;
-                const pct = data.total ? (c / data.total) * 100 : 0;
-                const wpct = (c / max) * 100;
-                return (
-                  <div key={o.id} className="relative">
-                    <div className="flex items-center gap-3 mb-1.5">
-                      {o.emoji && (
-                        <span className="text-2xl shrink-0">{o.emoji}</span>
-                      )}
-                      <span className="text-lg sm:text-xl text-zinc-200 flex-1 min-w-0">
-                        {o.label}
+        </span>
+      </motion.div>
+      {data ? (
+        <>
+          <h2 className="mcb-h2 font-bold leading-tight mb-9 text-white">
+            {data.question}
+          </h2>
+          <div className="space-y-5">
+            {data.options.map((o) => {
+              const c = data.counts[o.id] ?? 0;
+              const pct = data.total ? (c / data.total) * 100 : 0;
+              const wpct = (c / max) * 100;
+              return (
+                <div key={o.id} className="relative">
+                  <div className="flex items-center gap-3 mb-2">
+                    {o.emoji && (
+                      <span style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)" }}>
+                        {o.emoji}
                       </span>
-                      <span
-                        className="mcb-mono text-xl sm:text-2xl font-bold tabular-nums"
-                        style={{ color: accent }}
-                      >
-                        {c}
-                        <span className="text-zinc-500 text-sm ml-2">
-                          ({pct.toFixed(0)}%)
-                        </span>
+                    )}
+                    <span className="mcb-lead text-zinc-100 flex-1 min-w-0">
+                      {o.label}
+                    </span>
+                    <span
+                      className="mcb-mono mcb-h3 font-bold tabular-nums"
+                      style={{ color: accent }}
+                    >
+                      {c}
+                      <span className="text-zinc-500 ml-2 mcb-meta">
+                        ({pct.toFixed(0)}%)
                       </span>
-                    </div>
-                    <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{
-                          background: `linear-gradient(90deg, ${accent}55, ${accent})`,
-                          boxShadow: `0 0 12px ${accent}66`,
-                        }}
-                        initial={false}
-                        animate={{ width: `${wpct}%` }}
-                        transition={{ type: "spring", stiffness: 80, damping: 18 }}
-                      />
-                    </div>
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="h-12 sm:h-16 w-3/4 bg-zinc-900/80 rounded-md mb-8 animate-pulse" />
-            <div className="space-y-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="space-y-2">
-                  <div
-                    className="h-6 bg-zinc-900/60 rounded animate-pulse"
-                    style={{ width: `${60 + ((i * 13) % 30)}%` }}
-                  />
-                  <div className="h-3 bg-zinc-900/80 rounded-full" />
+                  <div className="h-5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{
+                        background: `linear-gradient(90deg, ${accent}55, ${accent})`,
+                        boxShadow: `0 0 14px ${accent}66`,
+                      }}
+                      initial={false}
+                      animate={{ width: `${wpct}%` }}
+                      transition={{ type: "spring", stiffness: 80, damping: 18 }}
+                    />
+                  </div>
                 </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-      <div className="flex flex-col items-center gap-3 shrink-0">
-        <QR url={url} size={220} />
-        <div className="text-center">
-          <div className="mcb-mono text-[11px] tracking-[0.3em] text-zinc-400 uppercase mb-1">
-            Telefonunla tara
+              );
+            })}
           </div>
-          <div className="mcb-mono text-xs text-emerald-400/90 break-all max-w-[220px]">
-            /poll/{slug}
+          <div className="mt-8 mcb-mono mcb-meta text-zinc-500 tracking-widest">
+            geç kaldıysan: <span className="text-emerald-400">/poll/{slug}</span>
           </div>
-        </div>
-      </div>
+        </>
+      ) : (
+        <>
+          <div className="h-16 w-3/4 bg-zinc-900/80 rounded-md mb-9 animate-pulse" />
+          <div className="space-y-5">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="space-y-2">
+                <div
+                  className="h-7 bg-zinc-900/60 rounded animate-pulse"
+                  style={{ width: `${60 + ((i * 13) % 30)}%` }}
+                />
+                <div className="h-5 bg-zinc-900/80 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -508,10 +508,10 @@ function PasswordCracker({
     setFlashKey((k) => k + 1);
   };
 
-  const testUrl = `${origin}/mcbukaf/sifre-test`;
+  void origin;
 
   return (
-    <div className="relative grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-start w-full max-w-[1600px] mx-auto text-left">
+    <div className="relative w-full max-w-[1500px] mx-auto text-left">
       <AnimatePresence>
         {reveal && (
           <motion.div
@@ -526,13 +526,12 @@ function PasswordCracker({
           />
         )}
       </AnimatePresence>
-      <div className="min-w-0">
-        <div className="mcb-mono mcb-tag text-emerald-400/85 mb-4">
-          ŞİFRE KIRMA SİMÜLATÖRÜ · CANLI
-        </div>
-        <h2 className="mcb-h2 font-bold mb-8 text-white">
-          Şifreni yaz, gerçeği gör.
-        </h2>
+      <div className="mcb-mono mcb-tag text-emerald-400/85 mb-4">
+        ŞİFRE KIRMA SİMÜLATÖRÜ · CANLI
+      </div>
+      <h2 className="mcb-h2 font-bold mb-8 text-white">
+        Şifreni yaz, gerçeği gör.
+      </h2>
 
         <div className="relative">
           <input
@@ -716,22 +715,10 @@ function PasswordCracker({
           )}
         </AnimatePresence>
 
-        <p className="mt-5 mcb-mono mcb-meta text-zinc-600">
-          Not: Hiçbir yere gönderilmez — tamamen tarayıcında çalışır.
-        </p>
-      </div>
-
-      <div className="flex flex-col items-center gap-4 shrink-0">
-        <div className="mcb-mono mcb-tag text-emerald-400/85 text-center">
-          KENDİ ŞİFRENİ TELEFONDA TEST ET
-        </div>
-        <QR url={testUrl} size={260} />
-        <div className="text-center">
-          <div className="mcb-mono mcb-meta text-emerald-400/90 break-all max-w-[260px]">
-            /mcbukaf/sifre-test
-          </div>
-        </div>
-      </div>
+      <p className="mt-5 mcb-mono mcb-meta text-zinc-500">
+        Not: Hiçbir yere gönderilmez — tarayıcında çalışır. Geç kaldıysan:{" "}
+        <span className="text-emerald-400">/mcbukaf/sifre-test</span>
+      </p>
     </div>
   );
 }
@@ -1100,7 +1087,6 @@ function QRBaitSlide({
   brandColor,
   headline,
   subheadline,
-  ctaTone,
 }: {
   origin: string;
   path: string;
@@ -1108,51 +1094,131 @@ function QRBaitSlide({
   brandColor: string;
   headline: string;
   subheadline: string;
-  ctaTone: "warm" | "alert" | "neutral";
+  ctaTone?: "warm" | "alert" | "neutral";
 }) {
   const url = `${origin}${path}`;
-  const ctaBg =
-    ctaTone === "warm"
-      ? "from-orange-400 to-rose-500"
-      : ctaTone === "alert"
-        ? "from-rose-500 to-rose-700"
-        : "from-emerald-400 to-cyan-500";
   return (
     <FullCenter>
-      <div className="w-full max-w-[1500px] grid lg:grid-cols-[1fr_auto] gap-12 items-center">
-        <div className="min-w-0">
-          <div className="mcb-mono mcb-tag mb-4" style={{ color: brandColor }}>
-            <span className="inline-flex items-center gap-2">
-              <span
-                className="w-2.5 h-2.5 rounded-full"
-                style={{
-                  background: brandColor,
-                  animation: "mcb-blink 1.2s infinite",
-                  boxShadow: `0 0 14px ${brandColor}99`,
-                }}
-              />
-              {brandTag}
-            </span>
-          </div>
-          <h2 className="mcb-h1 font-black text-white max-w-[16ch] leading-[1.05] mb-6">
-            {headline}
-          </h2>
-          <p className="mcb-lead text-zinc-200 max-w-[22ch] mb-8">
-            {subheadline}
-          </p>
-          <div
-            className={`inline-flex items-center gap-2 rounded-2xl px-7 py-4 mcb-h3 font-bold text-white bg-gradient-to-r ${ctaBg}`}
-            style={{ boxShadow: `0 0 40px ${brandColor}44` }}
-          >
-            <span>Telefonla tara →</span>
-          </div>
-        </div>
-        <div className="flex flex-col items-center gap-3">
-          <QR url={url} size={420} />
-          <div className="mcb-mono mcb-meta text-zinc-400 tracking-widest break-all max-w-[420px] text-center">
-            {url.replace(/^https?:\/\//, "")}
-          </div>
-        </div>
+      <div className="flex flex-col items-center text-center max-w-[1100px]">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mcb-mono mcb-tag mb-5"
+          style={{ color: brandColor }}
+        >
+          <span className="inline-flex items-center gap-2.5">
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{
+                background: brandColor,
+                animation: "mcb-blink 1.2s infinite",
+                boxShadow: `0 0 16px ${brandColor}99`,
+              }}
+            />
+            {brandTag}
+          </span>
+        </motion.div>
+        <motion.h2
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="mcb-h1 font-black text-white max-w-[16ch] leading-[1.05] mb-3"
+        >
+          {headline}
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mcb-lead text-zinc-200 max-w-[36ch] mb-8"
+        >
+          {subheadline}
+        </motion.p>
+        <motion.div
+          initial={{ scale: 0.92, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.45, type: "spring", stiffness: 140 }}
+        >
+          <QR url={url} size={620} />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="mt-6 mcb-mono mcb-meta tracking-widest text-zinc-400 break-all max-w-[80vw]"
+        >
+          {url.replace(/^https?:\/\//, "")}
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.85 }}
+          className="mt-3 mcb-mono mcb-tag"
+          style={{ color: brandColor }}
+        >
+          Telefonla tara →
+        </motion.div>
+      </div>
+    </FullCenter>
+  );
+}
+
+function PollQRBait({
+  origin,
+  slug,
+  question,
+  accent,
+}: {
+  origin: string;
+  slug: string;
+  question: string;
+  accent: string;
+}) {
+  const url = `${origin}/poll/${slug}`;
+  return (
+    <FullCenter>
+      <div className="flex flex-col items-center text-center max-w-[1100px]">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mcb-mono mcb-tag mb-5"
+          style={{ color: accent }}
+        >
+          <span className="inline-flex items-center gap-2.5">
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{
+                background: accent,
+                animation: "mcb-blink 1.2s infinite",
+                boxShadow: `0 0 14px ${accent}99`,
+              }}
+            />
+            CANLI ANKET · TARA + CEVAPLA
+          </span>
+        </motion.div>
+        <motion.h2
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="mcb-h2 font-bold text-white max-w-[26ch] leading-[1.1] mb-8"
+        >
+          {question}
+        </motion.h2>
+        <motion.div
+          initial={{ scale: 0.92, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.35, type: "spring", stiffness: 140 }}
+        >
+          <QR url={url} size={640} />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-6 mcb-mono mcb-meta tracking-widest text-zinc-400 break-all max-w-[80vw]"
+        >
+          /poll/{slug}
+        </motion.div>
       </div>
     </FullCenter>
   );
@@ -3240,6 +3306,18 @@ const SLIDES: Slide[] = [
     render: () => <OsintSlide />,
   },
   {
+    id: "poll-2-bait",
+    section: "BÖLÜM 03 · İNSAN HACK'İ",
+    render: ({ origin }) => (
+      <PollQRBait
+        origin={origin}
+        slug="mcb-2-sms-trap"
+        question='"Kargonuz teslim edilemedi: ptt-tr.co/xyz" — ne yaparsın?'
+        accent="#fbbf24"
+      />
+    ),
+  },
+  {
     id: "poll-2",
     section: "BÖLÜM 03 · İNSAN HACK'İ",
     render: ({ origin, isActive }) => (
@@ -3284,6 +3362,20 @@ const SLIDES: Slide[] = [
     render: ({ isActive }) => <PasswordStats isActive={isActive} />,
   },
   {
+    id: "password-cracker-bait",
+    section: "BÖLÜM 04 · ŞİFRELER",
+    render: ({ origin }) => (
+      <QRBaitSlide
+        origin={origin}
+        path="/mcbukaf/sifre-test"
+        brandTag="ŞİFRE TEST · CANLI"
+        brandColor="#fbbf24"
+        headline="Şifreni telefonda test et."
+        subheadline="Entropi, kırma süresi, sızıntı kontrolü — hepsi tarayıcında."
+      />
+    ),
+  },
+  {
     id: "password-cracker",
     section: "BÖLÜM 04 · ŞİFRELER",
     render: ({ isActive, origin }) => (
@@ -3301,6 +3393,18 @@ const SLIDES: Slide[] = [
     id: "twofa",
     section: "BÖLÜM 04 · ŞİFRELER",
     render: () => <TwoFAExplainer />,
+  },
+  {
+    id: "poll-3-bait",
+    section: "BÖLÜM 04 · ŞİFRELER",
+    render: ({ origin }) => (
+      <PollQRBait
+        origin={origin}
+        slug="mcb-3-2fa"
+        question="Hangi 2FA yöntemini kullanıyorsun?"
+        accent="#22d3ee"
+      />
+    ),
   },
   {
     id: "poll-3",
@@ -3403,6 +3507,18 @@ const SLIDES: Slide[] = [
     id: "ai-2026",
     section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
     render: () => <AIAttacks2026 />,
+  },
+  {
+    id: "poll-4-bait",
+    section: "BÖLÜM 05 · 2026 TEHDİTLERİ",
+    render: ({ origin }) => (
+      <PollQRBait
+        origin={origin}
+        slug="mcb-4-quiz"
+        question="Hangisi en yüksek olasılıkla oltalama (phishing)?"
+        accent="#f43f5e"
+      />
+    ),
   },
   {
     id: "poll-4",
