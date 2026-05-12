@@ -1325,7 +1325,7 @@ function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);
   }, []);
-  const targetUrl = origin ? `${origin}/mcbukaf/qr-tuzak` : "";
+  const targetUrl = origin ? `${origin}/mcbukaf/anket` : "";
   const qrDataUrl = useQrDataUrl(targetUrl, 720);
   const { total, lastAt } = useQrTrapPoll(ctx.isActive);
 
@@ -1337,18 +1337,18 @@ function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
           <Check strokeWidth={3} className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </span>
         <span className="mcb-mono text-emerald-400 font-bold text-sm sm:text-base tracking-wide">
-          Etkinlik Anketi
+          MCBÜKAF &apos;26 · Anket
         </span>
       </motion.div>
 
       <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="mcb-h2 font-black text-center mb-1.5"
         style={{ color: "#00ff88", textShadow: "0 0 22px rgba(0,255,136,0.45)" }}>
-        Bu sunum nasıl gidiyor?
+        Değerlendirme ve Hediye Çekilişi
       </motion.h2>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
         className="mcb-lead text-gray-300 text-center mb-4 sm:mb-5 max-w-3xl px-2">
-        QR&apos;ı tarat · 30 saniyelik kısa anketi doldur
+        QR&apos;ı tarat · kısa anketi doldur · sürpriz hediye çekilişine katıl
       </motion.p>
 
       <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
@@ -1361,7 +1361,7 @@ function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
           padding: "clamp(0.5rem, 1.5vmin, 1rem)",
         }}>
         {qrDataUrl ? (
-          <img src={qrDataUrl} alt="QR · /mcbukaf/qr-tuzak" className="w-full h-full object-contain" />
+          <img src={qrDataUrl} alt="QR · MCBÜKAF anket" className="w-full h-full object-contain" />
         ) : (
           <div className="w-full h-full bg-zinc-200 animate-pulse" />
         )}
@@ -1370,7 +1370,7 @@ function QrBaitSlide({ ctx }: { ctx: SlideCtx }) {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
         className="mt-4 flex flex-col items-center gap-1.5">
         <p className="mcb-mono text-emerald-400/70 text-xs sm:text-sm tracking-widest break-all px-2 text-center">
-          {origin ? `${origin.replace(/^https?:\/\//, "")}/mcbukaf/qr-tuzak` : "—"}
+          {origin ? `${origin.replace(/^https?:\/\//, "")}/mcbukaf/anket` : "—"}
         </p>
         <div className="flex items-center gap-2">
           <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.4 }}
@@ -1754,6 +1754,34 @@ function JournalRecognitionSlide({ ctx }: { ctx: SlideCtx }) {
           ]}
         />
       </div>
+
+      <AnimatePresence>
+        {showVerdict && (
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-4 sm:mt-5 w-full max-w-5xl rounded-xl px-4 sm:px-5 py-3 sm:py-4"
+            style={{
+              background: "linear-gradient(135deg, rgba(0,255,136,0.08), rgba(168,85,247,0.06))",
+              border: "1px solid rgba(0,255,136,0.25)",
+              boxShadow: "inset 0 0 24px rgba(0,255,136,0.06)",
+            }}
+          >
+            <p className="mcb-body text-gray-200 leading-snug">
+              <strong className="text-emerald-300">Gerçek dergi:</strong>{" "}
+              <strong className="text-white">tanınır yayıncı</strong> (IEEE / Springer / Elsevier),
+              <strong className="text-white"> tanınır indeks</strong> (Web of Science, Scopus),
+              <strong className="text-white"> aylar süren çift-kör hakem</strong>,
+              <strong className="text-white"> şeffaf ücret politikası</strong>.
+              <br />
+              <strong className="text-purple-300">Predatory:</strong>{" "}
+              uydurma indeks adı (RIIF, IIIF), <strong className="text-white">saatler içinde &ldquo;kabul&rdquo;</strong>,
+              <strong className="text-white"> peşin yayın ücreti</strong>, yayıncı adı internette geçmiyor.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -2524,28 +2552,28 @@ function AcademicEmailSim({ ctx, config }: { ctx: SlideCtx; config: AcademicEmai
         <h2 className="mcb-h3 font-bold text-center">{config.title}</h2>
       </motion.div>
 
-      <div className="flex-1 min-h-0 w-full max-w-2xl flex items-center justify-center">
+      <div className="flex-1 min-h-0 w-full max-w-3xl flex items-center justify-center">
         <AnimatePresence mode="wait">
           {phase === "inbox" && (
             <motion.div key="inbox"
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}
               className="w-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-zinc-200">
-              <div className="bg-zinc-50 border-b border-zinc-200 px-4 py-3 flex items-center gap-3">
-                <Inbox className="w-5 h-5 text-zinc-500" strokeWidth={2} />
-                <span className="text-zinc-700 font-medium text-sm">Gelen Kutusu</span>
-                <span className="ml-auto inline-flex items-center justify-center text-[10px] font-bold w-5 h-5 rounded-full bg-rose-500 text-white">1</span>
+              <div className="bg-zinc-50 border-b border-zinc-200 px-5 py-3.5 flex items-center gap-3">
+                <Inbox className="w-6 h-6 text-zinc-500" strokeWidth={2} />
+                <span className="text-zinc-700 font-medium text-base">Gelen Kutusu</span>
+                <span className="ml-auto inline-flex items-center justify-center text-xs font-bold w-6 h-6 rounded-full bg-rose-500 text-white">1</span>
               </div>
               <motion.div
                 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, type: "spring", stiffness: 120, damping: 14 }}
-                className="px-4 py-3 border-b border-zinc-100 bg-blue-50/40">
-                <div className="flex items-center gap-2 mb-1">
+                className="px-5 py-4 border-b border-zinc-100 bg-blue-50/40">
+                <div className="flex items-center gap-2 mb-1.5">
                   <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="mcb-mono text-[11px] text-zinc-500 truncate">{config.from}</span>
-                  <span className="mcb-mono text-[10px] text-zinc-400 ml-auto">şimdi</span>
+                  <span className="mcb-mono text-xs sm:text-sm text-zinc-500 truncate">{config.from}</span>
+                  <span className="mcb-mono text-xs text-zinc-400 ml-auto">şimdi</span>
                 </div>
-                <p className="text-sm font-bold text-zinc-900 truncate">{config.subject}</p>
-                <p className="text-xs text-zinc-500 truncate mt-0.5">{config.preview}</p>
+                <p className="text-base sm:text-lg font-bold text-zinc-900 truncate mb-1">{config.subject}</p>
+                <p className="text-sm text-zinc-500 truncate">{config.preview}</p>
               </motion.div>
             </motion.div>
           )}
@@ -2554,25 +2582,25 @@ function AcademicEmailSim({ ctx, config }: { ctx: SlideCtx; config: AcademicEmai
             <motion.div key="open"
               initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
               className="w-full rounded-2xl bg-white shadow-2xl overflow-hidden border border-zinc-200">
-              <div className="bg-zinc-50 border-b border-zinc-200 px-4 py-2.5 flex items-center gap-2">
-                <ChevronRight className="w-4 h-4 text-zinc-500 rotate-180" />
-                <span className="text-zinc-600 text-xs">Gelen Kutusu</span>
+              <div className="bg-zinc-50 border-b border-zinc-200 px-5 py-3 flex items-center gap-2">
+                <ChevronRight className="w-5 h-5 text-zinc-500 rotate-180" />
+                <span className="text-zinc-600 text-sm">Gelen Kutusu</span>
               </div>
-              <div className="px-4 sm:px-5 pt-3 pb-2 border-b border-zinc-100">
-                <p className="text-base sm:text-lg font-bold text-zinc-900 leading-snug mb-1.5">
+              <div className="px-5 sm:px-7 pt-4 pb-3 border-b border-zinc-100">
+                <p className="text-lg sm:text-xl font-bold text-zinc-900 leading-snug mb-2">
                   {config.subject}
                 </p>
-                <div className="flex items-center gap-2 text-[11px] text-zinc-500">
-                  <Mail className="w-3.5 h-3.5" strokeWidth={2} />
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-500">
+                  <Mail className="w-4 h-4" strokeWidth={2} />
                   <span className="mcb-mono">{config.from}</span>
                 </div>
               </div>
-              <div className="px-4 sm:px-5 py-3 sm:py-4 space-y-2 text-sm text-zinc-800 min-h-[14rem] sm:min-h-[16rem]">
+              <div className="px-5 sm:px-7 py-4 sm:py-5 space-y-2.5 text-base text-zinc-800 min-h-[18rem] sm:min-h-[22rem]">
                 {config.body.slice(0, lines).map((line, i) => (
                   <motion.p key={i}
                     initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className={`leading-snug ${config.highlight(line) ? "font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-md border border-rose-200" : ""}`}>
+                    className={`leading-snug ${config.highlight(line) ? "font-bold text-rose-600 bg-rose-50 px-3 py-2 rounded-md border border-rose-200" : ""}`}>
                     {line}
                   </motion.p>
                 ))}
@@ -2582,10 +2610,10 @@ function AcademicEmailSim({ ctx, config }: { ctx: SlideCtx; config: AcademicEmai
                     transition={{ delay: 0.2 }}
                     className="pt-2">
                     <motion.div
-                      animate={{ boxShadow: ["0 0 0 0 rgba(34,197,94,0.5)", "0 0 0 10px rgba(34,197,94,0)"] }}
+                      animate={{ boxShadow: ["0 0 0 0 rgba(34,197,94,0.5)", "0 0 0 12px rgba(34,197,94,0)"] }}
                       transition={{ repeat: Infinity, duration: 1.4 }}
                       className="inline-block rounded-md">
-                      <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-5 py-2.5 rounded-md shadow">
+                      <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base px-6 py-3 rounded-md shadow">
                         {config.payLabel}
                       </button>
                     </motion.div>
