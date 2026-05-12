@@ -1375,22 +1375,84 @@ function WhatsAppScamSim({ ctx }: { ctx: SlideCtx }) {
 }
 
 /* ================================================================
-   PREDATORY JOURNAL SIM — akademik dolandırıcılık animasyonu
+   ACADEMIC EMAIL SIM — animasyonlu akademik phishing
    ================================================================ */
-const PJ_BODY = [
-  "Dear Esteemed Researcher,",
-  "Manuscript ID: IJAR-2026-44293 — ACCEPTED.",
-  "Peer review completed in 18 hours · Impact Factor (RIIF): 8.4*",
-  "Article Processing Charge: $349 USD",
-  "Click below to complete payment and proceed to publication.",
-];
+type AcademicEmailConfig = {
+  title: string;
+  from: string;
+  subject: string;
+  preview: string;
+  body: string[];
+  highlight: (line: string) => boolean;
+  payLabel: string;
+  accent: string;
+  accentRgb: string;
+  accentText: string;
+  hackHeadline: string;
+  hackPoints: { lead: string; rest: string }[];
+  hackFooter: string;
+};
 
-function PredatoryJournalSim({ ctx }: { ctx: SlideCtx }) {
+const PJ_CONFIG: AcademicEmailConfig = {
+  title: "Akademik Phishing · Predatory Dergi",
+  from: "editor@ijar-publishing.net",
+  subject: "[ACCEPTED] Your Manuscript IJAR-2026-44293",
+  preview: "We are pleased to inform you that your paper has been accepted…",
+  body: [
+    "Dear Esteemed Researcher,",
+    "Manuscript ID: IJAR-2026-44293 — ACCEPTED.",
+    "Peer review completed in 18 hours · Impact Factor (RIIF): 8.4*",
+    "Article Processing Charge: $349 USD",
+    "Click below to complete payment and proceed to publication.",
+  ],
+  highlight: (line) => line.startsWith("Article Processing"),
+  payLabel: "Pay $349 & Publish →",
+  accent: "#a855f7",
+  accentRgb: "168,85,247",
+  accentText: "text-purple-300",
+  hackHeadline: "Predatory Dergi",
+  hackPoints: [
+    { lead: "18 saatte hakem onayı", rest: " diye bir şey yok. Bu süre hakem değil, kredi kartı bekleme süresi." },
+    { lead: "RIIF / GIF / IIIF", rest: " uydurma 'impact factor'lar — Web of Science / Scopus değil." },
+    { lead: "Ödeme yapan", rest: " akademik özgeçmişe sayılmaz, alan dışı atıf almaz, ÜAK reddeder." },
+  ],
+  hackFooter: "Kontrol et: DOAJ · Beall's List · ULAKBİM TR-Dizin",
+};
+
+const CONF_CONFIG: AcademicEmailConfig = {
+  title: "Akademik Phishing · Sahte Konferans Davetiyesi",
+  from: "secretariat@icas-bangkok-2026.com",
+  subject: "[KEYNOTE INVITATION] ICAS-2026 Bangkok · You are selected",
+  preview: "We are honored to invite you as a keynote speaker for ICAS-2026…",
+  body: [
+    "Dear Distinguished Professor,",
+    "We are honored to invite you as KEYNOTE SPEAKER at the 16th International Conference on Advanced Studies (ICAS-2026), Bangkok.",
+    "Selected from 12,000 researchers based on your outstanding contributions.",
+    "Registration Fee: $695 USD · Accommodation included for keynote speakers.",
+    "Confirm participation within 48 hours.",
+  ],
+  highlight: (line) => line.startsWith("Registration Fee"),
+  payLabel: "Confirm Keynote · $695 →",
+  accent: "#ec4899",
+  accentRgb: "236,72,153",
+  accentText: "text-pink-300",
+  hackHeadline: "Vampir Konferans",
+  hackPoints: [
+    { lead: "Gerçek konferanslar", rest: " 'random keynote' daveti yollamaz — seçim süreci hakem ve komite ile yürür." },
+    { lead: "'12.000 araştırmacı arasından seçildiniz'", rest: " — uydurma; e-posta listesini satın alıp herkese aynı şablonu atıyorlar." },
+    { lead: "Bangkok / Dubai / Roma", rest: " odalı konferansların çoğu paid-talk fabrikası, ÜAK akademik teşvike saymaz." },
+  ],
+  hackFooter: "Kontrol et: think.checksubmit.org · WikiCFP · resmi dernek sayfası",
+};
+
+function AcademicEmailSim({ ctx, config }: { ctx: SlideCtx; config: AcademicEmailConfig }) {
   const [phase, setPhase] = useState<"inbox" | "open" | "hack">("inbox");
   const [lines, setLines] = useState(0);
 
   useEffect(() => {
     if (!ctx.isActive) { setPhase("inbox"); setLines(0); return; }
+    setPhase("inbox");
+    setLines(0);
   }, [ctx.isActive]);
 
   useEffect(() => {
@@ -1399,22 +1461,22 @@ function PredatoryJournalSim({ ctx }: { ctx: SlideCtx }) {
       const t = setTimeout(() => setPhase("open"), 1600);
       return () => clearTimeout(t);
     }
-    if (phase === "open" && lines < PJ_BODY.length) {
+    if (phase === "open" && lines < config.body.length) {
       const t = setTimeout(() => setLines((p) => p + 1), 1100);
       return () => clearTimeout(t);
     }
-    if (phase === "open" && lines >= PJ_BODY.length) {
+    if (phase === "open" && lines >= config.body.length) {
       const t = setTimeout(() => setPhase("hack"), 2200);
       return () => clearTimeout(t);
     }
-  }, [phase, lines, ctx.isActive]);
+  }, [phase, lines, ctx.isActive, config.body.length]);
 
   return (
     <div className="flex flex-col h-full px-3 sm:px-8 pt-1 pb-2 items-center min-h-0">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-2 sm:gap-3 mt-1 mb-2">
-        <IconBadge icon={GraduationCap} color="#a855f7" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
-        <h2 className="mcb-h3 font-bold text-center">Akademik Phishing · Predatory Dergi</h2>
+        <IconBadge icon={GraduationCap} color={config.accent} size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
+        <h2 className="mcb-h3 font-bold text-center">{config.title}</h2>
       </motion.div>
 
       <div className="flex-1 min-h-0 w-full max-w-2xl flex items-center justify-center">
@@ -1434,11 +1496,11 @@ function PredatoryJournalSim({ ctx }: { ctx: SlideCtx }) {
                 className="px-4 py-3 border-b border-zinc-100 bg-blue-50/40">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="mcb-mono text-[11px] text-zinc-500 truncate">editor@ijar-publishing.net</span>
+                  <span className="mcb-mono text-[11px] text-zinc-500 truncate">{config.from}</span>
                   <span className="mcb-mono text-[10px] text-zinc-400 ml-auto">şimdi</span>
                 </div>
-                <p className="text-sm font-bold text-zinc-900 truncate">[ACCEPTED] Your Manuscript IJAR-2026-44293</p>
-                <p className="text-xs text-zinc-500 truncate mt-0.5">We are pleased to inform you that your paper has been accepted…</p>
+                <p className="text-sm font-bold text-zinc-900 truncate">{config.subject}</p>
+                <p className="text-xs text-zinc-500 truncate mt-0.5">{config.preview}</p>
               </motion.div>
             </motion.div>
           )}
@@ -1453,26 +1515,23 @@ function PredatoryJournalSim({ ctx }: { ctx: SlideCtx }) {
               </div>
               <div className="px-4 sm:px-5 pt-3 pb-2 border-b border-zinc-100">
                 <p className="text-base sm:text-lg font-bold text-zinc-900 leading-snug mb-1.5">
-                  [ACCEPTED] Your Manuscript IJAR-2026-44293
+                  {config.subject}
                 </p>
                 <div className="flex items-center gap-2 text-[11px] text-zinc-500">
                   <Mail className="w-3.5 h-3.5" strokeWidth={2} />
-                  <span className="mcb-mono">editor@ijar-publishing.net</span>
+                  <span className="mcb-mono">{config.from}</span>
                 </div>
               </div>
               <div className="px-4 sm:px-5 py-3 sm:py-4 space-y-2 text-sm text-zinc-800 min-h-[14rem] sm:min-h-[16rem]">
-                {PJ_BODY.slice(0, lines).map((line, i) => {
-                  const isCharge = line.startsWith("Article Processing");
-                  return (
-                    <motion.p key={i}
-                      initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className={`leading-snug ${isCharge ? "font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-md border border-rose-200" : ""}`}>
-                      {line}
-                    </motion.p>
-                  );
-                })}
-                {lines >= PJ_BODY.length && (
+                {config.body.slice(0, lines).map((line, i) => (
+                  <motion.p key={i}
+                    initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`leading-snug ${config.highlight(line) ? "font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-md border border-rose-200" : ""}`}>
+                    {line}
+                  </motion.p>
+                ))}
+                {lines >= config.body.length && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
@@ -1482,7 +1541,7 @@ function PredatoryJournalSim({ ctx }: { ctx: SlideCtx }) {
                       transition={{ repeat: Infinity, duration: 1.4 }}
                       className="inline-block rounded-md">
                       <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-5 py-2.5 rounded-md shadow">
-                        Pay $349 &amp; Publish →
+                        {config.payLabel}
                       </button>
                     </motion.div>
                   </motion.div>
@@ -1497,37 +1556,33 @@ function PredatoryJournalSim({ ctx }: { ctx: SlideCtx }) {
               transition={{ type: "spring", stiffness: 130, damping: 14 }}
               className="w-full rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden"
               style={{
-                background: "linear-gradient(135deg, rgba(168,85,247,0.14), rgba(168,85,247,0.04))",
-                border: "1px solid rgba(168,85,247,0.4)",
-                boxShadow: "0 0 40px rgba(168,85,247,0.25), inset 0 0 30px rgba(168,85,247,0.06)",
+                background: `linear-gradient(135deg, rgba(${config.accentRgb},0.14), rgba(${config.accentRgb},0.04))`,
+                border: `1px solid rgba(${config.accentRgb},0.4)`,
+                boxShadow: `0 0 40px rgba(${config.accentRgb},0.25), inset 0 0 30px rgba(${config.accentRgb},0.06)`,
               }}>
               <motion.div className="absolute inset-0 mcb-stripes opacity-25"
                 animate={{ opacity: [0.15, 0.3, 0.15] }} transition={{ repeat: Infinity, duration: 2.4 }} />
 
               <motion.div className="relative z-10 inline-flex mb-3"
                 animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 0.9 }}>
-                <IconBadge icon={AlertOctagon} color="#a855f7" size="clamp(2.75rem, 6vmin, 4rem)" strokeWidth={1.6} />
+                <IconBadge icon={AlertOctagon} color={config.accent} size="clamp(2.75rem, 6vmin, 4rem)" strokeWidth={1.6} />
               </motion.div>
 
               <p className="relative z-10 mcb-h3 font-black mb-3"
-                style={{ color: "#c084fc", textShadow: "0 0 22px rgba(168,85,247,0.55)" }}>
-                Predatory Dergi
+                style={{ color: config.accent, textShadow: `0 0 22px rgba(${config.accentRgb},0.55)` }}>
+                {config.hackHeadline}
               </p>
 
               <div className="relative z-10 max-w-xl mx-auto space-y-2.5 text-left">
-                <p className="mcb-body text-gray-200 leading-snug">
-                  <strong className="text-purple-300">18 saatte hakem onayı</strong> diye bir şey yok. Bu süre hakem değil, kredi kartı bekleme süresi.
-                </p>
-                <p className="mcb-body text-gray-200 leading-snug">
-                  <strong className="text-purple-300">RIIF / GIF / IIIF</strong> &quot;impact factor&quot; uydurmaları — gerçek Web of Science / Scopus indeksi değil.
-                </p>
-                <p className="mcb-body text-gray-200 leading-snug">
-                  Ödeme yapan akademisyenin makalesi <strong className="text-purple-300">akademik özgeçmişe sayılmaz</strong>, alan dışı atıf almaz, ÜAK reddeder.
-                </p>
+                {config.hackPoints.map((p, i) => (
+                  <p key={i} className="mcb-body text-gray-200 leading-snug">
+                    <strong className={config.accentText}>{p.lead}</strong>{p.rest}
+                  </p>
+                ))}
               </div>
 
-              <p className="relative z-10 mcb-mono text-purple-300/85 text-xs sm:text-sm tracking-widest mt-5 uppercase">
-                Kontrol et: DOAJ · Beall's List · ULAKBİM TR-Dizin
+              <p className={`relative z-10 mcb-mono ${config.accentText}/85 text-xs sm:text-sm tracking-widest mt-5 uppercase`}>
+                {config.hackFooter}
               </p>
             </motion.div>
           )}
@@ -1636,9 +1691,9 @@ const SECTIONS = [
   { name: "Oltalama", start: 2 },
   { name: "Şifreler", start: 5 },
   { name: "Sosyal Müh.", start: 10 },
-  { name: "2026 Tehditleri", start: 15 },
-  { name: "Korunma", start: 19 },
-  { name: "Kapanış", start: 22 },
+  { name: "2026 Tehditleri", start: 16 },
+  { name: "Korunma", start: 20 },
+  { name: "Kapanış", start: 23 },
 ];
 
 /* ================================================================
@@ -1825,7 +1880,6 @@ const slides: Slide[] = [
 
   { id: "sifre-reveal-lesson", content: <BigTextSlide
     text="Şifrenizi tanımadığınız bir sayfaya verdiniz."
-    subtext="Bu sefer biz sadece parmak izini aldık. Sahte phishing sayfası şifrenin kendisini de alır."
     color="#f43f5e" /> },
 
   { id: "passphrase-2fa", content: <TwoColumnSlide
@@ -1868,11 +1922,12 @@ const slides: Slide[] = [
 
   { id: "whatsapp-scam", content: (ctx) => <WhatsAppScamSim ctx={ctx} /> },
 
-  { id: "predatory-journal", content: (ctx) => <PredatoryJournalSim ctx={ctx} /> },
+  { id: "predatory-journal", content: (ctx) => <AcademicEmailSim ctx={ctx} config={PJ_CONFIG} /> },
+
+  { id: "fake-conference", content: (ctx) => <AcademicEmailSim ctx={ctx} config={CONF_CONFIG} /> },
 
   { id: "golden-rule", content: <BigTextSlide
     text="Devlet asla telefonda para, altın veya şifre istemez."
-    subtext="Bu cümleyi bir yere yazın. Ailenize öğretin. Hayat kurtarır."
     color="#f43f5e" /> },
 
   { id: "deepfake", section: "2026 Tehditleri", content: <DeepfakeSlide /> },
@@ -1900,7 +1955,6 @@ const slides: Slide[] = [
 
   { id: "three-second-rule", content: <BigTextSlide
     text="3 saniye dur. Bir kez daha bak. Sonra tıkla."
-    subtext="Bu üç saniye, son altı ayın en pahalı dersini önlemenize yeter."
     color="#00ff88" /> },
 
   /* ── KAPANIŞ ── */
