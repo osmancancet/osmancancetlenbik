@@ -13,12 +13,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "qrcode";
 import {
   AlertOctagon,
+  Bitcoin,
   BookOpen,
+  Bot,
   Brain,
+  Briefcase,
   Check,
   CheckCircle2,
   ChevronRight,
+  CircleQuestionMark,
   Clock,
+  Coins,
+  Compass,
+  Cpu,
   Crown,
   Drama,
   Fish,
@@ -28,18 +35,22 @@ import {
   Handshake,
   Inbox,
   KeyRound,
+  LifeBuoy,
   Lock,
   Mail,
   MessageSquare,
+  MousePointerClick,
   Phone,
   QrCode,
-  Target,
   RefreshCw,
   Shield,
   ShieldAlert,
   Skull,
   Smartphone,
   Swords,
+  Target,
+  Usb,
+  Wifi,
   X as XIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -2314,6 +2325,358 @@ function MarkLine({ label, color }: { label: string; color: string }) {
 }
 
 /* ================================================================
+   AI PHISHING COMPARE — eski (bozuk TR) vs yeni (kusursuz TR)
+   ================================================================ */
+function AIPhishingCompareSlide() {
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-center gap-2.5 sm:gap-3 mt-1 mb-1">
+        <IconBadge icon={Bot} color="#a855f7" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.6} />
+        <h2 className="mcb-h3 font-bold text-center">AI ile Oltalama · 2026 Tehdidi</h2>
+      </motion.div>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}
+        className="mcb-meta text-gray-400 text-center mb-4 sm:mb-5">
+        Eskiden bozuk Türkçeden anlardık. Artık o gün geçti.
+      </motion.p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-5 w-full max-w-5xl mx-auto">
+        <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.25, duration: 0.5 }}
+          className="rounded-2xl bg-black/55 border backdrop-blur-sm overflow-hidden"
+          style={{ borderColor: "#fbbf2440", boxShadow: "0 0 20px rgba(251,191,36,0.18)" }}>
+          <div className="px-4 py-2 border-b border-white/8 flex items-center gap-2">
+            <span className="mcb-mono text-amber-300 text-[10px] uppercase tracking-widest font-bold">2020 · Eski yöntem</span>
+          </div>
+          <div className="px-4 py-3 text-sm text-zinc-200 leading-snug space-y-2">
+            <p className="text-amber-200/80">Sevgili müsteri,</p>
+            <p>Yüksek Lisans Bursu için sizi tebrikler. <span className="text-rose-300">5800tl</span> oradayır hesabınıza geçecek.</p>
+            <p>Onaylamanız için lütfeb buraya tıklayınız:</p>
+            <p className="mcb-mono text-rose-300/80 break-all">hxxp://yokburs-onayla.com/giris.php</p>
+            <p className="text-amber-200/60 italic">— iyi günler, YOK</p>
+          </div>
+          <div className="px-4 py-2 border-t border-white/8 mcb-meta text-amber-300/80">
+            ⚠ İmla hatası · sahte URL · imza yok — kolay yakalanır
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="rounded-2xl bg-black/55 border backdrop-blur-sm overflow-hidden"
+          style={{ borderColor: "#f43f5e60", boxShadow: "0 0 22px rgba(244,63,94,0.25)" }}>
+          <div className="px-4 py-2 border-b border-white/8 flex items-center gap-2">
+            <span className="mcb-mono text-rose-300 text-[10px] uppercase tracking-widest font-bold">2026 · AI ile yazılmış</span>
+          </div>
+          <div className="px-4 py-3 text-sm text-zinc-200 leading-snug space-y-2">
+            <p>Sayın Ahmet Yılmaz,</p>
+            <p>Manisa Celal Bayar Üniversitesi 2026/2027 dönemi için tarafınıza Yüksek Lisans Bursu tahsis edilmiştir. Aylık <strong className="text-rose-300">5.800 TL</strong> tutarındaki ödeme, IBAN doğrulamanız sonrasında hesabınıza aktarılacaktır.</p>
+            <p>İşlemi tamamlamak için aşağıdaki bağlantıyı kullanabilirsiniz:</p>
+            <p className="mcb-mono text-emerald-300/85 break-all">https://yok-onay.gov-tr.com/dogrula</p>
+            <p className="text-zinc-400 italic text-xs">Saygılarımla,<br />YÖK Burs Komisyonu</p>
+          </div>
+          <div className="px-4 py-2 border-t border-white/8 mcb-meta text-rose-300/80">
+            ✗ Mükemmel Türkçe · ismin tam · resmi imza · kontrolü zor
+          </div>
+        </motion.div>
+      </div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="mt-4 sm:mt-5 max-w-4xl mx-auto rounded-xl px-4 py-3"
+        style={{
+          background: "linear-gradient(135deg, rgba(168,85,247,0.12), rgba(168,85,247,0.04))",
+          border: "1px solid rgba(168,85,247,0.4)",
+        }}>
+        <p className="mcb-meta text-gray-100 leading-snug text-center">
+          ChatGPT &amp; benzeri araçlar saldırgana <strong className="text-purple-300">5 saniyede kusursuz Türkçe</strong> üretir.
+          Sosyal medyadan toplanan veri ile e-posta <strong className="text-purple-300">sana özel hazırlanır</strong>.
+          Artık yazımına değil, <strong className="text-purple-300">isteğine</strong> bak.
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ================================================================
+   PHISHING QUIZ — "Hangisi phishing?" 4 mail
+   ================================================================ */
+type QuizMail = { from: string; subject: string; verdict: "safe" | "phish"; why: string };
+const QUIZ_MAILS: QuizMail[] = [
+  { from: "no-reply@instagram.com",      subject: "Yeni giriş tespit edildi · Manisa",                       verdict: "safe",  why: "Resmi alan adı + gerçek konum bildirimi" },
+  { from: "destek@garanti-bbva-onay.com", subject: "[ACİL] Hesabınız 24 saat içinde kapanacak",              verdict: "phish", why: "Sahte alan (-onay.com) + aciliyet kalıbı" },
+  { from: "bilgi@yok.gov.tr",             subject: "2026/2027 Bahar Dönemi Akademik Takvim Bildirimi",        verdict: "safe",  why: "Resmi .gov.tr alanı + makul içerik" },
+  { from: "ceo@turknet-finans-acil.com",  subject: "Bugün halletmen gereken transfer · gizli",                verdict: "phish", why: "Sahte alan + acil/gizli + nakit talebi" },
+];
+
+function PhishingQuizSlide({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<"think" | "reveal">("think");
+  useEffect(() => {
+    if (!ctx.isActive) { setPhase("think"); return; }
+    setPhase("think");
+    const t = window.setTimeout(() => setPhase("reveal"), 4200);
+    return () => window.clearTimeout(t);
+  }, [ctx.isActive]);
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-center gap-2.5 sm:gap-3 mt-1 mb-1">
+        <IconBadge icon={CircleQuestionMark} color="#22d3ee" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.6} />
+        <h2 className="mcb-h3 font-bold text-center">Hangisi Phishing? · 4 e-posta</h2>
+      </motion.div>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}
+        className="mcb-meta text-gray-400 text-center mb-4">
+        {phase === "think" ? "4 saniyen var · hangisi sahte?" : "Sahteler kırmızı, gerçekler yeşil."}
+      </motion.p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full max-w-5xl mx-auto">
+        {QUIZ_MAILS.map((m, i) => {
+          const isPhish = m.verdict === "phish";
+          const revealColor = isPhish ? "#f43f5e" : "#00ff88";
+          const borderColor = phase === "reveal" ? `${revealColor}50` : "rgba(255,255,255,0.12)";
+          return (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.08, duration: 0.4 }}
+              className="rounded-lg bg-black/45 border backdrop-blur-sm overflow-hidden relative"
+              style={{
+                borderColor,
+                boxShadow: phase === "reveal" ? `0 0 18px ${revealColor}25` : "none",
+              }}>
+              <div className="px-3 py-2 border-b border-white/8 flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-zinc-400 shrink-0" strokeWidth={2} />
+                <span className="mcb-mono text-[10px] text-zinc-400 truncate">{m.from}</span>
+                <AnimatePresence>
+                  {phase === "reveal" && (
+                    <motion.span
+                      initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 12 }}
+                      className="ml-auto mcb-mono text-[9px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded shrink-0"
+                      style={{
+                        color: revealColor,
+                        background: `${revealColor}18`,
+                        border: `1px solid ${revealColor}60`,
+                      }}>
+                      {isPhish ? "SAHTE" : "GERÇEK"}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+              <div className="px-3 py-2">
+                <p className="text-sm font-bold text-white leading-snug">{m.subject}</p>
+                <AnimatePresence>
+                  {phase === "reveal" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-1.5 mcb-meta text-[10px] sm:text-xs leading-snug"
+                      style={{ color: `${revealColor}cc` }}>
+                      {m.why}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   WIFI TRAP — Evil twin / public wifi tuzak
+   ================================================================ */
+const WIFI_NETWORKS = [
+  { name: "Cafe_Manisa_Free",       evil: true,  signal: 4 },
+  { name: "MCBU_Eduroam",            evil: false, signal: 4 },
+  { name: "Telekom_Wifi",            evil: false, signal: 3 },
+  { name: "Free_Public_Wifi_Cafe",   evil: true,  signal: 3 },
+  { name: "iPhone_Ahmet",            evil: false, signal: 2 },
+];
+
+function WifiTrapSlide({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<"list" | "connected" | "leak">("list");
+  useEffect(() => {
+    if (!ctx.isActive) { setPhase("list"); return; }
+    setPhase("list");
+    const t1 = window.setTimeout(() => setPhase("connected"), 2800);
+    const t2 = window.setTimeout(() => setPhase("leak"), 5600);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+  }, [ctx.isActive]);
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 items-center overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2.5 sm:gap-3 mt-1 mb-2">
+        <IconBadge icon={Wifi} color="#22d3ee" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.8} />
+        <h2 className="mcb-h3 font-bold text-center">Wi-Fi Tuzağı · Evil Twin</h2>
+      </motion.div>
+
+      <div className="flex-1 min-h-0 w-full max-w-md flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {phase === "list" && (
+            <motion.div key="list"
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="w-full rounded-2xl bg-zinc-900/85 border border-white/10 overflow-hidden shadow-2xl">
+              <div className="px-4 py-2.5 border-b border-white/10 bg-zinc-800/60">
+                <span className="text-white text-sm font-medium">Wi-Fi Ağları</span>
+              </div>
+              <div className="divide-y divide-white/5">
+                {WIFI_NETWORKS.map((n, i) => (
+                  <motion.div key={i}
+                    initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.08 }}
+                    className="px-4 py-2.5 flex items-center gap-3">
+                    <Wifi className="w-4 h-4 text-emerald-400" strokeWidth={2} />
+                    <span className="text-zinc-200 text-sm flex-1">{n.name}</span>
+                    <span className="mcb-mono text-zinc-500 text-[10px]">{n.signal}/4</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {phase === "connected" && (
+            <motion.div key="connected"
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              className="w-full rounded-2xl bg-emerald-900/30 border border-emerald-500/40 p-6 text-center"
+              style={{ boxShadow: "0 0 28px rgba(0,255,136,0.25)" }}>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/30 mb-3"
+                style={{ boxShadow: "0 0 30px rgba(0,255,136,0.5)" }}>
+                <Wifi className="w-9 h-9 text-emerald-300" strokeWidth={1.8} />
+              </div>
+              <p className="text-emerald-300 text-base font-bold mb-1">Cafe_Manisa_Free</p>
+              <p className="text-emerald-200/70 text-xs">Bağlı · şifresiz · internet açık</p>
+              <p className="mcb-mono text-emerald-400/60 text-[10px] mt-3">192.168.4.1 · gw: saldırgan-cihazi</p>
+            </motion.div>
+          )}
+
+          {phase === "leak" && (
+            <motion.div key="leak"
+              initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 130, damping: 14 }}
+              className="w-full rounded-2xl p-5 sm:p-6 relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, rgba(244,63,94,0.14), rgba(244,63,94,0.04))",
+                border: "1px solid rgba(244,63,94,0.4)",
+                boxShadow: "0 0 32px rgba(244,63,94,0.22)",
+              }}>
+              <motion.div className="absolute inset-0 mcb-stripes opacity-25"
+                animate={{ opacity: [0.15, 0.3, 0.15] }} transition={{ repeat: Infinity, duration: 2.4 }} />
+              <div className="relative z-10 text-center mb-3">
+                <p className="mcb-h3 font-black mb-1" style={{ color: "#f43f5e" }}>Tüm trafik saldırgana akıyor</p>
+                <p className="mcb-meta text-gray-300">Şifresiz Wi-Fi = saldırgan tüm istekleri görür</p>
+              </div>
+              <div className="relative z-10 bg-black/60 rounded-lg border border-rose-500/30 p-3 font-mono text-[11px] space-y-1">
+                <p className="text-rose-300">[CAPTURE] instagram.com/login · POST</p>
+                <p className="text-amber-300">[CAPTURE] kullanici: ahmet@gmail · ********</p>
+                <p className="text-rose-300">[CAPTURE] garanti.com.tr/giris · POST</p>
+                <p className="text-amber-300">[CAPTURE] TC: 123****456 · şifre: ************</p>
+                <p className="text-rose-300">[CAPTURE] whatsapp.com/qr · session-token</p>
+              </div>
+              <p className="relative z-10 mcb-mono text-rose-300/85 text-[10px] sm:text-xs tracking-widest mt-3 text-center uppercase">
+                koruma: VPN · HTTPS gör · şifresiz Wi-Fi'ya bağlanma
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   DECISION SCENARIO — "Sen ne yaparsın?"
+   ================================================================ */
+function DecisionScenarioSlide({ ctx }: { ctx: SlideCtx }) {
+  const [phase, setPhase] = useState<"think" | "reveal">("think");
+  useEffect(() => {
+    if (!ctx.isActive) { setPhase("think"); return; }
+    setPhase("think");
+    const t = window.setTimeout(() => setPhase("reveal"), 4400);
+    return () => window.clearTimeout(t);
+  }, [ctx.isActive]);
+
+  const options = [
+    { text: "Hemen şifreyi giriyorum, hesabı kaybetmek istemem", correct: false, why: "Aciliyet baskısı kuruluyor — phishing kalıbı" },
+    { text: "Linke tıklamadan Instagram uygulamasından kontrol ederim", correct: true,  why: "Doğru kanal: resmi uygulama · linke tıklamadan giriş" },
+    { text: "Linke tıklarım ama sadece kontrol ederim, şifre girmem", correct: false, why: "Link bile zararlı — tıklama itibarın kapı açar" },
+  ];
+
+  return (
+    <div className="flex flex-col h-full px-4 sm:px-10 md:px-14 pt-1 pb-2 items-center justify-center overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2.5 sm:gap-3 mb-1">
+        <IconBadge icon={Compass} color="#fbbf24" size="clamp(1.75rem, 4vmin, 2.5rem)" strokeWidth={1.6} />
+        <h2 className="mcb-h3 font-bold text-center">Sen Ne Yaparsın?</h2>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="w-full max-w-3xl rounded-xl bg-black/55 border border-amber-400/30 px-5 py-4 mb-4 sm:mb-5"
+        style={{ boxShadow: "0 0 22px rgba(251,191,36,0.15)" }}>
+        <p className="mcb-mono text-amber-300/85 text-[10px] uppercase tracking-widest mb-2">senaryo</p>
+        <p className="mcb-body text-gray-100 leading-snug">
+          Instagram'dan gelen mail: <strong className="text-amber-300">&ldquo;Hesabınızda şüpheli giriş, 1 saat içinde doğrulamazsanız hesap kalıcı silinecek&rdquo;</strong>. Mailin sonunda &ldquo;Hesabımı Doğrula&rdquo; butonu var.
+        </p>
+      </motion.div>
+
+      <div className="w-full max-w-3xl space-y-2 sm:space-y-2.5">
+        {options.map((o, i) => {
+          const showVerdict = phase === "reveal";
+          const color = o.correct ? "#00ff88" : "#f43f5e";
+          return (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + i * 0.1 }}
+              className="rounded-lg backdrop-blur-sm overflow-hidden"
+              style={{
+                background: showVerdict ? `${color}10` : "rgba(0,0,0,0.4)",
+                border: `1px solid ${showVerdict ? `${color}50` : "rgba(255,255,255,0.1)"}`,
+                boxShadow: showVerdict ? `0 0 16px ${color}25` : "none",
+              }}>
+              <div className="flex items-start gap-3 px-4 py-3">
+                <span className="inline-flex w-6 h-6 rounded-full items-center justify-center shrink-0 mt-0.5"
+                  style={{
+                    background: showVerdict ? `${color}20` : "rgba(255,255,255,0.06)",
+                    border: `1px solid ${showVerdict ? color : "rgba(255,255,255,0.15)"}`,
+                  }}>
+                  {showVerdict
+                    ? (o.correct
+                        ? <Check className="w-3.5 h-3.5" style={{ color }} strokeWidth={3} />
+                        : <XIcon className="w-3.5 h-3.5" style={{ color }} strokeWidth={3} />)
+                    : <span className="mcb-mono text-zinc-400 text-xs">{String.fromCharCode(65 + i)}</span>
+                  }
+                </span>
+                <div className="flex-1">
+                  <p className={`mcb-body leading-snug ${showVerdict ? (o.correct ? "text-emerald-100" : "text-rose-100") : "text-gray-200"}`}>
+                    {o.text}
+                  </p>
+                  <AnimatePresence>
+                    {showVerdict && (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        transition={{ duration: 0.3, delay: 0.05 + i * 0.05 }}
+                        className="mcb-meta mt-1.5 leading-snug"
+                        style={{ color: `${color}cc` }}>
+                        {o.why}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
    PHISHING TYPES — oltalama tür kataloğu
    ================================================================ */
 function PhishingTypesSlide() {
@@ -2747,11 +3110,11 @@ function SocialQrCard({ s, i }: { s: typeof SOCIALS[number]; i: number }) {
 const SECTIONS = [
   { name: "Açılış", start: 0 },
   { name: "Oltalama", start: 3 },
-  { name: "Şifreler", start: 7 },
-  { name: "Sosyal Müh.", start: 13 },
-  { name: "2026 Tehditleri", start: 23 },
-  { name: "Korunma", start: 28 },
-  { name: "Kapanış", start: 31 },
+  { name: "Şifreler", start: 9 },
+  { name: "Sosyal Müh.", start: 15 },
+  { name: "2026 Tehditleri", start: 26 },
+  { name: "Korunma", start: 36 },
+  { name: "Kapanış", start: 41 },
 ];
 
 /* ================================================================
@@ -2926,6 +3289,10 @@ const slides: Slide[] = [
       { icon: KeyRound, text: "16 milyar parola dump'ı (Haziran 2025): Türk devlet portalları Apple-Google-Facebook ile yan yana listede. Tek bir tekrar kullanılan parola = her hesabın anahtarı." },
     ]} /> },
 
+  { id: "ai-phishing", content: <AIPhishingCompareSlide /> },
+
+  { id: "phishing-quiz", content: (ctx) => <PhishingQuizSlide ctx={ctx} /> },
+
   { id: "password-stats", section: "Şifreler", content: <StatSlide
     eyebrow="BÖLÜM 02 · ŞİFRELER"
     title="Tek şifre = domino"
@@ -2984,6 +3351,16 @@ const slides: Slide[] = [
       { icon: Handshake, text: "Güven — \"Tanıdığım, akraban, eski sınıf arkadaşın.\"" },
     ]} /> },
 
+  { id: "crypto-scam", content: <StatSlide
+    eyebrow="TÜRKİYE · YATIRIM DOLANDIRICILIĞI"
+    title="Hızlı para vaadi, pahalı ders"
+    stats={[
+      { value: "24 Mr ₺", label: "Thodex vurgunu · 400.000 mağdur · kurucu kaçtı", color: "#fbbf24" },
+      { value: "5 Mr ₺", label: "Çiftlik Bank · 132.000 mağdur · klasik Ponzi", color: "#f97316" },
+      { value: "%430", label: "Deepfake yatırım reklamı artışı · Acun/ünlü taklitleri", color: "#a855f7" },
+      { value: "20M", label: "Yatırım dolandırıcılığı mağduru tahmini (TR)", color: "#ef4444" },
+    ]} /> },
+
   { id: "whatsapp-scam", content: (ctx) => <WhatsAppScamSim ctx={ctx} /> },
 
   { id: "vishing-call", content: (ctx) => <VishingSim ctx={ctx} /> },
@@ -3005,6 +3382,41 @@ const slides: Slide[] = [
   { id: "deepfake", section: "2026 Tehditleri", content: <DeepfakeSlide /> },
 
   { id: "attack-radar", content: (ctx) => <AttackRadarSlide ctx={ctx} /> },
+
+  { id: "wifi-trap", content: (ctx) => <WifiTrapSlide ctx={ctx} /> },
+
+  { id: "sim-swap", content: <BulletSlide
+    icon={Smartphone} title="SIM Swap · Numaranın Çalınması" accent="rose"
+    items={[
+      { icon: ShieldAlert, text: "Saldırgan operatöre sahte kimlikle gider: \"Telefonum çalındı, yeni SIM lazım.\" 5 dakika sonra senin numaran onda." },
+      { icon: KeyRound, text: "SMS ile gelen 2FA kodları artık saldırganın telefonuna düşüyor — banka, e-posta, sosyal medya domino düşer." },
+      { icon: Lock, text: "Koruma: SIM PIN aç (Ayarlar → Hücresel/SIM PIN) · operatör hesabına çağrı şifresi koy · authenticator uygulaması kullan (SMS 2FA değil)." },
+    ]} /> },
+
+  { id: "iot-security", content: <BulletSlide
+    icon={Cpu} title="IoT Cihaz Güvenliği" accent="cyan"
+    items={[
+      { icon: Wifi, text: "Akıllı kamera / bebek monitörü: varsayılan şifre değiştirilmezse internet üzerinden canlı izlenir. Shodan'da binlerce TR kamerası açık." },
+      { icon: Bot, text: "Akıllı asistan (Alexa, Google Home): kayıt yapar, ses verisi buluta gider. Hassas konuşmaları yakınında etme." },
+      { icon: ShieldAlert, text: "Akıllı TV / saat: gereksiz uygulamaları sil, mikrofon izinlerini kapat, firmware güncel olsun." },
+      { icon: AlertOctagon, text: "2016 Mirai botnet: zayıf IoT şifreleriyle 600.000 cihazı ele geçirip yarı interneti çökertti. Şifreni değiştir." },
+    ]} /> },
+
+  { id: "usb-trap", content: <BulletSlide
+    icon={Usb} title="USB / Donanım Tuzakları" accent="amber"
+    items={[
+      { icon: KeyRound, text: "Yerde bulunan USB'yi takma — Rubber Ducky 3 saniyede komut çalıştırır, hesabını dışa açar (Stuxnet bu yolla yayıldı)." },
+      { icon: Smartphone, text: "Sahte şarj kabloları (O.MG cable): görünüşte sıradan, içinde WiFi mini-bilgisayar — telefonunu klavye olarak kontrol eder." },
+      { icon: Wifi, text: "Havalimanı / kafe USB charger'ları: \"juice jacking\" — şarj eden porttan veri de akar. Sadece kendi adaptörünle priza tak." },
+    ]} /> },
+
+  { id: "malvertising", content: <BulletSlide
+    icon={MousePointerClick} title="Malvertising · Sahte Reklam Tıklatma" accent="rose"
+    items={[
+      { icon: AlertOctagon, text: "Google'da \"Photoshop bedava indir\" arattığında ilk sonuç REKLAM olabilir — saldırgan sahte siteye ücret ödüyor, üstte çıkıyor." },
+      { icon: HardDrive, text: "İndirilen dosya gerçek Photoshop gibi açılır, arkada bilgisayarına trojan (RedLine, Vidar) kurar — banka şifreleri, tarayıcı oturumları çalınır." },
+      { icon: Lock, text: "Koruma: tarayıcıya uBlock Origin · resmi siteyi her zaman elle yaz (adobe.com), arama sonucundan tıklama · indirme öncesi VirusTotal." },
+    ]} /> },
 
   { id: "qr-bait", content: (ctx) => <QrBaitSlide ctx={ctx} /> },
 
@@ -3028,6 +3440,18 @@ const slides: Slide[] = [
     ]} /> },
 
   { id: "three-second-rule", content: (ctx) => <ThreeSecondRuleSlide ctx={ctx} /> },
+
+  { id: "account-stolen", content: <BulletSlide
+    icon={LifeBuoy} title="Hesabım Çalındı — Şimdi Ne Yapacağım?" accent="rose"
+    items={[
+      { icon: KeyRound, text: "1. Hala erişimin varsa: şifreyi DEĞİŞTİR · tüm aktif oturumları kapat (Settings → Security → Sessions)." },
+      { icon: Smartphone, text: "2. 2FA'yı aç (authenticator app) · kurtarma kodlarını yaz · kurtarma e-postası / telefonu kontrol et — saldırgan değiştirmiş olabilir." },
+      { icon: ShieldAlert, text: "3. Hesabın bankaya, kart bilgisine bağlıysa: bankayı 24/7 hattan ARA (444'lü) · işlem itirazı aç · kartı blokeye al." },
+      { icon: Mail, text: "4. Aynı şifreyi kullandığın diğer hesapları (e-posta, sosyal medya, eDevlet) acilen değiştir — domino önle." },
+      { icon: AlertOctagon, text: "5. İhbar et: USOM (usom.gov.tr) · KVKK (eDevlet üzerinden) · Cumhuriyet Başsavcılığı suç duyurusu · BTK 444 1 588." },
+    ]} /> },
+
+  { id: "decision-scenario", content: (ctx) => <DecisionScenarioSlide ctx={ctx} /> },
 
   /* ── KAPANIŞ ── */
   { id: "manifesto", content: <QuoteSlide
