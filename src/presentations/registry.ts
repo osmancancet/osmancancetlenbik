@@ -87,6 +87,17 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "sunum-dosyasi": {
+    meta: {
+      slug: "sunum-dosyasi",
+      title: "Sunum Dosyası Hazırlama (PowerPoint · Canva · Gamma)",
+      description:
+        "BVA 1108 13. hafta — Strateji, yapı, tasarım, hareket, sunma ve paylaşım. 32 slaytlık uçtan uca pratik React sunum.",
+    },
+    Component: dynamic(() => import("./sunum-dosyasi/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(
