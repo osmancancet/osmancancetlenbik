@@ -57,42 +57,46 @@ const css = `
     background: #fff;
     max-width: 760px;
     margin: 0 auto;
-    padding: 16px 18px;
-    text-align: center;
+    padding: 4px 18px 16px 18px;
+    text-align: justify;
   }
+  /* Üst başlık bloğu (ilk hr'a kadar) + son selamlama: center */
+  body > h1,
+  body > h2,
+  body > h3,
+  body > h4 { text-align: center; }
+  /* Üniversite başlığı ve sınav başlığı bloğundaki info paragrafları (Öğretim Üyesi, Öğrenme Çıktıları, Adı Soyadı) */
+  body > p:nth-of-type(-n+3) { text-align: center; }
+  /* Son paragraf (Başarılar dilerim) */
+  body > p:last-of-type { text-align: center; }
   h1 {
     font-size: 17pt;
-    text-align: center;
-    margin: 4pt 0 0 0;
+    margin: 0 0 0 0;
     letter-spacing: 0.4pt;
     font-weight: 700;
   }
   h2 {
     font-size: 13pt;
-    text-align: center;
     margin: 2pt 0 4pt 0;
     letter-spacing: 0.2pt;
     font-weight: 700;
   }
   h3 {
     font-size: 11.5pt;
-    text-align: center;
     margin: 6pt 0 4pt 0;
     font-weight: 700;
     letter-spacing: 0.2pt;
   }
   h4 {
     font-size: 10.5pt;
-    text-align: center;
     margin: 8pt 0 4pt 0;
     font-weight: 700;
     text-decoration: underline;
   }
   p {
     margin: 4pt 0;
-    text-align: center;
   }
-  /* Hikâye paragrafları — uzun, sola yaslı dah okunaklı */
+  /* Hikâye paragrafları */
   blockquote + h4 + p,
   h4 + p {
     text-align: justify;
