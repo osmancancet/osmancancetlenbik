@@ -49,3 +49,6 @@ next-env.d.ts
 
 # Migration data export (temporary)
 /scripts/data-export.json
+
+# Sınav dosyaları (öğrencilere kapalı)
+/sinav/
