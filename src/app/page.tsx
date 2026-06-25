@@ -2,6 +2,7 @@ import { Hero } from "@/components/sections/Hero";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { HomeStats } from "@/components/sections/HomeStats";
 import { HomeRecent } from "@/components/sections/HomeRecent";
+import { CurrentSemesterCourses } from "@/components/sections/CurrentSemesterCourses";
 import { Reveal } from "@/components/ui/Reveal";
 import { prisma } from "@/lib/prisma";
 import { publications } from "@/data/publications";
@@ -10,6 +11,8 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 
 export const revalidate = 60;
+
+const CURRENT_SEMESTER = "2026-2027 Güz";
 
 export default async function Home() {
   const now = new Date();
@@ -22,6 +25,7 @@ export default async function Home() {
     recentPosts,
     recentCourses,
     recentConferences,
+    currentSemesterCourses,
   ] = await Promise.all([
     prisma.announcement.findFirst({
       where: {
@@ -48,6 +52,11 @@ export default async function Home() {
       orderBy: { date: "desc" },
       take: 3,
     }),
+    prisma.course.findMany({
+      where: { semester: CURRENT_SEMESTER },
+      orderBy: [{ type: "asc" }, { title: "asc" }],
+      include: { _count: { select: { weeks: true } } },
+    }),
   ]);
 
   const hasContent =
@@ -59,6 +68,23 @@ export default async function Home() {
     <div className="pt-16">
       <AnnouncementBar announcement={announcement} />
       <Hero />
+
+      {/* Current semester courses */}
+      <CurrentSemesterCourses
+        semester={CURRENT_SEMESTER}
+        courses={currentSemesterCourses.map((c) => {
+          const codeMatch = c.description?.match(/(BVA\s*\d+)/);
+          return {
+            id: c.id,
+            slug: c.slug,
+            title: c.title,
+            code: codeMatch?.[1] ?? c.slug.toUpperCase(),
+            type: c.type,
+            schedule: c.schedule,
+            weekCount: c._count.weeks,
+          };
+        })}
+      />
 
       {/* Stats strip */}
       <section className="relative px-6 py-24 border-t border-[var(--border)]">

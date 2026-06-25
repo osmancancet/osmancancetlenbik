@@ -98,6 +98,94 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "programlama-temelleri-h01": {
+    meta: {
+      slug: "programlama-temelleri-h01",
+      title: "Programlama Temellerine Giriş (BVA 1101 · 1. Hafta)",
+      description:
+        "Algoritma, akış diyagramı, programlama dili kavramları + Code Editor / Flowchart mockup'larıyla 19 slaytlık açılış sunumu.",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h01": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h01",
+      title: "İlk Yardıma Giriş (BVA 1109 · 1. Hafta)",
+      description:
+        "ABC algoritması, ilk yardım çantası, 112 acil çağrı mockup'ı ile 20 slaytlık iş sağlığı ve güvenliği açılışı.",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h01": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h01",
+      title: "Üretken Yapay Zekâya Genel Bakış (BVA 1203 · 1. Hafta)",
+      description:
+        "ChatGPT/Claude/Gemini, token & olasılık, prompt demo, halüsinasyon ve etik konularıyla 20 slaytlık açılış.",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h01": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h01",
+      title: "Bulut Bilişime Giriş (BVA 2103 · 1. Hafta)",
+      description:
+        "IaaS/PaaS/SaaS, AWS/Azure/GCP, on-prem vs cloud karşılaştırma ve AWS console mockup ile 20 slaytlık açılış.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h01": {
+    meta: {
+      slug: "sosyal-ag-analizi-h01",
+      title: "Ağ Merkezilik Ölçüleri (BVA 2105 · 1. Hafta)",
+      description:
+        "Degree, betweenness, closeness, eigenvector merkezilikleri + interaktif graf SVG'leri ile 20 slaytlık açılış.",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h01": {
+    meta: {
+      slug: "veri-gorsellestirme-h01",
+      title: "Veri Görselleştirmeye Giriş (BVA 2107 · 1. Hafta)",
+      description:
+        "Anscombe quartet, Tufte ilkeleri, renk teorisi, grafik türleri galerisi ve Tableau dashboard mockup ile 20 slaytlık açılış.",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h01": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h01",
+      title: "Siber Güvenliğe Giriş & CIA Üçlüsü (BVA 2205 · 1. Hafta)",
+      description:
+        "CIA üçlüsü, tehdit aktörleri, phishing & nmap mockup'ları, Türk bilişim hukuku temelleri ile 20 slaytlık açılış.",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h01": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h01",
+      title: "UI/UX Tasarımına Giriş (BVA 2245 · 1. Hafta)",
+      description:
+        "UI vs UX, HCI, Don Norman ilkeleri, Figma workspace mockup ve bad-vs-good UI karşılaştırmalarıyla 20 slaytlık açılış.",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h01/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(
