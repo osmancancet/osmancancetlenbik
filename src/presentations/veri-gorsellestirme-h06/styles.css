@@ -1,0 +1,228 @@
+/* Veri Görselleştirme sunumu — DataViz Kırmızı */
+
+.vg-shimmer {
+  background: linear-gradient(
+    90deg,
+    #ef4444 0%,
+    #f87171 25%,
+    #ffffff 50%,
+    #f87171 75%,
+    #ef4444 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: vg-shimmer 4s linear infinite;
+}
+
+.vg-shimmer-amber {
+  background: linear-gradient(
+    90deg,
+    #f59e0b 0%,
+    #fbbf24 25%,
+    #ffffff 50%,
+    #fbbf24 75%,
+    #f59e0b 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: vg-shimmer 4s linear infinite;
+}
+
+@keyframes vg-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.vg-grid-bg {
+  background-image:
+    linear-gradient(rgba(239, 68, 68, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239, 68, 68, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.vg-window-chrome {
+  background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(239, 68, 68, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.vg-window-bar {
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.vg-card {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.04) 0%,
+    rgba(239, 68, 68, 0.01) 100%
+  );
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.vg-card-hover:hover {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.07) 0%,
+    rgba(239, 68, 68, 0.02) 100%
+  );
+}
+
+.vg-card-amber {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.05) 0%,
+    rgba(245, 158, 11, 0.01) 100%
+  );
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.vg-pulse {
+  animation: vg-pulse 2s ease-in-out infinite;
+}
+
+@keyframes vg-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Tool tile (Tableau / Power BI / Python) */
+.vg-tool-tile {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: white;
+  font-weight: 800;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Dashboard chrome */
+.vg-dash {
+  background: #0f172a;
+  border-radius: 6px;
+  font-family: "Inter", "Helvetica Neue", sans-serif;
+  color: #e2e8f0;
+}
+
+.vg-dash-tile {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.vg-dash-tile-amber {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+/* Code block — Python */
+.vg-code {
+  background: #0d1117;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #e6edf3;
+  padding: 14px 16px;
+  overflow-x: auto;
+  box-shadow: 0 12px 40px -12px rgba(0,0,0,0.6);
+}
+
+.vg-code .kw { color: #ff7b72; }
+.vg-code .fn { color: #d2a8ff; }
+.vg-code .str { color: #a5d6ff; }
+.vg-code .num { color: #79c0ff; }
+.vg-code .cm { color: #8b949e; font-style: italic; }
+.vg-code .op { color: #f0883e; }
+
+/* Mini chart border */
+.vg-chart-frame {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+/* Comparison table */
+.vg-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+.vg-table th {
+  background: rgba(239, 68, 68, 0.08);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vg-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+
+.vg-table tr:last-child td {
+  border-bottom: none;
+}
+
+.vg-pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.vg-pill-good { background: rgba(34, 197, 94, 0.15); color: #86efac; }
+.vg-pill-mid  { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
+.vg-pill-bad  { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
+
+/* ── H06 yardımcı sınıfları (görsel algı & biliş mockup'ları) ── */
+
+/* Öndikkat (pre-attentive) tarama mockup'ı için panel */
+.vg-popout-panel {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* Bilişsel yük göstergesi şeridi */
+.vg-load-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.vg-load-fill {
+  height: 100%;
+  border-radius: 999px;
+}

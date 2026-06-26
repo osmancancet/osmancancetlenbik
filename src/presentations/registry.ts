@@ -357,6 +357,166 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "sosyal-ag-analizi-h05": {
+    meta: {
+      slug: "sosyal-ag-analizi-h05",
+      title: "Topluluk tespit algoritmaları (BVA 2105 · 5. Hafta)",
+      description: "BVA 2105 5. hafta ders sunumu — Topluluk tespit algoritmaları (Louvain, Girvan-Newman)",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h06": {
+    meta: {
+      slug: "sosyal-ag-analizi-h06",
+      title: "Aktör odaklı modeller (BVA 2105 · 6. Hafta)",
+      description: "BVA 2105 6. hafta ders sunumu — Aktör odaklı modeller",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h07": {
+    meta: {
+      slug: "sosyal-ag-analizi-h07",
+      title: "Boylamsal ağ analizi (BVA 2105 · 7. Hafta)",
+      description: "BVA 2105 7. hafta ders sunumu — Boylamsal ağ analizi",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h10": {
+    meta: {
+      slug: "sosyal-ag-analizi-h10",
+      title: "Ağ dinamikleri ve evrim (BVA 2105 · 10. Hafta)",
+      description: "BVA 2105 10. hafta ders sunumu — Ağ dinamikleri ve evrim",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h14": {
+    meta: {
+      slug: "sosyal-ag-analizi-h14",
+      title: "Ağ temelli makine öğrenimi (BVA 2105 · 14. Hafta)",
+      description: "BVA 2105 14. hafta ders sunumu — Ağ temelli makine öğrenimi (graph embeddings, GNN)",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h15": {
+    meta: {
+      slug: "sosyal-ag-analizi-h15",
+      title: "Ağ etik ve gizlilik sorunları (BVA 2105 · 15. Hafta)",
+      description: "BVA 2105 15. hafta ders sunumu — Ağ etik ve gizlilik sorunları",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h02": {
+    meta: {
+      slug: "veri-gorsellestirme-h02",
+      title: "Popüler veri görselleştirme araçlarına giriş (BVA 2107 · 2. Hafta)",
+      description: "BVA 2107 2. hafta ders sunumu — Popüler veri görselleştirme araçlarına giriş",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h03": {
+    meta: {
+      slug: "veri-gorsellestirme-h03",
+      title: "Görselleştirme yazılımlarına genel bakış (BVA 2107 · 3. Hafta)",
+      description: "BVA 2107 3. hafta ders sunumu — Görselleştirme yazılımlarına genel bakış (Tableau, Power BI, Plotly, Seaborn)",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h04": {
+    meta: {
+      slug: "veri-gorsellestirme-h04",
+      title: "Veri türleri (BVA 2107 · 4. Hafta)",
+      description: "BVA 2107 4. hafta ders sunumu — Veri türleri (kategorik, sayısal, zaman serisi, coğrafi)",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h05": {
+    meta: {
+      slug: "veri-gorsellestirme-h05",
+      title: "Görselleştirme projeleri için veri kaynaklarını bulma, erişme, temizleme, hazırlama (BVA 2107 · 5. Hafta)",
+      description: "BVA 2107 5. hafta ders sunumu — Görselleştirme projeleri için veri kaynaklarını bulma, erişme, temizleme, hazırlama",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h06": {
+    meta: {
+      slug: "veri-gorsellestirme-h06",
+      title: "Görsel algı ve biliş (BVA 2107 · 6. Hafta)",
+      description: "BVA 2107 6. hafta ders sunumu — Görsel algı ve biliş",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h07": {
+    meta: {
+      slug: "veri-gorsellestirme-h07",
+      title: "Renk teorisi ve renk seçimi; veri türüne uygun grafik seçimi (BVA 2107 · 7. Hafta)",
+      description: "BVA 2107 7. hafta ders sunumu — Renk teorisi ve renk seçimi; veri türüne uygun grafik seçimi",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h09": {
+    meta: {
+      slug: "veri-gorsellestirme-h09",
+      title: "Çok değişkenli görselleştirme teknikleri (BVA 2107 · 9. Hafta)",
+      description: "BVA 2107 9. hafta ders sunumu — Çok değişkenli görselleştirme teknikleri",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h10": {
+    meta: {
+      slug: "veri-gorsellestirme-h10",
+      title: "Çubuk grafikler, çizgi grafikler, dağılım grafikleri oluşturma (BVA 2107 · 10. Hafta)",
+      description: "BVA 2107 10. hafta ders sunumu — Çubuk grafikler, çizgi grafikler, dağılım grafikleri oluşturma",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h11": {
+    meta: {
+      slug: "veri-gorsellestirme-h11",
+      title: "Pasta ve halka grafikleri tasarlama; ne zaman kullanılmamalı? (BVA 2107 · 11. Hafta)",
+      description: "BVA 2107 11. hafta ders sunumu — Pasta ve halka grafikleri tasarlama; ne zaman kullanılmamalı?",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h12": {
+    meta: {
+      slug: "veri-gorsellestirme-h12",
+      title: "Görselleştirmeleri netlik ve etkililik için özelleştirme (BVA 2107 · 12. Hafta)",
+      description: "BVA 2107 12. hafta ders sunumu — Görselleştirmeleri netlik ve etkililik için özelleştirme",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(
