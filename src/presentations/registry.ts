@@ -186,6 +186,177 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "siber-guvenlik-ve-bilisim-hukuku-h02": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h02",
+      title: "Ağ Trafiği Analizi: Wireshark & Nmap (BVA 2205 · 2. Hafta)",
+      description:
+        "TCP/IP & paket anatomisi, üç-yönlü el sıkışma, Nmap tarama türleri ve port durumları, Wireshark paket listesi + Follow TCP Stream ile şifresiz trafik riski; uygulamalı lab adımları ile 18 slaytlık ders sunumu.",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h02": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h02",
+      title: "Büyük Veri Kavramlarına Genel Bakış (BVA 2103 · 2. Hafta)",
+      description: "Büyük veri tanımı, 5V modeli (Volume/Velocity/Variety/Veracity/Value), byte-PB ölçek tablosu, batch vs stream, üç veri tipi ve modern kaynaklar, veri değer zinciri diyagramı, klasik vs dağıtık karşılaştırma tablosu, PySpark terminal ve üç-format kod mockup'ı, 5V sınıflandırma laboratuvarı ile 18 slaytlık ders sunumu.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h03": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h03",
+      title: "Bulut Hizmet Modelleri: IaaS · PaaS · SaaS (BVA 2103 · 3. Hafta)",
+      description: "BVA 2103 3. hafta için 18 slaytlık React sunum: bulut yığını ve paylaşılan sorumluluk modeli, IaaS/PaaS/SaaS karşılaştırması, AWS CLI ile sunucu başlatma, Heroku deploy ve bulut CRM mockup'ları, karşılaştırma tablosu ve senaryo tabanlı karar alıştırması.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h04": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h04",
+      title: "Bulut Dağıtım Modelleri (BVA 2103 · 4. Hafta)",
+      description: "Public, private, hybrid ve community bulut dağıtım modellerini karşılaştıran 15 slaytlık React sunum: NIST tanımları, 5 eksenli karşılaştırma tablosu, public/private/hybrid SVG diyagramı, CapEx-OpEx maliyet analizi, hybrid kurulum terminal mockup'ı ve bir hastane veri platformu üzerinden iş yükü yerleştirme alıştırması.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h05": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h05",
+      title: "Başlıca Bulut Platformları: AWS · Azure · GCP (BVA 2103 · 5. Hafta)",
+      description: "16 slaytlık React sunum: büyük üçlü bulut sağlayıcısının (AWS, Azure, GCP) pazar payı, Region/AZ kavramı, Compute/Storage/Database servis adlarının eşleştirilmesi, üç farklı CLI ile aynı görevin karşılaştırılması ve büyük veri / analitik (DWH, yönetilen Spark, akış, ML) servislerinin kıyaslanması; uygulamalı görev ve Hafta 6 (Sanallaştırma) önizlemesiyle kapanır.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h06": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h06",
+      title: "Bulut Depolama Çözümleri (BVA 2103 · 6. Hafta)",
+      description: "Nesne/blok/dosya depolama, depolama sınıfları ve yaşam döngüsü, dayanıklılık vs kullanılabilirlik ve veri gölü/ambar/lakehouse mimarisini S3 CLI ile lifecycle JSON mockuplarıyla işleyen 17 slaytlık sunum. Uygulamalı lab ve sonraki hafta (HDFS) önizlemesiyle kapanır.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h07": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h07",
+      title: "Dağıtılmış Hesaplama Çerçevelerine Giriş (BVA 2103 · 7. Hafta)",
+      description: "Tek makineye sığmayan veriyi küme üzerinde paralel işleme: MapReduce paradigması (Map→Shuffle→Reduce), Hadoop ekosistemi (HDFS, YARN, MapReduce) ve Apache Spark (RDD, bellek-içi işleme, DAG). 19 slayt; scale-up/scale-out diyagramı, HDFS ve spark-submit terminal mockupları, PySpark WordCount kod örneği, Hadoop vs Spark tablosu ve uygulamalı PySpark lab.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h09": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h09",
+      title: "Hadoop: Mimarisi ve Bileşenleri (BVA 2103 · 9. Hafta)",
+      description: "Hadoop'un mimarisini ve üç çekirdek bileşenini (HDFS, YARN, MapReduce) anlatan 20 slaytlık React sunum: master/worker diyagramı, NameNode-DataNode blok ve replikasyon görseli, hdfs dfs terminal mockup'ı, YARN iş akışı, MapReduce WordCount akışı, Hadoop ekosistemi ve bulutta tek düğümlü WordCount uygulamalı labı.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h10": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h10",
+      title: "Hadoop MapReduce Programlama (BVA 2103 · 10. Hafta)",
+      description: "Map/Shuffle/Reduce modeli, WordCount veri akışı diyagramı, Mapper/Reducer/Driver Java kodu, YARN yürütme topolojisi, Combiner ve Partitioner ile sık hatalar tablosu ve uygulamalı lab içeren 18 slaytlık ders sunumu.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h11": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h11",
+      title: "Apache Spark: Tanıtım ve Temel Kavramlar (BVA 2103 · 11. Hafta)",
+      description: "18 slaytlık Apache Spark giriş sunumu: MapReduce'tan bellek-içi işlemeye köprü, disk-vs-RAM görseli, cluster mimarisi (Driver/Manager/Executor) SVG diyagramı, RDD ve DAG ile tembel değerlendirme, Transformation-vs-Action, birleşik ekosistem (Spark SQL/MLlib/Streaming/GraphX), canlı PySpark shell mockup'ı ve AWS EMR üzerinde uygulamalı lab.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h12": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h12",
+      title: "Spark RDD'leri — Dayanıklı Dağıtık Veri Kümeleri (BVA 2103 · 12. Hafta)",
+      description: "Apache Spark'ın çekirdek soyutlaması RDD'yi anlatan 20 slaytlık sunum: ismin açılımı (Resilient/Distributed/Dataset), değişmezlik ve parçalanma, transformasyon-eylem ayrımı ile tembel değerlendirme, WordCount örneği, lineage tabanlı hata toleransı, persist/cache depolama seviyeleri, RDD vs DataFrame karşılaştırması ve uygulamalı bir pyspark log-analizi labı. pyspark/spark-shell terminal mockup'ları, lineage ve partition diyagramları içerir.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h13": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h13",
+      title: "Bulutta veri analitiği (BVA 2103 · 13. Hafta)",
+      description: "BVA 2103 13. hafta ders sunumu — Bulutta veri analitiği",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h14": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h14",
+      title: "Bulutta Makine Öğrenimi (BVA 2103 · 14. Hafta)",
+      description: "Bulutta makine öğrenimi için 18 slaytlık React sunum: yerel makine vs bulut karşılaştırması, yönetilen ML servisleri, hazır AI API / AutoML / özel eğitim soyutlama seviyeleri, altı adımlık ML hattı diyagramı, SageMaker Studio not defteri mockup'ı, karmaşıklık matrisi ve metrikler, MLOps & drift izleme, maliyet kuralları ve Free Tier uçtan uca uygulamalı lab.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "buyuk-veri-icin-bulut-bilisim-h15": {
+    meta: {
+      slug: "buyuk-veri-icin-bulut-bilisim-h15",
+      title: "Bulut Bilişimde Güvenlik ve Gizlilik (BVA 2103 · 15. Hafta)",
+      description: "BVA 2103 15. hafta — Bulut güvenliği ve gizlilik için 18 slaytlık React sunum: paylaşılan sorumluluk modeli, CIA üçlüsü ve tehdit yüzeyi, IAM/MFA/least-privilege (örnek IAM policy JSON), at-rest/in-transit şifreleme (KMS + TLS terminal mockup), KVKK-GDPR karşılaştırması ve uygulamalı bucket sertleştirme görevi.",
+    },
+    Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h02": {
+    meta: {
+      slug: "sosyal-ag-analizi-h02",
+      title: "Ağ görselleştirme teknikleri (BVA 2105 · 2. Hafta)",
+      description: "BVA 2105 2. hafta ders sunumu — Ağ görselleştirme teknikleri",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h03": {
+    meta: {
+      slug: "sosyal-ag-analizi-h03",
+      title: "Sosyal Ağ Veri Toplama Yöntemleri (BVA 2105 · 3. Hafta)",
+      description: "Sosyal ağ verisinin nereden ve nasıl toplandığını işleyen 15 slaytlık sunum: veri kaynaklarının (API, web scraping, anket/kartopu örnekleme, hazır veri setleri) karşılaştırılması, API kavramları (endpoint, token, rate limit, sayfalama) ile curl terminal ve JSON→kenar listesi mockup'ları, scraping/anket yöntemleri ve etik (robots.txt, KVKK), veri formatları tablosu ve kendi mini ağını toplama laboratuvarı.",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h04": {
+    meta: {
+      slug: "sosyal-ag-analizi-h04",
+      title: "Üstel Rastgele Graf Modelleri — ERGM (BVA 2105 · 4. Hafta)",
+      description: "17 slaytlık React sunum: Erdős–Rényi rastgele graflardan ERGM'e geçiş, gözlenen vs. rastgele ağ karşılaştırması, üstel aile denklemi ve ağ istatistikleri (kenar, 2-yıldız, üçgen, homofili), R/statnet ile ergm() kestirimi, katsayı yorumu, dejenerasyon ve uyum iyiliği (GOF) ile uygulamalı Florentine lab görevi.",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(

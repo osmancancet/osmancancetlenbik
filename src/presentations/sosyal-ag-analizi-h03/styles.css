@@ -1,0 +1,212 @@
+/* Sosyal Ağ Analizi (BVA 2105 · 3. Hafta) — network teal teması */
+
+.saa-shimmer {
+  background: linear-gradient(
+    90deg,
+    #14b8a6 0%,
+    #5eead4 25%,
+    #ffffff 50%,
+    #5eead4 75%,
+    #14b8a6 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: saa-shimmer 4s linear infinite;
+}
+
+.saa-shimmer-teal {
+  background: linear-gradient(
+    90deg,
+    #0d9488 0%,
+    #2dd4bf 25%,
+    #ffffff 50%,
+    #2dd4bf 75%,
+    #0d9488 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: saa-shimmer 4s linear infinite;
+}
+
+@keyframes saa-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.saa-grid-bg {
+  background-image:
+    linear-gradient(rgba(20, 184, 166, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 184, 166, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.saa-window-chrome {
+  background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(20, 184, 166, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.saa-window-bar {
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+  border-bottom: 1px solid rgba(20, 184, 166, 0.2);
+}
+
+.saa-card {
+  background: linear-gradient(
+    135deg,
+    rgba(20, 184, 166, 0.04) 0%,
+    rgba(20, 184, 166, 0.01) 100%
+  );
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.saa-card-hover:hover {
+  border-color: rgba(20, 184, 166, 0.45);
+  background: linear-gradient(
+    135deg,
+    rgba(20, 184, 166, 0.07) 0%,
+    rgba(20, 184, 166, 0.02) 100%
+  );
+}
+
+.saa-card-teal {
+  background: linear-gradient(
+    135deg,
+    rgba(13, 148, 136, 0.06) 0%,
+    rgba(13, 148, 136, 0.01) 100%
+  );
+  border: 1px solid rgba(13, 148, 136, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.saa-pulse {
+  animation: saa-pulse 2s ease-in-out infinite;
+}
+
+@keyframes saa-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+/* "N" tile (network) */
+.saa-n-tile {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  color: white;
+  font-weight: 900;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Code block (NetworkX) */
+.saa-code {
+  background: #0a0f0e;
+  color: #d1d5db;
+  border-radius: 8px;
+  font-family: "Fira Code", "Consolas", monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  box-shadow:
+    0 20px 60px -20px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.saa-code-kw { color: #2dd4bf; font-weight: 600; }
+.saa-code-fn { color: #f0abfc; }
+.saa-code-str { color: #fde68a; }
+.saa-code-cmt { color: #6b7280; font-style: italic; }
+.saa-code-num { color: #fca5a5; }
+
+/* Comparison table */
+.saa-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+}
+
+.saa-table th,
+.saa-table td {
+  border: 1px solid rgba(20, 184, 166, 0.15);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.saa-table th {
+  background: linear-gradient(180deg, rgba(20, 184, 166, 0.18), rgba(20, 184, 166, 0.08));
+  color: #5eead4;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.saa-table td {
+  background: rgba(15, 23, 25, 0.6);
+  color: #d1d5db;
+}
+
+.saa-table td.saa-row-head {
+  background: rgba(20, 184, 166, 0.06);
+  color: #5eead4;
+  font-weight: 600;
+}
+
+/* Node pulse for graph mockups */
+.saa-node-pulse {
+  animation: saa-node-pulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes saa-node-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(20, 184, 166, 0.5)); }
+  50% { filter: drop-shadow(0 0 14px rgba(20, 184, 166, 0.95)); }
+}
+
+/* Checklist tick */
+.saa-tick {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  color: white;
+  border-radius: 6px;
+}
+
+/* ── 3. hafta yardımcı sınıfları (terminal & JSON mockup) ── */
+
+/* Terminal gövdesi */
+.saa-terminal {
+  background: #070b0a;
+  color: #cbd5e1;
+  font-family: "Fira Code", "Consolas", monospace;
+  font-size: 12.5px;
+  line-height: 1.75;
+  padding: 18px 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.saa-term-prompt { color: #5eead4; font-weight: 600; }
+.saa-term-dim { color: #6b7280; }
+.saa-term-cmd { color: #e5e7eb; }
+.saa-term-ok { color: #86efac; }
+.saa-term-warn { color: #fde68a; }
+.saa-term-err { color: #f87171; }
+.saa-term-ip { color: #93c5fd; }
+
+/* JSON sözdizimi renkleri (kod bloğu içinde) */
+.saa-json-key { color: #5eead4; }
+.saa-json-str { color: #fde68a; }
+.saa-json-num { color: #fca5a5; }
+.saa-json-punc { color: #6b7280; }
