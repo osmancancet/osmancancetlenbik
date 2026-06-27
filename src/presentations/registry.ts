@@ -517,6 +517,296 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "kullanici-arayuzu-tasarimi-h02": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h02",
+      title: "Kullanıcı araştırması (BVA 2245 · 2. Hafta)",
+      description: "BVA 2245 2. hafta ders sunumu — Kullanıcı araştırması: anket, görüşme, gözlem",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h03": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h03",
+      title: "Persona, user journey ve empathy map oluşturma (BVA 2245 · 3. Hafta)",
+      description: "BVA 2245 3. hafta ders sunumu — Persona, user journey ve empathy map oluşturma",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h04": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h04",
+      title: "Bilgi mimarisi ve sitemap; kullanıcı akışları (BVA 2245 · 4. Hafta)",
+      description: "BVA 2245 4. hafta ders sunumu — Bilgi mimarisi ve sitemap; kullanıcı akışları (user flow)",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h05": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h05",
+      title: "Görsel algı ilkeleri (BVA 2245 · 5. Hafta)",
+      description: "BVA 2245 5. hafta ders sunumu — Görsel algı ilkeleri (Gestalt) ve bilişsel yük",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h06": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h06",
+      title: "Tipografi, hiyerarşi, ızgara sistemleri (BVA 2245 · 6. Hafta)",
+      description: "BVA 2245 6. hafta ders sunumu — Tipografi, hiyerarşi, ızgara sistemleri",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h07": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h07",
+      title: "Renk teorisi, palet seçimi, kontrast (BVA 2245 · 7. Hafta)",
+      description: "BVA 2245 7. hafta ders sunumu — Renk teorisi, palet seçimi, kontrast (WCAG)",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h09": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h09",
+      title: "Wireframe ve mockup ile prototipleme — düşük çözünürlük (BVA 2245 · 9. Hafta)",
+      description: "BVA 2245 9. hafta ders sunumu — Wireframe ve mockup ile prototipleme — düşük çözünürlük",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h10": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h10",
+      title: "Figma ile UI tasarımı — bileşenler, auto-layout, variants (BVA 2245 · 10. Hafta)",
+      description: "BVA 2245 10. hafta ders sunumu — Figma ile UI tasarımı — bileşenler, auto-layout, variants",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h11": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h11",
+      title: "Figma — interaktif prototip, smart animate, geçişler (BVA 2245 · 11. Hafta)",
+      description: "BVA 2245 11. hafta ders sunumu — Figma — interaktif prototip, smart animate, geçişler",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h12": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h12",
+      title: "Tasarım sistemleri (BVA 2245 · 12. Hafta)",
+      description: "BVA 2245 12. hafta ders sunumu — Tasarım sistemleri (Material, HIG, Tailwind UI); component library",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h03": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h03",
+      title: "Kriptografi 101 (BVA 2205 · 3. Hafta)",
+      description: "BVA 2205 3. hafta ders sunumu — Kriptografi 101: simetrik/asimetrik şifreleme, hash, dijital imza, OpenSSL pratik",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h04": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h04",
+      title: "OWASP Top 10 — Bölüm 1 (BVA 2205 · 4. Hafta)",
+      description: "BVA 2205 4. hafta ders sunumu — OWASP Top 10 — Bölüm 1: SQL Injection, Cross-Site Scripting (XSS), CSRF (DVWA labı)",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h05": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h05",
+      title: "OWASP Top 10 — Bölüm 2 (BVA 2205 · 5. Hafta)",
+      description: "BVA 2205 5. hafta ders sunumu — OWASP Top 10 — Bölüm 2: Broken Access Control, IDOR, SSRF (Burp Suite ile pratik)",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h06": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h06",
+      title: "Kimlik & erişim yönetimi (BVA 2205 · 6. Hafta)",
+      description: "BVA 2205 6. hafta ders sunumu — Kimlik & erişim yönetimi: OAuth 2.0, JWT, MFA, parola hashing (bcrypt/argon2)",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h07": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h07",
+      title: "Endpoint güvenliği ve malware analizi temelleri (BVA 2205 · 7. Hafta)",
+      description: "BVA 2205 7. hafta ders sunumu — Endpoint güvenliği ve malware analizi temelleri (Sysmon, EDR mantığı, basic static analysis)",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h09": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h09",
+      title: "Penetrasyon testi metodolojisi (BVA 2205 · 9. Hafta)",
+      description: "BVA 2205 9. hafta ders sunumu — Penetrasyon testi metodolojisi (PTES); Kali Linux + Metasploit ile sızma testi labı",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h10": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h10",
+      title: "Bulut güvenliği (BVA 2205 · 10. Hafta)",
+      description: "BVA 2205 10. hafta ders sunumu — Bulut güvenliği: AWS IAM, S3 yanlış yapılandırma, security groups, GuardDuty",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h11": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h11",
+      title: "SOC & SIEM (BVA 2205 · 11. Hafta)",
+      description: "BVA 2205 11. hafta ders sunumu — SOC & SIEM: Wazuh kurulumu, log toplama, alarm kuralları, dashboard",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h12": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h12",
+      title: "Olay müdahalesi & DFIR (BVA 2205 · 12. Hafta)",
+      description: "BVA 2205 12. hafta ders sunumu — Olay müdahalesi & DFIR (Digital Forensics & Incident Response); chain of custody; log analiz",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h13": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h13",
+      title: "Tehdit istihbaratı (BVA 2205 · 13. Hafta)",
+      description: "BVA 2205 13. hafta ders sunumu — Tehdit istihbaratı: MITRE ATT&CK çerçevesi; IOC'lar; bug bounty ekosistemi (HackerOne, BugCrowd)",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h14": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h14",
+      title: "Türk bilişim hukuku özeti (BVA 2205 · 14. Hafta)",
+      description: "BVA 2205 14. hafta ders sunumu — Türk bilişim hukuku özeti: 6698 KVKK · 5651 sayılı Kanun · TCK 243-245; sorumlu açıklama",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "siber-guvenlik-ve-bilisim-hukuku-h15": {
+    meta: {
+      slug: "siber-guvenlik-ve-bilisim-hukuku-h15",
+      title: "Final pen-test raporu sunumu (BVA 2205 · 15. Hafta)",
+      description: "BVA 2205 15. hafta ders sunumu — Final pen-test raporu sunumu (öğrenci sunumları) + dönem değerlendirmesi",
+    },
+    Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h09": {
+    meta: {
+      slug: "sosyal-ag-analizi-h09",
+      title: "Çok seviyeli ağ analizi (BVA 2105 · 9. Hafta)",
+      description: "BVA 2105 9. hafta ders sunumu — Çok seviyeli ağ analizi",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h11": {
+    meta: {
+      slug: "sosyal-ag-analizi-h11",
+      title: "Ağlarda etki ve yayılım (BVA 2105 · 11. Hafta)",
+      description: "BVA 2105 11. hafta ders sunumu — Ağlarda etki ve yayılım (information cascades, SIR/SIS)",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h12": {
+    meta: {
+      slug: "sosyal-ag-analizi-h12",
+      title: "Ağın dayanıklılığı ve esnekliği (BVA 2105 · 12. Hafta)",
+      description: "BVA 2105 12. hafta ders sunumu — Ağın dayanıklılığı ve esnekliği (network resilience)",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "sosyal-ag-analizi-h13": {
+    meta: {
+      slug: "sosyal-ag-analizi-h13",
+      title: "Ağ örnekleme teknikleri (BVA 2105 · 13. Hafta)",
+      description: "BVA 2105 13. hafta ders sunumu — Ağ örnekleme teknikleri",
+    },
+    Component: dynamic(() => import("./sosyal-ag-analizi-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h13": {
+    meta: {
+      slug: "veri-gorsellestirme-h13",
+      title: "Isı haritaları ve ağaç haritaları (BVA 2107 · 13. Hafta)",
+      description: "BVA 2107 13. hafta ders sunumu — Isı haritaları ve ağaç haritaları (heatmap, treemap) oluşturma",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h14": {
+    meta: {
+      slug: "veri-gorsellestirme-h14",
+      title: "Etkileşimli görselleştirmelere ve araçlara giriş (BVA 2107 · 14. Hafta)",
+      description: "BVA 2107 14. hafta ders sunumu — Etkileşimli görselleştirmelere ve araçlara giriş (Plotly, D3)",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "veri-gorsellestirme-h15": {
+    meta: {
+      slug: "veri-gorsellestirme-h15",
+      title: "Gösterge paneli (BVA 2107 · 15. Hafta)",
+      description: "BVA 2107 15. hafta ders sunumu — Gösterge paneli (dashboard) tasarım ilkeleri",
+    },
+    Component: dynamic(() => import("./veri-gorsellestirme-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(

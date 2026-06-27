@@ -1,0 +1,295 @@
+/* Kullanıcı Arayüzü Tasarımı H07 — Figma pembe */
+
+.katas-shimmer {
+  background: linear-gradient(
+    90deg,
+    #ec4899 0%,
+    #f472b6 25%,
+    #ffffff 50%,
+    #f472b6 75%,
+    #ec4899 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: katas-shimmer 4s linear infinite;
+}
+
+.katas-shimmer-rose {
+  background: linear-gradient(
+    90deg,
+    #be185d 0%,
+    #f472b6 25%,
+    #ffffff 50%,
+    #f472b6 75%,
+    #be185d 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: katas-shimmer 4s linear infinite;
+}
+
+@keyframes katas-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.katas-grid-bg {
+  background-image:
+    linear-gradient(rgba(236, 72, 153, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.katas-window-chrome {
+  background: linear-gradient(180deg, #1e1e1e, #0f0f0f);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(236, 72, 153, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.katas-window-bar {
+  background: linear-gradient(180deg, #2b2b2b, #1a1a1a);
+  border-bottom: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+.katas-card {
+  background: linear-gradient(
+    135deg,
+    rgba(236, 72, 153, 0.04) 0%,
+    rgba(236, 72, 153, 0.01) 100%
+  );
+  border: 1px solid rgba(236, 72, 153, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.katas-card-hover:hover {
+  border-color: rgba(236, 72, 153, 0.45);
+  background: linear-gradient(
+    135deg,
+    rgba(236, 72, 153, 0.07) 0%,
+    rgba(236, 72, 153, 0.02) 100%
+  );
+}
+
+.katas-card-rose {
+  background: linear-gradient(
+    135deg,
+    rgba(190, 24, 93, 0.06) 0%,
+    rgba(190, 24, 93, 0.01) 100%
+  );
+  border: 1px solid rgba(190, 24, 93, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.katas-pulse {
+  animation: katas-pulse 2s ease-in-out infinite;
+}
+
+@keyframes katas-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+/* Figma "F" tile */
+.katas-f-tile {
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  color: white;
+  font-weight: 900;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Figma-style panel */
+.katas-figma-panel {
+  background: #2c2c2c;
+  color: #e5e7eb;
+  font-family: "Inter", "Helvetica Neue", sans-serif;
+  font-size: 11px;
+}
+
+.katas-figma-canvas {
+  background: #1e1e1e;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.katas-figma-row {
+  padding: 3px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 3px;
+}
+
+.katas-figma-row-active {
+  background: rgba(236, 72, 153, 0.18);
+  color: #f9a8d4;
+}
+
+.katas-figma-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 4px 0;
+}
+
+/* Mobile mockup frame */
+.katas-phone {
+  background: #0a0a0a;
+  border: 6px solid #1a1a1a;
+  border-radius: 22px;
+  box-shadow:
+    0 20px 50px -10px rgba(0,0,0,0.8),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.katas-phone-screen {
+  background: #fdf2f8;
+  color: #1f2937;
+  border-radius: 14px;
+  overflow: hidden;
+  font-family: "Inter", "Helvetica Neue", sans-serif;
+}
+
+/* Norman door / metaphor mockups */
+.katas-door {
+  background: linear-gradient(180deg, #d4a373 0%, #a67852 100%);
+  border: 2px solid #6b4423;
+  border-radius: 4px;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+}
+
+.katas-door-bad-label {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  font-weight: 700;
+}
+
+.katas-door-good-label {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-weight: 700;
+}
+
+/* WCAG contrast cards */
+.katas-contrast-pass {
+  background: #111111;
+  color: #ffffff;
+}
+
+.katas-contrast-fail {
+  background: #f9a8d4;
+  color: #fbcfe8;
+}
+
+/* Process timeline */
+.katas-process-step {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(190, 24, 93, 0.05));
+  border: 2px solid rgba(236, 72, 153, 0.4);
+}
+
+.katas-process-step-active {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  border: 2px solid #f472b6;
+  box-shadow: 0 0 24px rgba(236, 72, 153, 0.5);
+}
+
+/* Form mockups */
+.katas-form-bad-input {
+  background: #fafafa;
+  border: 1px solid #d4d4d4;
+  color: #525252;
+  padding: 4px 6px;
+  font-size: 9px;
+  border-radius: 2px;
+}
+
+.katas-form-good-input {
+  background: #ffffff;
+  border: 2px solid #ec4899;
+  color: #111827;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+}
+
+.katas-form-good-btn {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  color: #ffffff;
+  padding: 10px 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px -6px rgba(236, 72, 153, 0.6);
+}
+
+/* Tool logo tiles */
+.katas-tool-figma { background: linear-gradient(135deg, #ec4899, #f472b6); }
+.katas-tool-sketch { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.katas-tool-xd { background: linear-gradient(135deg, #a855f7, #d946ef); }
+
+/* ── H07 yardımcı sınıfları: renk teorisi & WCAG mockupları ── */
+
+/* Genel tablo (renk rolleri, kontrast eşikleri) */
+.katas-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.katas-tbl th {
+  text-align: left;
+  padding: 10px 14px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f9a8d4;
+  border-bottom: 1px solid rgba(236, 72, 153, 0.25);
+  background: rgba(236, 72, 153, 0.05);
+}
+
+.katas-tbl td {
+  padding: 10px 14px;
+  color: #d1d5db;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: top;
+}
+
+.katas-tbl tr:last-child td {
+  border-bottom: none;
+}
+
+/* Renk paleti şeridi */
+.katas-swatch {
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Kod / token bloğu (DevTools, CSS değişkenleri) */
+.katas-code {
+  background: #0d0d0d;
+  color: #e5e7eb;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 18px 20px;
+}
+
+.katas-code-key { color: #f472b6; }
+.katas-code-val { color: #67e8f9; }
+.katas-code-com { color: #6b7280; }
