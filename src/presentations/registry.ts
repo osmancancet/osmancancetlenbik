@@ -1027,6 +1027,206 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "is-sagligi-ve-guvenligi-h09": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h09",
+      title: "Çalışanların emniyetini sağlama (BVA 1109 · 9. Hafta)",
+      description: "BVA 1109 9. hafta — Çalışanların emniyetini sağlama",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h10": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h10",
+      title: "İş ortamı güvenliğini sağlama — I (BVA 1109 · 10. Hafta)",
+      description: "BVA 1109 10. hafta — İş ortamı güvenliğini sağlama — I",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h11": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h11",
+      title: "İş ortamı güvenliğini sağlama — II (BVA 1109 · 11. Hafta)",
+      description: "BVA 1109 11. hafta — İş ortamı güvenliğini sağlama — II",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h12": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h12",
+      title: "İş güvenliği mevzuatı — I (BVA 1109 · 12. Hafta)",
+      description: "BVA 1109 12. hafta — İş güvenliği mevzuatı — I",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h13": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h13",
+      title: "İş güvenliği mevzuatı — II (BVA 1109 · 13. Hafta)",
+      description: "BVA 1109 13. hafta — İş güvenliği mevzuatı — II",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h14": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h14",
+      title: "İş güvenliği mevzuatı — III (BVA 1109 · 14. Hafta)",
+      description: "BVA 1109 14. hafta — İş güvenliği mevzuatı — III",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h15": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h15",
+      title: "Genel tekrar (BVA 1109 · 15. Hafta)",
+      description: "BVA 1109 15. hafta — Genel tekrar",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h02": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h02",
+      title: "Olasılıksal modeller ve temeller (BVA 1203 · 2. Hafta)",
+      description: "BVA 1203 2. hafta — Olasılıksal modeller ve temeller (Bayes teoremi, Markov zincirleri)",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h03": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h03",
+      title: "Otomatik kodlayıcılar (BVA 1203 · 3. Hafta)",
+      description: "BVA 1203 3. hafta — Otomatik kodlayıcılar (Autoencoders) ve varyasyonel otomatik kodlayıcılar (VAE)",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h04": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h04",
+      title: "Üretken çekişmeli ağlar (BVA 1203 · 4. Hafta)",
+      description: "BVA 1203 4. hafta — Üretken çekişmeli ağlar (GANs): temel yapı ve eğitim süreci",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h05": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h05",
+      title: "GAN türleri (BVA 1203 · 5. Hafta)",
+      description: "BVA 1203 5. hafta — GAN türleri",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h06": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h06",
+      title: "Uygulamalı GAN eğitimi (BVA 1203 · 6. Hafta)",
+      description: "BVA 1203 6. hafta — Uygulamalı GAN eğitimi: görüntü üretimi",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h07": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h07",
+      title: "Dönüştürücüler (BVA 1203 · 7. Hafta)",
+      description: "BVA 1203 7. hafta — Dönüştürücüler (Transformers) ve kendine dikkat (Self-Attention) mekanizması",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h09": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h09",
+      title: "Büyük dil modelleri (BVA 1203 · 9. Hafta)",
+      description: "BVA 1203 9. hafta — Büyük dil modelleri (LLM): GPT, BERT, T5",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h10": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h10",
+      title: "Metin üretimi ve doğal dil işleme uygulamaları (BVA 1203 · 10. Hafta)",
+      description: "BVA 1203 10. hafta — Metin üretimi ve doğal dil işleme uygulamaları",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h11": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h11",
+      title: "Görüntüden metne ve metinden görüntüye (BVA 1203 · 11. Hafta)",
+      description: "BVA 1203 11. hafta — Görüntüden metne ve metinden görüntüye: multimodal modeller (DALL·E, CLIP)",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h12": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h12",
+      title: "Etik, güvenlik ve yanıltıcı içerikler (BVA 1203 · 12. Hafta)",
+      description: "BVA 1203 12. hafta — Etik, güvenlik ve yanıltıcı içerikler",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h13": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h13",
+      title: "Yapay zekâda bilgi gösterimi (BVA 1203 · 13. Hafta)",
+      description: "BVA 1203 13. hafta — Yapay zekâda bilgi gösterimi",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h14": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h14",
+      title: "Yapay zekâ dilleri ve bilgi tabanı oluşturma (BVA 1203 · 14. Hafta)",
+      description: "BVA 1203 14. hafta — Yapay zekâ dilleri ve bilgi tabanı oluşturma",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "uretken-yapay-zekalar-h15": {
+    meta: {
+      slug: "uretken-yapay-zekalar-h15",
+      title: "Üretken yapay zekâların Ar-Ge ve endüstriyel uygulamaları (BVA 1203 · 15. Hafta)",
+      description: "BVA 1203 15. hafta — Üretken yapay zekâların Ar-Ge ve endüstriyel uygulamaları",
+    },
+    Component: dynamic(() => import("./uretken-yapay-zekalar-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(

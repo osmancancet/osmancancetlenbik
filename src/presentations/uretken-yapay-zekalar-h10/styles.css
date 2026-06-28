@@ -1,0 +1,261 @@
+/* Üretken Yapay Zekâlar — Hafta 1 — AI violet */
+
+.uyz-shimmer {
+  background: linear-gradient(
+    90deg,
+    #a855f7 0%,
+    #c084fc 25%,
+    #ffffff 50%,
+    #c084fc 75%,
+    #a855f7 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: uyz-shimmer 4s linear infinite;
+}
+
+.uyz-shimmer-violet {
+  background: linear-gradient(
+    90deg,
+    #7c3aed 0%,
+    #a855f7 25%,
+    #ffffff 50%,
+    #a855f7 75%,
+    #7c3aed 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: uyz-shimmer 4s linear infinite;
+}
+
+@keyframes uyz-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.uyz-grid-bg {
+  background-image:
+    linear-gradient(rgba(168, 85, 247, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.uyz-window-chrome {
+  background: linear-gradient(180deg, #1a1024, #0a0414);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(168, 85, 247, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.uyz-window-bar {
+  background: linear-gradient(180deg, #221530, #150a20);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.uyz-card {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.04) 0%,
+    rgba(168, 85, 247, 0.01) 100%
+  );
+  border: 1px solid rgba(168, 85, 247, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.uyz-card-hover:hover {
+  border-color: rgba(168, 85, 247, 0.45);
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.07) 0%,
+    rgba(168, 85, 247, 0.02) 100%
+  );
+}
+
+.uyz-card-violet {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.06) 0%,
+    rgba(124, 58, 237, 0.01) 100%
+  );
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.uyz-pulse {
+  animation: uyz-pulse 2s ease-in-out infinite;
+}
+
+@keyframes uyz-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+/* AI sparkle tile (used as logo) */
+.uyz-ai-tile {
+  background: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
+  color: white;
+  font-weight: 900;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Chat bubble — user (right) */
+.uyz-bubble-user {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  color: #ffffff;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow:
+    0 8px 24px -8px rgba(168, 85, 247, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Chat bubble — assistant (left) */
+.uyz-bubble-ai {
+  background: linear-gradient(135deg, #1f1f23 0%, #16161a 100%);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* Typing dots */
+.uyz-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a855f7;
+  display: inline-block;
+  animation: uyz-typing 1.2s ease-in-out infinite;
+}
+.uyz-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.uyz-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes uyz-typing {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-4px); }
+}
+
+/* Token chips */
+.uyz-token {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-weight: 600;
+  font-size: 16px;
+  border: 1px solid currentColor;
+}
+
+.uyz-token-1 { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+.uyz-token-2 { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+.uyz-token-3 { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.uyz-token-4 { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.uyz-token-5 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+/* Probability bars */
+.uyz-bar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  height: 10px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.uyz-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #a855f7, #c084fc);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.5);
+}
+
+/* AI placeholder image surface */
+.uyz-ai-canvas {
+  background:
+    radial-gradient(circle at 25% 30%, rgba(168, 85, 247, 0.55), transparent 50%),
+    radial-gradient(circle at 75% 70%, rgba(236, 72, 153, 0.45), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.35), transparent 60%),
+    linear-gradient(135deg, #1e0a3a 0%, #0f0220 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.uyz-ai-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(white 1px, transparent 1px),
+    radial-gradient(white 1px, transparent 1px);
+  background-size: 40px 40px, 80px 80px;
+  background-position: 0 0, 20px 20px;
+  opacity: 0.06;
+}
+
+/* Highlight chips for warning/info rows */
+.uyz-warn-row {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.02));
+  border-top: 1px solid rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+}
+
+/* Inline mark for "blank" in next-token slide */
+.uyz-blank {
+  display: inline-block;
+  min-width: 140px;
+  border-bottom: 2px dashed rgba(168, 85, 247, 0.55);
+  color: rgba(168, 85, 247, 0.5);
+  margin: 0 6px;
+}
+
+/* Brand strip for cover cards */
+.uyz-brand-openai { background: linear-gradient(135deg, #10a37f 0%, #0d8a6a 100%); }
+.uyz-brand-anthropic { background: linear-gradient(135deg, #d97757 0%, #b45f3f 100%); }
+.uyz-brand-google { background: linear-gradient(135deg, #4285f4 0%, #34a853 33%, #fbbc04 66%, #ea4335 100%); }
+
+/* ── Hafta 10 yardımcıları (metin üretimi & NLP) ───────────────────── */
+
+/* Kod / terminal yüzeyi (NLP pipeline çıktısı) */
+.uyz-code {
+  background: #0d0314;
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: 10px;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #d8d2e6;
+  overflow-x: auto;
+}
+
+.uyz-code-kw { color: #c084fc; }
+.uyz-code-str { color: #4ade80; }
+.uyz-code-com { color: #6b7280; }
+.uyz-code-out { color: #93c5fd; }
+
+/* NLP boru hattı düğümleri arası ok */
+.uyz-flow-arrow {
+  color: rgba(192, 132, 252, 0.6);
+  flex-shrink: 0;
+}
+
+/* Açık-kapalı (highlight) etiket — NER / POS örnekleri için */
+.uyz-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+}
