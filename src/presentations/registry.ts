@@ -807,6 +807,226 @@ export const presentations: Record<string, Entry> = {
       ssr: false,
     }),
   },
+  "is-sagligi-ve-guvenligi-h02": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h02",
+      title: "İlk yardım eğitimi — II (BVA 1109 · 2. Hafta)",
+      description: "BVA 1109 2. hafta ders sunumu — İlk yardım eğitimi — II",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h03": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h03",
+      title: "İlk yardım malzemeleri — I (BVA 1109 · 3. Hafta)",
+      description: "BVA 1109 3. hafta ders sunumu — İlk yardım malzemeleri — I",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h04": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h04",
+      title: "İlk yardım malzemeleri — II (BVA 1109 · 4. Hafta)",
+      description: "BVA 1109 4. hafta ders sunumu — İlk yardım malzemeleri — II",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h05": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h05",
+      title: "Kişisel emniyet sağlama — I (BVA 1109 · 5. Hafta)",
+      description: "BVA 1109 5. hafta ders sunumu — Kişisel emniyet sağlama — I",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h06": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h06",
+      title: "Kişisel emniyet sağlama — II (BVA 1109 · 6. Hafta)",
+      description: "BVA 1109 6. hafta ders sunumu — Kişisel emniyet sağlama — II",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "is-sagligi-ve-guvenligi-h07": {
+    meta: {
+      slug: "is-sagligi-ve-guvenligi-h07",
+      title: "Kişisel emniyet sağlama — III (BVA 1109 · 7. Hafta)",
+      description: "BVA 1109 7. hafta ders sunumu — Kişisel emniyet sağlama — III",
+    },
+    Component: dynamic(() => import("./is-sagligi-ve-guvenligi-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h13": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h13",
+      title: "Erişilebilirlik (BVA 2245 · 13. Hafta)",
+      description: "BVA 2245 13. hafta ders sunumu — Erişilebilirlik (WCAG 2.2): alt text, kontrast, klavye navigasyonu",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h14": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h14",
+      title: "Kullanılabilirlik testi (BVA 2245 · 14. Hafta)",
+      description: "BVA 2245 14. hafta ders sunumu — Kullanılabilirlik testi (usability testing) ve heuristic değerlendirme",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "kullanici-arayuzu-tasarimi-h15": {
+    meta: {
+      slug: "kullanici-arayuzu-tasarimi-h15",
+      title: "Final proje sunumu ve kritik (BVA 2245 · 15. Hafta)",
+      description: "BVA 2245 15. hafta ders sunumu — Final proje sunumu ve kritik",
+    },
+    Component: dynamic(() => import("./kullanici-arayuzu-tasarimi-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h02": {
+    meta: {
+      slug: "programlama-temelleri-h02",
+      title: "Algoritmalar, algoritma türleri, algoritma oluşturma (BVA 1101 · 2. Hafta)",
+      description: "BVA 1101 2. hafta ders sunumu — Algoritmalar, algoritma türleri, algoritma oluşturma",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h02/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h03": {
+    meta: {
+      slug: "programlama-temelleri-h03",
+      title: "Akış diyagramları, kullanılan semboller, akış diyagramı oluşturma (BVA 1101 · 3. Hafta)",
+      description: "BVA 1101 3. hafta ders sunumu — Akış diyagramları, kullanılan semboller, akış diyagramı oluşturma",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h03/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h04": {
+    meta: {
+      slug: "programlama-temelleri-h04",
+      title: "Veri türleri, operatör çeşitleri, giriş-çıkış işlemleri (BVA 1101 · 4. Hafta)",
+      description: "BVA 1101 4. hafta ders sunumu — Veri türleri, operatör çeşitleri, giriş-çıkış işlemleri",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h04/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h05": {
+    meta: {
+      slug: "programlama-temelleri-h05",
+      title: "Karar ve kontrol yapıları (BVA 1101 · 5. Hafta)",
+      description: "BVA 1101 5. hafta ders sunumu — Karar ve kontrol yapıları",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h05/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h06": {
+    meta: {
+      slug: "programlama-temelleri-h06",
+      title: "Döngü yapıları (BVA 1101 · 6. Hafta)",
+      description: "BVA 1101 6. hafta ders sunumu — Döngü yapıları",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h06/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h07": {
+    meta: {
+      slug: "programlama-temelleri-h07",
+      title: "Karar ve döngü yapıları kullanarak problem çözme (BVA 1101 · 7. Hafta)",
+      description: "BVA 1101 7. hafta ders sunumu — Karar ve döngü yapıları kullanarak problem çözme",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h07/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h09": {
+    meta: {
+      slug: "programlama-temelleri-h09",
+      title: "Dizi tanımı ve tek boyutlu dizi tanımlamaları (BVA 1101 · 9. Hafta)",
+      description: "BVA 1101 9. hafta ders sunumu — Dizi tanımı ve tek boyutlu dizi tanımlamaları",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h09/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h10": {
+    meta: {
+      slug: "programlama-temelleri-h10",
+      title: "Çok boyutlu diziler ve matris kullanımı (BVA 1101 · 10. Hafta)",
+      description: "BVA 1101 10. hafta ders sunumu — Çok boyutlu diziler ve matris kullanımı",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h10/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h11": {
+    meta: {
+      slug: "programlama-temelleri-h11",
+      title: "Dizi kullanarak problem çözme (BVA 1101 · 11. Hafta)",
+      description: "BVA 1101 11. hafta ders sunumu — Dizi kullanarak problem çözme",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h11/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h12": {
+    meta: {
+      slug: "programlama-temelleri-h12",
+      title: "Metin (BVA 1101 · 12. Hafta)",
+      description: "BVA 1101 12. hafta ders sunumu — Metin (string), karakter katarı işlemleri",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h12/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h13": {
+    meta: {
+      slug: "programlama-temelleri-h13",
+      title: "Fonksiyon tanımı, çağrımı ve alt program kullanımı (BVA 1101 · 13. Hafta)",
+      description: "BVA 1101 13. hafta ders sunumu — Fonksiyon tanımı, çağrımı ve alt program kullanımı",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h13/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h14": {
+    meta: {
+      slug: "programlama-temelleri-h14",
+      title: "Sıralama ve arama algoritmaları, rekürsif fonksiyon kullanımı (BVA 1101 · 14. Hafta)",
+      description: "BVA 1101 14. hafta ders sunumu — Sıralama ve arama algoritmaları, rekürsif fonksiyon kullanımı",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h14/Presentation"), {
+      ssr: false,
+    }),
+  },
+  "programlama-temelleri-h15": {
+    meta: {
+      slug: "programlama-temelleri-h15",
+      title: "Dosyalama işlemleri (BVA 1101 · 15. Hafta)",
+      description: "BVA 1101 15. hafta ders sunumu — Dosyalama işlemleri",
+    },
+    Component: dynamic(() => import("./programlama-temelleri-h15/Presentation"), {
+      ssr: false,
+    }),
+  },
 };
 
 export const presentationList: PresentationMeta[] = Object.values(

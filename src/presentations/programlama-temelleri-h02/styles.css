@@ -1,0 +1,243 @@
+/* Programlama Temelleri H02 — Python mavisi temalı */
+
+.prog-shimmer {
+  background: linear-gradient(
+    90deg,
+    #3776ab 0%,
+    #5fa8e0 25%,
+    #ffffff 50%,
+    #5fa8e0 75%,
+    #3776ab 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: prog-shimmer 4s linear infinite;
+}
+
+.prog-shimmer-yellow {
+  background: linear-gradient(
+    90deg,
+    #ffd43b 0%,
+    #ffe169 25%,
+    #ffffff 50%,
+    #ffe169 75%,
+    #ffd43b 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: prog-shimmer 4s linear infinite;
+}
+
+@keyframes prog-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.prog-grid-bg {
+  background-image:
+    linear-gradient(rgba(55, 118, 171, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(55, 118, 171, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.prog-window-chrome {
+  background: linear-gradient(180deg, #1e1e1e, #0f0f0f);
+  border: 1px solid rgba(55, 118, 171, 0.35);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.8),
+    0 0 60px -20px rgba(55, 118, 171, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.prog-window-bar {
+  background: linear-gradient(180deg, #2d2d2d, #1f1f1f);
+  border-bottom: 1px solid rgba(55, 118, 171, 0.25);
+}
+
+.prog-card {
+  background: linear-gradient(
+    135deg,
+    rgba(55, 118, 171, 0.05) 0%,
+    rgba(55, 118, 171, 0.01) 100%
+  );
+  border: 1px solid rgba(55, 118, 171, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.prog-card-hover:hover {
+  border-color: rgba(95, 168, 224, 0.45);
+  background: linear-gradient(
+    135deg,
+    rgba(55, 118, 171, 0.09) 0%,
+    rgba(55, 118, 171, 0.02) 100%
+  );
+}
+
+.prog-card-yellow {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 212, 59, 0.06) 0%,
+    rgba(255, 212, 59, 0.01) 100%
+  );
+  border: 1px solid rgba(255, 212, 59, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.prog-pulse {
+  animation: prog-pulse 2s ease-in-out infinite;
+}
+
+@keyframes prog-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+/* Python logo tile */
+.prog-py-tile {
+  background: linear-gradient(135deg, #3776ab 0%, #ffd43b 100%);
+  color: white;
+  font-weight: 900;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* VS Code style editor */
+.prog-editor {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.prog-editor-gutter {
+  background: #1e1e1e;
+  color: #858585;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 12px;
+  text-align: right;
+  user-select: none;
+  border-right: 1px solid #2d2d2d;
+}
+
+.prog-editor-tabbar {
+  background: #252526;
+  border-bottom: 1px solid #181818;
+}
+
+.prog-editor-tab {
+  background: #2d2d2d;
+  color: #cccccc;
+  border-right: 1px solid #181818;
+  font-size: 11px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prog-editor-tab-active {
+  background: #1e1e1e;
+  color: #ffffff;
+  border-top: 2px solid #3776ab;
+}
+
+/* Python syntax colors (VS Code Dark+ palette) */
+.tok-keyword { color: #c586c0; }     /* def, if, for, in */
+.tok-builtin { color: #4ec9b0; }     /* print, input, len */
+.tok-string  { color: #ce9178; }     /* "..." */
+.tok-number  { color: #b5cea8; }     /* 42 */
+.tok-comment { color: #6a9955; font-style: italic; }
+.tok-fname   { color: #dcdcaa; }     /* function names */
+.tok-var     { color: #9cdcfe; }     /* identifiers */
+.tok-punct   { color: #d4d4d4; }
+.tok-operator{ color: #d4d4d4; }
+.tok-fstring { color: #d7ba7d; }     /* f-string prefix */
+
+/* Terminal panel */
+.prog-terminal {
+  background: #0c0c0c;
+  color: #cccccc;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 12px;
+  border-top: 1px solid #2d2d2d;
+}
+
+.prog-terminal-prompt { color: #5fa8e0; }
+.prog-terminal-out    { color: #cccccc; }
+.prog-terminal-user   { color: #ffd43b; }
+
+/* Flowchart SVG container */
+.prog-flow-bg {
+  background: linear-gradient(135deg, #0f1620 0%, #0a0f17 100%);
+  border: 1px solid rgba(55, 118, 171, 0.25);
+  border-radius: 12px;
+}
+
+/* Section divider icon glow gradients */
+.prog-glow-blue {
+  background: linear-gradient(135deg, #3776ab 0%, #2c5d88 100%);
+  box-shadow: 0 0 80px 10px rgba(55, 118, 171, 0.45);
+}
+
+.prog-glow-yellow {
+  background: linear-gradient(135deg, #ffd43b 0%, #f5a623 100%);
+  box-shadow: 0 0 80px 10px rgba(255, 212, 59, 0.4);
+}
+
+.prog-glow-purple {
+  background: linear-gradient(135deg, #8a64d6 0%, #5a3aa8 100%);
+  box-shadow: 0 0 80px 10px rgba(138, 100, 214, 0.4);
+}
+
+/* Comparison table */
+.prog-compare {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.prog-compare th {
+  background: #1a2230;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(55, 118, 171, 0.35);
+  text-align: left;
+}
+
+.prog-compare td {
+  padding: 10px 16px;
+  color: #d4d4d4;
+  border-bottom: 1px solid rgba(55, 118, 171, 0.12);
+}
+
+.prog-compare tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── H02 yardımcı sınıfları ───────────────────────────────── */
+
+/* Sözde-kod (pseudocode) kutusu — numaralı adımlar için */
+.prog-pseudo {
+  background: #11161f;
+  border: 1px solid rgba(55, 118, 171, 0.3);
+  border-radius: 10px;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 13px;
+  color: #d4d4d4;
+  line-height: 1.7;
+}
+
+.prog-pseudo-kw { color: #c586c0; font-weight: 600; }  /* BAŞLA, EĞER, DÖNGÜ */
+.prog-pseudo-num { color: #5fa8e0; }                   /* satır numarası */
