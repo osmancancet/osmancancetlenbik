@@ -5,7 +5,7 @@ import { Projects } from "@/components/sections/Projects";
 export const metadata: Metadata = {
   title: "Projeler",
   description:
-    "GitHub'daki öne çıkan açık kaynak ve kişisel projeler.",
+    "Mobil uygulamalar, web platformları, veri & yapay zekâ araçları ve oyunlar — açık kaynak projeler ve canlı ürünler.",
 };
 
 export default function ProjelerPage() {
@@ -13,7 +13,7 @@ export default function ProjelerPage() {
     <PageShell
       eyebrow="Çalışmalar"
       title="Projeler"
-      subtitle="GitHub'daki öne çıkan açık kaynak ve kişisel projelerim."
+      subtitle="Mobil uygulamalardan web platformlarına, veri araçlarından oyunlara — geliştirdiğim açık kaynak projeler ve canlı ürünler."
     >
       <Projects />
     </PageShell>
