@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 
 const slug = "yapay-zeka-dolandiriciliklari-2026";
 const title =
-  "Seni arayan o ses annen değil: 2026'nın yapay zekâ dolandırıcılıkları ve 7 korunma refleksi";
+  "Seni arayan o ses yakının değil: 2026'nın yapay zekâ dolandırıcılıkları ve 7 korunma refleksi";
 const excerpt =
   "Klonlanmış sesler, deepfake görüntülü aramalar, kusursuz Türkçe sahte mesajlar… Dolandırıcılık artık ucuzladı ve ölçeklendi. İşte 2026'da en sık karşına çıkacak 6 tuzak ve onları saniyeler içinde fark ettiren 7 refleks — örneklerle.";
 

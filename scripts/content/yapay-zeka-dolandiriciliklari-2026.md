@@ -1,6 +1,6 @@
-Telefonun çalıyor, ekranda "Annem" yazıyor. Açıyorsun, tam onun sesi: *"Oğlum başım dertte, kaza yaptım, hemen şu hesaba para gönder, sonra anlatırım."* Ses titriyor, aceleci, tanıdık. Kalbin sıkışıyor, elin kart bilgilerine gidiyor.
+Telefonun çalıyor, ekranda tanıdık bir isim — bir yakının. Açıyorsun, tam onun sesi: *"Başım dertte, kaza yaptım, hemen şu hesaba para gönder, sonra anlatırım."* Ses titriyor, aceleci, tanıdık. Kalbin sıkışıyor, elin kart bilgilerine gidiyor.
 
-Tek sorun: o, annen değil.
+Tek sorun: o, yakının değil.
 
 2026'da bir yapay zekânın senin sesini kopyalaması için ihtiyacı olan tek şey, internette bir yerde duran **30 saniyelik** bir ses kaydı. Bir Instagram videosu, bir sesli mesaj, bir düğün kaydı… Yeter. Ve bu, dolandırıcılığın sadece bir yüzü.
 
@@ -148,7 +148,7 @@ Garantili kazanç, hediye telefon, "sadece bugün" indirimi… Bir teklif ne kad
 
 En güçlü ve en basit koruma bu: Ailenle, sadece sizin bileceğiniz bir **güvenli kelime** belirleyin. Sıradan, tahmin edilmesi zor bir şey ("gökkuşağı-42" gibi).
 
-Kural şu: Biri arayıp acil para isterse, karşı taraf bu kelimeyi söyleyemiyorsa, o kişi ailen değildir. En gelişmiş ses klonlama bile aile içinde konuşulmuş bir sırrı bilemez.
+Kural şu: Biri arayıp acil para isterse, karşı taraf bu kelimeyi söyleyemiyorsa, o kişi gerçekten yakının değildir. En gelişmiş ses klonlama bile yakın çevrende konuşulmuş bir sırrı bilemez.
 
 *Bu akşam aile grubuna bir mesaj at, bir kelime belirleyin. Beş dakikanı alır, bir gün servetini kurtarabilir.*
 
