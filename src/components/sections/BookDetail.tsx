@@ -16,7 +16,16 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import type { Book } from "@/data/books";
+import type { Book, BookStore } from "@/data/books";
+
+/**
+ * Mağazaları Türkçe alfabeye göre sıralar.
+ * localeCompare("tr") şart: varsayılan İngilizce sıralama "Kitapseç"i
+ * "Kitapsepeti"den sonraya atar (ç > p sanır) ve "İstanbul"u yanlış yere koyar.
+ */
+function sortedStores(stores: BookStore[]): BookStore[] {
+  return [...stores].sort((a, b) => a.name.localeCompare(b.name, "tr"));
+}
 
 /** data/books.ts'teki ikon adlarını bileşene bağlar. */
 const ICONS: Record<string, LucideIcon> = {
@@ -75,33 +84,24 @@ export function BookDetail({ book }: { book: Book }) {
             </div>
           </Reveal>
 
-          {/* Satın alma linkleri */}
+          {/* Satın alma linkleri — hepsi eşit, Türkçe alfabeye göre sıralı */}
           <Reveal delay={0.15}>
             <div>
               <h2 className="text-xs uppercase tracking-[0.18em] text-[var(--fg-subtle)] font-mono mb-4">
-                Satın al
+                Satın al · {book.stores.length} satış noktası
               </h2>
-              <div className="flex flex-wrap gap-3">
-                {book.stores.map((s) => (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {sortedStores(book.stores).map((s) => (
                   <a
                     key={s.name}
                     href={s.url}
                     target="_blank"
                     rel="noreferrer"
-                    className={`group inline-flex items-center gap-2.5 px-5 py-3 rounded-md text-sm font-medium transition-colors ${
-                      s.publisher
-                        ? "bg-[var(--accent)] text-[var(--bg)] hover:bg-[var(--accent-bright)]"
-                        : "card hover:border-[var(--accent)]/50 text-[var(--fg)]"
-                    }`}
+                    className="group card inline-flex items-center gap-2.5 px-4 py-3 rounded-md text-sm font-medium text-[var(--fg)] hover:border-[var(--accent)]/50 transition-colors"
                   >
-                    <ShoppingCart className="w-4 h-4" />
-                    {s.name}
-                    {s.publisher && (
-                      <span className="text-[10px] uppercase tracking-wider opacity-70">
-                        Yayınevi
-                      </span>
-                    )}
-                    <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <ShoppingCart className="w-4 h-4 text-[var(--accent)] flex-none" />
+                    <span className="truncate">{s.name}</span>
+                    <ExternalLink className="w-3.5 h-3.5 ml-auto flex-none text-[var(--fg-subtle)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                   </a>
                 ))}
               </div>

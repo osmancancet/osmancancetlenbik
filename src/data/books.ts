@@ -13,8 +13,6 @@
 export type BookStore = {
   name: string;
   url: string;
-  /** Yayınevinin kendi mağazası mı (öne çıkarılır). */
-  publisher?: boolean;
 };
 
 export type BookHighlight = {
@@ -91,44 +89,47 @@ export const books: Book[] = [
       "Savunma protokolleri",
       "QR kodlarla interaktif simülasyon",
     ],
-    // Tümü tek tek açılıp ISBN 9786256677418 ile doğrulandı.
+    /**
+     * Tümü tek tek açılıp ISBN 9786256677418 ile doğrulandı.
+     * Sayfada Türkçe alfabeye göre sıralanıyor (bkz. BookDetail.tsx) —
+     * hiçbir mağaza öne çıkarılmıyor, buradaki sıra önemsiz.
+     */
     stores: [
-      {
-        name: "Kodlab",
-        url: "https://www.kodlab.com/ana-sayfa/719-Alo-Ben-Polis-9786256677418.html",
-        publisher: true,
-      },
       {
         name: "D&R",
         url: "https://www.dr.com.tr/kitap/tiklama-insan-zihnini-hackleme-sanati/osman-can-cetlenbik/egitim-ve-sinav-kitaplari/bilgisayar-kitaplari/diger/urunno=0002236596001",
-      },
-      {
-        name: "Kitapsepeti",
-        url: "https://www.kitapsepeti.com/tiklama-insan-zihnini-hackleme-sanati",
-      },
-      {
-        name: "İstanbul Kitapçısı",
-        url: "https://www.istanbulkitapcisi.com/tiklama-insan-zihnini-hackleme-sanati",
-      },
-      {
-        name: "Kitapseç",
-        url: "https://www.kitapsec.com/Products/Tiklama-Insan-Zihnini-Hackleme-Sanati-Kodlab-Yayin-Dagitim-946459.html",
-      },
-      {
-        name: "Şehadet Kitap",
-        url: "https://www.sehadetkitap.com/urun/tikla-ma-insan-zihnini-hackleme-sanati",
-      },
-      {
-        name: "Kitapova",
-        url: "https://www.kitapova.com/tikla-ma-insan-zihnini-hackleme-sanati",
       },
       {
         name: "Ekin Kitap",
         url: "https://www.ekinkitap.com/tikla-ma-insan-zihnini-hackleme-sanati",
       },
       {
+        name: "İstanbul Kitapçısı",
+        url: "https://www.istanbulkitapcisi.com/tiklama-insan-zihnini-hackleme-sanati",
+      },
+      {
+        name: "Kitapova",
+        url: "https://www.kitapova.com/tikla-ma-insan-zihnini-hackleme-sanati",
+      },
+      {
+        name: "Kitapseç",
+        url: "https://www.kitapsec.com/Products/Tiklama-Insan-Zihnini-Hackleme-Sanati-Kodlab-Yayin-Dagitim-946459.html",
+      },
+      {
+        name: "Kitapsepeti",
+        url: "https://www.kitapsepeti.com/tiklama-insan-zihnini-hackleme-sanati",
+      },
+      {
+        name: "Kodlab",
+        url: "https://www.kodlab.com/ana-sayfa/719-Alo-Ben-Polis-9786256677418.html",
+      },
+      {
         name: "Nadir Kitap",
         url: "https://www.nadirkitap.com/tikla-ma-insan-zihnini-hackleme-sanati-osman-can-cetlenbik-kodlab-yayin-dagitim-kitap48204369.html",
+      },
+      {
+        name: "Şehadet Kitap",
+        url: "https://www.sehadetkitap.com/urun/tikla-ma-insan-zihnini-hackleme-sanati",
       },
     ],
     featured: true,

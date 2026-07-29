@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ShoppingCart } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { featuredBook } from "@/data/books";
 
@@ -8,8 +8,6 @@ import { featuredBook } from "@/data/books";
 export function FeaturedBook() {
   const book = featuredBook;
   if (!book) return null;
-
-  const publisherStore = book.stores.find((s) => s.publisher) ?? book.stores[0];
 
   return (
     <section className="relative px-6 py-20 border-t border-[var(--border)]">
@@ -57,7 +55,7 @@ export function FeaturedBook() {
             </Reveal>
 
             <Reveal delay={0.15}>
-              <div className="mt-7 flex flex-wrap items-center gap-3">
+              <div className="mt-7 flex flex-wrap items-center gap-4">
                 <Link
                   href={`/kitaplar/${book.slug}`}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold rounded-md hover:opacity-90 transition-opacity"
@@ -65,17 +63,11 @@ export function FeaturedBook() {
                   Kitabı incele
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-                {publisherStore && (
-                  <a
-                    href={publisherStore.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 card rounded-md text-sm text-[var(--fg)] hover:border-[var(--accent)]/50 transition-colors"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    {publisherStore.name}&apos;dan satın al
-                  </a>
-                )}
+                {/* Tek bir mağazayı öne çıkarmak yerine sayıyı söyle;
+                    satın alma linklerinin tamamı kitap sayfasında eşit duruyor. */}
+                <span className="text-sm text-[var(--fg-subtle)]">
+                  {book.stores.length} satış noktasında
+                </span>
               </div>
             </Reveal>
           </div>
