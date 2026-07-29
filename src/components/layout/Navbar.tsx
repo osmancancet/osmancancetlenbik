@@ -11,6 +11,7 @@ const links = [
   { href: "/hakkimda", label: "Hakkımda" },
   { href: "/dersler", label: "Dersler" },
   { href: "/yazilarim", label: "Yazılarım" },
+  { href: "/kitaplar", label: "Kitaplarım" },
   { href: "/yayinlar", label: "Yayınlar" },
   { href: "/konferanslarim", label: "Konferanslarım" },
   { href: "/basin", label: "Basında" },

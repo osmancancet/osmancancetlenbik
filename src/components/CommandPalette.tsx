@@ -7,6 +7,7 @@ import Fuse from "fuse.js";
 import {
   FileText,
   BookOpen,
+  BookMarked,
   CalendarDays,
   Mic,
   Layers,
@@ -22,6 +23,7 @@ const TYPE_META: Record<
 > = {
   page: { label: "Sayfa", icon: Layers },
   post: { label: "Yazı", icon: FileText },
+  book: { label: "Kitap", icon: BookMarked },
   course: { label: "Ders", icon: BookOpen },
   week: { label: "Hafta", icon: CalendarDays },
   conference: { label: "Konferans", icon: Mic },

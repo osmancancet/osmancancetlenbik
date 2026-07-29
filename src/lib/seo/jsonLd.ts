@@ -73,6 +73,51 @@ export function courseJsonLd(args: {
   };
 }
 
+export function bookJsonLd(args: {
+  title: string;
+  description: string;
+  url: string;
+  image: string;
+  isbn: string;
+  publisher: string;
+  pages: number;
+  year: string;
+  /** Satış sayfaları — Google kitabı bu sayfalarla ilişkilendirir. */
+  storeUrls: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    name: args.title,
+    description: args.description,
+    url: args.url,
+    image: args.image,
+    isbn: args.isbn,
+    numberOfPages: args.pages,
+    datePublished: args.year,
+    bookFormat: "https://schema.org/Paperback",
+    inLanguage: "tr",
+    author: {
+      "@type": "Person",
+      name: profile.name,
+      url: siteUrl,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: args.publisher,
+    },
+    workExample: args.storeUrls.map((u) => ({
+      "@type": "Book",
+      isbn: args.isbn,
+      bookFormat: "https://schema.org/Paperback",
+      potentialAction: {
+        "@type": "ReadAction",
+        target: u,
+      },
+    })),
+  };
+}
+
 export function eventJsonLd(args: {
   title: string;
   description: string;

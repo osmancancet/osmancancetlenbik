@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { books } from "@/data/books";
 
 export const dynamic = "force-dynamic";
 
 export type SearchResult = {
   id: string;
-  type: "post" | "course" | "week" | "conference" | "press" | "page";
+  type: "post" | "course" | "week" | "conference" | "press" | "page" | "book";
   title: string;
   description?: string;
   href: string;
@@ -17,6 +18,7 @@ const STATIC_PAGES: SearchResult[] = [
   { id: "p-cv", type: "page", title: "CV / Özgeçmiş", href: "/cv" },
   { id: "p-courses", type: "page", title: "Dersler", href: "/dersler" },
   { id: "p-posts", type: "page", title: "Yazılarım", href: "/yazilarim" },
+  { id: "p-books", type: "page", title: "Kitaplarım", href: "/kitaplar" },
   { id: "p-pubs", type: "page", title: "Yayınlar", href: "/yayinlar" },
   { id: "p-confs", type: "page", title: "Konferanslarım", href: "/konferanslarim" },
   { id: "p-press", type: "page", title: "Basında", href: "/basin" },
@@ -52,6 +54,13 @@ export async function GET() {
 
   const results: SearchResult[] = [
     ...STATIC_PAGES,
+    ...books.map((b) => ({
+      id: `book-${b.slug}`,
+      type: "book" as const,
+      title: `${b.title} — ${b.subtitle}`,
+      description: b.excerpt,
+      href: `/kitaplar/${b.slug}`,
+    })),
     ...posts.map((p) => ({
       id: `post-${p.id}`,
       type: "post" as const,

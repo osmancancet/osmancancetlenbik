@@ -3,6 +3,7 @@ import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { HomeStats } from "@/components/sections/HomeStats";
 import { HomeRecent } from "@/components/sections/HomeRecent";
 import { CurrentSemesterCourses } from "@/components/sections/CurrentSemesterCourses";
+import { FeaturedBook } from "@/components/sections/FeaturedBook";
 import { Reveal } from "@/components/ui/Reveal";
 import { prisma } from "@/lib/prisma";
 import { publications } from "@/data/publications";
@@ -68,6 +69,9 @@ export default async function Home() {
     <div className="pt-16">
       <AnnouncementBar announcement={announcement} />
       <Hero />
+
+      {/* Yeni kitap */}
+      <FeaturedBook />
 
       {/* Current semester courses */}
       <CurrentSemesterCourses

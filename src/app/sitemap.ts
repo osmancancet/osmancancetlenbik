@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/site";
+import { books } from "@/data/books";
 
 // Build sırasında DB bağlanamazsa fail etmesin — request-time'da generate
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/hakkimda",
     "/dersler",
     "/yazilarim",
+    "/kitaplar",
     "/yayinlar",
     "/konferanslarim",
     "/projeler",
@@ -86,8 +88,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  const bookPages: MetadataRoute.Sitemap = books.map((b) => ({
+    url: `${siteUrl}/kitaplar/${b.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.9,
+  }));
+
   return [
     ...staticPages,
+    ...bookPages,
     ...postPages,
     ...coursePages,
     ...weekPages,
