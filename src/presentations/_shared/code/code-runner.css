@@ -1,0 +1,393 @@
+/* ==========================================================================
+   Slaytlarda çalışan Python editörü.
+
+   SIKI KURAL: bu dosya YALNIZCA `.pyrun-*` önekli YENİ sınıflar tanımlar.
+   Mevcut `.prog-*` ve `.tok-*` sınıfları ASLA yeniden tanımlanmaz — onlar 14
+   haftanın styles.css'inde byte-byte aynı ve yeniden tanımlanırsa hangisinin
+   kazanacağı Turbopack'in CSS import sırasına bağlı hale gelir.
+   Tek istisna: aşağıdaki gezinme bölgesi kuralları, sınıfı DEĞİL yalnızca
+   `pointer-events`'i anahtarlar.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1) EDİTÖR YÜZEYİ — <pre> ve <textarea> üst üste bindirilir
+
+   Bu bileşenin bir numaralı hata kaynağı PİKSEL SENKRONU. Aşağıdaki
+   --pyrun-* değişkenleri hem <pre> hem <textarea> hem de gutter tarafından
+   kullanılır; herhangi birinin ayrışması metnin renkli katmandan kaymasına
+   yol açar.
+
+   `line-height` neden 21px ve 1.6 DEĞİL:
+   .prog-editor'da line-height 1.6 → 13px × 1.6 = 20.8px. Kesirli satır
+   yüksekliğini <pre> ve <textarea> farklı yuvarlayabilir; 30 satır sonra renk
+   katmanı bir satır kayar. Tam sayı piksel bunu imkânsız kılar.
+   -------------------------------------------------------------------------- */
+
+.pyrun-card {
+  --pyrun-font: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  --pyrun-size: 13px;
+  --pyrun-line: 21px;
+  --pyrun-pad-y: 12px;
+  --pyrun-pad-x: 16px;
+  --pyrun-fg: #d4d4d4;
+  --pyrun-bg: #1e1e1e;
+
+  position: relative;
+  z-index: 40;
+}
+
+/* KAYDIRMA SENKRONU KODLA DEĞİL DÜZENLE ÇÖZÜLÜR.
+   Yaygın (ve kırılgan) yaklaşım textarea.onScroll ile <pre>.scrollTop'u elle
+   eşitlemektir; imleç uzun bir satırın sonuna gidince tarayıcı textarea'yı
+   kendi başına kaydırır ve katmanlar ayrışır.
+   Bunun yerine: KAPSAYICI kaydırılır, <pre> içeriğin gerçek boyutunu belirler,
+   <textarea> ise onun üstüne inset:0 ile tam oturur. İkisi de içerik kadar
+   büyük olduğu için kendi içlerinde HİÇ kaydırma olmaz → ayrışma imkânsız.
+   Gutter `position: sticky` ile yatay kaydırmada yerinde kalır. */
+.pyrun-editor {
+  background: var(--pyrun-bg);
+  display: flex;
+  align-items: flex-start;
+  overflow: auto;
+  max-height: 42vh;
+  /* Dokunmatikte metin seçme/kaydırma slayt geçişini tetiklemesin */
+  touch-action: pan-x pan-y;
+}
+
+.pyrun-gutter {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--pyrun-bg);
+  color: #858585;
+  border-right: 1px solid #2d2d2d;
+  font-family: var(--pyrun-font);
+  font-size: var(--pyrun-size);
+  line-height: var(--pyrun-line);
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+  padding: var(--pyrun-pad-y) 10px var(--pyrun-pad-y) 14px;
+  text-align: right;
+  user-select: none;
+  flex: none;
+  box-sizing: border-box;
+}
+
+.pyrun-gutter-num {
+  display: block;
+  height: var(--pyrun-line);
+}
+
+.pyrun-scroll {
+  position: relative;
+  flex: 1 0 auto;
+  /* Uzun satırlarda yatay kaydırma için: kutu içeriğin tam genişliği kadar */
+  min-width: max-content;
+}
+
+/* <pre> ve <textarea> ORTAK metrikleri — ikisi de bu bloğu alır */
+.pyrun-pre,
+.pyrun-ta {
+  margin: 0;
+  border: 0;
+  font-family: var(--pyrun-font);
+  font-size: var(--pyrun-size);
+  line-height: var(--pyrun-line);
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+  font-feature-settings: normal;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  padding: var(--pyrun-pad-y) var(--pyrun-pad-x);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+
+/* <pre> STATİK: içeriğin gerçek boyutunu o belirler (kapsayıcı ona göre kaydırır) */
+.pyrun-pre {
+  position: relative;
+  pointer-events: none;
+  overflow: visible;
+  color: var(--pyrun-fg);
+  min-height: calc(var(--pyrun-line) * 4 + var(--pyrun-pad-y) * 2);
+}
+
+/* <textarea> <pre>'nin üstüne birebir oturur; kendi içinde kaydırmaz */
+.pyrun-ta {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: transparent;
+  /* Metin görünmez; görünen katman arkadaki renkli <pre>. Yalnızca imleç
+     ve seçim görünür kalır. */
+  color: transparent;
+  caret-color: var(--pyrun-fg);
+  resize: none;
+  overflow: hidden;
+  outline: none;
+}
+
+.pyrun-ta::selection {
+  background: rgba(55, 118, 171, 0.45);
+  color: transparent;
+}
+
+/* globals.css'teki yeşil (#00ff41) :focus-visible halkası bu bağlamda
+   VS Code görünümünü bozuyor — sadece burada ince maviyle değiştiriliyor. */
+.pyrun-ta:focus-visible {
+  outline: 1px solid rgba(95, 168, 224, 0.55);
+  outline-offset: -1px;
+}
+
+.pyrun-line {
+  display: inline;
+}
+
+/* Salt-okunur (çalıştırma yokken) gösterim — düzenlenebilir sürümle aynı metrik */
+.pyrun-static {
+  color: var(--pyrun-fg);
+}
+
+/* --------------------------------------------------------------------------
+   2) ÜST ÇUBUK — Çalıştır / Durdur / Sıfırla
+   -------------------------------------------------------------------------- */
+
+.pyrun-toolbar {
+  background: linear-gradient(180deg, #252526, #1f1f1f);
+  border-bottom: 1px solid #181818;
+}
+
+.pyrun-btn {
+  font-family: var(--pyrun-font);
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.pyrun-btn-run {
+  background: #2ea043;
+  color: #fff;
+  font-weight: 600;
+}
+.pyrun-btn-run:hover:not(:disabled) { background: #3fb950; }
+
+.pyrun-btn-stop {
+  background: #a72f2f;
+  color: #fff;
+  font-weight: 600;
+}
+.pyrun-btn-stop:hover { background: #c93c3c; }
+
+.pyrun-btn-ghost {
+  background: transparent;
+  color: #9aa0a6;
+  border-color: #3a3a3a;
+}
+.pyrun-btn-ghost:hover:not(:disabled) { color: #e6e6e6; border-color: #5a5a5a; }
+
+.pyrun-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.pyrun-hint {
+  font-family: var(--pyrun-font);
+  font-size: 10px;
+  color: #6e7681;
+}
+
+.pyrun-kbd {
+  font-family: var(--pyrun-font);
+  font-size: 9px;
+  border: 1px solid #3a3a3a;
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  padding: 1px 4px;
+  color: #9aa0a6;
+}
+
+/* --------------------------------------------------------------------------
+   3) TERMİNAL — .prog-terminal'i EZMEZ, yanına ek sınıflar getirir
+   -------------------------------------------------------------------------- */
+
+.pyrun-term {
+  background: #0c0c0c;
+  color: #cccccc;
+  font-family: var(--pyrun-font);
+  font-size: 12px;
+  line-height: 1.55;
+  border-top: 1px solid #2d2d2d;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
+  max-height: 26vh;
+}
+
+.pyrun-term-err { color: #f0a05a; }
+
+/* Hata için KIRMIZI değil turuncu: 1. sınıf öğrencisini korkutmamak için
+   bilinçli seçim; projeksiyon parlaklığında #1e1e1e üstünde kontrastı yeterli. */
+.pyrun-note-err {
+  background: rgba(240, 160, 90, 0.09);
+  border-left: 3px solid #f0a05a;
+  color: #f5c08a;
+}
+
+.pyrun-note-ok {
+  background: rgba(78, 201, 176, 0.09);
+  border-left: 3px solid #4ec9b0;
+  color: #7fe0cd;
+}
+
+.pyrun-note-info {
+  background: rgba(95, 168, 224, 0.09);
+  border-left: 3px solid #5fa8e0;
+  color: #a8d3f0;
+}
+
+.pyrun-trace {
+  color: #8b949e;
+  font-family: var(--pyrun-font);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* --------------------------------------------------------------------------
+   4) GİRDİ (stdin) kutusu
+   -------------------------------------------------------------------------- */
+
+.pyrun-stdin {
+  background: #171717;
+  border-top: 1px solid #2d2d2d;
+}
+
+.pyrun-stdin-ta {
+  width: 100%;
+  background: #101010;
+  color: #d7ba7d;
+  font-family: var(--pyrun-font);
+  font-size: 12px;
+  line-height: 1.6;
+  border: 1px solid #2d2d2d;
+  border-radius: 6px;
+  padding: 6px 10px;
+  resize: vertical;
+  outline: none;
+}
+.pyrun-stdin-ta:focus-visible {
+  outline: 1px solid rgba(95, 168, 224, 0.55);
+  outline-offset: -1px;
+  border-color: #3a3a3a;
+}
+
+/* EOF'ta kullanıcının dikkatini kutuya çeken kısa vurgu */
+@keyframes pyrun-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(240, 160, 90, 0); }
+  30%      { box-shadow: 0 0 0 3px rgba(240, 160, 90, 0.5); }
+}
+.pyrun-flash { animation: pyrun-ring 1.1s ease-out 2; }
+
+/* --------------------------------------------------------------------------
+   5) ALIŞTIRMA durumları
+   -------------------------------------------------------------------------- */
+
+.pyrun-card[data-state="pass"] { box-shadow: 0 0 0 1px #4ec9b0, 0 0 30px -8px rgba(78, 201, 176, 0.55); }
+.pyrun-card[data-state="fail"] { box-shadow: 0 0 0 1px #f0a05a, 0 0 30px -8px rgba(240, 160, 90, 0.45); }
+.pyrun-card[data-state="error"] { box-shadow: 0 0 0 1px #d9534f, 0 0 30px -8px rgba(217, 83, 79, 0.4); }
+
+.pyrun-badge {
+  font-family: var(--pyrun-font);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+.pyrun-badge-ok   { background: rgba(78, 201, 176, 0.15); color: #4ec9b0; }
+.pyrun-badge-fail { background: rgba(240, 160, 90, 0.15); color: #f0a05a; }
+.pyrun-badge-neutral { background: rgba(255, 255, 255, 0.07); color: #9aa0a6; }
+
+/* --------------------------------------------------------------------------
+   6) SLAYT GEZİNME BÖLGESİ ÇAKIŞMASI
+
+   Sunum köklerinde ekranın sol/sağ %12'sini kaplayan görünmez "önceki/sonraki
+   slayt" butonları var (z-30). Editör max-w-6xl ortalanmış olduğu için ~1280px
+   genişlikte kenarları bu bölgelerle örtüşür ve editöre tıklamak slaytı
+   değiştirir.
+
+   NEDEN z-index YETMEZ: slayt sarmalayıcısı bir motion.div; framer-motion
+   animasyon bittiğinde `transform` bırakabilir, `transform` ise yeni bir
+   stacking context açar. O durumda editörün z-40'ı bağlamın İÇİNDE kalır ve
+   kardeş z-30 butonlar yine üstte olur. Davranış deterministik değil.
+
+   ÇÖZÜM: z-index'e hiç güvenmeden `pointer-events` anahtarla. Üç katman:
+     (a) :has() ile editöre fare girince / odak alınca
+     (b) JS'in body'ye yazdığı data-pyrun-engaged bayrağı (:has() yedeği,
+         aria-label'lar 119 sunumda aynı olduğu için sınıf eklenmemiş
+         sunumlarda da çalışır)
+     (c) .pyrun-card üzerindeki z-40 (stacking context yoksa yeterli)
+   -------------------------------------------------------------------------- */
+
+body:has(.pyrun-card:hover) .prog-nav-zone,
+body:has(.pyrun-ta:focus) .prog-nav-zone,
+body:has(.pyrun-stdin-ta:focus) .prog-nav-zone {
+  pointer-events: none;
+}
+
+body[data-pyrun-engaged="1"] button[aria-label="Önceki slayt"],
+body[data-pyrun-engaged="1"] button[aria-label="Sonraki slayt"],
+body[data-pyrun-engaged="1"] .prog-nav-zone {
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   7) MOBİL
+
+   iOS auto-zoom tuzağı: 16px'ten küçük bir font-size'a odaklanınca Safari
+   sayfayı zoom'lar ve `fixed inset-0` sunum düzeni bozulur. <pre>, <textarea>
+   ve gutter BİRLİKTE 16px'e çıkmalı — yalnızca birini büyütmek satır
+   hizasını bozar.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .pyrun-card {
+    --pyrun-size: 16px;
+    --pyrun-line: 26px;
+    --pyrun-pad-x: 12px;
+  }
+  .pyrun-term { font-size: 13px; max-height: 30vh; }
+  .pyrun-stdin-ta { font-size: 16px; }
+}
+
+/* Dokunmatik cihazlarda Tab tuşu yok — girinti araç çubuğu */
+.pyrun-touchbar { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .pyrun-touchbar { display: flex; }
+}
+
+.pyrun-touchbar-key {
+  font-family: var(--pyrun-font);
+  font-size: 13px;
+  min-width: 34px;
+  height: 30px;
+  border: 1px solid #3a3a3a;
+  border-radius: 5px;
+  background: #252526;
+  color: #cccccc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pyrun-flash { animation: none; }
+}
