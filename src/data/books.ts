@@ -104,6 +104,10 @@ export const books: Book[] = [
         url: "https://www.ekinkitap.com/tikla-ma-insan-zihnini-hackleme-sanati",
       },
       {
+        name: "Hepsiburada",
+        url: "https://www.hepsiburada.com/tikla-ma-insan-zihnini-hackleme-sanati-pm-HBC0000GUJ0JQ",
+      },
+      {
         name: "İstanbul Kitapçısı",
         url: "https://www.istanbulkitapcisi.com/tiklama-insan-zihnini-hackleme-sanati",
       },
@@ -130,6 +134,13 @@ export const books: Book[] = [
       {
         name: "Şehadet Kitap",
         url: "https://www.sehadetkitap.com/urun/tikla-ma-insan-zihnini-hackleme-sanati",
+      },
+      {
+        // Sorgu parametreleri bilerek korundu: `merchantId` teklifi yayınevinin
+        // kendi mağazasına sabitliyor. Trendyol otomatik isteklere 403 döndürdüğü
+        // için sadeleştirilmiş bir URL'in çalıştığı doğrulanamadı.
+        name: "Trendyol",
+        url: "https://www.trendyol.com/pd/kodlab-yayin-dagitim/tikla-ma-insan-zihnini-hackleme-sanati-9786256677418-p-1177231535?boutiqueId=61&merchantId=115133&filterOverPriceListings=false&sav=true",
       },
     ],
     featured: true,
