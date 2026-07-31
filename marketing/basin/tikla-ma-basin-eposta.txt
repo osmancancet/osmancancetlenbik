@@ -1,0 +1,35 @@
+Merhaba,
+
+Manisa Celal Bayar Üniversitesi Teknik Bilimler Meslek Yüksekokulu'nda
+öğretim görevlisiyim. Yeni kitabım "Tıkla(ma) — İnsan Zihnini Hackleme
+Sanatı" Kodlab Yayınları'ndan çıktı.
+
+Kitap, siber dolandırıcılığın teknik değil psikolojik yönünü 30 gerçekçi
+vaka üzerinden ele alıyor: sahte kurum aramaları, ses klonlama ve deepfake,
+zehirli USB bellekler, sahte Wi-Fi ağları, kimlik hırsızlığı ve kötü niyetli
+QR kodlar. Her vaka üç katmanda inceleniyor — saldırının nasıl kurgulandığı,
+arkasında hangi psikolojik mekanizmanın çalıştığı ve karşılaşıldığında ne
+yapılması gerektiği.
+
+Ayırt edici yanı, bölümlerdeki QR kodların okuru interaktif simülasyonlara
+götürmesi: okuyucu saldırıyı yalnızca okumuyor, kontrollü bir ortamda bizzat
+deneyimliyor. Kitap hiçbir teknik altyapı gerektirmeyecek şekilde yazıldı.
+
+Basın kiti — yüksek çözünürlüklü görseller, künye, hazır tanıtım metinleri
+ve haber açıları:
+https://osmancancetlenbik.com/kitaplar/tikla-ma/basin-kiti
+
+Değerlendirme nüshası göndermemi ister misiniz? Adres paylaşmanız yeterli.
+Röportaj ya da konuk yazı için de memnuniyetle yazarım.
+
+İyi çalışmalar,
+
+--
+Osman Can Çetlenbik
+Öğretim Görevlisi
+Manisa Celal Bayar Üniversitesi
+Teknik Bilimler Meslek Yüksekokulu · Büyük Veri Analistliği Programı
+
+osmancancetlenbik@gmail.com
+osmancancetlenbik.com
+linkedin.com/in/osmancancetlenbik
