@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyberly — Security Score &amp; Lessons</title>
+<meta name="description" content="Cyberly turns a short self-assessment into a security score and a short list of things worth fixing first. Works entirely on your device.">
+<style>
+  /* Palet doğrudan src/theme.ts'ten — uygulama ile site aynı kimliği taşımalı. */
+  :root {
+    --bg: #F2F4F8; --surface: #FFFFFF; --paper: #F7F1E6; --paper-border: #E7DCC8;
+    --ink: #141A2B; --ink-soft: #4C566E; --ink-faint: #59637B;
+    --border: #DDE3ED; --brand: #2A3D7C; --brand-deep: #1B2854;
+    --brand-tint: #5466AE; --brand-soft: #E6E9F7; --strong: #1B6D4B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+  header {
+    background: linear-gradient(135deg, #16224A, var(--brand) 55%, #3E67B0);
+    color: #fff; padding: 56px 0 48px;
+  }
+  header h1 { margin: 0 0 8px; font-size: 40px; line-height: 1.15; letter-spacing: -0.5px; }
+  header p { margin: 0; font-size: 18px; color: var(--brand-soft); max-width: 34em; }
+  .badge {
+    display: inline-block; margin-bottom: 18px; padding: 5px 12px; border-radius: 999px;
+    background: rgba(255,255,255,.14); font-size: 13px; font-weight: 600;
+  }
+  main { padding: 40px 0 8px; }
+  section { margin-bottom: 40px; }
+  h2 { font-size: 22px; margin: 0 0 12px; }
+  h3 { font-size: 17px; margin: 24px 0 6px; }
+  p, li { color: var(--ink-soft); }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px;
+  }
+  .card h3 { margin: 0 0 6px; color: var(--ink); }
+  .card p { margin: 0; font-size: 14px; }
+  .note {
+    background: var(--paper); border: 1px solid var(--paper-border);
+    border-left: 3px solid var(--brand); border-radius: 12px; padding: 16px 18px;
+  }
+  .note p { margin: 0; color: var(--ink); font-size: 15px; }
+  .cta { display: inline-block; margin-top: 8px; padding: 14px 24px; border-radius: 999px;
+         background: var(--brand); color: #fff; text-decoration: none; font-weight: 700; }
+  .cta[aria-disabled="true"] { background: var(--brand-soft); color: var(--brand); }
+  footer { border-top: 1px solid var(--border); margin-top: 24px; padding: 28px 0 48px; }
+  footer p { font-size: 13px; color: var(--ink-faint); }
+  a { color: var(--brand-tint); }
+  nav a { margin-right: 16px; font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10141F; --surface: #171D2B; --paper: #1D2130; --paper-border: #2A3040;
+      --ink: #EEF1F7; --ink-soft: #B4BDCE; --ink-faint: #8993A6; --border: #29303F;
+      --brand-soft: #232C4A;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="badge">Works offline · No account · No tracking</span>
+    <h1>Cyberly</h1>
+    <p>Answer a few questions about your own habits. Cyberly turns them into a security score
+       and a short list of things worth fixing first.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="note">
+      <p><strong>What Cyberly is:</strong> a self-assessment questionnaire and a short course.
+         <strong>What it is not:</strong> Cyberly does not access, scan, or monitor your device.
+         Your answers are the only input it ever has.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What you get</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>A score you can act on</h3>
+        <p>27 questions across eight areas produce a 0–100 score, a breakdown, and a ranked list
+           of fixes with the time each one takes.</p>
+      </div>
+      <div class="card">
+        <h3>Practice, not lectures</h3>
+        <p>Nine modules with 55 activities: lessons, myth checks, sorting exercises and quizzes,
+           in English and Turkish.</p>
+      </div>
+      <div class="card">
+        <h3>Spot the scam</h3>
+        <p>Realistic phishing exercises where you decide, tap what looks wrong, and see exactly
+           which signals you caught or missed.</p>
+      </div>
+      <div class="card">
+        <h3>Password lab</h3>
+        <p>Type a password and watch it analysed on your device — patterns, entropy and an honest
+           crack-time estimate. Nothing is stored or sent.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Get the app</h2>
+    <p>Cyberly is free, with no in-app purchases and no advertising.</p>
+    <a class="cta" href="#" aria-disabled="true">Coming to the App Store</a>
+  </section>
+
+  <section id="privacy">
+    <h2>Privacy policy</h2>
+    <p><em>Last updated: 31 July 2026</em></p>
+
+    <h3>The short version</h3>
+    <p>Cyberly collects nothing. There is no account, no server, no analytics and no advertising.
+       Everything you enter stays on your device, and the app works with no internet connection at all.</p>
+
+    <h3>What is stored, and where</h3>
+    <ul>
+      <li><strong>Your checkup answers, score history and lesson progress</strong> are saved in the
+          app's own storage on your device. They are never transmitted anywhere.</li>
+      <li><strong>Passwords typed into the practice lab are never stored.</strong> The text exists
+          only in the app's memory while you are on that screen and is discarded when you leave it.
+          It is not written to storage, not logged, and not copied to the clipboard.</li>
+      <li><strong>We receive nothing.</strong> The developer has no access to your data because it
+          never leaves your phone.</li>
+    </ul>
+
+    <h3>Third parties</h3>
+    <p>Cyberly contains no analytics SDKs, no advertising SDKs and no crash reporting.
+       The app itself makes no network requests of any kind.</p>
+    <p>Settings contains one link to the developer's book. Tapping it hands the address to
+       your browser, exactly as tapping a link anywhere else would — the app sends nothing,
+       and it never reports whether you opened it.</p>
+
+    <h3>Children</h3>
+    <p>Cyberly is rated 4+ and collects no personal information from anyone, including children.</p>
+
+    <h3>Deleting your data</h3>
+    <p>Settings → Reset everything removes all stored answers, history and progress from the device.
+       Deleting the app has the same effect.</p>
+
+    <h3>Contact</h3>
+    <p>Questions about privacy: <a href="mailto:osmancancetlenbik@gmail.com">osmancancetlenbik@gmail.com</a></p>
+  </section>
+
+  <section id="terms">
+    <h2>Terms of use</h2>
+    <p><em>Last updated: 31 July 2026</em></p>
+
+    <h3>What Cyberly provides</h3>
+    <p>Cyberly is an educational tool. The security score is calculated only from the answers you
+       give it and reflects self-reported habits, not a measurement of your device, your accounts
+       or your network. It is not a security audit, a certification, or professional advice.</p>
+
+    <h3>No warranty</h3>
+    <p>The app is provided "as is", without warranty of any kind. Following its suggestions reduces
+       common risks but cannot guarantee that an account, device or network will not be compromised.</p>
+
+    <h3>Fictional content</h3>
+    <p>All companies, names, logos, addresses and messages used in the practice exercises are
+       fictional. Every domain shown uses the <code>.example</code> top-level domain, which is
+       permanently reserved for documentation (RFC 2606) and cannot belong to anyone.
+       Any resemblance to a real organisation is unintended.</p>
+
+    <h3>Acceptable use</h3>
+    <p>Cyberly teaches defensive practice. It contains no attack tools, payloads or exploitation
+       instructions, and must not be presented as such.</p>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <nav><a href="#privacy">Privacy</a><a href="#terms">Terms</a></nav>
+  <p>Cyberly — a self-assessment and learning app. Works offline; collects no data.</p>
+  <p>All brands, addresses and messages in the exercises are fictional.</p>
+</footer>
+
+</body>
+</html>
