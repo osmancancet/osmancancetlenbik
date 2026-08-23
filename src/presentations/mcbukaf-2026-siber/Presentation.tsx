@@ -3049,7 +3049,7 @@ const SOCIALS = [
   },
   {
     key: "website",
-    url: "https://www.osmancancetlenbik.com",
+    url: "https://osmancancetlenbik.com",
     label: "Web",
     handle: "osmancancetlenbik.com",
     color: "#00ff88",

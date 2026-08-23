@@ -31,7 +31,7 @@ function formatClock(seconds: number) {
 }
 
 export function YoklamaClient() {
-  const [origin, setOrigin] = useState("https://www.osmancancetlenbik.com");
+  const [origin, setOrigin] = useState("https://osmancancetlenbik.com");
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);
   }, []);

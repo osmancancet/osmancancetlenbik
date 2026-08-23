@@ -11,7 +11,7 @@ export const profile = {
   bio: "Manisa Celal Bayar Üniversitesi Teknik Bilimler Meslek Yüksekokulu, İstatistik Bölümü, Büyük Veri Analistliği Programı'nda öğretim görevlisiyim. Büyük veri analitiği, yapay zekâ, web ve mobil programlama, IoT güvenliği ve açık kaynak sistemler üzerine dersler veriyor; akademik çalışmalar yürütüyorum. Üretmeyi, öğrenmeyi ve öğretmeyi seviyorum.",
   location: "Manisa · Türkiye",
   email: "osman.cetlenbik@cbu.edu.tr",
-  website: "https://www.osmancancetlenbik.com",
+  website: "https://osmancancetlenbik.com",
   socials: {
     github: "https://github.com/osmancancet",
     linkedin: "https://linkedin.com/in/osmancancetlenbik",
