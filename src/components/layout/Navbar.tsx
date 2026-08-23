@@ -40,26 +40,34 @@ const primary: Record<Locale, NavLink[]> = {
   ],
 };
 
-/** "Daha fazla" menüsü — nav çubuğu taşmasın diye ikincil sayfalar burada. */
+/**
+ * Üst çubuğa sığmayan sayfalar. Genel bir "Daha fazla" yerine içeriği
+ * tarif eden bir başlık altında toplanıyorlar — ziyaretçi açmadan da ne
+ * bulacağını biliyor.
+ *
+ * Türkçe dışındaki diller yalnızca beş sayfa yayımladığı için hepsi çubuğa
+ * sığıyor; orada menü hiç çizilmiyor (dil değiştirici zaten Türkçe siteye
+ * dönüş yolunu veriyor).
+ */
 const secondary: Record<Locale, NavLink[]> = {
   tr: [
-    { href: "/kitaplar", label: "Kitaplarım" },
     { href: "/yayinlar", label: "Yayınlar" },
     { href: "/konferanslarim", label: "Konferanslarım" },
-    { href: "/basin", label: "Basında" },
-    { href: "/duyurular", label: "Duyurular" },
+    { href: "/kitaplar", label: "Kitaplarım" },
     { href: "/cv", label: "Özgeçmiş" },
+    { href: "/duyurular", label: "Duyurular" },
+    { href: "/basin", label: "Basında" },
   ],
-  en: [{ href: "/", label: "Türkçe site" }],
-  de: [{ href: "/", label: "Türkische Seite" }],
-  ar: [{ href: "/", label: "الموقع بالتركية" }],
+  en: [],
+  de: [],
+  ar: [],
 };
 
 const UI: Record<Locale, { home: string; more: string; search: string; menu: string }> = {
-  tr: { home: "Ana Sayfa", more: "Daha fazla", search: "Ara", menu: "Menü" },
-  en: { home: "Home", more: "More", search: "Search", menu: "Menu" },
-  de: { home: "Startseite", more: "Mehr", search: "Suche", menu: "Menü" },
-  ar: { home: "الرئيسية", more: "المزيد", search: "بحث", menu: "القائمة" },
+  tr: { home: "Ana Sayfa", more: "Akademik", search: "Ara", menu: "Menü" },
+  en: { home: "Home", more: "Academic", search: "Search", menu: "Menu" },
+  de: { home: "Startseite", more: "Akademisch", search: "Suche", menu: "Menü" },
+  ar: { home: "الرئيسية", more: "أكاديمي", search: "بحث", menu: "القائمة" },
 };
 
 function dispatchOpenSearch() {
@@ -124,6 +132,8 @@ export function Navbar() {
 
   if (isAdmin) return null;
 
+  const secondaryActive = secondary[locale].some((l) => l.href === pathname);
+
   const allLinks = [
     { href: home, label: t.home },
     ...primary[locale],
@@ -184,14 +194,25 @@ export function Navbar() {
                 onClick={() => setMoreOpen((v) => !v)}
                 aria-expanded={moreOpen}
                 aria-haspopup="menu"
-                className="inline-flex items-center gap-1 px-2.5 py-2 text-sm text-[var(--fg-muted)] hover:text-[var(--fg)] transition-colors"
+                className={`relative inline-flex items-center gap-1.5 px-2.5 py-2 text-sm transition-colors ${
+                  secondaryActive || moreOpen
+                    ? "text-[var(--fg)]"
+                    : "text-[var(--fg-muted)] hover:text-[var(--fg)]"
+                }`}
               >
                 {t.more}
                 <ChevronDown
-                  className={`w-3 h-3 transition-transform ${
+                  className={`w-3 h-3 text-[var(--fg-subtle)] transition-transform ${
                     moreOpen ? "rotate-180" : ""
                   }`}
                 />
+                {secondaryActive && (
+                  <motion.span
+                    layoutId="nav-underline"
+                    className="absolute left-2.5 right-6 -bottom-0.5 h-px bg-[var(--accent)]"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
               </button>
               <AnimatePresence>
                 {moreOpen && (
@@ -201,22 +222,36 @@ export function Navbar() {
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.15 }}
                     role="menu"
-                    className="absolute end-0 mt-2 min-w-44 rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] p-1.5 shadow-xl shadow-black/50"
+                    className="absolute end-0 mt-3 min-w-[12.5rem] rounded-md border border-[var(--border-strong)] bg-[var(--bg)]/95 backdrop-blur-md py-1 shadow-[0_16px_40px_-24px_#000]"
                   >
-                    {secondary[locale].map((l) => (
-                      <Link
-                        key={l.href}
-                        href={l.href}
-                        role="menuitem"
-                        className={`block px-3 py-2 rounded-md text-sm transition-colors ${
-                          pathname === l.href
-                            ? "text-[var(--accent)] bg-[var(--accent-soft)]"
-                            : "text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--accent-soft)]"
-                        }`}
-                      >
-                        {l.label}
-                      </Link>
-                    ))}
+                    {secondary[locale].map((l) => {
+                      const active = pathname === l.href;
+                      return (
+                        <Link
+                          key={l.href}
+                          href={l.href}
+                          role="menuitem"
+                          aria-current={active ? "page" : undefined}
+                          className={`group flex items-center gap-2.5 ps-3 pe-4 py-1.5 text-[13px] transition-colors ${
+                            active
+                              ? "text-[var(--accent)]"
+                              : "text-[var(--fg-muted)] hover:text-[var(--fg)]"
+                          }`}
+                        >
+                          {/* İnce vurgu çizgisi — dolgu yerine, üst çubuğun
+                              altındaki etkin sayfa çizgisiyle aynı dil. */}
+                          <span
+                            aria-hidden
+                            className={`h-px w-3 shrink-0 transition-all ${
+                              active
+                                ? "bg-[var(--accent)]"
+                                : "bg-[var(--border-strong)] group-hover:bg-[var(--accent)] group-hover:w-4"
+                            }`}
+                          />
+                          {l.label}
+                        </Link>
+                      );
+                    })}
                   </motion.div>
                 )}
               </AnimatePresence>
