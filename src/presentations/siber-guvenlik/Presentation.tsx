@@ -937,7 +937,7 @@ const slides: Slide[] = [
         className="text-3xl text-gray-400 mb-4">Sorularınız için hazırım.</motion.p>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mb-10">
         <p className="text-gray-300 text-2xl font-bold">Öğr. Gör. Osman Can Çetlenbik</p>
-        <p className="text-gray-500 text-xl mt-2">osmancancetlenbik@gmail.com</p>
+        <p className="text-gray-500 text-xl mt-2">osman.cetlenbik@cbu.edu.tr</p>
       </motion.div>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
         className="text-2xl text-emerald-400 font-bold">Beni takip etmek için sonraki ekrandaki QR kodları tarayın.</motion.p>

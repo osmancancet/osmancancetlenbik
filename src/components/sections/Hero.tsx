@@ -8,8 +8,78 @@ import { profile } from "@/data/profile";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
 import { MatrixRain } from "@/components/cyber/MatrixRain";
 import { DecryptText } from "@/components/cyber/DecryptText";
+import { MailAction } from "@/components/MailAction";
+import type { Locale } from "@/lib/i18n";
 
-export function Hero() {
+const COPY = {
+  tr: {
+    role: "Öğretim Görevlisi",
+    institution: "Manisa Celal Bayar Üniversitesi",
+    lead:
+      "Büyük Veri Analistliği Programı'nda öğretim görevlisiyim. Siber güvenlik, yapay zekâ ve veri bilimi alanlarında çalışıyor, yazıyor ve öğretiyorum. Ayrıca sızma testi, mobil ve web uygulama geliştirme hizmetleri veriyorum.",
+    tags: ["Siber Güvenlik", "Büyük Veri", "Yapay Zekâ", "Web Geliştirme", "IoT"],
+    primaryHref: "/hizmetler",
+    primaryLabel: "Hizmetler",
+    secondaryHref: "/iletisim",
+    secondaryLabel: "İletişim",
+    emailAria: "E-posta",
+    scroll: "Kaydır",
+  },
+  en: {
+    role: "Lecturer",
+    institution: "Manisa Celal Bayar University",
+    lead:
+      "I lecture in the Big Data Analytics Programme, and I work, write and teach across cyber security, artificial intelligence and data science. I also take on penetration testing, mobile and web application development work.",
+    tags: ["Cyber Security", "Big Data", "Artificial Intelligence", "Web Development", "IoT"],
+    primaryHref: "/en/services",
+    primaryLabel: "Services",
+    secondaryHref: "/en/contact",
+    secondaryLabel: "Contact",
+    emailAria: "Email",
+    scroll: "Scroll",
+  },
+  de: {
+    role: "Dozent",
+    institution: "Manisa Celal Bayar Universität",
+    lead:
+      "Ich lehre im Studiengang Big Data Analytics und arbeite, schreibe und unterrichte zu Cybersicherheit, künstlicher Intelligenz und Datenwissenschaft. Daneben übernehme ich Penetrationstests sowie die Entwicklung von Mobil- und Webanwendungen.",
+    tags: [
+      "Cybersicherheit",
+      "Big Data",
+      "Künstliche Intelligenz",
+      "Webentwicklung",
+      "IoT",
+    ],
+    primaryHref: "/de/leistungen",
+    primaryLabel: "Leistungen",
+    secondaryHref: "/de/kontakt",
+    secondaryLabel: "Kontakt",
+    emailAria: "E-Mail",
+    scroll: "Scrollen",
+  },
+  ar: {
+    role: "محاضر",
+    institution: "جامعة مانيسا جلال بايار",
+    lead:
+      "أُدرّس في برنامج تحليلات البيانات الضخمة، وأعمل وأكتب وأُعلّم في مجالات الأمن السيبراني والذكاء الاصطناعي وعلم البيانات. كما أقدّم خدمات اختبار الاختراق وتطوير تطبيقات الهاتف والويب.",
+    tags: [
+      "الأمن السيبراني",
+      "البيانات الضخمة",
+      "الذكاء الاصطناعي",
+      "تطوير الويب",
+      "إنترنت الأشياء",
+    ],
+    primaryHref: "/ar/services",
+    primaryLabel: "الخدمات",
+    secondaryHref: "/ar/contact",
+    secondaryLabel: "تواصل معي",
+    emailAria: "البريد الإلكتروني",
+    scroll: "مرّر للأسفل",
+  },
+} as const;
+
+export function Hero({ locale = "tr" }: { locale?: Locale }) {
+  const t = COPY[locale];
   return (
     <section className="relative min-h-[calc(100vh-80px)] flex items-center px-6 overflow-hidden">
       {/* Matrix rain background — subtle full bleed */}
@@ -41,11 +111,9 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 2.3 }}
             className="mt-5 text-base md:text-lg text-[var(--fg-muted)]"
           >
-            <span className="text-[var(--fg)] font-medium">
-              Öğretim Görevlisi
-            </span>
+            <span className="text-[var(--fg)] font-medium">{t.role}</span>
             <span className="mx-2 text-[var(--fg-subtle)]">·</span>
-            <span>Manisa Celal Bayar Üniversitesi</span>
+            <span>{t.institution}</span>
           </motion.div>
 
           <motion.p
@@ -54,9 +122,7 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 2.45 }}
             className="mt-6 text-base md:text-lg text-[var(--fg-muted)] max-w-xl leading-relaxed"
           >
-            Büyük Veri Analistliği Programı'nda öğretim görevlisiyim. Siber
-            güvenlik, yapay zekâ ve veri bilimi alanlarında çalışıyor, yazıyor
-            ve öğretiyorum.
+            {t.lead}
           </motion.p>
 
           {/* Topic tags — clean Turkish */}
@@ -66,13 +132,7 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 2.6 }}
             className="mt-6 flex flex-wrap gap-2"
           >
-            {[
-              "Siber Güvenlik",
-              "Büyük Veri",
-              "Yapay Zekâ",
-              "Web Geliştirme",
-              "IoT",
-            ].map((tag) => (
+            {t.tags.map((tag: string) => (
               <span
                 key={tag}
                 className="px-3 py-1 rounded-full text-xs text-[var(--fg-muted)] border border-[var(--border-strong)] hover:border-[var(--accent)]/50 hover:text-[var(--accent)] transition-colors"
@@ -89,18 +149,18 @@ export function Hero() {
             className="mt-10 flex flex-wrap items-center gap-3"
           >
             <Link
-              href="/hakkimda"
+              href={t.primaryHref}
               className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold rounded-md hover:opacity-90 transition-opacity shadow-[0_0_24px_-8px_var(--accent)]"
             >
-              Hakkımda
+              {t.primaryLabel}
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/iletisim"
+              href={t.secondaryHref}
               className="inline-flex items-center gap-2 px-6 py-3 border border-[var(--border-strong)] text-[var(--fg)] text-sm font-medium rounded-md hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
             >
               <Mail className="w-4 h-4" />
-              İletişim
+              {t.secondaryLabel}
             </Link>
           </motion.div>
 
@@ -128,13 +188,12 @@ export function Hero() {
             >
               <LinkedinIcon className="w-5 h-5" />
             </a>
-            <a
-              href={profile.socials.email}
-              aria-label="E-posta"
-              className="hover:text-[var(--fg)] transition-colors"
-            >
-              <Mail className="w-5 h-5" />
-            </a>
+            <MailAction
+              email={profile.email}
+              label={t.emailAria}
+              locale={locale}
+              variant="icon"
+            />
           </motion.div>
         </div>
 
@@ -225,7 +284,7 @@ export function Hero() {
         transition={{ delay: 3.3, duration: 0.8 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[2] flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--fg-subtle)]"
       >
-        <span>Kaydır</span>
+        <span>{t.scroll}</span>
         <motion.div
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 1.6, repeat: Infinity }}

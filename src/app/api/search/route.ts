@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { books } from "@/data/books";
+import { services } from "@/data/services";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,13 @@ export type SearchResult = {
 const STATIC_PAGES: SearchResult[] = [
   { id: "p-home", type: "page", title: "Ana Sayfa", href: "/" },
   { id: "p-about", type: "page", title: "Hakkımda", href: "/hakkimda" },
+  {
+    id: "p-services",
+    type: "page",
+    title: "Hizmetler",
+    description: "Sızma testi, mobil ve web uygulama geliştirme, eğitim",
+    href: "/hizmetler",
+  },
   { id: "p-cv", type: "page", title: "CV / Özgeçmiş", href: "/cv" },
   { id: "p-courses", type: "page", title: "Dersler", href: "/dersler" },
   { id: "p-posts", type: "page", title: "Yazılarım", href: "/yazilarim" },
@@ -25,6 +33,15 @@ const STATIC_PAGES: SearchResult[] = [
   { id: "p-projects", type: "page", title: "Projeler", href: "/projeler" },
   { id: "p-contact", type: "page", title: "İletişim", href: "/iletisim" },
   { id: "p-announce", type: "page", title: "Duyurular", href: "/duyurular" },
+  { id: "p-en", type: "page", title: "English", href: "/en" },
+  // Her hizmet ayrı ayrı aranabilsin — "pentest" yazan doğrudan bölüme düşsün.
+  ...services.map<SearchResult>((sv) => ({
+    id: `svc-${sv.slug}`,
+    type: "page",
+    title: sv.copy.tr.title,
+    description: sv.copy.tr.summary,
+    href: `/hizmetler#${sv.slug}`,
+  })),
 ];
 
 export async function GET() {

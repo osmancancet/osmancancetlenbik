@@ -11,7 +11,7 @@ export function SectionHeading({
   subtitle?: string;
   align?: "left" | "center";
 }) {
-  const alignCls = align === "center" ? "text-center mx-auto" : "text-left";
+  const alignCls = align === "center" ? "text-center mx-auto" : "text-start";
   return (
     <div className={`mb-16 max-w-3xl ${alignCls}`}>
       <Reveal>

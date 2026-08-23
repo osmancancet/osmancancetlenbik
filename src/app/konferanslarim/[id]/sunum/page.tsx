@@ -2,6 +2,13 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { SlideDeck } from "@/components/SlideDeck";
 import { PresentationHost } from "@/components/PresentationHost";
+import type { Metadata } from "next";
+
+// Konferans slaytları — etkileşimli deck, arama sonucunda değeri yok.
+export const metadata: Metadata = {
+  title: "Sunum",
+  robots: { index: false, follow: false },
+};
 
 export const revalidate = 300;
 

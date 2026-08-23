@@ -1,12 +1,20 @@
 import { Clock, MapPin } from "lucide-react";
 import { officeHours } from "@/data/officeHours";
+import type { Locale } from "@/lib/i18n";
 
-export function OfficeHours() {
+const OFFICE_LABEL: Record<Locale, string> = {
+  tr: "Ofis Saatleri",
+  en: "Office Hours",
+  de: "Sprechzeiten",
+  ar: "الساعات المكتبية",
+};
+
+export function OfficeHours({ locale = "tr" }: { locale?: Locale }) {
   return (
     <div>
       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--accent)] font-mono mb-4">
         <Clock className="w-3 h-3" />
-        Ofis Saatleri
+        {OFFICE_LABEL[locale]}
       </div>
       <div className="card rounded-lg overflow-hidden">
         <table className="w-full text-sm">

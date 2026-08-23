@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MailAction } from "@/components/MailAction";
 import Image from "next/image";
 import {
   Check,
@@ -8,7 +9,6 @@ import {
   Download,
   ExternalLink,
   FileText,
-  Mail,
 } from "lucide-react";
 import { profile } from "@/data/profile";
 import type { Book } from "@/data/books";
@@ -294,15 +294,12 @@ export function PressKit({ book }: { book: Book }) {
             Değerlendirme nüshası, röportaj ve program davetleri için doğrudan
             yazabilirsiniz.
           </p>
-          <a
-            href={`mailto:${profile.email}?subject=${encodeURIComponent(
-              `Basın · ${fullTitle}`
-            )}`}
-            className="inline-flex items-center gap-2 text-[var(--accent)] hover:underline"
-          >
-            <Mail className="w-4 h-4" />
-            {profile.email}
-          </a>
+          <MailAction
+            email={profile.email}
+            subject={`Basın · ${fullTitle}`}
+            label={profile.email}
+            variant="inline"
+          />
           <div className="mt-6 pt-4 border-t border-[var(--border)] text-[13px] text-[var(--fg-subtle)] leading-relaxed">
             {profile.name} · {profile.title.split("·")[0].trim()}
             <br />

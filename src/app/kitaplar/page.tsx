@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
   title: "Kitaplarım",
   description:
     "Siber güvenlik ve sosyal mühendislik üzerine yazdığım kitaplar; künye bilgileri ve satın alma bağlantıları.",
+  alternates: canonicalOnly("/kitaplar"),
 };
 
 export default function KitaplarPage() {

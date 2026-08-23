@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import { PageShell } from "@/components/layout/PageShell";
 import { Contact } from "@/components/sections/Contact";
 
@@ -6,6 +7,7 @@ export const metadata: Metadata = {
   title: "İletişim",
   description:
     "Akademik iş birliği, danışmanlık ve diğer iletişim kanalları.",
+  alternates: canonicalOnly("/iletisim"),
 };
 
 export default function IletisimPage() {

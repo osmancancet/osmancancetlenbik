@@ -27,6 +27,7 @@ export async function generateMetadata({
   return {
     title,
     description: book.excerpt,
+    alternates: { canonical: `/kitaplar/${slug}` },
     openGraph: {
       title,
       description: book.excerpt,

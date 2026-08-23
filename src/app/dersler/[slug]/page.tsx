@@ -19,6 +19,7 @@ export async function generateMetadata({
   return {
     title: course.title,
     description: course.description ?? `${course.title} — ${course.program}`,
+    alternates: { canonical: `/dersler/${slug}` },
   };
 }
 

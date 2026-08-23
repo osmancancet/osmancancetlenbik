@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PollClient } from "./PollClient";
+import type { Metadata } from "next";
+
+// Etkinlik anketi — kalıcı içerik değil, dizine girmesin.
+export const metadata: Metadata = {
+  title: "Anket",
+  robots: { index: false, follow: false },
+};
 
 export const dynamic = "force-dynamic";
 

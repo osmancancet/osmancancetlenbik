@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
+import { ServicesTeaser } from "@/components/sections/ServicesTeaser";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { HomeStats } from "@/components/sections/HomeStats";
 import { HomeRecent } from "@/components/sections/HomeRecent";
@@ -10,8 +12,25 @@ import { publications } from "@/data/publications";
 import { getReadingTime } from "@/lib/readingTime";
 import Link from "next/link";
 import { Mail } from "lucide-react";
+import { seoMeta } from "@/lib/seo/metadata";
+import { professionalServiceJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = seoMeta({
+  path: "/",
+  title: "Osman Can Çetlenbik — Öğretim Görevlisi, Siber Güvenlik ve Yazılım",
+  description:
+    "Manisa Celal Bayar Üniversitesi öğretim görevlisi. Web ve mobil sızma testi, mobil ve web uygulama geliştirme, veri & yapay zekâ çözümleri ve kurumsal siber güvenlik eğitimi.",
+  keywords: [
+    "Osman Can Çetlenbik",
+    "web sızma testi",
+    "mobil uygulama geliştirme",
+    "siber güvenlik danışmanlığı",
+    "Manisa Celal Bayar Üniversitesi",
+    "Büyük Veri Analistliği",
+  ],
+});
 
 const CURRENT_SEMESTER = "2026-2027 Güz";
 
@@ -67,8 +86,15 @@ export default async function Home() {
 
   return (
     <div className="pt-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(professionalServiceJsonLd("tr"))}
+      />
       <AnnouncementBar announcement={announcement} />
       <Hero />
+
+      {/* Hizmetler — ana sayfadan hizmet sayfasına giden ana köprü */}
+      <ServicesTeaser locale="tr" />
 
       {/* Yeni kitap */}
       <FeaturedBook />

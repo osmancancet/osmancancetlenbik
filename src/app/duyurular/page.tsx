@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +8,7 @@ import { Megaphone, Pin } from "lucide-react";
 export const metadata: Metadata = {
   title: "Duyurular",
   description: "Ders, etkinlik ve genel duyurular.",
+  alternates: canonicalOnly("/duyurular"),
 };
 
 export const revalidate = 60;

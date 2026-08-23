@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
 import { prisma } from "@/lib/prisma";
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
   title: "Konferanslarım",
   description:
     "Katıldığım, konuşmacı olduğum ve düzenlediğim konferanslar ve etkinlikler.",
+  alternates: canonicalOnly("/konferanslarim"),
 };
 
 export const revalidate = 300;

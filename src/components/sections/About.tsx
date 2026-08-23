@@ -2,11 +2,21 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { profile } from "@/data/profile";
+import { profile, profileI18n } from "@/data/profile";
 import { Reveal } from "@/components/ui/Reveal";
 import { Counter } from "@/components/ui/Counter";
+import type { Locale } from "@/lib/i18n";
 
-export function About() {
+const EXPERTISE_LABEL: Record<Locale, string> = {
+  tr: "Uzmanlık",
+  en: "Expertise",
+  de: "Fachgebiete",
+  ar: "مجالات الخبرة",
+};
+
+export function About({ locale = "tr" }: { locale?: Locale }) {
+  const copy = profileI18n[locale];
+
   return (
     <div className="grid md:grid-cols-[1fr_1.5fr] gap-12 items-start">
       <Reveal>
@@ -45,7 +55,7 @@ export function About() {
             />
           </div>
           <div className="mt-4 space-y-1 font-mono text-xs text-[var(--fg-subtle)]">
-            <div>{profile.location}</div>
+            <div>{copy.location}</div>
           </div>
         </motion.div>
       </Reveal>
@@ -53,14 +63,14 @@ export function About() {
       <div>
         <Reveal>
           <div className="space-y-4 text-base md:text-lg leading-relaxed text-[var(--fg-muted)]">
-            <p>{profile.bio}</p>
+            <p>{copy.bio}</p>
             <p>
               <span className="text-[var(--fg)] font-medium">
-                {profile.institution}
+                {copy.institution}
               </span>
               <br />
               <span className="text-[var(--fg-subtle)]">
-                {profile.department}
+                {copy.department}
               </span>
             </p>
           </div>
@@ -69,10 +79,10 @@ export function About() {
         <Reveal delay={0.1}>
           <div className="mt-8">
             <div className="text-xs uppercase tracking-[0.18em] text-[var(--fg-subtle)] font-mono mb-3">
-              Uzmanlık
+              {EXPERTISE_LABEL[locale]}
             </div>
             <div className="flex flex-wrap gap-2">
-              {profile.expertise.map((tag) => (
+              {copy.expertise.map((tag: string) => (
                 <span
                   key={tag}
                   className="px-3 py-1.5 text-sm border border-[var(--border-strong)] rounded-md text-[var(--fg-muted)]"
@@ -94,7 +104,7 @@ export function About() {
           }}
           className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3"
         >
-          {profile.stats.map((stat) => (
+          {profile.stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               variants={{
@@ -109,7 +119,7 @@ export function About() {
                 <Counter value={stat.value} suffix={stat.suffix} />
               </div>
               <div className="mt-1 text-xs uppercase tracking-wider text-[var(--fg-subtle)]">
-                {stat.label}
+                {copy.statLabels[i]}
               </div>
             </motion.div>
           ))}

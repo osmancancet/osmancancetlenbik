@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
   title: "Dersler",
   description:
     "Manisa Celal Bayar Üniversitesi Teknik Bilimler MYO Büyük Veri Analistliği Programı'nda verilen dersler.",
+  alternates: canonicalOnly("/dersler"),
 };
 
 export const revalidate = 300;

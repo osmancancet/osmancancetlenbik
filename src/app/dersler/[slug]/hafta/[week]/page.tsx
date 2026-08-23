@@ -39,6 +39,7 @@ export async function generateMetadata({
   return {
     title: w ? `${w.weekNumber}. Hafta · ${w.topic}` : course.title,
     description: w?.topic,
+    alternates: { canonical: `/dersler/${slug}/hafta/${Number(week)}` },
   };
 }
 

@@ -2,10 +2,12 @@ import Link from "next/link";
 import { Search, Home, ArrowRight } from "lucide-react";
 
 const links = [
+  { href: "/hizmetler", label: "Hizmetler" },
   { href: "/hakkimda", label: "Hakkımda" },
   { href: "/dersler", label: "Dersler" },
   { href: "/yazilarim", label: "Yazılarım" },
   { href: "/konferanslarim", label: "Konferanslarım" },
+  { href: "/iletisim", label: "İletişim" },
 ];
 
 export default function NotFound() {

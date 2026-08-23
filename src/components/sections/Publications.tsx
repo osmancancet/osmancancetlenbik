@@ -4,8 +4,16 @@ import { motion } from "framer-motion";
 import { publications } from "@/data/publications";
 import { Reveal } from "@/components/ui/Reveal";
 import { FileText, ExternalLink } from "lucide-react";
+import type { Locale } from "@/lib/i18n";
 
-export function Publications() {
+const TYPE_LABEL: Record<Locale, Record<"Makale" | "Bildiri", string>> = {
+  tr: { Makale: "Makale", Bildiri: "Bildiri" },
+  en: { Makale: "Journal Article", Bildiri: "Conference Paper" },
+  de: { Makale: "Fachartikel", Bildiri: "Konferenzbeitrag" },
+  ar: { Makale: "مقال محكّم", Bildiri: "ورقة مؤتمر" },
+};
+
+export function Publications({ locale = "tr" }: { locale?: Locale }) {
   return (
     <div className="space-y-4">
       {publications.map((pub, i) => (
@@ -27,7 +35,7 @@ export function Publications() {
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border border-[var(--border-strong)] text-[var(--accent)] font-mono">
-                  {pub.type}
+                  {TYPE_LABEL[locale][pub.type]}
                 </span>
               </div>
               <h3 className="text-lg md:text-xl font-medium text-[var(--fg)] mb-2 group-hover:text-[var(--accent)] transition-colors">

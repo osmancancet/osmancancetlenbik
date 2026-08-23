@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
@@ -17,6 +18,7 @@ import {
 export const metadata: Metadata = {
   title: "Özgeçmiş",
   description: "Akademik özgeçmiş — eğitim, deneyim, ödüller, yetenekler.",
+  alternates: canonicalOnly("/cv"),
 };
 
 export default function CVPage() {

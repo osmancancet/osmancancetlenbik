@@ -2,8 +2,53 @@
 
 import { useState } from "react";
 import { Send, CheckCircle2, AlertCircle } from "lucide-react";
+import type { Locale } from "@/lib/i18n";
 
-export function ContactForm() {
+const COPY = {
+  tr: {
+    name: "Adınız",
+    email: "E-posta",
+    subject: "Konu",
+    message: "Mesaj",
+    ok: "Mesajınız başarıyla iletildi. Kısa sürede dönüş yapacağım.",
+    fail: "Mesaj gönderilemedi.",
+    sending: "Gönderiliyor...",
+    send: "Mesaj Gönder",
+  },
+  en: {
+    name: "Your name",
+    email: "Email",
+    subject: "Subject",
+    message: "Message",
+    ok: "Your message has been sent. I will get back to you shortly.",
+    fail: "The message could not be sent.",
+    sending: "Sending...",
+    send: "Send message",
+  },
+  de: {
+    name: "Ihr Name",
+    email: "E-Mail",
+    subject: "Betreff",
+    message: "Nachricht",
+    ok: "Ihre Nachricht wurde gesendet. Ich melde mich in Kürze.",
+    fail: "Die Nachricht konnte nicht gesendet werden.",
+    sending: "Wird gesendet ...",
+    send: "Nachricht senden",
+  },
+  ar: {
+    name: "الاسم",
+    email: "البريد الإلكتروني",
+    subject: "الموضوع",
+    message: "الرسالة",
+    ok: "تم إرسال رسالتكم. سأرد عليكم قريبًا.",
+    fail: "تعذّر إرسال الرسالة.",
+    sending: "جارٍ الإرسال...",
+    send: "إرسال الرسالة",
+  },
+} as const;
+
+export function ContactForm({ locale = "tr" }: { locale?: Locale }) {
+  const t = COPY[locale];
   const [data, setData] = useState({
     name: "",
     email: "",
@@ -31,7 +76,7 @@ export function ContactForm() {
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      setError(j.error || "Mesaj gönderilemedi.");
+      setError(j.error || t.fail);
       setStatus("error");
       return;
     }
@@ -53,7 +98,7 @@ export function ContactForm() {
       />
 
       <div className="grid md:grid-cols-2 gap-4">
-        <Field label="Adınız" htmlFor="contact-name">
+        <Field label={t.name} htmlFor="contact-name">
           <input
             id="contact-name"
             name="name"
@@ -65,7 +110,7 @@ export function ContactForm() {
             className={inputCls}
           />
         </Field>
-        <Field label="E-posta" htmlFor="contact-email">
+        <Field label={t.email} htmlFor="contact-email">
           <input
             id="contact-email"
             name="email"
@@ -79,7 +124,7 @@ export function ContactForm() {
         </Field>
       </div>
 
-      <Field label="Konu" htmlFor="contact-subject">
+      <Field label={t.subject} htmlFor="contact-subject">
         <input
           id="contact-subject"
           name="subject"
@@ -92,7 +137,7 @@ export function ContactForm() {
         />
       </Field>
 
-      <Field label="Mesaj" htmlFor="contact-message">
+      <Field label={t.message} htmlFor="contact-message">
         <textarea
           id="contact-message"
           name="message"
@@ -108,7 +153,7 @@ export function ContactForm() {
       {status === "ok" && (
         <div className="flex items-center gap-2 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-md px-3 py-2">
           <CheckCircle2 className="w-4 h-4" />
-          Mesajınız başarıyla iletildi. Kısa sürede dönüş yapacağım.
+          {t.ok}
         </div>
       )}
       {status === "error" && error && (
@@ -124,7 +169,7 @@ export function ContactForm() {
         className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--accent)] text-[var(--bg)] font-medium rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
       >
         <Send className="w-4 h-4" />
-        {status === "sending" ? "Gönderiliyor..." : "Mesaj Gönder"}
+        {status === "sending" ? t.sending : t.send}
       </button>
     </form>
   );

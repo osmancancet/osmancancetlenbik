@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import Image from "next/image";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
   title: "Basında",
   description:
     "Haberlerde, röportajlarda ve medyada yer aldığım çalışmalar.",
+  alternates: canonicalOnly("/basin"),
 };
 
 export const revalidate = 300;

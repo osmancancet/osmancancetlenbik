@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import Link from "next/link";
 import Image from "next/image";
 import { PageShell } from "@/components/layout/PageShell";
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
   title: "Yazılarım",
   description:
     "Yapay zekâ, büyük veri, yazılım ve eğitim üzerine kişisel yazılar.",
+  alternates: canonicalOnly("/yazilarim"),
 };
 
 export const revalidate = 60;

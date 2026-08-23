@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
   const { name, email, subject, message } = parsed.data;
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL || "osmancancetlenbik@gmail.com";
+  const to = process.env.CONTACT_TO_EMAIL || "osman.cetlenbik@cbu.edu.tr";
 
   if (!apiKey) {
     // Dev fallback — no key configured

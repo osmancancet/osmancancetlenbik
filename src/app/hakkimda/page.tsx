@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalOnly } from "@/lib/seo/metadata";
 import { PageShell } from "@/components/layout/PageShell";
 import { About } from "@/components/sections/About";
 
@@ -6,6 +7,7 @@ export const metadata: Metadata = {
   title: "Hakkımda",
   description:
     "Osman Can Çetlenbik — Manisa Celal Bayar Üniversitesi öğretim görevlisi. Büyük veri, yapay zekâ ve yazılım üzerine çalışıyorum.",
+  alternates: canonicalOnly("/hakkimda"),
 };
 
 export default function HakkimdaPage() {
