@@ -116,6 +116,24 @@ export function InstallPrompt() {
               <br />
               Paylaş düğmesi → “Dock&apos;a Ekle”.
             </div>
+            <div className="pt-2 flex flex-wrap gap-2">
+              <a
+                href="/araclar/kisayol/macos"
+                download
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-[var(--border-strong)] text-xs text-[var(--fg-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+              >
+                <Download className="w-3 h-3" />
+                macOS kısayolu
+              </a>
+              <a
+                href="/araclar/kisayol/windows"
+                download
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-[var(--border-strong)] text-xs text-[var(--fg-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+              >
+                <Download className="w-3 h-3" />
+                Windows kısayolu
+              </a>
+            </div>
             <div className="pt-1 text-[var(--fg-subtle)] text-xs">
               Kurulduktan sonra araçlar kendi penceresinde açılır ve internet
               olmadan da çalışır.

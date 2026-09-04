@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
 import { ServicesTeaser } from "@/components/sections/ServicesTeaser";
+import { FeaturedTalk } from "@/components/sections/FeaturedTalk";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { HomeStats } from "@/components/sections/HomeStats";
 import { HomeRecent } from "@/components/sections/HomeRecent";
@@ -92,6 +93,9 @@ export default async function Home() {
       />
       <AnnouncementBar announcement={announcement} />
       <Hero />
+
+      {/* Sunum ve araçlar — LinkedIn'den gelen ziyaretçi bunları arıyor */}
+      <FeaturedTalk />
 
       {/* Hizmetler — ana sayfadan hizmet sayfasına giden ana köprü */}
       <ServicesTeaser locale="tr" />
