@@ -34,6 +34,7 @@ import {
   Target,
   type LucideIcon,
 } from "lucide-react";
+import { CodeEditor } from "../_shared/code/CodeEditor";
 import "./styles.css";
 
 /* ============================================================
@@ -149,93 +150,10 @@ function FeatureCard({
 
 type CodeLine = ReactNode;
 
-function CodeEditor({
-  title,
-  tabs,
-  activeTab,
-  lines,
-  terminal,
-}: {
-  title: string;
-  tabs: string[];
-  activeTab: string;
-  lines: CodeLine[];
-  terminal?: ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="prog-window-chrome w-full"
-    >
-      <div className="prog-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#9cdcfe" }}
-        >
-          <span className="w-5 h-5 rounded-sm prog-py-tile flex items-center justify-center text-[10px]">
-            Py
-          </span>
-          <span>{title}</span>
-        </div>
-      </div>
+// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
+// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
+// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
 
-      <div className="prog-editor-tabbar flex">
-        {tabs.map((t) => (
-          <div
-            key={t}
-            className={`prog-editor-tab ${
-              t === activeTab ? "prog-editor-tab-active" : ""
-            }`}
-          >
-            <span
-              className="w-3 h-3 rounded-sm"
-              style={{
-                background: t.endsWith(".py")
-                  ? "#3776ab"
-                  : t.endsWith(".md")
-                  ? "#5fa8e0"
-                  : "#ffd43b",
-              }}
-            />
-            {t}
-          </div>
-        ))}
-      </div>
-
-      <div className="prog-editor flex">
-        <div className="prog-editor-gutter px-3 py-3 select-none">
-          {lines.map((_, i) => (
-            <div key={i}>{i + 1}</div>
-          ))}
-        </div>
-        <div className="flex-1 px-4 py-3 overflow-x-auto">
-          {lines.map((line, i) => (
-            <div key={i} className="whitespace-pre">
-              {line || " "}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {terminal && (
-        <div className="prog-terminal px-4 py-3">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400" />
-            TERMİNAL
-          </div>
-          {terminal}
-        </div>
-      )}
-    </motion.div>
-  );
-}
 
 /* ---- String indeksleme şeridi -------------------------------- */
 
@@ -564,61 +482,13 @@ const slides: Array<(active: boolean) => ReactNode> = [
           title="dilimleme.py — Visual Studio Code"
           tabs={["dilimleme.py"]}
           activeTab="dilimleme.py"
-          lines={[
-            <>
-              <span className="tok-var">s</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-string">&quot;Programlama&quot;</span>
-            </>,
-            "",
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">s</span>
-              <span className="tok-punct">[</span>
-              <span className="tok-number">0</span>
-              <span className="tok-punct">:</span>
-              <span className="tok-number">4</span>
-              <span className="tok-punct">])</span>
-              <span className="tok-comment">  # &apos;Prog&apos;</span>
-            </>,
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">s</span>
-              <span className="tok-punct">[</span>
-              <span className="tok-number">4</span>
-              <span className="tok-punct">:])</span>
-              <span className="tok-comment">    # &apos;ramlama&apos;</span>
-            </>,
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">s</span>
-              <span className="tok-punct">[:</span>
-              <span className="tok-number">4</span>
-              <span className="tok-punct">])</span>
-              <span className="tok-comment">   # &apos;Prog&apos;</span>
-            </>,
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">s</span>
-              <span className="tok-punct">[::</span>
-              <span className="tok-number">2</span>
-              <span className="tok-punct">])</span>
-              <span className="tok-comment">   # &apos;Pormaa&apos;</span>
-            </>,
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">s</span>
-              <span className="tok-punct">[::-</span>
-              <span className="tok-number">1</span>
-              <span className="tok-punct">])</span>
-              <span className="tok-comment">  # ters çevir</span>
-            </>,
-          ]}
+          code={`s = "Programlama"
+
+print(s[0:4])  # 'Prog'
+print(s[4:])    # 'ramlama'
+print(s[:4])   # 'Prog'
+print(s[::2])   # 'Pormaa'
+print(s[::-1])  # ters çevir`}
         />
 
         <motion.div
@@ -811,48 +681,12 @@ const slides: Array<(active: boolean) => ReactNode> = [
         title="repl — Python 3.12"
         tabs={["metotlar.py"]}
         activeTab="metotlar.py"
-        lines={[
-          <>
-            <span className="tok-var">e</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-string">&quot;  Ali.Veli@KURUM.tr  &quot;</span>
-          </>,
-          <>
-            <span className="tok-var">temiz</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-var">e</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">strip</span>
-            <span className="tok-punct">().</span>
-            <span className="tok-fname">lower</span>
-            <span className="tok-punct">()</span>
-          </>,
-          <>
-            <span className="tok-builtin">print</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-var">temiz</span>
-            <span className="tok-punct">)</span>
-          </>,
-          "",
-          <>
-            <span className="tok-var">kullanici</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-var">temiz</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">split</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;@&quot;</span>
-            <span className="tok-punct">)[</span>
-            <span className="tok-number">0</span>
-            <span className="tok-punct">]</span>
-          </>,
-          <>
-            <span className="tok-builtin">print</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-var">kullanici</span>
-            <span className="tok-punct">)</span>
-          </>,
-        ]}
+        code={`e = "  Ali.Veli@KURUM.tr  "
+temiz = e.strip().lower()
+print(temiz)
+
+kullanici = temiz.split("@")[0]
+print(kullanici)`}
         terminal={
           <div className="leading-relaxed">
             <div>
@@ -1051,60 +885,13 @@ const slides: Array<(active: boolean) => ReactNode> = [
         title="sayac.py — Visual Studio Code"
         tabs={["sayac.py"]}
         activeTab="sayac.py"
-        lines={[
-          <>
-            <span className="tok-var">cumle</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-builtin">input</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;Bir cümle yaz: &quot;</span>
-            <span className="tok-punct">).</span>
-            <span className="tok-fname">strip</span>
-            <span className="tok-punct">()</span>
-          </>,
-          "",
-          <>
-            <span className="tok-var">kelimeler</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-var">cumle</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">split</span>
-            <span className="tok-punct">()</span>
-          </>,
-          <>
-            <span className="tok-var">harf_sayisi</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-builtin">len</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-var">cumle</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">replace</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot; &quot;</span>
-            <span className="tok-punct">, </span>
-            <span className="tok-string">&quot;&quot;</span>
-            <span className="tok-punct">))</span>
-          </>,
-          "",
-          <>
-            <span className="tok-builtin">print</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-fstring">f</span>
-            <span className="tok-string">&quot;Kelime: </span>
-            <span className="tok-punct">{"{"}</span>
-            <span className="tok-builtin">len</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-var">kelimeler</span>
-            <span className="tok-punct">)</span>
-            <span className="tok-punct">{"}"}</span>
-            <span className="tok-string">, Harf: </span>
-            <span className="tok-punct">{"{"}</span>
-            <span className="tok-var">harf_sayisi</span>
-            <span className="tok-punct">{"}"}</span>
-            <span className="tok-string">&quot;</span>
-            <span className="tok-punct">)</span>
-          </>,
-        ]}
+        code={`cumle = input("Bir cümle yaz: ").strip()
+
+kelimeler = cumle.split()
+harf_sayisi = len(cumle.replace(" ", ""))
+
+print(f"Kelime: {len(kelimeler)}, Harf: {harf_sayisi}")`}
+        stdin="metin işlemek kolaymış"
         terminal={
           <div className="leading-relaxed">
             <div>
@@ -1115,7 +902,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
             <div className="prog-terminal-out">
               Bir cümle yaz: <span className="prog-terminal-user">metin işlemek kolaymış</span>
             </div>
-            <div className="prog-terminal-out">Kelime: 3, Harf: 19</div>
+            <div className="prog-terminal-out">Kelime: 3, Harf: 20</div>
             <div>
               <span className="prog-terminal-prompt">user@mcbu</span>
               <span className="text-gray-500"> $ </span>

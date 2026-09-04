@@ -20,6 +20,18 @@ type Entry = {
  *   4. Admin'de konferans/dersi düzenleyip "Sunum" alanından bu slug'ı seç
  */
 export const presentations: Record<string, Entry> = {
+  "akademisyenler-icin-yapay-zeka": {
+    meta: {
+      slug: "akademisyenler-icin-yapay-zeka",
+      title: "Akademisyenler için Yapay Zekâ",
+      description:
+        "28 slaytlık sunum: Claude'un akademik işte nereye girdiği, neyin gerçekten ücretsiz olduğu, yayıncıların yapay zekâ beyan kuralları ve veri gizliliği. Her iddianın kaynağı slaytta.",
+    },
+    Component: dynamic(
+      () => import("./akademisyenler-icin-yapay-zeka/Presentation"),
+      { ssr: false }
+    ),
+  },
   "siber-guvenlik": {
     meta: {
       slug: "siber-guvenlik",

@@ -33,6 +33,7 @@ import {
   Keyboard,
   type LucideIcon,
 } from "lucide-react";
+import { CodeEditor } from "../_shared/code/CodeEditor";
 import "./styles.css";
 
 /* ============================================================
@@ -148,93 +149,10 @@ function FeatureCard({
 
 type CodeLine = ReactNode;
 
-function CodeEditor({
-  title,
-  tabs,
-  activeTab,
-  lines,
-  terminal,
-}: {
-  title: string;
-  tabs: string[];
-  activeTab: string;
-  lines: CodeLine[];
-  terminal?: ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="prog-window-chrome w-full"
-    >
-      <div className="prog-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#9cdcfe" }}
-        >
-          <span className="w-5 h-5 rounded-sm prog-py-tile flex items-center justify-center text-[10px]">
-            Py
-          </span>
-          <span>{title}</span>
-        </div>
-      </div>
+// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
+// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
+// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
 
-      <div className="prog-editor-tabbar flex">
-        {tabs.map((t) => (
-          <div
-            key={t}
-            className={`prog-editor-tab ${
-              t === activeTab ? "prog-editor-tab-active" : ""
-            }`}
-          >
-            <span
-              className="w-3 h-3 rounded-sm"
-              style={{
-                background: t.endsWith(".py")
-                  ? "#3776ab"
-                  : t.endsWith(".md")
-                  ? "#5fa8e0"
-                  : "#ffd43b",
-              }}
-            />
-            {t}
-          </div>
-        ))}
-      </div>
-
-      <div className="prog-editor flex">
-        <div className="prog-editor-gutter px-3 py-3 select-none">
-          {lines.map((_, i) => (
-            <div key={i}>{i + 1}</div>
-          ))}
-        </div>
-        <div className="flex-1 px-4 py-3 overflow-x-auto">
-          {lines.map((line, i) => (
-            <div key={i} className="whitespace-pre">
-              {line || " "}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {terminal && (
-        <div className="prog-terminal px-4 py-3">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400" />
-            TERMİNAL
-          </div>
-          {terminal}
-        </div>
-      )}
-    </motion.div>
-  );
-}
 
 /* ---- Matris ızgarası (satır × sütun) ------------------------- */
 
@@ -573,69 +491,14 @@ const slides: Array<(active: boolean) => ReactNode> = [
           title="matris_olustur.py — Visual Studio Code"
           tabs={["matris_olustur.py", "README.md"]}
           activeTab="matris_olustur.py"
-          lines={[
-            <>
-              <span className="tok-comment"># 1) doğrudan yazarak (3 satır, 3 sütun)</span>
-            </>,
-            <>
-              <span className="tok-var">m</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-punct">[[</span>
-              <span className="tok-number">1</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">2</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">3</span>
-              <span className="tok-punct">], [</span>
-              <span className="tok-number">4</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">5</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">6</span>
-              <span className="tok-punct">], [</span>
-              <span className="tok-number">7</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">8</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">9</span>
-              <span className="tok-punct">]]</span>
-            </>,
-            "",
-            <>
-              <span className="tok-comment"># 2) sıfırlarla doldurulmuş 3x3 boş ızgara</span>
-            </>,
-            <>
-              <span className="tok-var">satir</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-var">sutun</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-number">3</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">3</span>
-            </>,
-            <>
-              <span className="tok-var">grid</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-punct">[[</span>
-              <span className="tok-number">0</span>
-              <span className="tok-punct">] * </span>
-              <span className="tok-var">sutun</span>
-              <span className="tok-keyword"> for </span>
-              <span className="tok-var">_</span>
-              <span className="tok-keyword"> in </span>
-              <span className="tok-builtin">range</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">satir</span>
-              <span className="tok-punct">)]</span>
-            </>,
-            "",
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">grid</span>
-              <span className="tok-punct">)</span>
-            </>,
-          ]}
+          code={`# 1) doğrudan yazarak (3 satır, 3 sütun)
+m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+# 2) sıfırlarla doldurulmuş 3x3 boş ızgara
+satir, sutun = 3, 3
+grid = [[0] * sutun for _ in range(satir)]
+
+print(grid)`}
           terminal={
             <div className="leading-relaxed">
               <div>
@@ -768,77 +631,11 @@ const slides: Array<(active: boolean) => ReactNode> = [
           title="gezinti.py — Visual Studio Code"
           tabs={["gezinti.py"]}
           activeTab="gezinti.py"
-          lines={[
-            <>
-              <span className="tok-var">m</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-punct">[[</span>
-              <span className="tok-number">1</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">2</span>
-              <span className="tok-punct">], [</span>
-              <span className="tok-number">3</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">4</span>
-              <span className="tok-punct">], [</span>
-              <span className="tok-number">5</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">6</span>
-              <span className="tok-punct">]]</span>
-            </>,
-            "",
-            <>
-              <span className="tok-keyword">for</span>
-              <span className="tok-var"> i</span>
-              <span className="tok-keyword"> in </span>
-              <span className="tok-builtin">range</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-builtin">len</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">m</span>
-              <span className="tok-punct">)):</span>
-              <span className="tok-comment">          # satırlar</span>
-            </>,
-            <>
-              {"    "}
-              <span className="tok-keyword">for</span>
-              <span className="tok-var"> j</span>
-              <span className="tok-keyword"> in </span>
-              <span className="tok-builtin">range</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-builtin">len</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">m</span>
-              <span className="tok-punct">[</span>
-              <span className="tok-var">i</span>
-              <span className="tok-punct">])):</span>
-              <span className="tok-comment">   # sütunlar</span>
-            </>,
-            <>
-              {"        "}
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-fstring">f</span>
-              <span className="tok-string">&quot;m[</span>
-              <span className="tok-punct">{"{"}</span>
-              <span className="tok-var">i</span>
-              <span className="tok-punct">{"}"}</span>
-              <span className="tok-string">][</span>
-              <span className="tok-punct">{"{"}</span>
-              <span className="tok-var">j</span>
-              <span className="tok-punct">{"}"}</span>
-              <span className="tok-string">] = </span>
-              <span className="tok-punct">{"{"}</span>
-              <span className="tok-var">m</span>
-              <span className="tok-punct">[</span>
-              <span className="tok-var">i</span>
-              <span className="tok-punct">][</span>
-              <span className="tok-var">j</span>
-              <span className="tok-punct">]{"}"}</span>
-              <span className="tok-string">&quot;</span>
-              <span className="tok-punct">)</span>
-            </>,
-          ]}
+          code={`m = [[1, 2], [3, 4], [5, 6]]
+
+for i in range(len(m)):          # satırlar
+    for j in range(len(m[i])):   # sütunlar
+        print(f"m[{i}][{j}] = {m[i][j]}")`}
           terminal={
             <div className="leading-relaxed">
               <div>
@@ -891,42 +688,13 @@ const slides: Array<(active: boolean) => ReactNode> = [
           title="toplam.py"
           tabs={["toplam.py"]}
           activeTab="toplam.py"
-          lines={[
-            <>
-              <span className="tok-var">toplam</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-number">0</span>
-            </>,
-            <>
-              <span className="tok-keyword">for</span>
-              <span className="tok-var"> satir</span>
-              <span className="tok-keyword"> in </span>
-              <span className="tok-var">m</span>
-              <span className="tok-punct">:</span>
-            </>,
-            <>
-              {"    "}
-              <span className="tok-keyword">for</span>
-              <span className="tok-var"> deger</span>
-              <span className="tok-keyword"> in </span>
-              <span className="tok-var">satir</span>
-              <span className="tok-punct">:</span>
-            </>,
-            <>
-              {"        "}
-              <span className="tok-var">toplam</span>
-              <span className="tok-operator"> += </span>
-              <span className="tok-var">deger</span>
-            </>,
-            "",
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">toplam</span>
-              <span className="tok-punct">)</span>
-              <span className="tok-comment">  # 45</span>
-            </>,
-          ]}
+          code={`toplam = 0
+for satir in m:
+    for deger in satir:
+        toplam += deger
+
+print(toplam)  # 45`}
+          setup={`m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]`}
           terminal={
             <div className="leading-relaxed">
               <div>

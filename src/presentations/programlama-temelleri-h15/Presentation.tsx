@@ -35,6 +35,7 @@ import {
   Keyboard,
   type LucideIcon,
 } from "lucide-react";
+import { CodeEditor } from "../_shared/code/CodeEditor";
 import "./styles.css";
 
 /* ============================================================
@@ -150,93 +151,10 @@ function FeatureCard({
 
 type CodeLine = ReactNode;
 
-function CodeEditor({
-  title,
-  tabs,
-  activeTab,
-  lines,
-  terminal,
-}: {
-  title: string;
-  tabs: string[];
-  activeTab: string;
-  lines: CodeLine[];
-  terminal?: ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="prog-window-chrome w-full"
-    >
-      <div className="prog-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#9cdcfe" }}
-        >
-          <span className="w-5 h-5 rounded-sm prog-py-tile flex items-center justify-center text-[10px]">
-            Py
-          </span>
-          <span>{title}</span>
-        </div>
-      </div>
+// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
+// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
+// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
 
-      <div className="prog-editor-tabbar flex">
-        {tabs.map((t) => (
-          <div
-            key={t}
-            className={`prog-editor-tab ${
-              t === activeTab ? "prog-editor-tab-active" : ""
-            }`}
-          >
-            <span
-              className="w-3 h-3 rounded-sm"
-              style={{
-                background: t.endsWith(".py")
-                  ? "#3776ab"
-                  : t.endsWith(".md")
-                  ? "#5fa8e0"
-                  : "#ffd43b",
-              }}
-            />
-            {t}
-          </div>
-        ))}
-      </div>
-
-      <div className="prog-editor flex">
-        <div className="prog-editor-gutter px-3 py-3 select-none">
-          {lines.map((_, i) => (
-            <div key={i}>{i + 1}</div>
-          ))}
-        </div>
-        <div className="flex-1 px-4 py-3 overflow-x-auto">
-          {lines.map((line, i) => (
-            <div key={i} className="whitespace-pre">
-              {line || " "}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {terminal && (
-        <div className="prog-terminal px-4 py-3">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400" />
-            TERMİNAL
-          </div>
-          {terminal}
-        </div>
-      )}
-    </motion.div>
-  );
-}
 
 /* ---- File tree / dizin gezgini mockup ------------------------ */
 
@@ -558,41 +476,15 @@ const slides: Array<(active: boolean) => ReactNode> = [
           title="ornek.py — open() anatomisi"
           tabs={["ornek.py"]}
           activeTab="ornek.py"
-          lines={[
-            <>
-              <span className="tok-comment"># dosya = open(yol, mod, encoding)</span>
-            </>,
-            <>
-              <span className="tok-var">dosya</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-builtin">open</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-string">&quot;veri/notlar.txt&quot;</span>
-              <span className="tok-punct">,</span>
-              <span className="tok-string"> &quot;r&quot;</span>
-              <span className="tok-punct">,</span>
-              <span className="tok-var"> encoding</span>
-              <span className="tok-operator">=</span>
-              <span className="tok-string">&quot;utf-8&quot;</span>
-              <span className="tok-punct">)</span>
-            </>,
-            "",
-            <>
-              <span className="tok-var">icerik</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-var">dosya</span>
-              <span className="tok-punct">.</span>
-              <span className="tok-fname">read</span>
-              <span className="tok-punct">()</span>
-            </>,
-            <>
-              <span className="tok-var">dosya</span>
-              <span className="tok-punct">.</span>
-              <span className="tok-fname">close</span>
-              <span className="tok-punct">()</span>
-              <span className="tok-comment">  # mutlaka kapat!</span>
-            </>,
-          ]}
+          code={`# dosya = open(yol, mod, encoding)
+dosya = open("veri/notlar.txt", "r", encoding="utf-8")
+
+icerik = dosya.read()
+dosya.close()  # mutlaka kapat!`}
+          setup={`import os
+os.makedirs("veri", exist_ok=True)
+with open("veri/notlar.txt", "w", encoding="utf-8") as _f:
+    _f.write("Ali Yılmaz 85\\nAyşe Demir 92\\nMehmet Kaya 74\\n")`}
         />
 
         <div className="space-y-3">
@@ -810,70 +702,16 @@ const slides: Array<(active: boolean) => ReactNode> = [
         title="oku.py — Visual Studio Code"
         tabs={["oku.py", "notlar.txt"]}
         activeTab="oku.py"
-        lines={[
-          <>
-            <span className="tok-keyword">with</span>{" "}
-            <span className="tok-builtin">open</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;veri/notlar.txt&quot;</span>
-            <span className="tok-punct">,</span>
-            <span className="tok-string"> &quot;r&quot;</span>
-            <span className="tok-punct">,</span>
-            <span className="tok-var"> encoding</span>
-            <span className="tok-operator">=</span>
-            <span className="tok-string">&quot;utf-8&quot;</span>
-            <span className="tok-punct">)</span>{" "}
-            <span className="tok-keyword">as</span>{" "}
-            <span className="tok-var">dosya</span>
-            <span className="tok-punct">:</span>
-          </>,
-          <>
-            {"    "}
-            <span className="tok-var">satir_no</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-number">1</span>
-          </>,
-          <>
-            {"    "}
-            <span className="tok-keyword">for</span>{" "}
-            <span className="tok-var">satir</span>{" "}
-            <span className="tok-keyword">in</span>{" "}
-            <span className="tok-var">dosya</span>
-            <span className="tok-punct">:</span>
-          </>,
-          <>
-            {"        "}
-            <span className="tok-var">temiz</span>
-            <span className="tok-operator"> = </span>
-            <span className="tok-var">satir</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">strip</span>
-            <span className="tok-punct">()</span>
-            <span className="tok-comment">  # \n ve boşlukları at</span>
-          </>,
-          <>
-            {"        "}
-            <span className="tok-builtin">print</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-fstring">f</span>
-            <span className="tok-string">&quot;</span>
-            <span className="tok-punct">{"{"}</span>
-            <span className="tok-var">satir_no</span>
-            <span className="tok-punct">{"}"}</span>
-            <span className="tok-string">: </span>
-            <span className="tok-punct">{"{"}</span>
-            <span className="tok-var">temiz</span>
-            <span className="tok-punct">{"}"}</span>
-            <span className="tok-string">&quot;</span>
-            <span className="tok-punct">)</span>
-          </>,
-          <>
-            {"        "}
-            <span className="tok-var">satir_no</span>
-            <span className="tok-operator"> += </span>
-            <span className="tok-number">1</span>
-          </>,
-        ]}
+        code={`with open("veri/notlar.txt", "r", encoding="utf-8") as dosya:
+    satir_no = 1
+    for satir in dosya:
+        temiz = satir.strip()  # \\n ve boşlukları at
+        print(f"{satir_no}: {temiz}")
+        satir_no += 1`}
+        setup={`import os
+os.makedirs("veri", exist_ok=True)
+with open("veri/notlar.txt", "w", encoding="utf-8") as _f:
+    _f.write("Ali Yılmaz 85\\nAyşe Demir 92\\nMehmet Kaya 74\\n")`}
         terminal={
           <div className="leading-relaxed">
             <div>
@@ -912,85 +750,14 @@ const slides: Array<(active: boolean) => ReactNode> = [
         title="yaz.py — Visual Studio Code"
         tabs={["yaz.py"]}
         activeTab="yaz.py"
-        lines={[
-          <>
-            <span className="tok-comment"># &quot;w&quot;: dosyayı sıfırlar, baştan yazar</span>
-          </>,
-          <>
-            <span className="tok-keyword">with</span>{" "}
-            <span className="tok-builtin">open</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;rapor.txt&quot;</span>
-            <span className="tok-punct">,</span>
-            <span className="tok-string"> &quot;w&quot;</span>
-            <span className="tok-punct">,</span>
-            <span className="tok-var"> encoding</span>
-            <span className="tok-operator">=</span>
-            <span className="tok-string">&quot;utf-8&quot;</span>
-            <span className="tok-punct">)</span>{" "}
-            <span className="tok-keyword">as</span>{" "}
-            <span className="tok-var">f</span>
-            <span className="tok-punct">:</span>
-          </>,
-          <>
-            {"    "}
-            <span className="tok-var">f</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">write</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;Başlık: Haftalık Rapor</span>
-            <span className="tok-fstring">\n</span>
-            <span className="tok-string">&quot;</span>
-            <span className="tok-punct">)</span>
-          </>,
-          "",
-          <>
-            <span className="tok-comment"># &quot;a&quot;: var olanı koru, sonuna ekle</span>
-          </>,
-          <>
-            <span className="tok-keyword">with</span>{" "}
-            <span className="tok-builtin">open</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;rapor.txt&quot;</span>
-            <span className="tok-punct">,</span>
-            <span className="tok-string"> &quot;a&quot;</span>
-            <span className="tok-punct">,</span>
-            <span className="tok-var"> encoding</span>
-            <span className="tok-operator">=</span>
-            <span className="tok-string">&quot;utf-8&quot;</span>
-            <span className="tok-punct">)</span>{" "}
-            <span className="tok-keyword">as</span>{" "}
-            <span className="tok-var">f</span>
-            <span className="tok-punct">:</span>
-          </>,
-          <>
-            {"    "}
-            <span className="tok-var">f</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">write</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;Satış: 1240 adet</span>
-            <span className="tok-fstring">\n</span>
-            <span className="tok-string">&quot;</span>
-            <span className="tok-punct">)</span>
-          </>,
-          <>
-            {"    "}
-            <span className="tok-var">f</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">writelines</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-punct">[</span>
-            <span className="tok-string">&quot;Şehir: Manisa</span>
-            <span className="tok-fstring">\n</span>
-            <span className="tok-string">&quot;</span>
-            <span className="tok-punct">,</span>
-            <span className="tok-string"> &quot;Yıl: 2026</span>
-            <span className="tok-fstring">\n</span>
-            <span className="tok-string">&quot;</span>
-            <span className="tok-punct">])</span>
-          </>,
-        ]}
+        code={`# "w": dosyayı sıfırlar, baştan yazar
+with open("rapor.txt", "w", encoding="utf-8") as f:
+    f.write("Başlık: Haftalık Rapor\\n")
+
+# "a": var olanı koru, sonuna ekle
+with open("rapor.txt", "a", encoding="utf-8") as f:
+    f.write("Satış: 1240 adet\\n")
+    f.writelines(["Şehir: Manisa\\n", "Yıl: 2026\\n"])`}
       />
     </SlideShell>
   ),

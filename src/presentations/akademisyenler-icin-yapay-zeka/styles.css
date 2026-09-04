@@ -1,0 +1,64 @@
+/* Akademisyenler için Yapay Zekâ — sunuma özel yüzeyler.
+   Renk tek kaynaktan: DeckShell'in verdiği --deck-accent. */
+
+.ai-grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.ai-card {
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.ai-card:hover {
+  border-color: color-mix(in srgb, var(--deck-accent) 45%, transparent);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+/* Karşılaştırma tablosu — "ücretsizde var / Pro'da var" */
+.ai-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.ai-table th,
+.ai-table td {
+  text-align: start;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+}
+.ai-table thead th {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+.ai-table td:first-child {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ai-table td {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Doğru / yanlış rozetleri */
+.ai-yes {
+  color: var(--deck-accent);
+}
+.ai-no {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* Uyarı kutusu */
+.ai-warn {
+  border-inline-start: 3px solid var(--deck-accent);
+  background: color-mix(in srgb, var(--deck-accent) 8%, transparent);
+  border-radius: 0 10px 10px 0;
+}

@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/site";
 import { books } from "@/data/books";
+import { publicTalks } from "@/presentations/publicTalks";
 import { locales, htmlLang, localizedRoutes } from "@/lib/i18n";
 
 // Build sırasında DB bağlanamazsa fail etmesin — request-time'da generate
@@ -129,6 +130,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const talkPages: MetadataRoute.Sitemap = publicTalks.map((t) => ({
+    url: `${siteUrl}/sunumlar/${t.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
   const bookPages: MetadataRoute.Sitemap = books.map((b) => ({
     url: `${siteUrl}/kitaplar/${b.slug}`,
     lastModified: now,
@@ -140,6 +148,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // JavaScript ile çalışan sunum görüntüleyicileri; artık noindex.
   return [
     ...staticPages,
+    ...talkPages,
     ...bookPages,
     ...postPages,
     ...coursePages,
