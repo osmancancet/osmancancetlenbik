@@ -2,6 +2,40 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
+import QRCode from "qrcode";
+
+/**
+ * QR kodları eskiden api.qrserver.com'dan çekiliyordu; salon internetsizse
+ * ya da servis yavaşsa sunumun ortasında boş kutu kalıyordu. Artık tarayıcıda
+ * üretiliyor — çevrimdışı da çalışır.
+ */
+function LocalQr({
+  data,
+  alt,
+  className,
+}: {
+  data: string;
+  alt: string;
+  className?: string;
+}) {
+  const [src, setSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    QRCode.toDataURL(data, {
+      width: 600,
+      margin: 1,
+      errorCorrectionLevel: "H",
+      color: { dark: "#000000", light: "#ffffffff" },
+    })
+      .then((url) => !cancelled && setSrc(url))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [data]);
+  // eslint-disable-next-line @next/next/no-img-element
+  return src ? <img src={src} alt={alt} className={className} /> : <div className={className} />;
+}
 
 /* ================================================================
    TYPES
@@ -779,8 +813,11 @@ const slides: Slide[] = [
           animate={{ boxShadow: ["0 0 30px rgba(0,255,65,0.15)", "0 0 100px rgba(0,255,65,0.45)", "0 0 30px rgba(0,255,65,0.15)"] }}
           transition={{ repeat: Infinity, duration: 2.5 }}
           className="bg-white p-12 rounded-3xl">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=https://hackleme-sanati.vercel.app/bolum/qr-kod-tuzagi"
-            alt="QR" className="w-[34rem] h-[34rem] sm:w-[40rem] sm:h-[40rem]" />
+          <LocalQr
+            data="https://hackleme-sanati.vercel.app/bolum/qr-kod-tuzagi"
+            alt="Tuzak QR kodu"
+            className="w-[34rem] h-[34rem] sm:w-[40rem] sm:h-[40rem]"
+          />
         </motion.div>
       </motion.div>
     </div>
@@ -954,7 +991,7 @@ const slides: Slide[] = [
           <motion.div key={i} className="flex flex-col items-center" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.2, type: "spring" }}>
             <motion.div animate={{ boxShadow: [`0 0 20px rgba(${qr.color},0.15)`, `0 0 80px rgba(${qr.color},0.45)`, `0 0 20px rgba(${qr.color},0.15)`] }}
               transition={{ repeat: Infinity, duration: 2.5, delay: i * 0.3 }} className="bg-white p-10 rounded-3xl mb-5">
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${qr.url}`} alt={qr.label} className="w-80 h-80 sm:w-96 sm:h-96" />
+              <LocalQr data={qr.url} alt={qr.label} className="w-80 h-80 sm:w-96 sm:h-96" />
             </motion.div>
             <p className="text-4xl font-bold" style={{ color: `rgb(${qr.color})` }}>{qr.label}</p>
           </motion.div>

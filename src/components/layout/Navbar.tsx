@@ -78,7 +78,11 @@ function dispatchOpenSearch() {
 
 export function Navbar() {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  // Canlı ders odası (/canli/KOD) kendi başlık çubuğunu taşıyan tam ekran
+  // bir görünüm — site menüsü sorunun üstüne binmesin. Katılım sayfası
+  // (/canli) normal bir sayfa, menüsü durur.
+  const isChromeless =
+    pathname.startsWith("/admin") || /^\/canli\/[^/]+/.test(pathname);
   const locale = localeFromPath(pathname);
   const t = UI[locale];
   const home = homePath(locale);
@@ -130,7 +134,7 @@ export function Navbar() {
     };
   }, [moreOpen]);
 
-  if (isAdmin) return null;
+  if (isChromeless) return null;
 
   const secondaryActive = secondary[locale].some((l) => l.href === pathname);
 

@@ -10,15 +10,15 @@ datasource db {
 }
 
 model Post {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  excerpt     String
-  content     String
-  coverImage  String?
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  title      String
+  excerpt    String
+  content    String
+  coverImage String?
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Conference {
@@ -35,19 +35,20 @@ model Conference {
 }
 
 model Course {
-  id          String       @id @default(cuid())
-  slug        String       @unique
-  title       String
-  program     String
-  type        String
-  description String?
-  semester    String?
-  credits     Int?
-  schedule    String?
-  syllabus    String?
-  weeks       CourseWeek[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  title        String
+  program      String
+  type         String
+  description  String?
+  semester     String?
+  credits      Int?
+  schedule     String?
+  syllabus     String?
+  weeks        CourseWeek[]
+  liveSessions LiveSession[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model PressItem {
@@ -132,4 +133,96 @@ model QrTrapHit {
   createdAt DateTime @default(now())
 
   @@index([session, createdAt])
+}
+
+/// ─── Canlı ders ─────────────────────────────────────────────────────
+/// Derste öğrencilerin telefonundan katıldığı etkileşim katmanı.
+/// Akış: eğitmen bir oturum açar → tahtada 6 haneli kod ve QR görünür →
+/// öğrenci /canli adresinden koda girer → eğitmen etkinlikleri sırayla
+/// sahneye alır → yanıtlar canlı olarak tahtada birikir.
+
+model LiveSession {
+  id                String    @id @default(cuid())
+  /// Öğrencinin gireceği kısa kod. Karışabilen harfler (I, O, 0, 1) kullanılmaz.
+  code              String    @unique
+  title             String
+  /// Hangi dersin hangi haftası — boş bırakılabilir (konferans, atölye).
+  courseId          String?
+  course            Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  weekNumber        Int?
+  /// LOBBY: katılım açık, henüz soru yok · LIVE: etkinlik sahnede · ENDED
+  status            String    @default("LOBBY")
+  /// Şu an tahtada olan etkinlik. Öğrenci ekranı bunu izler.
+  currentActivityId String?
+  /// Katılımcı adı zorunlu mu, yoksa anonim mi.
+  anonymous         Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  endedAt           DateTime?
+
+  activities   LiveActivity[]
+  participants LiveParticipant[]
+
+  @@index([status, createdAt])
+}
+
+model LiveActivity {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   LiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  /// Sunum sırası.
+  order     Int
+  /// POLL (oylama) · QUIZ (doğru cevaplı) · WORDCLOUD (kelime bulutu) ·
+  /// SCALE (1-5 ölçek) · QA (serbest soru)
+  type      String
+  prompt    String
+  /// POLL/QUIZ/SCALE için: [{ id, label, correct? }]
+  options   Json?
+  /// QUIZ'de saniye cinsinden süre; 0 = süresiz.
+  seconds   Int         @default(0)
+  /// IDLE: henüz açılmadı · OPEN: yanıt alınıyor · LOCKED: yanıt kapandı,
+  /// sonuç henüz gizli · REVEALED: sonuç tahtada
+  state     String      @default("IDLE")
+  openedAt  DateTime?
+  createdAt DateTime    @default(now())
+
+  responses LiveResponse[]
+
+  @@unique([sessionId, order])
+  @@index([sessionId, state])
+}
+
+model LiveParticipant {
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    LiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  /// Tarayıcıda saklanan rastgele anahtar — hesap yok, giriş yok.
+  key        String
+  nickname   String
+  score      Int         @default(0)
+  joinedAt   DateTime    @default(now())
+  lastSeenAt DateTime    @default(now())
+
+  responses LiveResponse[]
+
+  @@unique([sessionId, key])
+  @@index([sessionId, score])
+}
+
+model LiveResponse {
+  id            String          @id @default(cuid())
+  activityId    String
+  activity      LiveActivity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   LiveParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  /// POLL/QUIZ/SCALE için seçilen şık.
+  optionId      String?
+  /// WORDCLOUD/QA için serbest metin.
+  text          String?
+  correct       Boolean?
+  /// Hızlı doğru cevap daha çok puan alsın diye yanıt süresi (ms).
+  elapsedMs     Int?
+  createdAt     DateTime        @default(now())
+
+  @@unique([activityId, participantId])
+  @@index([activityId, optionId])
 }

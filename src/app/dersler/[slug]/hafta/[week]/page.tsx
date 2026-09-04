@@ -7,6 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
+  FileText,
+  Radio,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/ui/Reveal";
@@ -109,13 +111,33 @@ export default async function WeekDetailPage({
 
         {(current.slides || current.presentationSlug) && (
           <Reveal delay={0.15}>
-            <Link
-              href={`/dersler/${course.slug}/hafta/${current.weekNumber}/sunum`}
-              className="inline-flex items-center gap-2 px-5 py-3 bg-[var(--accent)] text-[var(--bg)] font-medium rounded-md hover:bg-white transition-colors mb-12"
-            >
-              <Presentation className="w-4 h-4" />
-              Sunumu Başlat
-            </Link>
+            <div className="flex flex-wrap items-center gap-3 mb-12">
+              <Link
+                href={`/dersler/${course.slug}/hafta/${current.weekNumber}/sunum`}
+                className="inline-flex items-center gap-2 px-5 py-3 bg-[var(--accent)] text-[var(--bg)] font-medium rounded-md hover:bg-white transition-colors"
+              >
+                <Presentation className="w-4 h-4" />
+                Sunumu Başlat
+              </Link>
+              {/* İki içerik birden varsa React sunumu önceleniyor; markdown
+                  slaytlar aksi hâlde hiçbir yerden erişilemez kalıyordu. */}
+              {current.slides && current.presentationSlug && (
+                <Link
+                  href={`/dersler/${course.slug}/hafta/${current.weekNumber}/sunum?format=markdown`}
+                  className="inline-flex items-center gap-2 px-5 py-3 border border-[var(--border-strong)] text-[var(--fg-muted)] font-medium rounded-md hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                >
+                  <FileText className="w-4 h-4" />
+                  Yazılı slaytlar
+                </Link>
+              )}
+              <Link
+                href="/canli"
+                className="inline-flex items-center gap-2 px-5 py-3 border border-[var(--border-strong)] text-[var(--fg-muted)] font-medium rounded-md hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+              >
+                <Radio className="w-4 h-4" />
+                Canlı derse katıl
+              </Link>
+            </div>
           </Reveal>
         )}
 

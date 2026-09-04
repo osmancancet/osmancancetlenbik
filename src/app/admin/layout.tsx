@@ -9,6 +9,7 @@ import {
   BookOpen,
   Megaphone,
   Newspaper,
+  Radio,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import {
 const links = [
   { href: "/admin", label: "Panel", icon: LayoutDashboard },
   { href: "/admin/dersler", label: "Derslerim", icon: BookOpen },
+  { href: "/admin/canli", label: "Canlı Ders", icon: Radio },
   { href: "/admin/yazilar", label: "Yazılarım", icon: FileText },
   { href: "/admin/konferanslar", label: "Konferanslarım", icon: Mic },
   { href: "/admin/basin", label: "Basın", icon: Newspaper },

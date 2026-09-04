@@ -25,7 +25,7 @@ export const presentations: Record<string, Entry> = {
       slug: "siber-guvenlik",
       title: "Siber Güvenlik Farkındalık Etkinliği",
       description:
-        "37 slaytlık interaktif siber güvenlik farkındalık sunumu (Matrix Rain, glitch, otomatik simülasyonlar).",
+        "35 slaytlık interaktif siber güvenlik farkındalık sunumu (Matrix Rain, glitch, otomatik simülasyonlar).",
     },
     Component: dynamic(() => import("./siber-guvenlik/Presentation"), {
       ssr: false,
@@ -37,7 +37,7 @@ export const presentations: Record<string, Entry> = {
       title:
         "İnteraktif Siber Güvenlik: Son Kullanıcı Zafiyetleri ve Sosyal Mühendislik",
       description:
-        "MCBÜKAF'26 için sıfırdan kurgulanmış 23 slaytlık sunum: tıkla-açıl oltalama anatomisi, sahnede canlı şifre kırıcı ve cihaz parmak izi deneyi, deepfake ipuçları ve 5 dakikalık ransomware geri sayımı.",
+        "MCBÜKAF'26 için sıfırdan kurgulanmış 43 slaytlık sunum: tıkla-açıl oltalama anatomisi, sahnede canlı şifre kırıcı ve cihaz parmak izi deneyi, deepfake ipuçları ve 5 dakikalık ransomware geri sayımı.",
     },
     Component: dynamic(() => import("./mcbukaf-2026-siber/Presentation"), {
       ssr: false,
@@ -48,7 +48,7 @@ export const presentations: Record<string, Entry> = {
       slug: "ofis-programlari",
       title: "Ofis Programları (PowerPoint · Canva · Gamma)",
       description:
-        "BVA 1108 9. hafta — Sunum hazırlama araçları için 24 slaytlık görsel React sunum.",
+        "BVA 1108 9. hafta — Sunum hazırlama araçları için 36 slaytlık görsel React sunum.",
     },
     Component: dynamic(() => import("./ofis-programlari/Presentation"), {
       ssr: false,
@@ -59,7 +59,7 @@ export const presentations: Record<string, Entry> = {
       slug: "kelime-islem",
       title: "Kelime İşlem Programı (Word · Google Docs · LibreOffice)",
       description:
-        "BVA 1108 10. hafta — Microsoft Word ve alternatifleri için 35 slaytlık görsel React sunum.",
+        "BVA 1108 10. hafta — Microsoft Word ve alternatifleri için 40 slaytlık görsel React sunum.",
     },
     Component: dynamic(() => import("./kelime-islem/Presentation"), {
       ssr: false,

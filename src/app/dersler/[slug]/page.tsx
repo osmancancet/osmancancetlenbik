@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, Presentation, BookOpen, Clock } from "lucide-react";
+import {
+  ArrowLeft,
+  FileText,
+  Presentation,
+  BookOpen,
+  Clock,
+  Award,
+  CalendarDays,
+  Radio,
+  Mail,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/ui/Reveal";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
@@ -68,14 +78,28 @@ export default async function CourseDetailPage({
           </p>
         </Reveal>
 
-        {course.schedule && (
-          <Reveal delay={0.18}>
-            <div className="inline-flex items-center gap-2 mt-2 text-sm font-mono text-[var(--accent)] border border-[var(--accent)]/30 bg-[var(--accent)]/5 rounded-md px-3 py-1.5">
-              <Clock className="w-3.5 h-3.5" />
-              {course.schedule}
-            </div>
-          </Reveal>
-        )}
+        <Reveal delay={0.18}>
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            {course.schedule && (
+              <span className="inline-flex items-center gap-2 text-sm font-mono text-[var(--accent)] border border-[var(--accent)]/30 bg-[var(--accent)]/5 rounded-md px-3 py-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                {course.schedule}
+              </span>
+            )}
+            {course.credits != null && (
+              <span className="inline-flex items-center gap-2 text-sm font-mono text-[var(--fg-muted)] border border-[var(--border-strong)] rounded-md px-3 py-1.5">
+                <Award className="w-3.5 h-3.5" />
+                {course.credits} AKTS
+              </span>
+            )}
+            {course.semester && (
+              <span className="inline-flex items-center gap-2 text-sm font-mono text-[var(--fg-muted)] border border-[var(--border-strong)] rounded-md px-3 py-1.5">
+                <CalendarDays className="w-3.5 h-3.5" />
+                {course.semester}
+              </span>
+            )}
+          </div>
+        </Reveal>
 
         {course.description && (
           <Reveal delay={0.2}>
@@ -95,6 +119,38 @@ export default async function CourseDetailPage({
             </div>
           </Reveal>
         )}
+
+        <Reveal delay={0.28}>
+          <div className="mt-12 grid sm:grid-cols-2 gap-4 max-w-3xl">
+            <Link
+              href="/canli"
+              className="card rounded-lg p-5 group hover:border-[var(--accent)]/40"
+            >
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--accent)] font-mono mb-2">
+                <Radio className="w-3 h-3" />
+                Canlı ders
+              </div>
+              <p className="text-sm text-[var(--fg-muted)] leading-relaxed">
+                Derste tahtada bir katılım kodu görürseniz buradan girin —
+                oylamalara, yarışmalara ve soru–cevaba telefonunuzdan
+                katılabilirsiniz.
+              </p>
+            </Link>
+            <Link
+              href="/iletisim"
+              className="card rounded-lg p-5 group hover:border-[var(--accent)]/40"
+            >
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--accent)] font-mono mb-2">
+                <Mail className="w-3 h-3" />
+                Soru sormak için
+              </div>
+              <p className="text-sm text-[var(--fg-muted)] leading-relaxed">
+                Ofis saatleri ve iletişim kanalları iletişim sayfasında.
+                Ders dışı sorularınızı oradan iletebilirsiniz.
+              </p>
+            </Link>
+          </div>
+        </Reveal>
 
         {/* Weekly plan */}
         <div className="mt-16">

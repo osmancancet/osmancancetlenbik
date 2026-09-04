@@ -178,7 +178,9 @@ const COLUMNS: Record<
 
 export function Footer() {
   const pathname = usePathname() || "/";
-  if (pathname.startsWith("/admin")) return null;
+  // Bkz. Navbar: canlı ders odası kendi düzenini yönetiyor.
+  if (pathname.startsWith("/admin") || /^\/canli\/[^/]+/.test(pathname))
+    return null;
 
   const locale = localeFromPath(pathname);
   const cols = COLUMNS[locale];

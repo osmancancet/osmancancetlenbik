@@ -1368,7 +1368,7 @@ export default function Presentation() {
         </button>
       </div>
 
-      <div className="absolute bottom-3 right-8 text-[9px] font-mono text-gray-700 z-50 hidden md:flex items-center gap-2">
+      <div className="absolute bottom-3 right-8 text-[11px] font-mono text-white/45 z-50 hidden md:flex items-center gap-2">
         <Keyboard className="w-3 h-3" />
         <span>← → · F · Esc</span>
       </div>

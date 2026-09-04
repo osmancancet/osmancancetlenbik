@@ -4,7 +4,7 @@ import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
 import { prisma } from "@/lib/prisma";
-import { BookOpen, ArrowUpRight, Clock } from "lucide-react";
+import { BookOpen, ArrowUpRight, Clock, CalendarDays } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Dersler",
@@ -17,7 +17,7 @@ export const revalidate = 300;
 
 export default async function DerslerPage() {
   const courses = await prisma.course.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ semester: "desc" }, { title: "asc" }],
     include: { _count: { select: { weeks: true } } },
   });
 
@@ -61,6 +61,12 @@ export default async function DerslerPage() {
                 <p className="text-xs text-[var(--fg-muted)] mb-3">
                   {course.program}
                 </p>
+                {course.semester && (
+                  <div className="inline-flex items-center gap-1.5 text-[10px] font-mono text-[var(--fg-subtle)] border border-[var(--border)] rounded px-2 py-0.5 mb-2 me-2">
+                    <CalendarDays className="w-3 h-3" />
+                    {course.semester}
+                  </div>
+                )}
                 {course.schedule && (
                   <div className="inline-flex items-center gap-1.5 text-[10px] font-mono text-[var(--accent)] border border-[var(--border-strong)] rounded px-2 py-0.5 mb-4">
                     <Clock className="w-3 h-3" />
