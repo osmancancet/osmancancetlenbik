@@ -39,6 +39,7 @@ import {
   Calendar,
   type LucideIcon,
 } from "lucide-react";
+import { CodeEditor } from "../_shared/code/CodeEditor";
 import "./styles.css";
 
 /* ============================================================
@@ -186,93 +187,10 @@ function StatCard({
 
 type CodeLine = ReactNode;
 
-function CodeEditor({
-  title,
-  tabs,
-  activeTab,
-  lines,
-  terminal,
-}: {
-  title: string;
-  tabs: string[];
-  activeTab: string;
-  lines: CodeLine[];
-  terminal?: ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="prog-window-chrome w-full"
-    >
-      <div className="prog-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#9cdcfe" }}
-        >
-          <span className="w-5 h-5 rounded-sm prog-py-tile flex items-center justify-center text-[10px]">
-            Py
-          </span>
-          <span>{title}</span>
-        </div>
-      </div>
+// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
+// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
+// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
 
-      <div className="prog-editor-tabbar flex">
-        {tabs.map((t) => (
-          <div
-            key={t}
-            className={`prog-editor-tab ${
-              t === activeTab ? "prog-editor-tab-active" : ""
-            }`}
-          >
-            <span
-              className="w-3 h-3 rounded-sm"
-              style={{
-                background: t.endsWith(".py")
-                  ? "#3776ab"
-                  : t.endsWith(".md")
-                  ? "#5fa8e0"
-                  : "#ffd43b",
-              }}
-            />
-            {t}
-          </div>
-        ))}
-      </div>
-
-      <div className="prog-editor flex">
-        <div className="prog-editor-gutter px-3 py-3 select-none">
-          {lines.map((_, i) => (
-            <div key={i}>{i + 1}</div>
-          ))}
-        </div>
-        <div className="flex-1 px-4 py-3 overflow-x-auto">
-          {lines.map((line, i) => (
-            <div key={i} className="whitespace-pre">
-              {line || " "}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {terminal && (
-        <div className="prog-terminal px-4 py-3">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400" />
-            TERMİNAL
-          </div>
-          {terminal}
-        </div>
-      )}
-    </motion.div>
-  );
-}
 
 /* ---- Flowchart SVG component --------------------------------- */
 
@@ -889,40 +807,10 @@ const slides: Array<(active: boolean) => ReactNode> = [
           title="main.py — Visual Studio Code"
           tabs={["main.py", "README.md"]}
           activeTab="main.py"
-          lines={[
-            <>
-              <span className="tok-comment"># ilk programım</span>
-            </>,
-            <>
-              <span className="tok-var">ad</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-builtin">input</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-string">&quot;Adın ne? &quot;</span>
-              <span className="tok-punct">)</span>
-            </>,
-            <>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-fstring">f</span>
-              <span className="tok-string">&quot;Merhaba, </span>
-              <span className="tok-punct">{"{"}</span>
-              <span className="tok-var">ad</span>
-              <span className="tok-punct">{"}"}</span>
-              <span className="tok-string">!&quot;</span>
-              <span className="tok-punct">)</span>
-            </>,
-            "",
-            <>
-              <span className="tok-comment"># çıktı:</span>
-            </>,
-            <>
-              <span className="tok-comment"># Adın ne? Hasan</span>
-            </>,
-            <>
-              <span className="tok-comment"># Merhaba, Hasan!</span>
-            </>,
-          ]}
+          code={`# ilk programım
+ad = input("Adın ne? ")
+print(f"Merhaba, {ad}!")`}
+          stdin="Hasan"
           terminal={
             <div className="leading-relaxed">
               <div>
