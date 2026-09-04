@@ -21,7 +21,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
 import { tools } from "@/data/tools";
 import { seoMeta } from "@/lib/seo/metadata";
-import { InstallPrompt } from "@/components/tools/InstallPrompt";
+import { PlatformDownload } from "@/components/tools/PlatformDownload";
 
 const ICONS: Record<string, LucideIcon> = {
   FileSearch,
@@ -61,9 +61,7 @@ export default function AraclarPage() {
       title="Akademisyen araçları."
       subtitle="Hepsi ücretsiz, üyelik yok. Çoğu tamamen tarayıcınızda çalışıyor — dosyanız bilgisayarınızdan çıkmıyor. Masaüstüne uygulama olarak da kurabilirsiniz."
     >
-      <div className="mb-10">
-        <InstallPrompt />
-      </div>
+      <PlatformDownload />
 
       <div className="grid gap-4 md:grid-cols-2">
         {tools.map((t, i) => {

@@ -11,7 +11,7 @@ import { siteUrl } from "@/lib/site";
  * üretiyoruz: macOS'ta .webloc, Windows'ta .url. İkisi de işletim sisteminin
  * tanıdığı, uyarı çıkarmayan, çift tıklandığında araçları açan gerçek
  * dosyalar. Asıl "uygulama gibi" deneyim tarayıcının kurulum kipinden
- * geliyor (bkz. InstallPrompt).
+ * geliyor (bkz. PlatformDownload).
  */
 
 export const dynamic = "force-static";

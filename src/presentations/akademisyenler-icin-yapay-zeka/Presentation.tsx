@@ -276,7 +276,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
             className="font-mono text-xs uppercase tracking-[0.3em] mb-7"
             style={{ color: ACCENT }}
           >
-            94 slayt · okuma süresi ~35 dakika
+            97 slayt · okuma süresi ~36 dakika
           </div>
         </Fade>
         <Fade delay={0.1}>
@@ -1025,7 +1025,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
           items={[
             {
               t: "Ücretsiz hesap açın · 1 dakika",
-              d: "claude.ai — e-posta yeterli. Kart istemiyor. Ayarlar → Gizlilik&apos;ten model eğitimi tercihinizi hemen belirleyin.",
+              d: "claude.ai — e-posta yeterli. Kart istemiyor. Ayarlar → Gizlilik’ten model eğitimi tercihinizi hemen belirleyin.",
             },
             {
               t: "Kendi metninizi verin · 3 dakika",
@@ -1915,7 +1915,9 @@ Düzeltme yazma — sadece sorunları listele.`}</Prompt>
         <p className="text-sm text-white/70 leading-relaxed">
           <strong className="text-white">Dikkat:</strong> Bu, kendi makalenize
           gelen rapor için geçerli. Kendiniz hakemlik yapıyorsanız
-          değerlendirdiğiniz makaleyi yükleyemezsiniz — ayrıntısı 37. slaytta.
+          değerlendirdiğiniz makaleyi yükleyemezsiniz. Ayrıntısı “Sınırlar”
+          bölümünde; TÜBİTAK&apos;ın aynı yasağı “Türkiye&apos;de durum”
+          bölümünde.
         </p>
       </div>
     </Slide>
@@ -2517,6 +2519,59 @@ karşı tarafın en iyi argümanını görmek istiyorum.`}</Prompt>
     </Slide>
   ),
 
+  /* Alan · uygulamalı ve tasarım alanları */
+  () => (
+    <Slide>
+      <Eyebrow>Alanınıza göre · 6</Eyebrow>
+      <H2>Ziraat, veteriner, mimarlık, güzel sanatlar, spor.</H2>
+      <Sub>
+        Uygulamalı alanlarda iş, masa başında bitmiyor. Yapay zekânın katkısı
+        da bu yüzden dar ama net bir yerde duruyor.
+      </Sub>
+      <div className="mt-6 grid md:grid-cols-2 gap-4">
+        <Fade delay={0.08}>
+          <div className="ai-card p-5">
+            <div
+              className="font-mono text-[11px] uppercase tracking-[0.18em] mb-2.5"
+              style={{ color: ACCENT }}
+            >
+              İşe yarayan yerler
+            </div>
+            <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
+              <li>· Saha ölçüm verisini tabloya dökme ve betimleyici analiz</li>
+              <li>· Deneme deseni kurarken alternatifleri tartışma</li>
+              <li>· Şartname, proje raporu ve teknik metin taslağı</li>
+              <li>· Literatürdeki yöntem çeşitliliğini haritalama</li>
+              <li>· Uygulama dersleri için değerlendirme ölçütü yazma</li>
+            </ul>
+          </div>
+        </Fade>
+        <Fade delay={0.16}>
+          <div className="ai-card p-5">
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40 mb-2.5">
+              İşe yaramayan yerler
+            </div>
+            <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
+              <li>· Saha gözlemi, hayvan davranışı, malzeme hissi — yerini tutmaz</li>
+              <li>· Tasarım yargısı ve estetik karar sizde kalır</li>
+              <li>· Ürettiği görsel, yayında araştırma görseli sayılmaz</li>
+              <li>· Yerel iklim, toprak ve mevzuat verisinde güvenilmez</li>
+            </ul>
+          </div>
+        </Fade>
+      </div>
+      <Fade delay={0.26}>
+        <div className="mt-5">
+          <Prompt>{`Şu deneme desenini kuruyorum: [TASARIM, tekerrür sayısı,
+faktörler]. Bu desenin gözden kaçırdığım zayıf yanları
+neler? Hangi karıştırıcı değişken sonucumu geçersiz
+kılabilir? Alternatif bir desen önerirsen gerekçesiyle
+birlikte yaz.`}</Prompt>
+        </div>
+      </Fade>
+    </Slide>
+  ),
+
   /* Bölüm 5 · Öğrenci */
   () => (
     <Divider
@@ -2673,6 +2728,60 @@ karşı tarafın en iyi argümanını görmek istiyorum.`}</Prompt>
           ]}
         />
       </div>
+    </Slide>
+  ),
+
+  /* Lisansüstü danışmanlık */
+  () => (
+    <Slide>
+      <Eyebrow>Danışmanlık</Eyebrow>
+      <H2>Tez öğrencinizle sınırı baştan çizin.</H2>
+      <Sub>
+        Lisans ödevinden farkı şu: tezde sorumluluk danışmana da yansıyor.
+        Sınır dönem başında konuşulmazsa, jüri masasında konuşuluyor.
+      </Sub>
+      <div className="mt-6 grid md:grid-cols-2 gap-4">
+        <Fade delay={0.08}>
+          <div className="ai-card p-5">
+            <div
+              className="font-mono text-[11px] uppercase tracking-[0.18em] mb-2.5"
+              style={{ color: ACCENT }}
+            >
+              Serbest bırakabileceğiniz
+            </div>
+            <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
+              <li>· İngilizce dil düzeltmesi ve akıcılık</li>
+              <li>· Analiz kodu yazımı ve hata ayıklama</li>
+              <li>· Literatürde ilk keşif — her kaynak doğrulanmak şartıyla</li>
+              <li>· Sunum ve poster metni taslağı</li>
+            </ul>
+          </div>
+        </Fade>
+        <Fade delay={0.16}>
+          <div className="ai-card p-5">
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40 mb-2.5">
+              Sınırlamanız gereken
+            </div>
+            <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
+              <li>· Bulguların yorumu ve tartışma bölümü</li>
+              <li>· Yöntem seçiminin gerekçesi</li>
+              <li>· Kuramsal çerçevenin kurulması</li>
+              <li>· Ham katılımcı verisinin araca girmesi</li>
+            </ul>
+          </div>
+        </Fade>
+      </div>
+      <Fade delay={0.26}>
+        <div className="ai-warn mt-5 px-5 py-4">
+          <p className="text-sm text-white/70 leading-relaxed">
+            <strong className="text-white">Pratik öneri:</strong> ilk
+            görüşmede öğrencinizden tez boyunca tuttuğu bir kullanım kaydı
+            isteyin — hangi aşamada hangi aracı ne için kullandı. Tez sonunda
+            beyan yazmak beş dakikaya iniyor, ayrıca jüriye karşı en güçlü
+            savunma bu oluyor.
+          </p>
+        </div>
+      </Fade>
     </Slide>
   ),
 
@@ -3568,7 +3677,53 @@ responsibility for the content of the publication.`}</Prompt>
     </Slide>
   ),
 
-  /* Bölüm 7 · Araçlar ve uygulama */
+  /* Kurumunuzda yönerge yoksa */
+  () => (
+    <Slide>
+      <Eyebrow>Uygulama</Eyebrow>
+      <H2>Kurumunuzda yönerge yoksa ne yapmalı?</H2>
+      <Sub>
+        Üniversitelerin büyük kısmının henüz kendi yönergesi yok. Beklemek
+        yerine bölüm düzeyinde bir sayfa yazmak, hem sizi hem öğrencinizi
+        koruyor. Yönergesi olan üç üniversitenin ortak omurgası şu.
+      </Sub>
+      <div className="mt-6">
+        <Steps
+          items={[
+            {
+              t: "Kapsamı yazın",
+              d: "Hangi çalışmalar için geçerli: lisans ödevi, lisansüstü tez, yayın, proje başvurusu. Kapsam belirsizse kural işlemiyor.",
+            },
+            {
+              t: "Üç kademe tanımlayın",
+              d: "Serbest (dil düzeltme, fikir üretme), beyanla serbest (taslak, kod, analiz), yasak (uydurma kaynak, veri üretme, tespit aracını aşma).",
+            },
+            {
+              t: "Beyanın nereye yazılacağını söyleyin",
+              d: "YÖK rehberi yöntem bölümünü işaret ediyor. Tez için ayrı bir beyan formu eklemek en temizi.",
+            },
+            {
+              t: "Veri sınırını çizin",
+              d: "Kişisel veri, gizli proje verisi ve yayımlanmamış çalışma dışarıda. KVKK gerekçesini bir cümleyle yazın.",
+            },
+            {
+              t: "Tespit araçlarına ne kadar güvenileceğini yazın",
+              d: "Ankara Üniversitesi yönergesindeki hüküm örnek alınabilir: dedektör raporu tek başına kanıt sayılmaz.",
+            },
+          ]}
+        />
+      </div>
+      <Fade delay={0.42}>
+        <p className="mt-6 text-sm text-white/45 leading-relaxed max-w-3xl">
+          Bu beş madde bir sayfaya sığıyor ve bölüm kurulundan geçirilebilir.
+          Mükemmel bir yönerge beklerken kuralsız kalmak, ikisinin de en
+          kötüsü.
+        </p>
+      </Fade>
+    </Slide>
+  ),
+
+  /* Bölüm 8 · Araçlar ve uygulama */
   () => (
     <Divider
       num="8"
