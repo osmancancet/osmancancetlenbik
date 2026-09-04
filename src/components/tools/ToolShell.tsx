@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Wifi } from "lucide-react";
 import { getTool } from "@/data/tools";
+import { EmbedMode } from "@/components/tools/EmbedMode";
 
 /**
  * Araç sayfalarının ortak kabuğu: başlık, aracın çözdüğü sorun ve gizlilik
@@ -20,9 +21,14 @@ export function ToolShell({
 
   return (
     <section className="relative pt-28 pb-24 px-6">
+      {/* useSearchParams statik üretimde Suspense sınırı istiyor. */}
+      <Suspense fallback={null}>
+        <EmbedMode />
+      </Suspense>
       <div className="relative max-w-4xl mx-auto">
         <Link
           href="/araclar"
+          data-arac-geri
           className="inline-flex items-center gap-2 text-sm text-[var(--fg-muted)] hover:text-[var(--accent)] transition-colors mb-7"
         >
           <ArrowLeft className="w-4 h-4" />

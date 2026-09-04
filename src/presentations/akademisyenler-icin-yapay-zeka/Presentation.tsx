@@ -30,6 +30,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import { EmbeddedTool } from "../_shared/deck/EmbeddedTool";
 import {
   CompareBars,
   DecisionTree,
@@ -3064,7 +3065,16 @@ responsibility for the content of the publication.`}</Prompt>
         </Fade>
       </div>
       <Fade delay={0.26}>
-        <p className="mt-7 text-sm text-white/45">
+        <div className="mt-6">
+          <EmbeddedTool
+            slug="atif-denetleyici"
+            title="Atıf Denetleyici"
+            hint="Kendi kaynakçanızı yapıştırıp burada deneyin — sunumdan çıkmanıza gerek yok."
+          />
+        </div>
+      </Fade>
+      <Fade delay={0.34}>
+        <p className="mt-4 text-sm text-white/45">
           Metniniz hiçbir yere gönderilmiyor; yalnızca bulunan DOI numaraları
           sorgulanıyor.
         </p>
@@ -3110,12 +3120,24 @@ responsibility for the content of the publication.`}</Prompt>
         </Fade>
       </div>
       <Fade delay={0.26}>
-        <div className="ai-warn mt-6 px-5 py-3.5">
-          <p className="text-sm text-white/70 leading-relaxed">
-            İkisi de tamamen tarayıcınızda çalışıyor. İnternet bağlantınızı
-            kesip de kullanabilirsiniz — sonuç değişmez.
-          </p>
+        <div className="mt-5 grid md:grid-cols-2 gap-4">
+          <EmbeddedTool
+            slug="pdf-bolucu"
+            title="PDF Bölücü"
+            hint="Bir PDF seçip burada bölün, parçaları buradan indirin."
+          />
+          <EmbeddedTool
+            slug="anonimlestirici"
+            title="Anonimleştirici"
+            hint="Metninizi yapıştırıp temizlenmiş hâlini görün."
+          />
         </div>
+      </Fade>
+      <Fade delay={0.34}>
+        <p className="mt-4 text-sm text-white/45 leading-relaxed">
+          İkisi de tamamen tarayıcınızda çalışıyor — dosyanız bu sayfadan hiç
+          çıkmıyor. İnternet bağlantınızı kesip de kullanabilirsiniz.
+        </p>
       </Fade>
     </Slide>
   ),
@@ -3146,10 +3168,21 @@ responsibility for the content of the publication.`}</Prompt>
         ))}
       </div>
       <Fade delay={0.45}>
-        <p className="mt-6 text-sm text-white/45">
+        <p className="mt-5 text-sm text-white/45">
           Dokuzu da tamamen tarayıcınızda çalışıyor; yalnızca DOI sorgulayan
           ikisi dışarıya istek gönderiyor — o da yalnızca DOI numarasını.
         </p>
+      </Fade>
+      <Fade delay={0.5}>
+        <a
+          href="/araclar"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-5 inline-flex items-center gap-2 px-6 py-3 rounded-md text-sm font-semibold"
+          style={{ background: ACCENT, color: "#000" }}
+        >
+          On iki aracın hepsini aç
+        </a>
       </Fade>
     </Slide>
   ),

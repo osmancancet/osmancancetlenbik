@@ -411,3 +411,19 @@ textarea:focus-visible,
     color: #555;
   }
 }
+
+
+/* ─── Araçların sunum içine gömülü hâli ────────────────────────────
+   `?gomulu=1` ile açılan araç sayfası bir sunum slaydının içinde
+   duruyor; site menüsü, altbilgi ve "tüm araçlar" bağlantısı orada
+   ikinci bir site açılmış izlenimi veriyordu. */
+
+body.arac-gomulu > header,
+body.arac-gomulu > footer,
+body.arac-gomulu [data-arac-geri] {
+  display: none !important;
+}
+
+body.arac-gomulu section {
+  padding-top: 1.5rem;
+}
