@@ -1,9 +1,19 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Maximize2,
+  Minimize2,
+  Printer,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { useDeck } from "./useDeck";
+import "./print.css";
 
 /**
  * Sunum kabuğu: üst şerit, ilerleme çubuğu, slayt geçişi, alt gezinme,
@@ -27,7 +37,32 @@ export type DeckShellProps = {
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+/** Bu sayının üstünde nokta göstergesi okunaksızlaşıyor. */
+const DOT_LIMIT = 24;
+
 export function DeckShell({
+  label,
+  accent,
+  slides,
+  slideOffset = 60,
+}: DeckShellProps) {
+  const search = useSearchParams();
+  const printMode = search.get("yazdir") === "1";
+
+  if (printMode) {
+    return <PrintDeck label={label} accent={accent} slides={slides} />;
+  }
+  return (
+    <ScreenDeck
+      label={label}
+      accent={accent}
+      slides={slides}
+      slideOffset={slideOffset}
+    />
+  );
+}
+
+function ScreenDeck({
   label,
   accent,
   slides,
@@ -100,26 +135,66 @@ export function DeckShell({
           Önceki
         </button>
 
-        <div className="flex items-center gap-1.5">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => deck.goTo(i)}
-              aria-label={`${i + 1}. slayda git`}
-              aria-current={i === current ? "true" : undefined}
-              className="p-1 group"
-            >
-              <span
-                className={`block h-1.5 rounded-full transition-all ${
-                  i === current
-                    ? "w-6"
-                    : "w-1.5 bg-white/20 group-hover:bg-white/45"
-                }`}
-                style={i === current ? { background: accent } : undefined}
-              />
-            </button>
-          ))}
-        </div>
+        {/* Nokta göstergesi yalnızca kısa sunumlarda okunabilir; 70 slaytta
+            noktalar taşıyor ve tek tek tıklanamayacak kadar küçülüyor.
+            Uzun sunumda yerini tıklanabilir bir şerit alıyor. */}
+        {total <= DOT_LIMIT ? (
+          <div className="flex items-center gap-1.5">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => deck.goTo(i)}
+                aria-label={`${i + 1}. slayda git`}
+                aria-current={i === current ? "true" : undefined}
+                className="p-1 group"
+              >
+                <span
+                  className={`block h-1.5 rounded-full transition-all ${
+                    i === current
+                      ? "w-6"
+                      : "w-1.5 bg-white/20 group-hover:bg-white/45"
+                  }`}
+                  style={i === current ? { background: accent } : undefined}
+                />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div
+            role="slider"
+            tabIndex={0}
+            aria-label="Slayt seçici"
+            aria-valuemin={1}
+            aria-valuemax={total}
+            aria-valuenow={current + 1}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowRight") deck.next();
+              if (e.key === "ArrowLeft") deck.prev();
+            }}
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              const ratio = (e.clientX - r.left) / r.width;
+              deck.goTo(Math.round(ratio * (total - 1)));
+            }}
+            className="relative h-6 w-56 md:w-80 flex items-center cursor-pointer group"
+          >
+            <span className="block w-full h-1 rounded-full bg-white/12 group-hover:bg-white/20 transition-colors" />
+            <span
+              className="absolute h-1 rounded-full pointer-events-none transition-all"
+              style={{
+                background: accent,
+                width: `${((current + 1) / total) * 100}%`,
+              }}
+            />
+            <span
+              className="absolute w-2.5 h-2.5 rounded-full pointer-events-none transition-all -translate-x-1/2"
+              style={{
+                background: accent,
+                insetInlineStart: `${((current + 1) / total) * 100}%`,
+              }}
+            />
+          </div>
+        )}
 
         <div className="flex items-center gap-4">
           <span className="font-mono text-xs text-white/35 tabular-nums">
@@ -136,6 +211,14 @@ export function DeckShell({
               <Maximize2 className="w-4 h-4" />
             )}
           </button>
+          <a
+            href="?yazdir=1"
+            aria-label="PDF olarak indir"
+            title="PDF olarak indir"
+            className="text-white/45 hover:text-white transition-colors"
+          >
+            <Download className="w-4 h-4" />
+          </a>
           <button
             onClick={deck.next}
             disabled={current === total - 1}
@@ -146,6 +229,68 @@ export function DeckShell({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Yazdırma kipi: bütün slaytlar üst üste, her biri bir sayfa.
+ *
+ * Animasyonlar takılırsa içerik görünmez kalır (hepsi opacity 0 ile
+ * başlıyor); bu yüzden yazdırma penceresi ancak slaytlar yerine oturduktan
+ * sonra açılıyor.
+ */
+function PrintDeck({
+  label,
+  accent,
+  slides,
+}: Omit<DeckShellProps, "slideOffset">) {
+  const [hazir, setHazir] = useState(false);
+
+  useEffect(() => {
+    // Slayt giriş animasyonlarının bitmesini bekle.
+    const t = setTimeout(() => setHazir(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div
+      className="deck-print min-h-screen"
+      style={{ ["--deck-accent" as string]: accent }}
+    >
+      <div className="deck-print-toolbar sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 px-6 py-4 mb-4 bg-black/85 backdrop-blur border-b border-white/10">
+        <div className="text-sm text-white/60">
+          <strong className="text-white">{slides.length} slayt</strong> yazdırma
+          düzeninde. Kaydetme penceresinde{" "}
+          <strong className="text-white">Hedef: PDF olarak kaydet</strong> ve{" "}
+          <strong className="text-white">Kenar boşlukları: Yok</strong> seçin.
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => window.print()}
+            disabled={!hazir}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold disabled:opacity-40"
+            style={{ background: accent, color: "#000" }}
+          >
+            <Printer className="w-4 h-4" />
+            {hazir ? "PDF olarak kaydet" : "Hazırlanıyor…"}
+          </button>
+          <a
+            href="?"
+            className="px-4 py-2 rounded-md text-sm border border-white/20 text-white/60 hover:text-white"
+          >
+            Sunuma dön
+          </a>
+        </div>
+      </div>
+
+      <span className="sr-only">{label}</span>
+
+      {slides.map((render, i) => (
+        <div key={i} className="deck-print-slide">
+          {render(true)}
+        </div>
+      ))}
     </div>
   );
 }

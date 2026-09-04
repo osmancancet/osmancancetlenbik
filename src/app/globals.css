@@ -378,6 +378,13 @@ textarea:focus-visible,
 /* Slayt ya da sayfa yazdırılırsa: koyu zemini basmayalım, bağlantı
    adresleri görünür olsun. */
 @media print {
+  /* Sunum yazdırma kipi kendi koyu düzenini yönetiyor (deck/print.css);
+     aşağıdaki açık renk şeması ona uygulanmamalı. */
+  body:has(.deck-print) {
+    background: #000 !important;
+    color: #fff !important;
+  }
+
   :root {
     --bg: #ffffff;
     --bg-soft: #ffffff;

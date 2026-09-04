@@ -146,6 +146,9 @@ function obekCoz(harfler: string[], baytlar: number[], baslangic: number, metin:
   return parcalar;
 }
 
+/** Hangi bozuk parçanın neye dönüştüğü ve kaç kez geçtiği. */
+export type Degisiklik = { kaynak: string; sonuc: string; adet: number };
+
 export type OnarimSonucu = {
   /** Onarılmış metin. Onarım gerekmediyse özgün metnin aynısı. */
   metin: string;
@@ -156,8 +159,23 @@ export type OnarimSonucu = {
   duzeltmeSayisi: number;
   /** "tam": bütün metin tek seferde çözüldü. "parcali": kırık yerler tabloyla tamamlandı. */
   yontem: "tam" | "parcali" | "yok";
+  /** Sıklığa göre sıralı değişiklik özeti — kullanıcı ne olduğunu görebilsin. */
+  degisiklikler: Degisiklik[];
   not: string;
 };
+
+/** Aynı bozulmayı tek satırda toplayıp sık geçenden başlayarak sıralar. */
+function degisiklikOzeti(parcalar: Parca[]): Degisiklik[] {
+  const sayac = new Map<string, Degisiklik>();
+  for (const p of parcalar) {
+    if (!p.degisti) continue;
+    const anahtar = `${p.kaynak}\u0000${p.sonuc}`;
+    const mevcut = sayac.get(anahtar);
+    if (mevcut) mevcut.adet += 1;
+    else sayac.set(anahtar, { kaynak: p.kaynak, sonuc: p.sonuc, adet: 1 });
+  }
+  return [...sayac.values()].sort((a, b) => b.adet - a.adet);
+}
 
 /**
  * Metnin tamamını tek seferde çözmeyi dener.
@@ -184,6 +202,7 @@ export function onar(girdi: string): OnarimSonucu {
       duzeltilenKarakter: 0,
       duzeltmeSayisi: 0,
       yontem: "yok",
+      degisiklikler: [],
       not: "Onarılacak metin yok.",
     };
   }
@@ -228,6 +247,7 @@ export function onar(girdi: string): OnarimSonucu {
       duzeltilenKarakter: 0,
       duzeltmeSayisi: 0,
       yontem: "yok",
+      degisiklikler: [],
       not: "Bu metin zaten düzgün görünüyor — onarım denemesi sonucu bozacaktı, özgün hâli korundu.",
     };
   }
@@ -239,6 +259,7 @@ export function onar(girdi: string): OnarimSonucu {
       duzeltilenKarakter: 0,
       duzeltmeSayisi: 0,
       yontem: "yok",
+      degisiklikler: [],
       not: "Bu metin zaten düzgün görünüyor — bozuk karakter bulunamadı.",
     };
   }
@@ -252,6 +273,7 @@ export function onar(girdi: string): OnarimSonucu {
     duzeltilenKarakter,
     duzeltmeSayisi: degisenler.length,
     yontem,
+    degisiklikler: degisiklikOzeti(parcalar),
     not:
       yontem === "tam"
         ? "Metin bütünüyle yeniden çözüldü; sonuç güvenilir."

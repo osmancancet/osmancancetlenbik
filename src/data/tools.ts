@@ -148,6 +148,96 @@ export const tools: Tool[] = [
       "şık karıştırma",
     ],
   },
+  {
+    slug: "metin-istatistikleri",
+    title: "Metin İstatistikleri",
+    summary:
+      "Kelime, karakter ve okuma süresi sayar; dergi kelime sınırına uyup uymadığınızı gösterir.",
+    description:
+      "Metninizin kelime, karakter, cümle ve paragraf sayısını, okuma süresini ve en sık geçen kelimeleri gösterir. Dergi kelime sınırı girip kalan hakkınızı takip edebilirsiniz.",
+    icon: "Type",
+    problem: "Dergiler kelime sınırı koyuyor, Word'ün sayımı özet ve kaynakçayı da katıyor.",
+    offline: true,
+    keywords: [
+      "kelime sayacı",
+      "karakter sayma",
+      "okuma süresi hesaplama",
+      "kelime limiti",
+      "metin istatistikleri",
+    ],
+  },
+  {
+    slug: "pdf-birlestirici",
+    title: "PDF Birleştirici",
+    summary:
+      "Birden çok PDF'i tek dosyada birleştirir, sırasını sürükleyerek değiştirirsiniz.",
+    description:
+      "Birden çok PDF dosyasını tek bir dosyada birleştirin. Sırayı değiştirebilir, tek tek sayfa aralığı seçebilirsiniz. Tüm işlem tarayıcıda yapılır, dosya sunucuya yüklenmez.",
+    icon: "Combine",
+    problem: "Başvuru dosyaları tek PDF isteniyor, parçalar ayrı ayrı duruyor.",
+    offline: true,
+    keywords: [
+      "pdf birleştir",
+      "pdf birleştirme",
+      "pdf tek dosya yapma",
+      "birden fazla pdf",
+      "pdf ekleme",
+    ],
+  },
+  {
+    slug: "bibtex-uretici",
+    title: "BibTeX Üretici",
+    summary:
+      "DOI listesinden LaTeX için hazır .bib dosyası üretir.",
+    description:
+      "DOI numaralarını yapıştırın, LaTeX'te doğrudan kullanabileceğiniz BibTeX kayıtlarını alın. Anahtar adları düzenlenebilir, dosya olarak indirilebilir.",
+    icon: "Braces",
+    problem: "Her kaynağı elle BibTeX'e çevirmek uzun sürüyor.",
+    offline: false,
+    keywords: [
+      "doi bibtex",
+      "bibtex oluşturma",
+      "latex kaynakça",
+      "bib dosyası",
+      "bibtex çevirici",
+    ],
+  },
+  {
+    slug: "yayin-listesi",
+    title: "Yayın Listesi Düzenleyici",
+    summary:
+      "Yayınlarınızı türe ve yıla göre gruplayıp akademik başvuru biçiminde numaralandırır.",
+    description:
+      "Yayınlarınızı yapıştırın; makale, bildiri, kitap bölümü gibi türlere ayrılıp yıla göre sıralanır ve akademik başvuru dosyaları için numaralı liste hâlinde biçimlendirilir.",
+    icon: "ListOrdered",
+    problem: "Akademik başvurularda yayın listesini her seferinde elle düzenlemek gerekiyor.",
+    offline: true,
+    keywords: [
+      "yayın listesi",
+      "akademik özgeçmiş",
+      "doçentlik başvuru dosyası",
+      "yayın numaralandırma",
+      "yayın listesi biçimlendirme",
+    ],
+  },
+  {
+    slug: "likert-ozetleyici",
+    title: "Likert Anket Özetleyici",
+    summary:
+      "Anket verinizden madde bazında ortalama, standart sapma ve dağılım çıkarır.",
+    description:
+      "Likert tipi anket verinizi yapıştırın; her madde için ortalama, standart sapma, medyan ve yanıt dağılımını görün. Ters kodlanacak maddeleri işaretleyebilirsiniz.",
+    icon: "BarChart3",
+    problem: "Anket verisini betimlemek için her seferinde tablo kurmak gerekiyor.",
+    offline: true,
+    keywords: [
+      "likert analizi",
+      "anket ortalama hesaplama",
+      "standart sapma hesaplama",
+      "likert ölçek",
+      "anket dağılımı",
+    ],
+  },
 ];
 
 export function getTool(slug: string) {

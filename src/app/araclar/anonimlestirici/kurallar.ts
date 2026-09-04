@@ -67,9 +67,13 @@ const EPOSTA = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,
  * Alan/operatör kodunun 2-5 ile başlaması şart koşuldu; bu sayede 11 haneli
  * TC kimlik numaraları (1-9 ile başlar ve ardından 10 hane gelir) telefon
  * sanılmıyor ve rastgele uzun sayılar eşleşmiyor.
+ *
+ * Numaranın başında boşluk yutan bir bölüm bilerek yok: "Tel: 0532 ..." gibi
+ * bir metinde eşleşme iki nokta üstünde başlayıp aradaki boşluğu da silerdi.
+ * Boşluk yalnızca ülke kodundan ve baştaki sıfırdan sonra serbest.
  */
 const TELEFON =
-  /(^|[^0-9])((?:(?:\+|00)\s?90|0)?[\s.-]*\(?\s*0?[2-5][0-9]{2}\s*\)?[\s.-]*[0-9]{3}[\s.-]*[0-9]{2}[\s.-]*[0-9]{2})(?![0-9])/g;
+  /(^|[^0-9])((?:(?:\+|00)\s?90[\s.-]*)?(?:0[\s.-]*)?(?:\(\s*0?[2-5][0-9]{2}\s*\)|0?[2-5][0-9]{2})[\s.-]*[0-9]{3}[\s.-]*[0-9]{2}[\s.-]*[0-9]{2})(?![0-9])/g;
 
 /** TC kimlik: tam 11 hane, ilk hane sıfır olamaz. */
 const TC = /(^|[^0-9])([1-9][0-9]{10})(?![0-9])/g;

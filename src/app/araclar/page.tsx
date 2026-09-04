@@ -8,6 +8,11 @@ import {
   Languages,
   Calculator,
   Shuffle,
+  Type,
+  Combine,
+  Braces,
+  ListOrdered,
+  BarChart3,
   ArrowUpRight,
   ShieldCheck,
   type LucideIcon,
@@ -26,6 +31,11 @@ const ICONS: Record<string, LucideIcon> = {
   Languages,
   Calculator,
   Shuffle,
+  Type,
+  Combine,
+  Braces,
+  ListOrdered,
+  BarChart3,
 };
 
 export const metadata: Metadata = seoMeta({

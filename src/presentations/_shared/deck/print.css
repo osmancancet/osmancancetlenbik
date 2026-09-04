@@ -1,0 +1,102 @@
+/**
+ * Sunumu PDF olarak dışa aktarma.
+ *
+ * NEDEN: LinkedIn'de dış bağlantı paylaşmak yerine PDF'i doğrudan "döküman"
+ * olarak yüklemek çok daha fazla kişiye ulaşıyor — akışta kaydırılabilir bir
+ * karusel olarak açılıyor. Bu yüzden sunum tarayıcıdan PDF'e basılabiliyor.
+ *
+ * Yaklaşım: yazdırma kipinde bütün slaytlar üst üste, her biri tam sayfa
+ * olacak şekilde çiziliyor; ekran kipindeki tek-slayt mantığı devre dışı.
+ */
+
+.deck-print {
+  background: #000;
+}
+
+.deck-print-slide {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Ekranda önizleme yaparken slaytlar arasında biraz nefes olsun. */
+@media screen {
+  .deck-print {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 inline;
+    margin-inline: auto;
+  }
+  .deck-print-slide {
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+}
+
+@media print {
+  /* 16:9 sayfa — A4 genişliğinde. LinkedIn karuseli bu oranı sorunsuz
+     gösteriyor ve projeksiyonla da uyumlu. */
+  @page {
+    size: 297mm 167mm;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Site kabuğu ve yazdırma araç çubuğu kâğıda basılmasın. */
+  header,
+  footer,
+  nav,
+  .deck-print-toolbar {
+    display: none !important;
+  }
+
+  .deck-print {
+    padding: 0;
+    gap: 0;
+    max-width: none;
+  }
+
+  .deck-print-slide {
+    width: 297mm;
+    height: 167mm;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .deck-print-slide:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /* globals.css'teki yazdırma kuralı sayfayı beyaza çeviriyor; sunum için
+     koyu zemin korunmalı, yoksa açık renk metin kâğıtta kaybolur. */
+  .deck-print,
+  .deck-print * {
+    color-scheme: dark;
+  }
+
+  /* Bağlantı adreslerini metnin arkasına eklemesin — slayt düzenini bozar. */
+  .deck-print a[href^="http"]::after {
+    content: "" !important;
+  }
+}

@@ -69,6 +69,12 @@ export function PresentationHost({
   const entry = getPresentation(slug);
   const search = useSearchParams();
   const liveCode = search.get("canli")?.toUpperCase() ?? null;
+  /**
+   * Yazdırma kipinde kabuk `position: fixed` OLMAMALI. Sabit konumlu bir
+   * öğe yazdırılırken yalnızca ilk sayfaya basılıyor; 79 slaytlık sunum tek
+   * sayfaya sıkışıyordu. Bu kipte üst çubuk ve kronometre de gereksiz.
+   */
+  const printMode = search.get("yazdir") === "1";
 
   const [helpOpen, setHelpOpen] = useState(false);
   const [liveOpen, setLiveOpen] = useState(false);
@@ -143,6 +149,14 @@ export function PresentationHost({
   }
 
   const { Component } = entry;
+
+  if (printMode) {
+    return (
+      <div className="bg-black">
+        <Component />
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100] bg-black overflow-hidden">
