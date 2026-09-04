@@ -14,6 +14,21 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "tr",
     dir: "ltr",
     categories: ["education", "business", "productivity"],
+    // Uygulama olarak kurulduğunda araçlar sayfasında açılsın — kuran kişi
+    // blog okumak için değil, aracı kullanmak için kuruyor.
+    shortcuts: [
+      {
+        name: "Atıf Denetleyici",
+        short_name: "Atıf",
+        url: "/araclar/atif-denetleyici",
+      },
+      { name: "PDF Bölücü", short_name: "PDF", url: "/araclar/pdf-bolucu" },
+      {
+        name: "Anonimleştirici",
+        short_name: "Anonim",
+        url: "/araclar/anonimlestirici",
+      },
+    ],
     icons: [
       {
         src: "/icon-180.png",

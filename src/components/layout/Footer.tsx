@@ -42,6 +42,16 @@ const COLUMNS: Record<
       ],
     },
     {
+      title: "Araçlar",
+      links: [
+        { href: "/araclar/atif-denetleyici", label: "Atıf Denetleyici" },
+        { href: "/araclar/pdf-bolucu", label: "PDF Bölücü" },
+        { href: "/araclar/anonimlestirici", label: "Anonimleştirici" },
+        { href: "/araclar/kaynakca-bicimlendirici", label: "Kaynakça Biçimlendirici" },
+        { href: "/araclar", label: "Tüm araçlar" },
+      ],
+    },
+    {
       title: "Akademik",
       links: [
         { href: "/dersler", label: "Dersler" },

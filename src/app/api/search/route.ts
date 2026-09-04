@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { books } from "@/data/books";
 import { services } from "@/data/services";
+import { tools } from "@/data/tools";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,20 @@ const STATIC_PAGES: SearchResult[] = [
   { id: "p-contact", type: "page", title: "İletişim", href: "/iletisim" },
   { id: "p-announce", type: "page", title: "Duyurular", href: "/duyurular" },
   { id: "p-en", type: "page", title: "English", href: "/en" },
+  {
+    id: "p-tools",
+    type: "page",
+    title: "Araçlar",
+    description: "Atıf denetleyici, PDF bölücü, anonimleştirici ve diğerleri",
+    href: "/araclar",
+  },
+  ...tools.map<SearchResult>((t) => ({
+    id: `tool-${t.slug}`,
+    type: "page",
+    title: t.title,
+    description: t.summary,
+    href: `/araclar/${t.slug}`,
+  })),
   // Her hizmet ayrı ayrı aranabilsin — "pentest" yazan doğrudan bölüme düşsün.
   ...services.map<SearchResult>((sv) => ({
     id: `svc-${sv.slug}`,

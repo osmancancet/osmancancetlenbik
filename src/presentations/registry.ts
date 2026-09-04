@@ -25,7 +25,7 @@ export const presentations: Record<string, Entry> = {
       slug: "akademisyenler-icin-yapay-zeka",
       title: "Akademisyenler için Yapay Zekâ",
       description:
-        "28 slaytlık sunum: Claude'un akademik işte nereye girdiği, neyin gerçekten ücretsiz olduğu, yayıncıların yapay zekâ beyan kuralları ve veri gizliliği. Her iddianın kaynağı slaytta.",
+        "54 slaytlık sunum: Claude'un akademik işte nereye girdiği, neyin gerçekten ücretsiz olduğu, istem teknikleri, yayıncı beyan kuralları, veri gizliliği ve ücretsiz akademisyen araçları. Her iddianın kaynağı slaytta.",
     },
     Component: dynamic(
       () => import("./akademisyenler-icin-yapay-zeka/Presentation"),

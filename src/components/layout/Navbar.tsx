@@ -15,6 +15,7 @@ const primary: Record<Locale, NavLink[]> = {
   tr: [
     { href: "/hakkimda", label: "Hakkımda" },
     { href: "/hizmetler", label: "Hizmetler" },
+    { href: "/araclar", label: "Araçlar" },
     { href: "/dersler", label: "Dersler" },
     { href: "/yazilarim", label: "Yazılarım" },
     { href: "/projeler", label: "Projeler" },
