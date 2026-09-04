@@ -62,3 +62,10 @@
   background: color-mix(in srgb, var(--deck-accent) 8%, transparent);
   border-radius: 0 10px 10px 0;
 }
+
+/* Kapak sloganı — vurgu rengi metinde değil, kenar çubuğunda.
+   Başlıktaki "yapay zekâ" zaten vurgu rengini taşıyor; slogan da renkli
+   olsaydı kapakta iki eşit güçte vurgu olur, ikisi de zayıflardı. */
+.ai-slogan {
+  border-inline-start: 3px solid var(--deck-accent);
+}

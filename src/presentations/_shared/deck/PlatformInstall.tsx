@@ -111,7 +111,19 @@ export function PlatformInstall() {
           ))}
         </ol>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="hidden print:block">
+          <div className="text-[12px] text-white/45 mb-1">
+            Kısayol dosyası:
+          </div>
+          <div
+            className="font-mono text-[13px]"
+            style={{ color: "var(--deck-accent)" }}
+          >
+            osmancancetlenbik.com/araclar/kisayol/{dosya}
+          </div>
+        </div>
+
+        <div className="print:hidden flex flex-wrap items-center gap-3">
           {kurulu ? (
             <span
               className="inline-flex items-center gap-2 text-sm"

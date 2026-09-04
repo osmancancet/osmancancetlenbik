@@ -260,10 +260,10 @@ function PrintDeck({
     >
       <div className="deck-print-toolbar sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 px-6 py-4 mb-4 bg-black/85 backdrop-blur border-b border-white/10">
         <div className="text-sm text-white/60">
-          <strong className="text-white">{slides.length} slayt</strong> yazdırma
+          <strong className="text-white">{slides.length} slayt</strong>{" "}yazdırma
           düzeninde. Kaydetme penceresinde{" "}
-          <strong className="text-white">Hedef: PDF olarak kaydet</strong> ve{" "}
-          <strong className="text-white">Kenar boşlukları: Yok</strong> seçin.
+          <strong className="text-white">Hedef: PDF olarak kaydet</strong>{" "}ve{" "}
+          <strong className="text-white">Kenar boşlukları: Yok</strong>{" "}seçin.
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button

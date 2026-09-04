@@ -114,7 +114,9 @@ function Divider({
   subtitle,
   icerik,
 }: {
-  num: string;
+  /** Numarasız bırakılabilir: kapanış bloğu bir bölüm değil, sunumun
+   *  kuyruğu — yol haritasındaki sekiz bölüm sayımına girmiyor. */
+  num?: string;
   title: string;
   subtitle: string;
   /** Bölümde ne anlatıldığı. Okuyucu ne geleceğini baştan görsün diye —
@@ -131,7 +133,7 @@ function Divider({
             className="font-mono text-[11px] uppercase tracking-[0.3em] mb-5"
             style={{ color: ACCENT }}
           >
-            Bölüm {num}
+            {num ? `Bölüm ${num}` : "Son"}
           </div>
         </Fade>
         <Fade delay={0.08}>
@@ -261,45 +263,113 @@ const No = () => <Minus className="w-4 h-4 ai-no" aria-label="yok" />;
 /* ─── Slaytlar ─────────────────────────────────────────────────── */
 
 const slides: Array<(active: boolean) => ReactNode> = [
-  /* 01 · Kapak */
+  /* 01 · Kapak
+     LinkedIn akışında görünen tek kare bu — okuyucunun durup durmama kararı
+     burada veriliyor. Ortalanmış klasik kapak yerine sola hizalı editoryal
+     düzen: slogan kendi bloğunda duruyor, sağdaki künye sunumun ne kadar iş
+     olduğunu tek bakışta gösteriyor.
+
+     Sayılar elle yazılmıyor, `slides` dizisinden okunuyor. Slayt eklendiğinde
+     kapaktaki sayı kendiliğinden güncelleniyor — daha önce elle tutulurken
+     üç kez sapmıştı. */
   () => (
-    <div className="relative w-full h-full flex items-center justify-center px-10">
+    <div className="relative w-full h-full flex items-center px-12 md:px-20 pb-32">
       <Grid />
       <div
         aria-hidden
-        className="absolute -inset-x-40 top-1/3 h-96 blur-[140px] pointer-events-none"
-        style={{ background: `radial-gradient(ellipse, ${ACCENT}22, transparent 70%)` }}
+        className="absolute w-[44rem] h-[44rem] blur-[150px] pointer-events-none"
+        style={{
+          insetInlineStart: "-10rem",
+          top: "50%",
+          transform: "translateY(-50%)",
+          background: `radial-gradient(circle, ${ACCENT}26, transparent 65%)`,
+        }}
       />
-      <div className="relative text-center max-w-4xl">
-        <Fade>
-          <div
-            className="font-mono text-xs uppercase tracking-[0.3em] mb-7"
-            style={{ color: ACCENT }}
-          >
-            97 slayt · okuma süresi ~36 dakika
-          </div>
-        </Fade>
-        <Fade delay={0.1}>
-          <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-white leading-[1.05]">
-            Akademisyenler için
-            <br />
-            <span style={{ color: ACCENT }}>yapay zekâ</span>
-          </h1>
-        </Fade>
-        <Fade delay={0.2}>
-          <p className="mt-7 text-xl text-white/55 leading-relaxed">
-            Ders hazırlamaktan hakem yanıtı yazmaya: işin hangi kısmını
-            devredebilirsiniz, hangisini asla devredemezsiniz.
-            <br />
-            Her sayının kaynağı slaytın altında yazılı.
-          </p>
-        </Fade>
-        <Fade delay={0.3}>
-          <div className="mt-11 font-mono text-sm text-white/35">
-            Öğr. Gör. Osman Can Çetlenbik · Manisa Celal Bayar Üniversitesi
+      <div
+        aria-hidden
+        className="absolute inset-y-16 w-px pointer-events-none"
+        style={{
+          insetInlineStart: 0,
+          background: `linear-gradient(180deg, transparent, ${ACCENT}, transparent)`,
+        }}
+      />
+
+      <div className="relative w-full grid md:grid-cols-[1fr_auto] gap-14 items-end">
+        <div className="max-w-3xl">
+          <Fade>
+            <div
+              className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.26em] mb-8"
+              style={{ color: ACCENT }}
+            >
+              <span className="w-8 h-px" style={{ background: ACCENT }} />
+              Akademisyenler için rehber · Eylül 2026
+            </div>
+          </Fade>
+
+          <Fade delay={0.08}>
+            <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-white leading-[1.03]">
+              Akademisyenler için
+              <br />
+              <span style={{ color: ACCENT }}>yapay zekâ</span>
+            </h1>
+          </Fade>
+
+          <Fade delay={0.16}>
+            <p className="ai-slogan mt-9 ps-6 py-1 text-2xl md:text-[2rem] font-medium text-white leading-snug">
+              Zamanınızı geri alın, imzanızı değil.
+            </p>
+          </Fade>
+
+          <Fade delay={0.24}>
+            <p className="mt-8 text-lg text-white/50 leading-relaxed max-w-2xl">
+              Ders hazırlamaktan hakem yanıtı yazmaya: akademik işin hangi
+              kısmını devredebilirsiniz, hangisini asla devredemezsiniz. Dışarıdan
+              alınan her sayının, tarihin ve kuralın kaynağı slaydın altında yazılı.
+            </p>
+          </Fade>
+        </div>
+
+        <Fade delay={0.32}>
+          <div className="flex md:flex-col gap-9 md:gap-6 md:border-s md:border-white/10 md:ps-9">
+            {[
+              [String(slides.length), "slayt"],
+              ["12", "ücretsiz araç"],
+              // Slaytlardaki <Source> sayısı. Elle tutuluyor — JSX'in içinde
+              // olduğu için çalışma anında sayılamıyor. Kaynak ekleyince
+              // güncelleyin: grep -c "<Source>" Presentation.tsx
+              ["41", "kaynakça"],
+              [`~${Math.round(slides.length * 0.37)} dk`, "okuma"],
+            ].map(([sayi, etiket]) => (
+              <div key={etiket}>
+                <div
+                  className="text-2xl font-semibold tabular-nums"
+                  style={{ color: ACCENT }}
+                >
+                  {sayi}
+                </div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35 mt-1">
+                  {etiket}
+                </div>
+              </div>
+            ))}
           </div>
         </Fade>
       </div>
+
+      <Fade delay={0.4}>
+        <div className="absolute bottom-24 inset-x-12 md:inset-x-20 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 pt-5 border-t border-white/10">
+          <div className="text-sm text-white/70">
+            Öğr. Gör. Osman Can Çetlenbik
+            <span className="text-white/30">
+              {" "}
+              · Manisa Celal Bayar Üniversitesi
+            </span>
+          </div>
+          <div className="font-mono text-xs text-white/25">
+            osmancancetlenbik.com
+          </div>
+        </div>
+      </Fade>
     </div>
   ),
 
@@ -330,7 +400,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
             items: [
               "Neyin ücretsiz olduğu — tam kapsamıyla",
               "Kopyalayıp kullanabileceğiniz istem kalıpları",
-              "Dört büyük yayıncının beyan kuralları",
+              "Dört büyük yayın kuruluşunun beyan kuralları",
               "Verinizin nereye gittiği ve ne kadar durduğu",
             ],
           }}
@@ -346,16 +416,16 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <H2>Altı terim, altı cümle.</H2>
       <Sub>
         Konuşmanın geri kalanı bu altı kelimeye dayanıyor. Zaten biliyorsanız
-        bir slayt ilerleyin.
+        atlayın.
       </Sub>
       <div className="mt-7 grid md:grid-cols-2 gap-x-8 gap-y-4">
         {[
-          ["Model", "Metni üreten sistemin kendisi. Claude'un Opus, Sonnet, Haiku diye farklı güç ve hız seviyeleri var."],
+          ["Model", "Metni üreten sistemin kendisi. Claude'un Opus, Sonnet, Haiku ve Fable diye farklı güç, hız ve maliyet seviyeleri var."],
           ["İstem (prompt)", "Modele yazdığınız yönerge. Sonucun kalitesini en çok belirleyen şey."],
           ["Bağlam penceresi", "Modelin aynı anda “aklında tutabildiği” metin miktarı. Uzun bir tez bu pencereye sığmayabilir."],
           ["Halüsinasyon", "Modelin, doğruymuş gibi görünen ama gerçekte var olmayan bilgi üretmesi. Akademisyeni en çok yakan hata türü."],
-          ["Token", "Metnin modelce sayılan birimi. Kabaca bir kelimenin parçası; kullanım limitleri bununla ölçülür."],
-          ["Ajan (agent)", "Sadece cevap vermekle kalmayıp adım adım iş yapan kurulum: dosya açar, arama yapar, tabloyu günceller."],
+          ["Proje (Projects)", "Tek bir iş için ayrılmış çalışma alanı: bir ders, bir makale, bir tez. Yüklediğiniz dosyalar ve verdiğiniz talimat o alanın içinde kalıcı olur."],
+          ["Beyan", "Makale ya da tezde yapay zekâyı hangi aşamada, hangi araçla kullandığınızı yazdığınız cümle. Yayıncıların ve YÖK'ün istediği şey bu."],
         ].map(([t, d], i) => (
           <Fade key={t} delay={0.05 * i}>
             <div>
@@ -375,11 +445,11 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <H2>Sekiz bölüm.</H2>
       <div className="mt-8 grid md:grid-cols-2 gap-x-8 gap-y-3">
         {[
-          ["1 · Manzara", "Hangi araçlar var, hangileri bedava, siz hangisini almalısınız"],
-          ["2 · Nasıl sorulur", "İstem yazma tekniği ve kopyalanabilir hazır kalıplar"],
-          ["3 · Akademik iş", "Literatürden hakem yanıtına sekiz somut iş akışı"],
-          ["4 · Alanınıza göre", "Beş alan için ayrı ayrı fırsatlar ve riskler"],
-          ["5 · Öğrenci", "Ödevi yasaklamadan kurgulamak; tespit araçlarının gerçeği"],
+          ["1 · Manzara", "Hangi araçlar var, hangileri bedava, ne ödersiniz ve nasıl ödersiniz"],
+          ["2 · Nasıl sorulur", "Model seçimi, istem yazma tekniği ve kopyalanabilir hazır kalıplar"],
+          ["3 · Akademik iş", "Literatürden hakem yanıtına yedi somut iş akışı"],
+          ["4 · Alanınıza göre", "Altı alan için ayrı ayrı fırsatlar ve riskler"],
+          ["5 · Öğrenci", "Ödevi yasaklamadan kurgulamak, derste kullanmak, tespit araçlarının gerçeği"],
           ["6 · Sınırlar", "Yayıncı kuralları, uydurma atıf, veri gizliliği"],
           ["7 · Türkiye'de durum", "YÖK, TÜBİTAK, KVKK ve üniversite yönergeleri — doğrulanmış"],
           ["8 · Araçlar ve uygulama", "Size yazdığım on iki ücretsiz araç ve otuz günlük plan"],
@@ -407,10 +477,12 @@ const slides: Array<(active: boolean) => ReactNode> = [
       title="Manzara"
       subtitle="Hangi araçlar var, hangileri gerçekten ücretsiz, siz hangisini almalısınız."
       icerik={[
-        "Araç kategorileri",
+        "Yedi kategori",
         "Bedava olanlar",
-        "Claude fiyatları",
-        "Karar rehberi",
+        "Ücretsiz programlar",
+        "Plan ve bütçe",
+        "Ödeme ve fatura",
+        "İlk on dakika",
       ]}
     />
   ),
@@ -427,29 +499,252 @@ const slides: Array<(active: boolean) => ReactNode> = [
       </Sub>
       <div className="mt-7 grid md:grid-cols-3 gap-3">
         {[
-          ["Literatür", "Elicit · Consensus · Research Rabbit · Connected Papers · Semantic Scholar · Scite · Litmaps"],
-          ["Okuma ve not", "NotebookLM · SciSpace · Zotero · Mendeley"],
-          ["Yazma ve dil", "DeepL Write · Grammarly · Paperpal · Writefull"],
-          ["Sohbet modelleri", "Claude · ChatGPT · Gemini · Copilot · Perplexity · Mistral"],
-          ["Veri ve kod", "GitHub Copilot · Whisper · Kod yorumlayıcılar"],
-          ["Görsel ve sunum", "BioRender · Napkin · Gamma"],
-        ].map(([t, d], i) => (
+          ["Literatür", "Elicit · Consensus · Connected Papers · Semantic Scholar · Scite", "Elicit — sorunuzu makale tablosuna çeviriyor"],
+          ["Okuma ve not", "NotebookLM · SciSpace · Zotero", "NotebookLM — ücretsiz, verdiğiniz PDF dışına çıkmıyor"],
+          ["Yazma ve dil", "DeepL Write · Paperpal · Writefull · Grammarly", "DeepL Write — Türkçeden çevrilmiş İngilizceyi en çok toparlayan"],
+          ["Deşifre ve ses", "Whisper · otomatik altyazı araçları", "Whisper — görüşme ve ders kaydını yazıya çeviriyor"],
+          ["Veri ve kod", "GitHub Copilot · kod yorumlayıcılar", "GitHub Copilot — akademik kadroya ücretsiz"],
+          ["Görsel ve sunum", "BioRender · Napkin · Gamma", "Gamma — taslak metinden slayt iskeleti çıkarıyor"],
+        ].map(([t, d, b], i) => (
           <Fade key={t} delay={0.05 * i}>
-            <div className="ai-card px-4 py-4 h-full">
+            <div className="ai-card px-4 py-4 h-full flex flex-col">
               <div
                 className="font-mono text-[11px] uppercase tracking-[0.16em] mb-2"
                 style={{ color: ACCENT }}
               >
                 {t}
               </div>
-              <div className="text-[13px] text-white/50 leading-relaxed">{d}</div>
+              <div className="text-[13px] text-white/45 leading-relaxed flex-1">{d}</div>
+              <div className="mt-2.5 pt-2.5 border-t border-white/10 text-[12px] text-white/65 leading-relaxed">
+                {b}
+              </div>
             </div>
           </Fade>
         ))}
       </div>
+      <Fade delay={0.35}>
+        <div className="ai-card px-5 py-4 mt-3">
+          <div
+            className="font-mono text-[11px] uppercase tracking-[0.16em] mb-2"
+            style={{ color: ACCENT }}
+          >
+            Sohbet modelleri
+          </div>
+          <div className="text-[13px] text-white/45 leading-relaxed">
+            Claude · ChatGPT · Gemini · Copilot · Mistral
+          </div>
+          <div className="mt-2.5 pt-2.5 border-t border-white/10 text-[12px] text-white/65 leading-relaxed">
+            Yedinci kategori diğer altısının çoğunu zaten yapabildiği için bu
+            sunumun geri kalanı buraya odaklanıyor — örnekler Claude üzerinden,
+            ama teknikler hepsinde çalışıyor.
+          </div>
+        </div>
+      </Fade>
       <Source>
         Fiyat ve kapsam bilgileri araçların resmî sayfalarından, 4 Eylül 2026
       </Source>
+    </Slide>
+  ),
+
+  /* Literatür araçları */
+  () => (
+    <Slide>
+      <Eyebrow>Kategori · literatür</Eyebrow>
+      <H2>Alanı taramak ve haritalamak.</H2>
+      <div className="mt-6 overflow-x-auto">
+        <table className="ai-table table-fixed">
+          <thead>
+            <tr>
+              <th className="w-[22%]">Araç</th>
+              <th className="w-[44%]">Ne yapar</th>
+              <th className="w-[34%]">Ücretsizde ne var</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Elicit</td>
+              <td>138M+ makalede arama, tablo hâlinde veri çıkarımı</td>
+              <td>Sınırsız arama, özet ve makaleyle sohbet · Pro 49 USD/ay</td>
+            </tr>
+            <tr>
+              <td>Consensus</td>
+              <td>Bilimsel soru–cevap; bulgularda uzlaşı derecesi</td>
+              <td>Temel arama · Pro 20 USD/ay</td>
+            </tr>
+            <tr>
+              <td>Research Rabbit</td>
+              <td>Seçtiğiniz makalelerden ağ haritası ve öneri</td>
+              <td>Sınırsız arama ve koleksiyon, 50 başlangıç makalesi</td>
+            </tr>
+            <tr>
+              <td>Connected Papers</td>
+              <td>Tek makaleden benzerlik grafiği</td>
+              <td>Ayda 5 grafik</td>
+            </tr>
+            <tr>
+              <td>Scite</td>
+              <td>Atfın destekleyici mi çelişkili mi olduğunu etiketler</td>
+              <td>Platform erişimi yok · Basic 20 USD/ay</td>
+            </tr>
+            <tr>
+              <td>Litmaps</td>
+              <td>Literatür haritası + yeni makale uyarısı</td>
+              <td>2 harita, harita başına 100 makale · Pro 10 USD/ay</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <Fade delay={0.3}>
+        <p className="mt-5 text-sm text-white/45 leading-relaxed max-w-3xl">
+          Scite&apos;ın yaptığı şey diğerlerinde yok: bir makaleye yapılan
+          atfın onu destekleyip desteklemediğini gösteriyor. Atıf sayısına
+          değil atıf niteliğine bakmak isteyen için tek seçenek.
+        </p>
+      </Fade>
+      <Source>
+        elicit.com/pricing · help.consensus.app · researchrabbit.ai/pricing ·
+        scite.ai/pricing · litmaps.com/pricing — 4 Eylül 2026
+      </Source>
+    </Slide>
+  ),
+
+  /* Yazma ve dil araçları */
+  () => (
+    <Slide>
+      <Eyebrow>Kategori · yazma ve dil</Eyebrow>
+      <H2>İngilizce yazarken.</H2>
+      <Sub>
+        Ana dili Türkçe olan bir araştırmacı için en yüksek pratik değer bu
+        kategoride. Ama aralarında akademik dürüstlük açısından ciddi fark var.
+      </Sub>
+      <div className="mt-6 grid md:grid-cols-3 gap-4">
+        <Fade delay={0.08}>
+          <Card icon={Languages} title="DeepL Write">
+            Çeviri değil, kendi yazdığınız İngilizceyi akıcılaştırma. Yeni
+            içerik üretmediği için dürüstlük riski en düşük olan. Hesapsız
+            kullanımda seferde 1.500 karakter.
+          </Card>
+        </Fade>
+        <Fade delay={0.16}>
+          <Card icon={PenLine} title="Paperpal">
+            Akademik metne özel; Word, Overleaf ve Google Docs içinde çalışıyor.
+            Ücretsizde ayda 200 dil önerisi · Prime 25 USD/ay.
+          </Card>
+        </Fade>
+        <Fade delay={0.24}>
+          <Card icon={Check} title="Grammarly">
+            Genel amaçlı dil düzeltme. Öğrenci ve eğitmene doğrulama ile
+            yüzde 50&apos;ye varan indirim veriyor · Pro 12 USD/ay.
+          </Card>
+        </Fade>
+      </div>
+      <Source>
+        deepl.com · paperpal.com/pricing · grammarly.com/plans — 4 Eylül 2026.
+        DeepL&apos;in tam plan tablosu resmî sayfadan doğrulanamadı.
+      </Source>
+    </Slide>
+  ),
+
+  /* Dürüstlük riski olan araçlar */
+  () => (
+    <Slide>
+      <Eyebrow>Dikkat</Eyebrow>
+      <H2>Bir kategori var ki kullanmadan önce düşünün.</H2>
+      <Sub>
+        Metni “başka sözcüklerle yeniden yazan” araçlar (paraphrase araçları)
+        yaygın. Kendini <strong className="text-white/80">“AI humanizer”</strong>,
+        <strong className="text-white/80"> “bypass AI detection”</strong>{" "}ya da
+        “yapay zekâ metnini insanlaştırma” diye pazarlayan her araç bu
+        kategoride. İki ayrı sorun taşıyorlar.
+      </Sub>
+      <div className="mt-7 grid md:grid-cols-2 gap-4">
+        <Fade delay={0.08}>
+          <div className="ai-card p-5">
+            <div className="flex items-center gap-2 mb-2.5">
+              <AlertTriangle className="w-4 h-4" style={{ color: ACCENT }} />
+              <span className="text-white font-semibold">Kaynak gösterme sorunu</span>
+            </div>
+            <p className="text-sm text-white/55 leading-relaxed">
+              Başkasının cümlesini yeniden yazmak, kaynak göstermediğiniz
+              sürece intihaldir. Aracın yeniden yazması bunu değiştirmiyor.
+              Ankara Üniversitesi yönergesi tespit araçlarını aşmaya yönelik
+              kullanımı açıkça ihlal sayıyor.
+            </p>
+          </div>
+        </Fade>
+        <Fade delay={0.16}>
+          <div className="ai-card p-5">
+            <div className="flex items-center gap-2 mb-2.5">
+              <Ban className="w-4 h-4" style={{ color: ACCENT }} />
+              <span className="text-white font-semibold">
+                Tespitten kaçınma özelliği
+              </span>
+            </div>
+            <p className="text-sm text-white/55 leading-relaxed">
+              Bu araçların bir kısmı metni “insanlaştırma” adı altında yapay
+              zekâ tespitinden kaçırmayı pazarlıyor. Bir özelliğin varlık
+              sebebi denetimden kaçmaksa, kullanımı da savunulamaz.
+            </p>
+          </div>
+        </Fade>
+      </div>
+      <Fade delay={0.26}>
+        <p className="mt-7 text-white/50 leading-relaxed max-w-3xl">
+          Dil düzeltmesi ile yeniden yazım arasındaki sınır burada. Kendi
+          cümlenizi düzeltmek meşru; başkasının cümlesini tanınmaz hâle
+          getirmek değil.
+        </p>
+      </Fade>
+      <Source>
+        Ankara Üniversitesi — Yükseköğretimde Üretken Yapay Zekâ Kullanımına
+        İlişkin Yönerge
+      </Source>
+    </Slide>
+  ),
+
+  /* Görsel araçlar ve tuzak */
+  () => (
+    <Slide>
+      <Eyebrow>Kategori · görsel</Eyebrow>
+      <H2>Şekil çizmek — ve bir tuzak.</H2>
+      <div className="mt-7 grid md:grid-cols-2 gap-4">
+        <Fade delay={0.08}>
+          <div className="ai-card p-5">
+            <h3 className="text-white font-semibold mb-2">
+              BioRender — yaşam bilimleri
+            </h3>
+            <p className="text-sm text-white/55 leading-relaxed mb-3">
+              Yayın kalitesinde bilimsel şema çizimi. Akademik bireysel plan
+              yıllık ödemede aylık 35 dolar.
+            </p>
+            <div
+              className="text-sm leading-relaxed px-3 py-2 rounded"
+              style={{
+                background: "color-mix(in srgb, var(--deck-accent) 10%, transparent)",
+                color: "rgba(255,255,255,0.75)",
+              }}
+            >
+              <strong className="text-white">Tuzak:</strong>{" "}Ücretsiz katmanda
+              ürettiğiniz şeklin <strong className="text-white">yayın hakkı
+              yok</strong>. Makalenize koyamazsınız.
+            </div>
+          </div>
+        </Fade>
+        <Fade delay={0.16}>
+          <div className="ai-card p-5">
+            <h3 className="text-white font-semibold mb-2">Napkin — diyagram</h3>
+            <p className="text-sm text-white/55 leading-relaxed mb-3">
+              Yazdığınız metinden otomatik diyagram üretiyor. Haftada 500
+              kredi ücretsiz, sınırsız PNG ve PDF dışa aktarma.
+            </p>
+            <p className="text-sm text-white/45 leading-relaxed">
+              Ücretsiz katmanda görsele Napkin logosu işleniyor — sunumda
+              sorun değil, yayında olabilir.
+            </p>
+          </div>
+        </Fade>
+      </div>
+      <Source>biorender.com/pricing · napkin.ai/pricing — 4 Eylül 2026</Source>
     </Slide>
   ),
 
@@ -466,7 +761,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
         <Fade delay={0.06}>
           <Card icon={FlaskConical} title="Whisper — ses deşifresi">
             Açık kaynak, MIT lisanslı, <strong className="text-white/80">kendi
-            bilgisayarınızda</strong> çalışıyor. Görüşme, odak grubu ve ders
+            bilgisayarınızda</strong>{" "}çalışıyor. Görüşme, odak grubu ve ders
             kaydını yazıya çevirir. Ses buluta gitmediği için etik kurul
             açısından en temiz seçenek.
           </Card>
@@ -510,7 +805,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
       </H1>
       <Sub>
         Doğrulanmış öğretmen ve öğretim üyeleri <strong className="text-white">tam
-        Copilot Pro&apos;yu</strong> ücretsiz kullanıyor. Öğrenciler için ayrı
+        Copilot Pro&apos;yu</strong>{" "}ücretsiz kullanıyor. Öğrenciler için ayrı
         bir “Copilot Student” katmanı var, o da ücretsiz. Normal fiyatı ayda 10
         dolar.
       </Sub>
@@ -535,49 +830,20 @@ const slides: Array<(active: boolean) => ReactNode> = [
           </div>
         </Fade>
       </div>
-      <Source>
-        docs.github.com/copilot — “Get free access to Copilot Pro” ve plan
-        sayfası, 4 Eylül 2026
-      </Source>
-    </Slide>
-  ),
-
-  /* Öğrencilere ücretsiz */
-  () => (
-    <Slide>
-      <Eyebrow>Öğrencilerinize söyleyin</Eyebrow>
-      <H2>Google&apos;dan 12 ay ücretsiz yapay zekâ planı.</H2>
-      <Sub>
-        18 yaş üstü üniversite öğrencilerine 12 ay ücretsiz Google AI planı
-        veriliyor. Son başvuru 31 Aralık 2026. Amerika&apos;da AI Pro,
-        Amerika dışındaki 140&apos;tan fazla pazarda AI Plus olarak.
-      </Sub>
-      <Fade delay={0.2}>
-        <div className="ai-warn mt-8 px-6 py-5">
-          <div className="flex items-start gap-4">
-            <AlertTriangle
-              className="w-5 h-5 shrink-0 mt-0.5"
-              style={{ color: ACCENT }}
-            />
-            <div className="text-white/70 leading-relaxed space-y-2">
-              <p>
-                <strong className="text-white">İki uyarı.</strong> Birincisi:
-                kayıt sırasında geçerli bir ödeme yöntemi isteniyor ve süre
-                bitince <strong className="text-white">otomatik yenileniyor</strong>.
-                Öğrencinize bunu mutlaka söyleyin.
-              </p>
-              <p>
-                İkincisi: Türkiye&apos;nin uygun pazarlar listesinde olup
-                olmadığını resmî sayfada doğrulayamadım. “Türk öğrenciler de
-                alabiliyor” demeden önce öğrencinizin kendi hesabından kontrol
-                etmesini isteyin.
-              </p>
-            </div>
-          </div>
+      <Fade delay={0.28}>
+        <div className="ai-warn mt-5 px-5 py-3.5">
+          <p className="text-sm text-white/70 leading-relaxed">
+            <strong className="text-white">Nereden başvurulur:</strong>{" "}
+            GitHub hesabınızla github.com/education adresine girip{" "}
+            <strong className="text-white">Teacher Benefits</strong>{" "}bölümünden
+            başvuruyorsunuz. Onaydan sonra Copilot&apos;u hesap ayarlarınızdan
+            kendiniz etkinleştiriyorsunuz — kendiliğinden açılmıyor.
+          </p>
         </div>
       </Fade>
       <Source>
-        blog.google — student offer · support.google.com/gemini, 4 Eylül 2026
+        docs.github.com/copilot — “Get free access to Copilot Pro” ·
+        github.com/education/teachers — 4 Eylül 2026
       </Source>
     </Slide>
   ),
@@ -606,7 +872,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
         <Fade delay={0.18}>
           <Card icon={Link2} title="Bağlayıcılar, web araması">
             Drive, GitHub, Slack gibi kaynaklara bağlanma ve web araması
-            ücretsiz planda listeleniyor.
+            ücretsiz planda açık.
           </Card>
         </Fade>
         <Fade delay={0.24}>
@@ -623,7 +889,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
         </Fade>
         <Fade delay={0.36}>
           <Card icon={MessageSquare} title="Sesli mod ve Skills">
-            Konuşarak kullanım ve hazır beceri paketleri ücretsizde listeleniyor.
+            Konuşarak kullanım ve hazır beceri paketleri ücretsiz planda da var.
           </Card>
         </Fade>
       </div>
@@ -680,7 +946,13 @@ const slides: Array<(active: boolean) => ReactNode> = [
               <td><Yes /></td>
             </tr>
             <tr>
-              <td>Claude Science</td>
+              <td>
+                Claude Science
+                <div className="text-[12px] text-white/35 mt-0.5">
+                  Literatür, veri ve laboratuvar araçlarını tek yerde toplayan
+                  araştırma kipi
+                </div>
+              </td>
               <td><No /></td>
               <td><Yes /></td>
             </tr>
@@ -689,7 +961,16 @@ const slides: Array<(active: boolean) => ReactNode> = [
       </div>
       <div className="ai-warn mt-5 px-5 py-3">
         <p className="text-sm text-white/70 leading-relaxed">
-          <strong className="text-white">Sık karıştırılan nokta:</strong> Pro
+          <strong className="text-white">Beş saatlik pencere ne demek?</strong>{" "}
+          Kullanım, her beş saatte bir sıfırlanan bir kotayla ölçülüyor. Kota
+          dolunca pencere yenilenene kadar bekliyorsunuz. Kaç mesaj ettiği
+          sabit değil — uzun belge yükleyip uzun cevap istediğinizde kota daha
+          hızlı iniyor.
+        </p>
+      </div>
+      <div className="ai-warn mt-3 px-5 py-3">
+        <p className="text-sm text-white/70 leading-relaxed">
+          <strong className="text-white">Sık karıştırılan nokta:</strong>{" "}Pro
           aboneliği <strong className="text-white">API erişimi içermez</strong>.
           Claude'u kendi uygulamanıza bağlayacaksanız API ayrı ücretlendirilir.
         </p>
@@ -723,7 +1004,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
               Ücretsiz premium erişim. Son başvuru 30 Haziran 2027.
             </p>
             <ul className="space-y-1.5 text-sm text-white/50 leading-relaxed">
-              <li>· Yalnızca <strong className="text-white/80">ABD&apos;deki K-12</strong> öğretmenleri</li>
+              <li>· Yalnızca <strong className="text-white/80">ABD&apos;deki K-12</strong>{" "}öğretmenleri</li>
               <li>· Üniversite akademisyenleri kapsam dışı</li>
               <li>· Türkiye kapsam dışı</li>
             </ul>
@@ -745,12 +1026,11 @@ const slides: Array<(active: boolean) => ReactNode> = [
             </div>
             <p className="text-sm text-white/70 leading-relaxed mb-3">
               27 Ağustos 2026&apos;da açıldı. <strong className="text-white">Dünya
-              geneline</strong> 10.000 ücretsiz koltuk.
+              geneline</strong>{" "}10.000 ücretsiz koltuk.
             </p>
             <ul className="space-y-1.5 text-sm text-white/60 leading-relaxed">
-              <li>· Akredite kurumda <strong className="text-white/80">araştırma grubu yürüten</strong> akademisyenler</li>
+              <li>· Akredite kurumda <strong className="text-white/80">araştırma grubu yürüten</strong>{" "}akademisyenler</li>
               <li>· Türkiye desteklenen ülkeler arasında</li>
-              <li>· Ayrıntısı sonraki slaytta</li>
             </ul>
           </div>
         </Fade>
@@ -815,9 +1095,11 @@ const slides: Array<(active: boolean) => ReactNode> = [
       </div>
       <div className="ai-warn mt-5 px-5 py-3.5">
         <p className="text-sm text-white/70 leading-relaxed">
-          Program sayfasının kendi uyarısı: koltuk sayısı sınırlı ve tahsis
-          garanti değil. Kurumsal aidiyet doğrulaması yaklaşık 5–7 iş günü
-          sürüyor. Uygunsanız beklemeden başvurun.
+          Başvuruda kurum e-postanız, kurumsal sayfanızdaki araştırma grubu
+          bağlantısı ve kısa bir araştırma özeti isteniyor. Program sayfasının
+          kendi uyarısı: koltuk sayısı sınırlı ve tahsis garanti değil.
+          Kurumsal aidiyet doğrulaması yaklaşık 5–7 iş günü sürüyor —
+          uygunsanız beklemeden başvurun.
         </p>
       </div>
       <Source>
@@ -834,9 +1116,9 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <Eyebrow>Peki .edu adresim?</Eyebrow>
       <H2>Tek başına hiçbir şey kazandırmıyor.</H2>
       <Sub>
-        Bir önceki slayttaki program dışında, resmî fiyat sayfasında bireysel
+        Bilim insanları için Team planı dışında, resmî fiyat sayfasında bireysel
         akademisyen ya da öğrenci indirimi diye bir kalem yok.
-        <code className="text-white/80"> .edu</code> adresiniz tek başına bir
+        <code className="text-white/80"> .edu</code>{" "}adresiniz tek başına bir
         şey kazandırmıyor; ancak kurumunuz Claude for Education sözleşmesi
         imzaladıysa okul hesabınızla girip kurumun sağladığı erişimi
         kullanırsınız.
@@ -875,6 +1157,46 @@ const slides: Array<(active: boolean) => ReactNode> = [
     </Slide>
   ),
 
+  /* Öğrencilere ücretsiz */
+  () => (
+    <Slide>
+      <Eyebrow>Öğrencilerinize söyleyin</Eyebrow>
+      <H2>Google&apos;dan 12 ay ücretsiz yapay zekâ planı.</H2>
+      <Sub>
+        18 yaş üstü üniversite öğrencilerine 12 ay ücretsiz Google AI planı
+        veriliyor. Son başvuru 31 Aralık 2026. Amerika&apos;da AI Pro,
+        Amerika dışındaki 140&apos;tan fazla pazarda AI Plus olarak.
+      </Sub>
+      <Fade delay={0.2}>
+        <div className="ai-warn mt-8 px-6 py-5">
+          <div className="flex items-start gap-4">
+            <AlertTriangle
+              className="w-5 h-5 shrink-0 mt-0.5"
+              style={{ color: ACCENT }}
+            />
+            <div className="text-white/70 leading-relaxed space-y-2">
+              <p>
+                <strong className="text-white">İki uyarı.</strong>{" "}Birincisi:
+                kayıt sırasında geçerli bir ödeme yöntemi isteniyor ve süre
+                bitince <strong className="text-white">otomatik yenileniyor</strong>.
+                Öğrencinize bunu mutlaka söyleyin.
+              </p>
+              <p>
+                İkincisi: Türkiye&apos;nin uygun pazarlar listesinde olup
+                olmadığını resmî sayfada doğrulayamadım. “Türk öğrenciler de
+                alabiliyor” demeden önce öğrencinizin kendi hesabından kontrol
+                etmesini isteyin.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Fade>
+      <Source>
+        blog.google — student offer · support.google.com/gemini, 4 Eylül 2026
+      </Source>
+    </Slide>
+  ),
+
   /* 10 · Campus Program */
   () => (
     <Slide>
@@ -882,12 +1204,13 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <H1>
         Campus Program:
         <br />
-        <span style={{ color: ACCENT }}>3.600 dolar</span> destek.
+        <span style={{ color: ACCENT }}>3.600 dolar</span>{" "}destek.
       </H1>
       <Sub>
-        Başvuru dünya çapına açık. Üç ayrı kulvar var ve seçilen öğrencilere
-        nakit destek veriliyor. Danışmanlığını yaptığınız öğrenciye
-        söyleyebileceğiniz en somut şey bu.
+        Başvuru dünya çapına açık. Üç ayrı kulvar var ve{" "}
+        <strong className="text-white">seçilen her öğrenciye 3.600 dolar</strong>{" "}
+        nakit destek veriliyor — toplam havuz değil, kişi başı. Danışmanlığını
+        yaptığınız öğrenciye söyleyebileceğiniz en somut şey bu.
       </Sub>
       <div className="mt-8 grid md:grid-cols-3 gap-4">
         <Fade delay={0.08}>
@@ -910,6 +1233,20 @@ const slides: Array<(active: boolean) => ReactNode> = [
         <p className="mt-6 text-sm text-white/45">
           Koşul: 18 yaş üstü ve öğrenim görülen ülkede çalışma izni.
         </p>
+      </Fade>
+      <Fade delay={0.4}>
+        <div className="ai-warn mt-5 px-5 py-3.5">
+          <p className="text-sm text-white/70 leading-relaxed">
+            <strong className="text-white">Takvim:</strong>{" "}Başvurular 1 Eylül
+            2026&apos;da açıldı ve{" "}
+            <strong className="text-white">
+              12 Eylül 2026, 23:59 (Pasifik saati)
+            </strong>{" "}
+            kapanıyor. Program Eylül 2026 – Haziran 2027 akademik yılını
+            kapsıyor. Bu sunumu okuduğunuz gün pencere açıksa öğrencinize bugün
+            söyleyin — gelecek yıla kadar tekrarı yok.
+          </p>
+        </div>
       </Fade>
       <Source>claude.com/programs/campus — erişim 4 Eylül 2026</Source>
     </Slide>
@@ -945,7 +1282,7 @@ const slides: Array<(active: boolean) => ReactNode> = [
       </div>
       <Fade delay={0.4}>
         <p className="mt-6 text-sm text-white/45 leading-relaxed">
-          Yıllık ödeme aylıktan ucuz: 17 USD/ay yerine 20 USD/ay. Ama önce bir
+          Yıllık ödeme aylıktan ucuz: 20 USD/ay yerine 17 USD/ay. Ama önce bir
           ay aylık deneyip gerçekten kullanıp kullanmadığınızı görün.
         </p>
       </Fade>
@@ -958,56 +1295,114 @@ const slides: Array<(active: boolean) => ReactNode> = [
     <Slide>
       <Eyebrow>Seçim rehberi</Eyebrow>
       <H2>Bütçenize göre ne alırsınız?</H2>
-      <div className="mt-7">
-        <DecisionTree
-          nodes={[
-            {
-              question: "Hiç bütçem yok",
-              branches: [
-                {
-                  answer: "0 USD",
-                  result: "Whisper + Zotero + NotebookLM + Semantic Scholar",
-                  detail:
-                    "Deşifre, kaynak yönetimi, kaynağa bağlı özetleme ve literatür dizini. Öğretim üyesiyseniz GitHub Copilot da ücretsiz.",
-                },
+      <Sub>
+        Sıralama önemli: üstteki katman işinizi görüyorsa alttakine geçmeyin.
+        Çoğu akademisyen ikinci satırda duruyor.
+      </Sub>
+      <div className="mt-6 overflow-x-auto">
+        <table className="ai-table">
+          <thead>
+            <tr>
+              <th style={{ width: "16%" }}>Aylık</th>
+              <th style={{ width: "30%" }}>Ne alırsınız</th>
+              <th style={{ width: "54%" }}>Ne zaman değer</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              [
+                "0 USD",
+                "Whisper · Zotero · NotebookLM · Semantic Scholar",
+                "Her koşulda. Deşifre, kaynak yönetimi, kaynağa bağlı özetleme ve literatür dizini — dördü birlikte günlük işin çoğunu karşılıyor. Akademik kadrodaysanız GitHub Copilot da ücretsiz.",
               ],
-            },
-            {
-              question: "Ayda bir kahve parası ayırabilirim",
-              branches: [
-                {
-                  answer: "~20 USD",
-                  result: "Bir sohbet modeli aboneliği",
-                  detail:
-                    "Claude Pro ya da muadili. Eğitimciyseniz Perplexity Education Pro 10 dolara düşüyor.",
-                },
+              [
+                "~20 USD",
+                "Bir sohbet modeli aboneliği",
+                "Haftada birkaç saat yoğun kullanıyorsanız. Uzun belge, veri analizi ve günlük yazı işi burada açılıyor. Çoğu akademisyen için gereken tek harcama bu.",
               ],
-            },
-            {
-              question: "Sistematik derleme yapıyorum",
-              branches: [
-                {
-                  answer: "~50 USD",
-                  result: "Elicit Pro",
-                  detail:
-                    "Tarama ve veri çıkarımını gerçekten ölçeklendiriyor. Yalnızca o işi yapıyorsanız karşılığı var.",
-                },
+              [
+                "~20 USD",
+                "Scite",
+                "Yalnızca atıf niteliği sizin için belirleyiciyse: bir atfın destekleyici mi çelişkili mi olduğunu gösteren tek araç. Genel literatür taraması için gerekmiyor.",
               ],
-            },
-            {
-              question: "Atıf niteliğine bakmam gerekiyor",
-              branches: [
-                {
-                  answer: "~20 USD",
-                  result: "Scite",
-                  detail:
-                    "Bir atfın destekleyici mi çelişkili mi olduğunu gösteren tek araç.",
-                },
+              [
+                "~50 USD",
+                "Elicit Pro",
+                "Sistematik derleme yapıyorsanız tarama ve veri çıkarımını gerçekten ölçeklendiriyor. Tek bir makale için karşılığı yok.",
               ],
-            },
-          ]}
-        />
+            ].map(([b, a, d]) => (
+              <tr key={a}>
+                <td className="font-mono whitespace-nowrap" style={{ color: ACCENT }}>
+                  {b}
+                </td>
+                <td>{a}</td>
+                <td>{d}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+      <Source>
+        claude.com/pricing · scite.ai/pricing · elicit.com/pricing — 4 Eylül 2026
+      </Source>
+    </Slide>
+  ),
+
+  /* Parayı kim öder */
+  () => (
+    <Slide>
+      <Eyebrow>Fiyatı gördünüz — peki ödeme</Eyebrow>
+      <H2>Yirmi doları kim, nasıl öder?</H2>
+      <Sub>
+        Türkiye&apos;den bakan bir akademisyenin ilk takıldığı yer fiyat değil,
+        ödemenin kendisi. Dört yol var ve üçü çoğu kişinin haberi olmadan
+        kapalı kalıyor.
+      </Sub>
+      <div className="mt-6 grid md:grid-cols-2 gap-4">
+        <Fade delay={0.08}>
+          <Card icon={Wallet} title="Bireysel kart">
+            En hızlı yol. Kartınızda yurt dışı ve internetten alışveriş izni
+            kapalıysa ödeme sessizce reddediliyor — bankanızın uygulamasından
+            açtıktan sonra tekrar deneyin.
+          </Card>
+        </Fade>
+        <Fade delay={0.14}>
+          <Card icon={FileText} title="Kurumsal geri ödeme">
+            Fatura isteyecekseniz vergi numaranızı{" "}
+            <strong className="text-white/80">ilk ödemeden önce</strong>{" "}girin:
+            Ayarlar → Faturalandırma → ödeme yöntemini güncelle. Geçmiş
+            faturalar geriye dönük düzeltilemiyor.
+          </Card>
+        </Fade>
+        <Fade delay={0.2}>
+          <Card icon={FlaskConical} title="Proje ya da BAP bütçesi">
+            Yurt dışı yazılım/hizmet aboneliğinin hangi bütçe kaleminden
+            karşılanabileceği üniversiteden üniversiteye değişiyor. BAP
+            koordinatörlüğüne bu ifadeyle sorun; cevap “hayır” olsa bile beş
+            dakikanızı alır.
+          </Card>
+        </Fade>
+        <Fade delay={0.26}>
+          <Card icon={Users} title="Bölüm ya da fakülte">
+            Birden çok kişi kullanacaksa tek tek Pro almak yerine Team
+            konuşun. Fiyattan bağımsız asıl fark şu: kurumsal planlar tüketici
+            veri politikasının dışında.
+          </Card>
+        </Fade>
+      </div>
+      <Fade delay={0.34}>
+        <p className="mt-5 text-sm text-white/45 leading-relaxed max-w-3xl">
+          Fiyatlar vergi hariç gösteriliyor; hangi verginin ekleneceğini
+          fatura adresiniz belirliyor. Ödeme sayfasındaki son tutara bakın,
+          ilan edilen rakama değil.
+        </p>
+      </Fade>
+      <Source>
+        support.claude.com — “Add or update your paid Claude account&apos;s tax
+        or VAT ID” ve “Understanding your billing address and tax calculation”,
+        4 Eylül 2026. Bütçe kalemi bilgisi kurumdan kuruma değişir; tek
+        bağlayıcı cevap kendi BAP biriminizden gelir.
+      </Source>
     </Slide>
   ),
 
@@ -1062,7 +1457,19 @@ const slides: Array<(active: boolean) => ReactNode> = [
         tahminler — sizinki farklı olabilir. Amaç bir şey göstermek: kazanç,
         “her işi yaptırmak”ta değil, doğru işi seçmekte.
       </Sub>
-      <div className="mt-7 overflow-x-auto">
+      <div className="mt-6 flex items-center gap-2.5">
+        <span
+          className="font-mono text-[10px] uppercase tracking-[0.16em] px-2 py-1 rounded"
+          style={{
+            color: ACCENT,
+            background: "color-mix(in srgb, var(--deck-accent) 14%, transparent)",
+          }}
+        >
+          Kaynak: yazarın kendi kullanımı
+        </span>
+        <span className="text-[12px] text-white/35">Ölçüm değil, tahmin</span>
+      </div>
+      <div className="mt-3 overflow-x-auto">
         <table className="ai-table table-fixed">
           <thead>
             <tr>
@@ -1130,9 +1537,12 @@ const slides: Array<(active: boolean) => ReactNode> = [
       subtitle="Aynı araç, iki farklı istem, iki farklı sonuç. Fark tekniğin kendisinde."
       icerik={[
         "İyi ve kötü istem",
+        "Model seçimi",
         "İstem anatomisi",
         "İleri teknikler",
+        "Uzun belgeler",
         "Hazır kalıplar",
+        "Türkçe performansı",
       ]}
     />
   ),
@@ -1193,6 +1603,57 @@ Zorluk: 7 kolay, 3 ayırt edici.`}</Prompt>
     </Slide>
   ),
 
+  /* Hangi model, ne zaman */
+  () => (
+    <Slide>
+      <Eyebrow>Teknik · model seçimi</Eyebrow>
+      <H2>Hangi modeli ne zaman seçmeli?</H2>
+      <Sub>
+        Sohbet kutusunun üstündeki model seçici çoğu kişide hiç
+        dokunulmadan duruyor. Oysa aynı isteme farklı modeller belirgin
+        biçimde farklı cevaplar veriyor.
+      </Sub>
+      <div className="mt-6 overflow-x-auto">
+        <table className="ai-table">
+          <thead>
+            <tr>
+              <th style={{ width: "14%" }}>Model</th>
+              <th style={{ width: "42%" }}>Akademik karşılığı</th>
+              <th style={{ width: "44%" }}>Resmî tanımı</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["Haiku", "Kısa ve çok sayıda işlem: kaynakça satırlarını düzene sokmak, kırk sınav sorusunu biçimlendirmek, hızlı çeviri.", "“En hızlı, en düşük maliyetli model.” Ücretsiz plan dâhil her planda."],
+              ["Sonnet", "Günlük işin çoğu: özet, dil düzeltme, ders planı, e-posta, veri tablosu üzerinde konuşma.", "Tüm ücretli planlarda sunuluyor."],
+              ["Opus", "Uzun akıl yürütme ve eleştiri: hakem gözüyle metin eleştirisi, yöntem tasarımını sınama, uzun tez bölümü.", "“Karmaşık ajan tabanlı kodlama ve kurumsal iş için ideal.” Pro ve üstü."],
+              ["Fable", "Kendi başına ilerleyen, çok adımlı ve uzun süren işler.", "“Uzun süre çalışan ajanlar için yeni nesil zekâ.” Pro, Team ve Enterprise."],
+            ].map(([m, akademik, resmi]) => (
+              <tr key={m}>
+                <td className="font-mono whitespace-nowrap" style={{ color: ACCENT }}>
+                  {m}
+                </td>
+                <td>{akademik}</td>
+                <td className="text-white/40">{resmi}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="ai-warn mt-5 px-5 py-3">
+        <p className="text-sm text-white/70 leading-relaxed">
+          <strong className="text-white">Pratik kural:</strong>{" "}Sonnet&apos;te
+          kalın. Cevap yüzeysel geldiyse{" "}
+          <strong className="text-white">istemi hiç değiştirmeden</strong>{" "}aynı
+          şeyi Opus&apos;a sorun. Eksikliğin modelden mi istemden mi geldiğini
+          ancak böyle ayırt edersiniz — ikisini aynı anda değiştirirseniz
+          hiçbir şey öğrenmiş olmuyorsunuz.
+        </p>
+      </div>
+      <Source>claude.com/pricing — model tanımları, erişim 4 Eylül 2026</Source>
+    </Slide>
+  ),
+
   /* 14 · Bağlam vermenin yolları */
   () => (
     <Slide>
@@ -1235,40 +1696,6 @@ Zorluk: 7 kolay, 3 ayırt edici.`}</Prompt>
     </Slide>
   ),
 
-  /* 15 · İşe yarayan kalıplar */
-  () => (
-    <Slide>
-      <Eyebrow>Kalıplar</Eyebrow>
-      <H2>Sonucu belirgin biçimde iyileştiren beş alışkanlık.</H2>
-      <div className="mt-7">
-        <Steps
-          items={[
-            {
-              t: "Rol verin",
-              d: "“Bu alanda 20 yıllık bir hakem gibi davran” demek, cevabın hangi gözle yazılacağını belirler.",
-            },
-            {
-              t: "Örnek verin",
-              d: "İstediğiniz çıktının bir örneğini yapıştırın. Tarif etmekten çok daha isabetli sonuç verir.",
-            },
-            {
-              t: "Adım adım isteyin",
-              d: "“Önce planını çıkar, onayımı al, sonra yaz.” Uzun işlerde tek seferde yazdırmak yerine ara onay alın.",
-            },
-            {
-              t: "Eleştirmesini isteyin",
-              d: "“Bu paragrafın en zayıf üç yanı ne?” Kendi yazdığınız metni verip eksiğini sordurmak, ürettirmekten daha değerli.",
-            },
-            {
-              t: "İkinci turu atlamayın",
-              d: "İlk cevap taslaktır. “Şu kısmı daha somut yaz, şu örneği çıkar” diyerek ilerleyin.",
-            },
-          ]}
-        />
-      </div>
-    </Slide>
-  ),
-
   /* İstem anatomisi */
   () => (
     <Slide>
@@ -1280,12 +1707,12 @@ Zorluk: 7 kolay, 3 ayırt edici.`}</Prompt>
       </Sub>
       <div className="mt-7 space-y-2.5">
         {[
-          ["Rol", "“Bu alanda 20 yıllık bir hakem gibi davran.”", "Cevabın hangi gözle yazılacağını belirler."],
+          ["Rol", "“Bu alanda 20 yıllık bir hakem gibi davran.”", "Aynı soruya hakem, öğrenci ve editör üç farklı cevap verir; hangisini istediğinizi siz seçin."],
           ["Bağlam", "“Önlisans 1. sınıf, 6 haftadır Python görüyorlar.”", "Modelin bilmediği tek şey sizin durumunuz."],
           ["Görev", "“10 soruluk quiz hazırla.”", "Tek bir eylem olmalı; iki iş varsa iki istem yazın."],
-          ["Biçim", "“6 çoktan seçmeli, 4 kod okuma. Cevap anahtarı altta.”", "Söylemezseniz kendi kararını verir."],
-          ["Kısıt", "“Fonksiyon kullanma, İngilizce terim kullanma.”", "Yasaklar en az istekler kadar iş görür."],
-          ["Örnek", "İstediğiniz çıktıdan bir tane yapıştırın.", "Tarif etmekten çok daha isabetli sonuç verir."],
+          ["Biçim", "“6 çoktan seçmeli, 4 kod okuma. Cevap anahtarı altta.”", "Belirtmezseniz uzunluğu ve düzeni kendi seçer; iki denemede iki farklı biçim gelir."],
+          ["Kısıt", "“Fonksiyon kullanma, İngilizce terim kullanma.”", "Bir şeyi istememek, istemek kadar bilgi taşır — çıktının yarısını bu satır eler."],
+          ["Örnek", "İstediğiniz çıktıdan bir tane yapıştırın.", "Tek bir örnek, üç paragraflık biçim tarifinden daha net anlaşılıyor."],
         ].map(([k, ornek, neden], i) => (
           <Fade key={k} delay={0.06 * i}>
             <div className="ai-card px-5 py-3.5 grid md:grid-cols-[5.5rem_1fr_1fr] gap-4 items-start">
@@ -1386,9 +1813,11 @@ beni dinleyemez.`}</Prompt>
       </Fade>
       <Fade delay={0.36}>
         <p className="mt-5 text-sm text-white/45 leading-relaxed max-w-3xl">
-          Son kısıt önemli: model, istemezseniz slaytları paragrafla
-          doldurmaya meyilli. “Slayta paragraf yazma” cümlesi sunumun
-          okunabilirliğini tek başına kurtarıyor.
+          İki istemden önce bir adım daha var: makalenizi, veri tablonuzu ve
+          varsa bildiri şablonunu bir projeye yükleyin — model sizin
+          sayılarınızla çalışsın. Son kısıt da önemli: model, istemezseniz
+          slaytları paragrafla doldurmaya meyilli. “Slayta paragraf yazma”
+          cümlesi sunumun okunabilirliğini tek başına kurtarıyor.
         </p>
       </Fade>
     </Slide>
@@ -1422,9 +1851,20 @@ beni dinleyemez.`}</Prompt>
               t: "Görsel gerekiyorsa bölün",
               d: "Şekilleri incelemesi gerekiyorsa 100 sayfanın altına inin — üstünde yalnızca metin okunuyor.",
             },
+            {
+              t: "Konu değişince yeni sohbet açın",
+              d: "Şişmiş bir sohbet eski talimatları taşımaya devam eder: giriş bölümü için verdiğiniz üslup kuralı, yöntem bölümünü de biçimlendirir. Yeni bölüme geçerken yeni sohbet açıp belgeyi tekrar yükleyin — kalite geri geliyor.",
+            },
           ]}
         />
       </div>
+      <Fade delay={0.35}>
+        <p className="mt-5 text-sm text-white/45 leading-relaxed max-w-3xl">
+          Belirti şu: cevaplar giderek genelleşiyor, sorduğunuz şeye değil bir
+          önceki soruya benzer çıkıyor. Bu, modelin “unutması” değil — tam
+          tersi, fazla şey hatırlıyor.
+        </p>
+      </Fade>
     </Slide>
   ),
 
@@ -1570,6 +2010,60 @@ gerektiğini söyle.`}</Prompt>
     </Slide>
   ),
 
+  /* Türkçe performansı */
+  () => (
+    <Slide>
+      <Eyebrow>Türkçe</Eyebrow>
+      <H2>Türkçede ne kadar iyi?</H2>
+      <Sub>
+        Dürüst cevap: kesin bilmiyoruz. Ne Anthropic&apos;in ne de
+        OpenAI&apos;ın resmî çok dillilik karşılaştırma tablosunda Türkçe yer
+        alıyor — o tablolarda on dört dil var ve Türkçe onlardan biri değil.
+      </Sub>
+      <div className="mt-7 grid md:grid-cols-2 gap-4">
+        <Fade delay={0.08}>
+          <div className="ai-card p-5">
+            <div
+              className="font-mono text-[11px] uppercase tracking-[0.18em] mb-2.5"
+              style={{ color: ACCENT }}
+            >
+              Elimizdeki tek ölçüm
+            </div>
+            <p className="text-sm text-white/60 leading-relaxed">
+              TR-MMLU: 6.200 çoktan seçmeli soru, 62 bölüm, 39 model. 2025
+              tarihli bağımsız bir çalışma. Ölçtüğü model sürümleri bugünkü
+              nesilden eski — sonuçları güncel sıralama olarak okumayın.
+            </p>
+          </div>
+        </Fade>
+        <Fade delay={0.16}>
+          <div className="ai-card p-5">
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40 mb-2.5">
+              Türkçeye özgü zorluk
+            </div>
+            <p className="text-sm text-white/60 leading-relaxed">
+              Çalışmanın tespiti: eklemeli yapı ve karmaşık morfoloji yüzünden
+              Türkçe metin daha fazla parçaya bölünüyor. Bu hem maliyeti hem
+              hata payını artırıyor.
+            </p>
+          </div>
+        </Fade>
+      </div>
+      <Fade delay={0.26}>
+        <p className="mt-6 text-white/50 leading-relaxed max-w-3xl">
+          Pratik sonuç: Türkçe çıktıyı her zaman okuyun. Genel yazışmada
+          iyi çalışıyor; alan terminolojisinde, eski dilli metinlerde ve
+          hukuk dilinde belirgin biçimde zayıflıyor. Çeviri kokan cümleleri
+          kendiniz düzeltmeden bırakmayın.
+        </p>
+      </Fade>
+      <Source>
+        Bayram M. A. ve diğerleri (2025). TR-MMLU. arXiv:2508.13044 · SIU 2025 ·
+        claude.com ve openai.com çok dillilik dokümantasyonu — erişim 4 Eylül 2026
+      </Source>
+    </Slide>
+  ),
+
   /* Bölüm 3 · Akademik iş */
   () => (
     <Divider
@@ -1578,8 +2072,8 @@ gerektiğini söyle.`}</Prompt>
       subtitle="Literatürden hakem yanıtına, izlenceden veri analizine: adım adım akışlar."
       icerik={[
         "Süreç haritası",
-        "Sekiz iş akışı",
-        "Her işin aracı",
+        "Projeler ve dosya limitleri",
+        "Yedi iş akışı",
         "Gerçek sınırlar",
       ]}
     />
@@ -1776,68 +2270,6 @@ gerektiğini söyle.`}</Prompt>
     </Slide>
   ),
 
-  /* Literatür araçları */
-  () => (
-    <Slide>
-      <Eyebrow>Kategori · literatür</Eyebrow>
-      <H2>Alanı taramak ve haritalamak.</H2>
-      <div className="mt-6 overflow-x-auto">
-        <table className="ai-table table-fixed">
-          <thead>
-            <tr>
-              <th className="w-[22%]">Araç</th>
-              <th className="w-[44%]">Ne yapar</th>
-              <th className="w-[34%]">Ücretsizde ne var</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Elicit</td>
-              <td>138M+ makalede arama, tablo hâlinde veri çıkarımı</td>
-              <td>Sınırsız arama, özet ve makaleyle sohbet · Pro 49 USD/ay</td>
-            </tr>
-            <tr>
-              <td>Consensus</td>
-              <td>Bilimsel soru–cevap; bulgularda uzlaşı derecesi</td>
-              <td>Temel arama · Pro 20 USD/ay</td>
-            </tr>
-            <tr>
-              <td>Research Rabbit</td>
-              <td>Seçtiğiniz makalelerden ağ haritası ve öneri</td>
-              <td>Sınırsız arama ve koleksiyon, 50 başlangıç makalesi</td>
-            </tr>
-            <tr>
-              <td>Connected Papers</td>
-              <td>Tek makaleden benzerlik grafiği</td>
-              <td>Ayda 5 grafik</td>
-            </tr>
-            <tr>
-              <td>Scite</td>
-              <td>Atfın destekleyici mi çelişkili mi olduğunu etiketler</td>
-              <td>Platform erişimi yok · Basic 20 USD/ay</td>
-            </tr>
-            <tr>
-              <td>Litmaps</td>
-              <td>Literatür haritası + yeni makale uyarısı</td>
-              <td>2 harita, harita başına 100 makale · Pro 10 USD/ay</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <Fade delay={0.3}>
-        <p className="mt-5 text-sm text-white/45 leading-relaxed max-w-3xl">
-          Scite&apos;ın yaptığı şey diğerlerinde yok: bir makaleye yapılan
-          atfın onu destekleyip desteklemediğini gösteriyor. Atıf sayısına
-          değil atıf niteliğine bakmak isteyen için tek seçenek.
-        </p>
-      </Fade>
-      <Source>
-        elicit.com/pricing · help.consensus.app · researchrabbit.ai/pricing ·
-        scite.ai/pricing · litmaps.com/pricing — 4 Eylül 2026
-      </Source>
-    </Slide>
-  ),
-
   /* 21 · Makale yazımı */
   () => (
     <Slide>
@@ -1869,12 +2301,15 @@ gerektiğini söyle.`}</Prompt>
       <Fade delay={0.26}>
         <div className="mt-6">
           <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40 mb-2.5">
-            En çok işe yarayan istem
+            Hakemin bir sonraki hamlesini görmek
           </div>
-          <Prompt>{`Şu paragrafı hakem gözüyle oku. Hangi iddiam
-kanıtsız kalmış, hangi cümle fazla iddialı,
-nerede veri ile sonuç arasındaki bağ zayıf?
-Düzeltme yazma — sadece sorunları listele.`}</Prompt>
+          <Prompt>{`Bu bölümde hangi cümleler için hakem
+“kanıt yok” diyecek? Her biri için, hakemin
+büyük ihtimalle hangi ek analizi ya da hangi
+ek kaynağı isteyeceğini de yaz.
+
+Metni düzeltme. Cümle — beklenen itiraz —
+istenecek ek çalışma biçiminde tablo yap.`}</Prompt>
         </div>
       </Fade>
     </Slide>
@@ -1913,46 +2348,12 @@ Düzeltme yazma — sadece sorunları listele.`}</Prompt>
       </div>
       <div className="ai-warn mt-5 px-5 py-3">
         <p className="text-sm text-white/70 leading-relaxed">
-          <strong className="text-white">Dikkat:</strong> Bu, kendi makalenize
+          <strong className="text-white">Dikkat:</strong>{" "}Bu, kendi makalenize
           gelen rapor için geçerli. Kendiniz hakemlik yapıyorsanız
           değerlendirdiğiniz makaleyi yükleyemezsiniz. Ayrıntısı “Sınırlar”
           bölümünde; TÜBİTAK&apos;ın aynı yasağı “Türkiye&apos;de durum”
           bölümünde.
         </p>
-      </div>
-    </Slide>
-  ),
-
-  /* 23 · Sunum hazırlama */
-  () => (
-    <Slide>
-      <Eyebrow>İş akışı · sunum</Eyebrow>
-      <H2>Bir konferans sunumu, baştan sona.</H2>
-      <div className="mt-6">
-        <Steps
-          items={[
-            {
-              t: "Malzemeyi toplayın",
-              d: "Makalenizi, veri tablonuzu ve varsa bildiri şablonunu bir projeye yükleyin.",
-            },
-            {
-              t: "İskeleti çıkartın",
-              d: "“15 dakikalık sunum için bölüm başlıkları ve her bölüme kaç dakika.” Kendi aklınızdaki akışla karşılaştırın.",
-            },
-            {
-              t: "Slayt metnini yazdırın",
-              d: "Her bölüm için slayt metni ve konuşma notu. Artifacts ile doğrudan görselleştirme de üretebilirsiniz.",
-            },
-            {
-              t: "Zor soruları önceden görün",
-              d: "“Bu sunumdan sonra bana sorulacak en zor üç soru ne?” En çok işe yarayan adım budur.",
-            },
-            {
-              t: "Anlatımı siz yazın",
-              d: "Çıkan metni olduğu gibi okumayın. Dinleyici, sizin cümleniz olmayanı fark eder.",
-            },
-          ]}
-        />
       </div>
     </Slide>
   ),
@@ -1998,7 +2399,7 @@ etiketle (hatırlama / uygulama / analiz / değerlendirme).`}</Prompt>
       <Eyebrow>İş akışı · ölçme</Eyebrow>
       <H2>Ezberle geçilemeyen soru yazmak.</H2>
       <Sub>
-        Soru üretmek kolay; <em>ayırt edici</em> soru üretmek zor. İkincisini
+        Soru üretmek kolay; <em>ayırt edici</em>{" "}soru üretmek zor. İkincisini
         istemek için ne istediğinizi açıkça söylemeniz gerekiyor.
       </Sub>
       <div className="mt-7 grid md:grid-cols-2 gap-4">
@@ -2039,7 +2440,9 @@ etiketle (hatırlama / uygulama / analiz / değerlendirme).`}</Prompt>
         Claude for Excel, Excel'in içinde kenar çubuğu olarak çalışıyor:
         çalışma kitabını okuyor, hücre düzeyinde atıf vererek cevap veriyor,
         formül ilişkilerini bozmadan değer güncelliyor. Anket verisi, sınav
-        sonucu ya da ölçüm tablosuyla çalışan herkesi doğrudan ilgilendiriyor.
+        sonucu ya da ölçüm tablosuyla çalışan herkesi doğrudan ilgilendiriyor.{" "}
+        <strong className="text-white">Pro ve üstü planlarda</strong>, Excel
+        eklentisi olarak kuruluyor — ayrı bir program indirmiyorsunuz.
       </Sub>
       <div className="mt-6 grid md:grid-cols-2 gap-4">
         <Fade delay={0.08}>
@@ -2066,7 +2469,7 @@ etiketle (hatırlama / uygulama / analiz / değerlendirme).`}</Prompt>
       </div>
       <div className="ai-warn mt-5 px-5 py-3">
         <p className="text-sm text-white/70 leading-relaxed">
-          <strong className="text-white">Güvenlik notu:</strong> Yalnızca
+          <strong className="text-white">Güvenlik notu:</strong>{" "}Yalnızca
           güvendiğiniz dosyalarla kullanın. Dışarıdan gelen bir tabloya
           gizlenmiş yönerge, aracı istemediğiniz bir işe yönlendirebilir.
         </p>
@@ -2112,138 +2515,11 @@ etiketle (hatırlama / uygulama / analiz / değerlendirme).`}</Prompt>
           “önerilir” diyor. Yine de kapsam genişlediyse beyan edin.
         </p>
       </Fade>
-    </Slide>
-  ),
-
-  /* Yazma ve dil araçları */
-  () => (
-    <Slide>
-      <Eyebrow>Kategori · yazma ve dil</Eyebrow>
-      <H2>İngilizce yazarken.</H2>
-      <Sub>
-        Ana dili Türkçe olan bir araştırmacı için en yüksek pratik değer bu
-        kategoride. Ama aralarında akademik dürüstlük açısından ciddi fark var.
-      </Sub>
-      <div className="mt-6 grid md:grid-cols-3 gap-4">
-        <Fade delay={0.08}>
-          <Card icon={Languages} title="DeepL Write">
-            Çeviri değil, kendi yazdığınız İngilizceyi akıcılaştırma. Yeni
-            içerik üretmediği için dürüstlük riski en düşük olan. Hesapsız
-            kullanımda seferde 1.500 karakter.
-          </Card>
-        </Fade>
-        <Fade delay={0.16}>
-          <Card icon={PenLine} title="Paperpal">
-            Akademik metne özel; Word, Overleaf ve Google Docs içinde çalışıyor.
-            Ücretsizde ayda 200 dil önerisi · Prime 25 USD/ay.
-          </Card>
-        </Fade>
-        <Fade delay={0.24}>
-          <Card icon={Check} title="Grammarly">
-            Genel amaçlı dil düzeltme. Öğrenci ve eğitmene doğrulama ile
-            yüzde 50&apos;ye varan indirim veriyor · Pro 12 USD/ay.
-          </Card>
-        </Fade>
-      </div>
       <Source>
-        deepl.com · paperpal.com/pricing · grammarly.com/plans — 4 Eylül 2026.
-        DeepL&apos;in tam plan tablosu resmî sayfadan doğrulanamadı.
+        elsevier.com generative-ai-policies (Haziran 2026) ·
+        group.springernature.com AI guidance · open.ieee.org author guidelines
+        (16 Nisan 2024) · publicationethics.org (13 Şubat 2023)
       </Source>
-    </Slide>
-  ),
-
-  /* Dürüstlük riski olan araçlar */
-  () => (
-    <Slide>
-      <Eyebrow>Dikkat</Eyebrow>
-      <H2>Bir kategori var ki kullanmadan önce düşünün.</H2>
-      <Sub>
-        Metni “başka sözcüklerle yeniden yazan” araçlar (paraphrase araçları)
-        yaygın. İki ayrı sorun taşıyorlar.
-      </Sub>
-      <div className="mt-7 grid md:grid-cols-2 gap-4">
-        <Fade delay={0.08}>
-          <div className="ai-card p-5">
-            <div className="flex items-center gap-2 mb-2.5">
-              <AlertTriangle className="w-4 h-4" style={{ color: ACCENT }} />
-              <span className="text-white font-semibold">Kaynak gösterme sorunu</span>
-            </div>
-            <p className="text-sm text-white/55 leading-relaxed">
-              Başkasının cümlesini yeniden yazmak, kaynak göstermediğiniz
-              sürece intihaldir. Aracın yeniden yazması bunu değiştirmiyor;
-              birçok kurum bunu açıkça ihlal sayıyor.
-            </p>
-          </div>
-        </Fade>
-        <Fade delay={0.16}>
-          <div className="ai-card p-5">
-            <div className="flex items-center gap-2 mb-2.5">
-              <Ban className="w-4 h-4" style={{ color: ACCENT }} />
-              <span className="text-white font-semibold">
-                Tespitten kaçınma özelliği
-              </span>
-            </div>
-            <p className="text-sm text-white/55 leading-relaxed">
-              Bu araçların bir kısmı metni “insanlaştırma” adı altında yapay
-              zekâ tespitinden kaçırmayı pazarlıyor. Bir özelliğin varlık
-              sebebi denetimden kaçmaksa, kullanımı da savunulamaz.
-            </p>
-          </div>
-        </Fade>
-      </div>
-      <Fade delay={0.26}>
-        <p className="mt-7 text-white/50 leading-relaxed max-w-3xl">
-          Dil düzeltmesi ile yeniden yazım arasındaki sınır burada. Kendi
-          cümlenizi düzeltmek meşru; başkasının cümlesini tanınmaz hâle
-          getirmek değil.
-        </p>
-      </Fade>
-    </Slide>
-  ),
-
-  /* Görsel araçlar ve tuzak */
-  () => (
-    <Slide>
-      <Eyebrow>Kategori · görsel</Eyebrow>
-      <H2>Şekil çizmek — ve bir tuzak.</H2>
-      <div className="mt-7 grid md:grid-cols-2 gap-4">
-        <Fade delay={0.08}>
-          <div className="ai-card p-5">
-            <h3 className="text-white font-semibold mb-2">
-              BioRender — yaşam bilimleri
-            </h3>
-            <p className="text-sm text-white/55 leading-relaxed mb-3">
-              Yayın kalitesinde bilimsel şema çizimi. Akademik bireysel plan
-              yıllık ödemede aylık 35 dolar.
-            </p>
-            <div
-              className="text-sm leading-relaxed px-3 py-2 rounded"
-              style={{
-                background: "color-mix(in srgb, var(--deck-accent) 10%, transparent)",
-                color: "rgba(255,255,255,0.75)",
-              }}
-            >
-              <strong className="text-white">Tuzak:</strong> Ücretsiz katmanda
-              ürettiğiniz şeklin <strong className="text-white">yayın hakkı
-              yok</strong>. Makalenize koyamazsınız.
-            </div>
-          </div>
-        </Fade>
-        <Fade delay={0.16}>
-          <div className="ai-card p-5">
-            <h3 className="text-white font-semibold mb-2">Napkin — diyagram</h3>
-            <p className="text-sm text-white/55 leading-relaxed mb-3">
-              Yazdığınız metinden otomatik diyagram üretiyor. Haftada 500
-              kredi ücretsiz, sınırsız PNG ve PDF dışa aktarma.
-            </p>
-            <p className="text-sm text-white/45 leading-relaxed">
-              Ücretsiz katmanda görsele Napkin logosu işleniyor — sunumda
-              sorun değil, yayında olabilir.
-            </p>
-          </div>
-        </Fade>
-      </div>
-      <Source>biorender.com/pricing · napkin.ai/pricing — 4 Eylül 2026</Source>
     </Slide>
   ),
 
@@ -2252,12 +2528,13 @@ etiketle (hatırlama / uygulama / analiz / değerlendirme).`}</Prompt>
     <Divider
       num="4"
       title="Alanınıza göre"
-      subtitle="Aynı araç, farklı alanlarda farklı riskler taşıyor. Beş alan için pratik notlar."
+      subtitle="Aynı araç, farklı alanlarda farklı riskler taşıyor. Altı alan için pratik notlar."
       icerik={[
         "Sosyal bilimler",
         "Mühendislik",
         "Sağlık",
         "Beşeri bilimler",
+        "Uygulamalı alanlar",
         "İdari görevler",
       ]}
     />
@@ -2294,7 +2571,7 @@ etiketle (hatırlama / uygulama / analiz / değerlendirme).`}</Prompt>
             <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
               <li>
                 · <strong className="text-white">Nitel kodlamada ikinci
-                kodlayıcı sayılamaz.</strong> Kodlayıcılar arası güvenirlik
+                kodlayıcı sayılamaz.</strong>{" "}Kodlayıcılar arası güvenirlik
                 hesabına katmak yöntemsel olarak savunulamaz.
               </li>
               <li>· Katılımcı alıntıları yüklenmeden önce anonimleştirilmeli</li>
@@ -2349,7 +2626,7 @@ ifadelere dayan. Bulamadığın temayı uydurma.`}</Prompt>
             <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
               <li>
                 · <strong className="text-white">Türetilmiş formülleri
-                doğrulayın.</strong> İkna edici görünen yanlış türetme
+                doğrulayın.</strong>{" "}İkna edici görünen yanlış türetme
                 üretebiliyor.
               </li>
               <li>· Birim dönüşümlerinde sessiz hata yapabiliyor</li>
@@ -2408,7 +2685,7 @@ nerede olduğunu söyle. Düzeltilmiş kodu en son ver —
             <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
               <li>
                 · <strong className="text-white">Hasta verisi hiçbir koşulda
-                genel amaçlı araca girmez.</strong> Anonimleştirilmiş olsa bile
+                genel amaçlı araca girmez.</strong>{" "}Anonimleştirilmiş olsa bile
                 kurum politikanızı kontrol edin.
               </li>
               <li>· Tanı ya da tedavi önerisi üretilmez</li>
@@ -2458,7 +2735,7 @@ nerede olduğunu söyle. Düzeltilmiş kodu en son ver —
             <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
               <li>
                 · <strong className="text-white">Mevzuat ve içtihat
-                uydurabiliyor.</strong> Madde numarası ve karar tarihi
+                uydurabiliyor.</strong>{" "}Madde numarası ve karar tarihi
                 kesinlikle kaynağından doğrulanmalı.
               </li>
               <li>· Metin yorumunda yüzeysel kalıyor; okumanızın yerini tutmaz</li>
@@ -2479,50 +2756,10 @@ karşı tarafın en iyi argümanını görmek istiyorum.`}</Prompt>
     </Slide>
   ),
 
-  /* Alan · idari ve yönetsel */
-  () => (
-    <Slide>
-      <Eyebrow>Alanınıza göre · 5</Eyebrow>
-      <H2>Bölüm başkanı, koordinatör, komisyon üyesi.</H2>
-      <Sub>
-        Akademisyenliğin görünmeyen kısmı: yazışma, rapor, akreditasyon
-        dosyası. Buradaki kazanç, araştırmadakinden daha büyük olabiliyor.
-      </Sub>
-      <div className="mt-6 grid md:grid-cols-3 gap-4">
-        <Fade delay={0.08}>
-          <Card icon={ClipboardList} title="Akreditasyon dosyası">
-            Öğrenme çıktılarını program çıktılarıyla eşleme tablosu, kanıt
-            listesi taslağı. Biçimsel ama çok zaman alan iş.
-          </Card>
-        </Fade>
-        <Fade delay={0.16}>
-          <Card icon={PenLine} title="Kurumsal yazışma">
-            Resmî yazı taslağı, toplantı tutanağı düzenleme, duyuru metni.
-            Tonu siz ayarlarsınız, iskeleti o kurar.
-          </Card>
-        </Fade>
-        <Fade delay={0.24}>
-          <Card icon={Table2} title="Rapor ve özet">
-            Uzun komisyon raporundan yönetici özeti; sayısal ekleri tabloya
-            çevirme.
-          </Card>
-        </Fade>
-      </div>
-      <Fade delay={0.32}>
-        <div className="ai-warn mt-5 px-5 py-3.5">
-          <p className="text-sm text-white/70 leading-relaxed">
-            Personel dosyası, disiplin evrakı ve öğrenci not bilgisi bu işlerin
-            dışında tutulmalı. Anonimleştirici ile temizlemeden yüklemeyin.
-          </p>
-        </div>
-      </Fade>
-    </Slide>
-  ),
-
   /* Alan · uygulamalı ve tasarım alanları */
   () => (
     <Slide>
-      <Eyebrow>Alanınıza göre · 6</Eyebrow>
+      <Eyebrow>Alanınıza göre · 5</Eyebrow>
       <H2>Ziraat, veteriner, mimarlık, güzel sanatlar, spor.</H2>
       <Sub>
         Uygulamalı alanlarda iş, masa başında bitmiyor. Yapay zekânın katkısı
@@ -2572,6 +2809,46 @@ birlikte yaz.`}</Prompt>
     </Slide>
   ),
 
+  /* Alan · idari ve yönetsel */
+  () => (
+    <Slide>
+      <Eyebrow>Alanınıza değil, rolünüze göre</Eyebrow>
+      <H2>Bölüm başkanı, koordinatör, komisyon üyesi.</H2>
+      <Sub>
+        Akademisyenliğin görünmeyen kısmı: yazışma, rapor, akreditasyon
+        dosyası. Buradaki kazanç, araştırmadakinden daha büyük olabiliyor.
+      </Sub>
+      <div className="mt-6 grid md:grid-cols-3 gap-4">
+        <Fade delay={0.08}>
+          <Card icon={ClipboardList} title="Akreditasyon dosyası">
+            Öğrenme çıktılarını program çıktılarıyla eşleme tablosu, kanıt
+            listesi taslağı. Biçimsel ama çok zaman alan iş.
+          </Card>
+        </Fade>
+        <Fade delay={0.16}>
+          <Card icon={PenLine} title="Kurumsal yazışma">
+            Resmî yazı taslağı, toplantı tutanağı düzenleme, duyuru metni.
+            Tonu siz ayarlarsınız, iskeleti o kurar.
+          </Card>
+        </Fade>
+        <Fade delay={0.24}>
+          <Card icon={Table2} title="Rapor ve özet">
+            Uzun komisyon raporundan yönetici özeti; sayısal ekleri tabloya
+            çevirme.
+          </Card>
+        </Fade>
+      </div>
+      <Fade delay={0.32}>
+        <div className="ai-warn mt-5 px-5 py-3.5">
+          <p className="text-sm text-white/70 leading-relaxed">
+            Personel dosyası, disiplin evrakı ve öğrenci not bilgisi bu işlerin
+            dışında tutulmalı. Anonimleştirici ile temizlemeden yüklemeyin.
+          </p>
+        </div>
+      </Fade>
+    </Slide>
+  ),
+
   /* Bölüm 5 · Öğrenci */
   () => (
     <Divider
@@ -2581,7 +2858,10 @@ birlikte yaz.`}</Prompt>
       icerik={[
         "Learning Mode",
         "Dayanıklı ödev",
+        "Derste canlı kullanım",
         "Sınıf politikası",
+        "Okuryazarlık",
+        "Lisansüstü danışmanlık",
         "Tespit araçları",
       ]}
     />
@@ -2607,6 +2887,27 @@ birlikte yaz.`}</Prompt>
             yanıldığını göster” diye kurgulamak, yasaklamaktan daha çok
             öğretiyor.
           </p>
+        </div>
+      </Fade>
+      <Fade delay={0.32}>
+        <div className="mt-5 grid md:grid-cols-2 gap-4">
+          <div className="ai-card p-5">
+            <div className="text-white font-semibold mb-2">Nasıl açılıyor</div>
+            <p className="text-sm text-white/55 leading-relaxed">
+              Sohbet kutusundaki stil/mod seçicisinden. Ücretsiz planda da var
+              — öğrencinizin abonelik almasına gerek yok. Her sohbet için ayrı
+              seçiliyor, kalıcı bir ayar değil.
+            </p>
+          </div>
+          <div className="ai-card p-5">
+            <div className="text-white font-semibold mb-2">
+              Öğrenciye söyleyeceğiniz cümle
+            </div>
+            <p className="text-sm text-white/55 leading-relaxed">
+              “Bu dersin ödevlerinde soruyu sormadan önce Learning Mode&apos;u
+              aç. Cevabı sana vermeyecek; nereden takıldığını sen göreceksin.”
+            </p>
+          </div>
         </div>
       </Fade>
       <Source>claude.com/solutions/education — erişim 4 Eylül 2026</Source>
@@ -2648,6 +2949,55 @@ birlikte yaz.`}</Prompt>
           ]}
         />
       </div>
+    </Slide>
+  ),
+
+  /* Derste canlı kullanım */
+  () => (
+    <Slide>
+      <Eyebrow>Sınıfın içinde</Eyebrow>
+      <H2>Yasaklamak yerine birlikte kullanmak.</H2>
+      <Sub>
+        Bu bölümün geri kalanı ödevi ve denetimi konuşuyor. Ama en çok
+        öğreten kullanım dersin içinde, projeksiyonda oluyor — öğrenci aracın
+        nerede yanıldığını sizin yanınızda görüyor.
+      </Sub>
+      <div className="mt-6 grid md:grid-cols-2 gap-4">
+        <Fade delay={0.08}>
+          <Card icon={FileSearch} title="Canlı kaynak denetimi">
+            Konuyla ilgili beş kaynak isteyin, çıkan DOI&apos;leri sınıfta
+            doi.org&apos;da tek tek açın. Bir tanesi açılmadığında ders
+            anlatmanıza gerek kalmıyor.
+          </Card>
+        </Fade>
+        <Fade delay={0.14}>
+          <Card icon={PenLine} title="İstemi öğrenci yazsın">
+            Aynı soruyu iki öğrenci iki farklı istemle yazsın, ikisini de siz
+            çalıştırın. Sonucun istemle ne kadar değiştiğini anlatarak değil
+            göstererek öğretiyorsunuz.
+          </Card>
+        </Fade>
+        <Fade delay={0.2}>
+          <Card icon={Scale} title="İki cevabı karşılaştırın">
+            Aynı soruyu iki farklı araca sorun, cevapları yan yana koyun.
+            “Hangisi doğru, nereden bileceğiz?” sorusu tek başına bir ders
+            saati doldurur.
+          </Card>
+        </Fade>
+        <Fade delay={0.26}>
+          <Card icon={ClipboardList} title="Kendi ödevinizi çözdürün">
+            Vereceğiniz ödevi derste araca çözdürün. Yapabildiği kısım ödevin
+            ölçmediği kısımdır; kalan kısım ödevin gerçek katkısı. Sınav
+            haftasından önce öğrenmek daha iyi.
+          </Card>
+        </Fade>
+      </div>
+      <Fade delay={0.34}>
+        <p className="mt-5 text-sm text-white/45 leading-relaxed max-w-3xl">
+          Bunların hiçbiri hazırlık istemiyor ve hiçbiri öğrencinin hesabına
+          ihtiyaç duymuyor — sizin ekranınızda çalışıyor.
+        </p>
+      </Fade>
     </Slide>
   ),
 
@@ -2774,7 +3124,7 @@ birlikte yaz.`}</Prompt>
       <Fade delay={0.26}>
         <div className="ai-warn mt-5 px-5 py-4">
           <p className="text-sm text-white/70 leading-relaxed">
-            <strong className="text-white">Pratik öneri:</strong> ilk
+            <strong className="text-white">Pratik öneri:</strong>{" "}ilk
             görüşmede öğrencinizden tez boyunca tuttuğu bir kullanım kaydı
             isteyin — hangi aşamada hangi aracı ne için kullandı. Tez sonunda
             beyan yazmak beş dakikaya iniyor, ayrıca jüriye karşı en güçlü
@@ -2792,7 +3142,7 @@ birlikte yaz.`}</Prompt>
       <H2>Yapay zekâ tespit araçları sizi de vurabilir.</H2>
       <Sub>
         Stanford&apos;dan Liang ve arkadaşlarının 2023&apos;te{" "}
-        <em>Patterns</em> dergisinde yayımladığı çalışma, yedi ticari tespit
+        <em>Patterns</em>{" "}dergisinde yayımladığı çalışma, yedi ticari tespit
         aracını insan eliyle yazılmış metinlerle sınadı. Sonuç, ana dili
         İngilizce olmayan herkesi doğrudan ilgilendiriyor.
       </Sub>
@@ -2848,7 +3198,7 @@ birlikte yaz.`}</Prompt>
               bıraktı. Gerekçelerinden biri, kendi rakamlarıyla: yılda 75.000
               ödev teslim ediliyor; üreticinin beyan ettiği yüzde 1 yanlış
               pozitif oranı bile <strong className="text-white">yaklaşık 750
-              ödevin haksız yere işaretlenmesi</strong> demek.
+              ödevin haksız yere işaretlenmesi</strong>{" "}demek.
             </p>
             <p className="text-sm text-white/45 leading-relaxed italic">
               “Yapay zekâ tespit yazılımının kullanılması gereken etkili bir
@@ -2883,47 +3233,53 @@ birlikte yaz.`}</Prompt>
   () => (
     <Slide>
       <Eyebrow>Peki ne yapmalı</Eyebrow>
-      <H2>Skor yerine süreç.</H2>
+      <H2>Skor bir iddiadır, süreç kanıttır.</H2>
       <Sub>
-        Tespit aracının verdiği yüzde bir olasılık tahminidir, kanıt değil —
-        sorduğunuzda araç size neden öyle düşündüğünü gösteremiyor. Disiplin
-        sürecine tek başına dayanak yapılamaz. Daha sağlam dört yol var.
+        Tespit aracının verdiği yüzde bir olasılık tahminidir; sorduğunuzda
+        araç size neden öyle düşündüğünü gösteremiyor. Elinizde bir skor varsa
+        izleyeceğiniz sıra şu.
       </Sub>
-      <div className="mt-7 grid md:grid-cols-2 gap-4">
-        <Fade delay={0.08}>
-          <Card icon={ClipboardList} title="Süreci isteyin">
-            Taslak, düzeltme geçmişi, kaynak notları. Yalnızca son metni
-            isterseniz süreç görünmez olur.
-          </Card>
-        </Fade>
-        <Fade delay={0.16}>
-          <Card icon={MessageSquare} title="Sözlü savunma alın">
-            Beş dakikalık savunma, hiçbir aracın veremeyeceği netlikte bilgi
-            verir. Kendi yazdığını savunamayan öğrenci belli olur.
-          </Card>
-        </Fade>
-        <Fade delay={0.24}>
-          <Card icon={PenLine} title="Derste yazdırın">
-            Kısa bir sınıf içi yazma etkinliği, öğrencinin gerçek yazım
-            düzeyini gösterir. Sonraki ödevler buna göre okunur.
-          </Card>
-        </Fade>
-        <Fade delay={0.32}>
-          <Card icon={Users} title="Konuşarak başlayın">
-            Suçlamadan önce sorun. Çoğu durumda öğrenci kullandığını zaten
-            söylüyor; mesele kuralı baştan koymamış olmamız.
-          </Card>
-        </Fade>
+      <div className="mt-6">
+        <Steps
+          items={[
+            {
+              t: "Hangi skoru okuduğunuzu ayırt edin",
+              d: "Benzerlik oranı ile yapay zekâ tespit skoru aynı şey değil. Benzerlik oranı metnin başka kaynaklarla örtüşmesini ölçer ve doğrulanabilir — örtüşen kaynağı gösterir. Yapay zekâ skoru hiçbir kaynak gösteremez; yalnızca bir tahmindir.",
+            },
+            {
+              t: "Skoru tek başına dosyaya koymayın",
+              d: "Ankara Üniversitesi yönergesi tespit aracı raporunu tek başına kanıt saymıyor. Lisansüstü yönetmeliği de kararı yazılıma değil jüriye bırakıyor: rapordaki verileri jüri üyeleri değerlendiriyor.",
+            },
+            {
+              t: "Suçlamadan önce sorun",
+              d: "“Bu bölümü nasıl yazdın, hangi kaynaklara baktın, şu cümleyi neden böyle kurdun?” Çoğu öğrenci kullandığını zaten söylüyor; mesele kuralı baştan koymamış olmak.",
+            },
+            {
+              t: "Kanıtı dosyanın kendisinden alın",
+              d: "Google Docs sürüm geçmişi, Word değişiklik kaydı, taslak dosyalarının tarihleri. Metnin nasıl büyüdüğünü gösteren kayıt, hiçbir skorun veremeyeceği bilgidir.",
+            },
+            {
+              t: "Görüşmeyi yazıya geçirin",
+              d: "Tarih, katılanlar, öğrencinin açıklaması ve vardığınız sonuç. Süreç disipline giderse dayanağınız bu tutanak olur, ekran görüntüsü değil.",
+            },
+          ]}
+        />
       </div>
       <Fade delay={0.4}>
         <div className="ai-warn mt-6 px-5 py-3.5">
           <p className="text-sm text-white/70 leading-relaxed">
             Bir öğrenciyi tespit aracının skoruna dayanarak suçlamak, ana dili
             Türkçe olan bir öğrencinin İngilizce metnini cezalandırmakla
-            sonuçlanabilir. Yukarıdaki araştırma tam olarak bunu gösteriyor.
+            sonuçlanabilir. Liang ve arkadaşlarının 2023 tarihli çalışması tam
+            olarak bunu gösteriyor.
           </p>
         </div>
       </Fade>
+      <Source>
+        Lisansüstü Eğitim ve Öğretim Yönetmeliği — tez savunması maddeleri
+        (“Enstitü … intihal yazılım programı raporunu alarak jüri üyelerine
+        gönderir”) · Ankara Üniversitesi üretken yapay zekâ yönergesi
+      </Source>
     </Slide>
   ),
 
@@ -2977,7 +3333,7 @@ birlikte yaz.`}</Prompt>
         <div className="ai-warn mt-6 px-5 py-3.5">
           <p className="text-sm text-white/70 leading-relaxed">
             Pratik kural: <strong className="text-white">doğruluğunu
-            denetleyebildiğiniz işlerde</strong> kullanın. Denetleyemeyeceğiniz
+            denetleyebildiğiniz işlerde</strong>{" "}kullanın. Denetleyemeyeceğiniz
             bir alanda ürettiği metne güvenmek, bilmediğiniz bir dilde imza
             atmaya benzer.
           </p>
@@ -3008,6 +3364,11 @@ birlikte yaz.`}</Prompt>
           </p>
         </div>
       </Fade>
+      <Source>
+        elsevier.com generative-ai-policies (Haziran 2026) ·
+        group.springernature.com AI guidance · open.ieee.org author guidelines
+        (16 Nisan 2024) · publicationethics.org (13 Şubat 2023)
+      </Source>
     </Slide>
   ),
 
@@ -3081,6 +3442,19 @@ this tool/service, the author(s) reviewed and
 edited the content as needed and take(s) full
 responsibility for the content of the publication.`}</Prompt>
       </div>
+      <Fade delay={0.18}>
+        <div className="mt-5">
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40 mb-2.5">
+            Türkçe karşılığı — tez ve DergiPark dergileri için
+          </div>
+          <Prompt>{`Bu çalışmanın hazırlanma sürecinde [ARAÇ ADI,
+SÜRÜM] [HANGİ AŞAMA — ör. dil ve anlatım
+düzeltmesi] amacıyla kullanılmıştır. Aracın
+çıktıları yazar(lar) tarafından gözden geçirilmiş
+ve düzenlenmiştir; içeriğin bilimsel ve etik
+sorumluluğunun tamamı yazar(lar)a aittir.`}</Prompt>
+        </div>
+      </Fade>
       <Fade delay={0.25}>
         <div className="mt-5 grid md:grid-cols-2 gap-4">
           <div className="ai-card p-5">
@@ -3099,7 +3473,9 @@ responsibility for the content of the publication.`}</Prompt>
         </div>
       </Fade>
       <Source>
-        elsevier.com — generative AI policies for journals, Haziran 2026
+        elsevier.com — generative AI policies for journals (Haziran 2026).
+        Türkçe kalıp, YÖK rehberinin istediği üçlüye göre yazıldı: araç adı,
+        sürüm ve kullanıldığı aşama.
       </Source>
     </Slide>
   ),
@@ -3215,10 +3591,70 @@ responsibility for the content of the publication.`}</Prompt>
       </div>
       <div className="ai-warn mt-5 px-5 py-3">
         <p className="text-sm text-white/70 leading-relaxed">
-          Bu denetimi elle yapmak yorucu. Sunumun sonunda, kaynakçanızdaki her
-          DOI'yi otomatik sorgulayan ücretsiz bir araç var.
+          Bu denetimi elle yapmak yorucu. osmancancetlenbik.com/araclar
+          adresinde, kaynakçanızdaki her DOI&apos;yi tek tek sorgulayıp gerçekten
+          var olup olmadığını gösteren ücretsiz bir araç var.
         </p>
       </div>
+    </Slide>
+  ),
+
+  /* 38b · Uydurma künye — sökülmüş hâli */
+  () => (
+    <Slide>
+      <Eyebrow>Neye benzediğini görün</Eyebrow>
+      <H2>Uydurma bir künye böyle görünüyor.</H2>
+      <Sub>
+        Aşağıdaki künye bu slayt için uyduruldu; kimseye ait değil. İşi zor
+        yapan şey şu: parçaların çoğu gerçek. Yalnızca ikisi uydurma ve tam da
+        onlar göze çarpmıyor.
+      </Sub>
+      <Fade delay={0.15}>
+        <div className="ai-card mt-6 px-6 py-5 font-mono text-[15px] leading-[1.9]">
+          <span className="text-white/75">Yılmaz, A., &amp; Demir, K. (2021).</span>{" "}
+          <span style={{ color: ACCENT }}>
+            Artificial intelligence literacy in higher education: A systematic
+            review.
+          </span>{" "}
+          <span className="text-white/75">Computers &amp; Education, 168</span>,{" "}
+          <span style={{ color: ACCENT }}>104&ndash;119</span>.{" "}
+          <span style={{ color: ACCENT }}>
+            https://doi.org/10.1016/j.compedu.2021.104187
+          </span>
+        </div>
+      </Fade>
+      <Fade delay={0.28}>
+        <div className="mt-5 grid md:grid-cols-2 gap-x-8 gap-y-2.5">
+          {[
+            [true, "Computers & Education", "Gerçek dergi, gerçek cilt numarası. Modelin en sağlam bildiği parça bu — ve künyeye güvenilirliğini veren de bu."],
+            [true, "Yılmaz, A., & Demir, K.", "Gerçek olabilecek adlar. Var olan bir araştırmacının adı, hiç yazmadığı bir makaleye iliştirilebiliyor."],
+            [false, "Makale başlığı", "Böyle bir makale yok. Aradığınız şeyi fazlasıyla tam söylemesi ilk şüphe sebebi."],
+            [false, "DOI ve sayfa aralığı", "doi.org adresinde açılmıyor. Biçim kusursuz, karşılığı yok. Belirleyici tek denetim bu."],
+          ].map(([gercek, baslik, aciklama]) => (
+            <div key={String(baslik)} className="flex gap-3">
+              <span className="shrink-0 pt-0.5">
+                {gercek ? (
+                  <Check className="w-4 h-4 text-white/30" aria-label="gerçek" />
+                ) : (
+                  <X className="w-4 h-4" style={{ color: ACCENT }} aria-label="uydurma" />
+                )}
+              </span>
+              <span>
+                <span className="text-white/85 text-sm font-semibold">{baslik}</span>
+                <span className="block text-sm text-white/50 leading-relaxed mt-0.5">
+                  {aciklama}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </Fade>
+      <Fade delay={0.42}>
+        <p className="mt-6 text-sm text-white/45 leading-relaxed max-w-3xl">
+          Gözle ayıklamaya çalışmayın — dört parçadan üçü tutuyorken insan
+          gözü dördüncüyü atlıyor. Tek güvenilir yol DOI&apos;yi açmak.
+        </p>
+      </Fade>
     </Slide>
   ),
 
@@ -3254,7 +3690,7 @@ responsibility for the content of the publication.`}</Prompt>
       </div>
       <div className="ai-warn mt-5 px-5 py-3">
         <p className="text-sm text-white/70 leading-relaxed">
-          <strong className="text-white">Kapsam dışı planlar:</strong> Team,
+          <strong className="text-white">Kapsam dışı planlar:</strong>{" "}Team,
           Enterprise, Government, Education ve API. Bunlar ticari şartlara tabi
           ve bu değişikliğin dışında — etik kurul başvurusunda bu ayrım
           belirleyici olabiliyor.
@@ -3297,8 +3733,9 @@ responsibility for the content of the publication.`}</Prompt>
         <div className="ai-warn mt-7 px-5 py-3.5">
           <p className="text-sm text-white/70 leading-relaxed">
             Kişisel veri içeren bir belgeyle çalışmanız gerekiyorsa, önce
-            adları ve numaraları temizleyin. Sunumun sonunda bunu tarayıcıda
-            yapan ücretsiz bir araç var — dosya bilgisayarınızdan çıkmıyor.
+            adları ve numaraları temizleyin. osmancancetlenbik.com/araclar
+            adresinde bunu tarayıcıda yapan ücretsiz bir araç var — metin
+            bilgisayarınızdan çıkmıyor.
           </p>
         </div>
       </Fade>
@@ -3313,29 +3750,36 @@ responsibility for the content of the publication.`}</Prompt>
       <div className="mt-7 grid md:grid-cols-2 gap-4">
         <Fade delay={0.06}>
           <Card icon={ShieldCheck} title="Sorumluluk">
-            Metinde ne varsa sizindir. “Yapay zekâ yazdı” bir savunma değil;
-            dört yayıncı da bunu açıkça söylüyor.
+            Elsevier&apos;in beyan kalıbı size “içeriğin tüm sorumluluğunu
+            üstlenirim” cümlesini imzalatıyor. “Yapay zekâ yazdı” savunması
+            o imzadan sonra hükümsüz.
           </Card>
         </Fade>
         <Fade delay={0.12}>
           <Card icon={FileSearch} title="Doğrulama">
-            Verilen her kaynağı açıp bakın. Var olmayan atıf üretebilir ve bu
-            en çok akademisyeni yakan hatadır.
+            Ölçüt tek ve nesnel: DOI açılıyor mu. Açılmıyorsa künye uydurmadır
+            — ne kadar inandırıcı göründüğünün önemi yok.
           </Card>
         </Fade>
         <Fade delay={0.18}>
           <Card icon={FlaskConical} title="Yorum">
-            Bulguyu alana bağlamak, sınırlılığı görmek, “bu sonuç neden önemli”
-            demek sizin işiniz.
+            Yayıncıların yazarlığı insana bağlama gerekçesi tam olarak bu:
+            bulguyu savunmak, sınırlılığını söylemek ve eleştiriye cevap
+            vermek bir araçtan istenemiyor.
           </Card>
         </Fade>
         <Fade delay={0.24}>
           <Card icon={Users} title="Etik karar">
-            Katılımcı verisi, gizli hakem dosyası, yayımlanmamış tez — neyin
-            araca girmeyeceğine siz karar verirsiniz.
+            KVKK, kişisel veriyi yurt dışına aktarmayı 9. madde koşullarına
+            bağlıyor ve açık rıza tek başına yetmiyor. Neyin araca
+            girmeyeceğine karar vermek devredilebilir bir iş değil.
           </Card>
         </Fade>
       </div>
+      <Source>
+        elsevier.com generative-ai-policies (Haziran 2026) · 6698 sayılı KVKK
+        md. 9
+      </Source>
     </Slide>
   ),
 
@@ -3350,6 +3794,7 @@ responsibility for the content of the publication.`}</Prompt>
         "TÜBİTAK kuralları",
         "KVKK ve veri",
         "Üniversite yönergeleri",
+        "Yönerge yoksa ne yapmalı",
       ]}
     />
   ),
@@ -3441,7 +3886,7 @@ responsibility for the content of the publication.`}</Prompt>
         <p className="text-sm text-white/70 leading-relaxed">
           Rehberin kendi cümlesi:{" "}
           <em>“Bu hususların göz ardı edilmesi, şartları çerçevesinde disiplin
-          sorumluluğuna yol açacaktır.”</em> Yani bağlayıcı bir yönetmelik
+          sorumluluğuna yol açacaktır.”</em>{" "}Yani bağlayıcı bir yönetmelik
           olmasa da sonucu var.
         </p>
       </div>
@@ -3478,7 +3923,7 @@ responsibility for the content of the publication.`}</Prompt>
               Başvuru sahibi olarak
             </div>
             <ul className="space-y-2 text-sm text-white/60 leading-relaxed">
-              <li>· <strong className="text-white">Beyan zorunlu</strong> — başvuru sisteminde ayrı bölümde</li>
+              <li>· <strong className="text-white">Beyan zorunlu</strong>{" "}— başvuru sisteminde ayrı bölümde</li>
               <li>· Aracın adı, versiyonu, hangi aşamada ve nasıl kullanıldığı</li>
               <li>· Ara, gelişme ve sonuç raporlarını da kapsıyor</li>
               <li>· Sahte referans üretmek “uydurma” etik ihlali sayılıyor</li>
@@ -3532,7 +3977,7 @@ responsibility for the content of the publication.`}</Prompt>
             Bunun akademisyen için tek cümlelik karşılığı şu: yeterlilik kararı
             olmayan bir ülkeye ya da uygun güvenceler sağlanmadan yapılacak
             aktarım,{" "}
-            <strong className="text-white">açık rıza olsa bile</strong> hukuka
+            <strong className="text-white">açık rıza olsa bile</strong>{" "}hukuka
             aykırı olabiliyor.
           </p>
         </div>
@@ -3623,60 +4068,6 @@ responsibility for the content of the publication.`}</Prompt>
     </Slide>
   ),
 
-  /* Türkçe performansı */
-  () => (
-    <Slide>
-      <Eyebrow>Türkçe</Eyebrow>
-      <H2>Türkçede ne kadar iyi?</H2>
-      <Sub>
-        Dürüst cevap: kesin bilmiyoruz. Ne Anthropic&apos;in ne de
-        OpenAI&apos;ın resmî çok dillilik karşılaştırma tablosunda Türkçe yer
-        alıyor — o tablolarda on dört dil var ve Türkçe onlardan biri değil.
-      </Sub>
-      <div className="mt-7 grid md:grid-cols-2 gap-4">
-        <Fade delay={0.08}>
-          <div className="ai-card p-5">
-            <div
-              className="font-mono text-[11px] uppercase tracking-[0.18em] mb-2.5"
-              style={{ color: ACCENT }}
-            >
-              Elimizdeki tek ölçüm
-            </div>
-            <p className="text-sm text-white/60 leading-relaxed">
-              TR-MMLU: 6.200 çoktan seçmeli soru, 62 bölüm, 39 model. 2025
-              tarihli bağımsız bir çalışma. Ölçtüğü model sürümleri bugünkü
-              nesilden eski — sonuçları güncel sıralama olarak okumayın.
-            </p>
-          </div>
-        </Fade>
-        <Fade delay={0.16}>
-          <div className="ai-card p-5">
-            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40 mb-2.5">
-              Türkçeye özgü zorluk
-            </div>
-            <p className="text-sm text-white/60 leading-relaxed">
-              Çalışmanın tespiti: eklemeli yapı ve karmaşık morfoloji yüzünden
-              Türkçe metin daha fazla parçaya bölünüyor. Bu hem maliyeti hem
-              hata payını artırıyor.
-            </p>
-          </div>
-        </Fade>
-      </div>
-      <Fade delay={0.26}>
-        <p className="mt-6 text-white/50 leading-relaxed max-w-3xl">
-          Pratik sonuç: Türkçe çıktıyı her zaman okuyun. Genel yazışmada
-          iyi çalışıyor; alan terminolojisinde, eski dilli metinlerde ve
-          hukuk dilinde belirgin biçimde zayıflıyor. Çeviri kokan cümleleri
-          kendiniz düzeltmeden bırakmayın.
-        </p>
-      </Fade>
-      <Source>
-        Bayram M. A. ve diğerleri (2025). TR-MMLU. arXiv:2508.13044 · SIU 2025 ·
-        claude.com ve openai.com çok dillilik dokümantasyonu — erişim 4 Eylül 2026
-      </Source>
-    </Slide>
-  ),
-
   /* Kurumunuzda yönerge yoksa */
   () => (
     <Slide>
@@ -3730,10 +4121,11 @@ responsibility for the content of the publication.`}</Prompt>
       title="Araçlar ve uygulama"
       subtitle="Anlattığım riskleri çözen ücretsiz araçlar ve bu hafta atabileceğiniz adımlar."
       icerik={[
-        "On iki araç",
+        "On iki web aracı",
         "Slaytta çalışıyor",
         "Masaüstüne kurulum",
         "Otuz günlük plan",
+        "Ekip ve kurum",
       ]}
     />
   ),
@@ -3921,8 +4313,9 @@ responsibility for the content of the publication.`}</Prompt>
       </div>
       <Fade delay={0.45}>
         <p className="mt-5 text-sm text-white/45">
-          Dokuzu da tamamen tarayıcınızda çalışıyor; yalnızca DOI sorgulayan
-          ikisi dışarıya istek gönderiyor — o da yalnızca DOI numarasını.
+          Onu tamamen tarayıcınızda çalışıyor; Atıf Denetleyici, Kaynakça
+          Biçimlendirici ve BibTeX Üretici yalnızca DOI numarasını dışarıya
+          sorguluyor — metniniz gitmiyor.
         </p>
       </Fade>
       <Fade delay={0.5}>
@@ -4052,9 +4445,11 @@ responsibility for the content of the publication.`}</Prompt>
           </Card>
         </Fade>
         <Fade delay={0.24}>
-          <Card icon={Users} title="Öğrencilere sınır çizin">
-            Lisansüstü öğrencinize neyi devredebileceğini söyleyin. Tez
-            yazımında sınır belirsizse sorumluluk danışmana kalır.
+          <Card icon={FileSearch} title="Kim neyi doğruladı, yazılsın">
+            Ortak yazarlı makalede kaynakçayı kimin açıp kontrol ettiği,
+            sayıları kimin yeniden hesapladığı kayıtlı olsun. Uydurma bir atıf
+            çıktığında “ben o bölümü yazmadım” cevabı hiçbir yayıncıda
+            geçerli değil.
           </Card>
         </Fade>
       </div>
@@ -4142,6 +4537,20 @@ responsibility for the content of the publication.`}</Prompt>
     </Slide>
   ),
 
+  /* Kapanış bloğu */
+  () => (
+    <Divider
+      title="Kapanış"
+      subtitle="Anlatılanların tek slaytlık özeti, sık sorulanlar ve kaynakça."
+      icerik={[
+        "Tek slaytta özet",
+        "Sık sorulan altı soru",
+        "Kaynakça",
+        "Birlikte çalışmak",
+      ]}
+    />
+  ),
+
   /* 52 · Tek slaytta özet */
   () => (
     <Slide>
@@ -4169,6 +4578,49 @@ responsibility for the content of the publication.`}</Prompt>
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="text-white/65 leading-relaxed">{t}</span>
+            </div>
+          </Fade>
+        ))}
+      </div>
+    </Slide>
+  ),
+
+  /* Sık sorulanlar */
+  () => (
+    <Slide>
+      <Eyebrow>Sık sorulanlar</Eyebrow>
+      <H2>En çok sorulan altı soru.</H2>
+      <div className="mt-6 grid md:grid-cols-2 gap-x-8 gap-y-5">
+        {[
+          [
+            "“Öğrencilerim tembelleşmez mi?”",
+            "Hesap makinesi de aynı endişeyle karşılandı. Sorun araçta değil, ölçmede: ezberi ölçen ödev tembelleştirir, düşünmeyi ölçen ödev güçlendirir.",
+          ],
+          [
+            "“Ben yazmayı seviyorum, neden kullanayım?”",
+            "Kullanmayın. Ama biçim uyarlama, kaynakça çevirme ve deşifre gibi işleri de sevdiğinizden emin olun — kazanç orada.",
+          ],
+          [
+            "“Verdiğim veri başkasına gider mi?”",
+            "Ücretsiz ve Pro planlarda ayarınıza bağlı. Kapatırsanız eğitimde kullanılmıyor ve 30 günde siliniyor. Kurumsal planlar zaten kapsam dışı.",
+          ],
+          [
+            "“Yazdığımı yapay zekâ mı sanacaklar?”",
+            "Tespit araçları ana dili İngilizce olmayanları yanlışlıkla işaretliyor. Korunma yolu: taslaklarınızı ve düzeltme geçmişinizi saklayın.",
+          ],
+          [
+            "“Bu bir moda değil mi?”",
+            "Olabilir. Ama dört büyük yayın kuruluşu buna göre kural yazdı ve üniversiteler yönerge çıkarıyor. Moda olsa bile kuralları bilmek gerekiyor.",
+          ],
+          [
+            "“Türkçede iyi mi?”",
+            "Genel yazışmada iyi; alan terminolojisinde ve eski dilli metinlerde zayıf. Türkçe çıktıyı mutlaka okuyun, İngilizceden çeviri kokusu kalabiliyor.",
+          ],
+        ].map(([q, a], i) => (
+          <Fade key={q} delay={0.05 * i}>
+            <div>
+              <div className="text-white font-medium mb-1.5">{q}</div>
+              <div className="text-sm text-white/50 leading-relaxed">{a}</div>
             </div>
           </Fade>
         ))}
@@ -4211,49 +4663,6 @@ responsibility for the content of the publication.`}</Prompt>
             <div className="flex items-baseline gap-2.5">
               <span style={{ color: ACCENT }}>·</span>
               <span>{u}</span>
-            </div>
-          </Fade>
-        ))}
-      </div>
-    </Slide>
-  ),
-
-  /* Sık sorulanlar */
-  () => (
-    <Slide>
-      <Eyebrow>Sık sorulanlar</Eyebrow>
-      <H2>Salonda en çok gelen altı soru.</H2>
-      <div className="mt-6 grid md:grid-cols-2 gap-x-8 gap-y-5">
-        {[
-          [
-            "“Öğrencilerim tembelleşmez mi?”",
-            "Hesap makinesi de aynı endişeyle karşılandı. Sorun araçta değil, ölçmede: ezberi ölçen ödev tembelleştirir, düşünmeyi ölçen ödev güçlendirir.",
-          ],
-          [
-            "“Ben yazmayı seviyorum, neden kullanayım?”",
-            "Kullanmayın. Ama biçim uyarlama, kaynakça çevirme ve deşifre gibi işleri de sevdiğinizden emin olun — kazanç orada.",
-          ],
-          [
-            "“Verdiğim veri başkasına gider mi?”",
-            "Ücretsiz ve Pro planlarda ayarınıza bağlı. Kapatırsanız eğitimde kullanılmıyor ve 30 günde siliniyor. Kurumsal planlar zaten kapsam dışı.",
-          ],
-          [
-            "“Yazdığımı yapay zekâ mı sanacaklar?”",
-            "Tespit araçları ana dili İngilizce olmayanları yanlışlıkla işaretliyor. Korunma yolu: taslaklarınızı ve düzeltme geçmişinizi saklayın.",
-          ],
-          [
-            "“Bu bir moda değil mi?”",
-            "Olabilir. Ama dört büyük yayıncı buna göre kural yazdı ve üniversiteler yönerge çıkarıyor. Moda olsa bile kuralları bilmek gerekiyor.",
-          ],
-          [
-            "“Türkçede iyi mi?”",
-            "Genel yazışmada iyi; alan terminolojisinde ve eski dilli metinlerde zayıf. Türkçe çıktıyı mutlaka okuyun, İngilizceden çeviri kokusu kalabiliyor.",
-          ],
-        ].map(([q, a], i) => (
-          <Fade key={q} delay={0.05 * i}>
-            <div>
-              <div className="text-white font-medium mb-1.5">{q}</div>
-              <div className="text-sm text-white/50 leading-relaxed">{a}</div>
             </div>
           </Fade>
         ))}
@@ -4350,18 +4759,16 @@ responsibility for the content of the publication.`}</Prompt>
             </div>
           </div>
         </Fade>
-        <Fade delay={0.4}>
-          <div className="mt-10 font-mono text-sm text-white/45 space-y-1.5">
-            <div className="text-white/60">Öğr. Gör. Osman Can Çetlenbik</div>
-            <div>Manisa Celal Bayar Üniversitesi</div>
-            <div style={{ color: ACCENT }}>osman.cetlenbik@cbu.edu.tr</div>
-          </div>
-        </Fade>
-        <Fade delay={0.5}>
-          <p className="mt-9 text-sm text-white/35 leading-relaxed">
-            Seminer, atölye ya da ortak çalışma için yazabilirsiniz.
+        <Fade delay={0.42}>
+          <p className="mt-11 text-sm text-white/35 leading-relaxed">
+            Zamanınızı geri almak için buradaki her şeyi kullanın.
             <br />
-            Faydalı bulduysanız paylaşın — meslektaşınızın da işine yarar.
+            İmzanız hâlâ sizin — orası devredilmiyor.
+          </p>
+        </Fade>
+        <Fade delay={0.52}>
+          <p className="mt-6 text-sm text-white/25 leading-relaxed">
+            Faydalı bulduysanız paylaşın; meslektaşınızın da işine yarar.
           </p>
         </Fade>
       </div>
