@@ -20,6 +20,18 @@ type Entry = {
  *   4. Admin'de konferans/dersi düzenleyip "Sunum" alanından bu slug'ı seç
  */
 export const presentations: Record<string, Entry> = {
+  "lisansustu-makale-bildiri-yapay-zeka": {
+    meta: {
+      slug: "lisansustu-makale-bildiri-yapay-zeka",
+      title: "Makale ve Bildiri Yazarken Yapay Zekâ",
+      description:
+        "Lisansüstüne yeni başlayanlar için: Consensus, Elicit, NotebookLM, Gemini, Claude, Zotero ve DeepL Write için şematik ekran görünümleri, on beş istem kalıbı, yazarın uçtan uca iş akışı, uydurma atıfı yakalamanın dört adımlı protokolü, yayıncı/YÖK/TÜBİTAK beyan kuralları ve ilk makale için sekiz haftalık plan. Her sayının kaynağı slaytta.",
+    },
+    Component: dynamic(
+      () => import("./lisansustu-makale-bildiri-yapay-zeka/Presentation"),
+      { ssr: false }
+    ),
+  },
   "akademisyenler-icin-yapay-zeka": {
     meta: {
       slug: "akademisyenler-icin-yapay-zeka",

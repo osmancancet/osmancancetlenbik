@@ -1,0 +1,90 @@
+/* Lisansüstü · Makale ve bildiri yazarken yapay zekâ — sunuma özel yüzeyler.
+   Renk tek kaynaktan: DeckShell'in verdiği --deck-accent. */
+
+.lz-grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.lz-card {
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.lz-card:hover {
+  border-color: color-mix(in srgb, var(--deck-accent) 45%, transparent);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+/* Karşılaştırma tablosu */
+.lz-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.lz-table th,
+.lz-table td {
+  text-align: start;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+}
+.lz-table thead th {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+.lz-table td:first-child {
+  color: rgba(255, 255, 255, 0.9);
+}
+.lz-table td {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Uyarı kutusu */
+.lz-warn {
+  border-inline-start: 3px solid var(--deck-accent);
+  background: color-mix(in srgb, var(--deck-accent) 8%, transparent);
+  border-radius: 0 10px 10px 0;
+}
+
+/* Trafik ışığı — "devredebilirsiniz / beyanla / asla" */
+.lz-light-green {
+  border-inline-start: 3px solid #4ade80;
+}
+.lz-light-amber {
+  border-inline-start: 3px solid #fbbf24;
+}
+.lz-light-red {
+  border-inline-start: 3px solid #f87171;
+}
+
+/* Kapak sloganı */
+.lz-slogan {
+  border-inline-start: 3px solid var(--deck-accent);
+}
+
+/* Araç arayüzü çizimleri (Mockups.tsx) */
+.lz-win {
+  background: linear-gradient(180deg, #161616, #0b0b0b);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: visible;
+  box-shadow:
+    0 30px 80px -24px rgba(0, 0, 0, 0.85),
+    0 0 60px -30px color-mix(in srgb, var(--deck-accent) 45%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.lz-win > div:first-child {
+  border-radius: 12px 12px 0 0;
+}
+.lz-mark {
+  box-shadow: 0 0 0 2px #0b0b0b;
+}
