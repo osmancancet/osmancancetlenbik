@@ -20,6 +20,17 @@ type Entry = {
  *   4. Admin'de konferans/dersi düzenleyip "Sunum" alanından bu slug'ı seç
  */
 export const presentations: Record<string, Entry> = {
+  "claude-skills-akademik": {
+    meta: {
+      slug: "claude-skills-akademik",
+      title: "Claude Skills ile Akademik İş Akışı",
+      description:
+        "18 slayt: bir kez yazılan, her seferinde aynı titizlikle çalışan makale değerlendirme asistanı nasıl kurulur. Skill nedir, üç katmanlı okuma, açıklama alanı, Claude.ai ve Claude Code'a kurulum, dokuz boyutlu değerlendirme, üç kör hakem paneli, hakem gizliliği sınırı. Skill paketi indirilebilir.",
+    },
+    Component: dynamic(() => import("./claude-skills-akademik/Presentation"), {
+      ssr: false,
+    }),
+  },
   "lisansustu-makale-bildiri-yapay-zeka": {
     meta: {
       slug: "lisansustu-makale-bildiri-yapay-zeka",

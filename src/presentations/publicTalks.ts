@@ -21,6 +21,12 @@ export const publicTalks: PublicTalk[] = [
     description:
       "54 slayt: Claude'un akademik işte nereye girdiği, neyin gerçekten ücretsiz olduğu, istem yazma teknikleri, yayıncıların yapay zekâ beyan kuralları, veri gizliliği ve akademisyenler için yazılmış ücretsiz araçlar. Her iddianın kaynağı slaytta yazılı.",
   },
+  {
+    slug: "claude-skills-akademik",
+    title: "Claude Skills ile Akademik İş Akışı",
+    description:
+      "Bir kez yazılan, her seferinde aynı titizlikle çalışan bir makale değerlendirme asistanı nasıl kurulur: skill nedir, üç katmanlı okuma, açıklama alanının önemi, Claude.ai ve Claude Code'a kurulum, dokuz boyutlu değerlendirme çerçevesi, üç kör hakem paneli ve hakem gizliliği sınırı. Anlatılan makale-degerlendirme skill'i indirilebilir.",
+  },
 ];
 
 export function getPublicTalk(slug: string): PublicTalk | undefined {
