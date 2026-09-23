@@ -52,6 +52,7 @@ const primary: Record<Locale, NavLink[]> = {
  */
 const secondary: Record<Locale, NavLink[]> = {
   tr: [
+    { href: "/yol-haritalari", label: "Yol Haritaları" },
     { href: "/yayinlar", label: "Yayınlar" },
     { href: "/konferanslarim", label: "Konferanslarım" },
     { href: "/kitaplar", label: "Kitaplarım" },

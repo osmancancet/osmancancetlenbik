@@ -55,6 +55,7 @@ const COLUMNS: Record<
       title: "Akademik",
       links: [
         { href: "/dersler", label: "Dersler" },
+        { href: "/yol-haritalari", label: "Yol Haritaları" },
         { href: "/yayinlar", label: "Yayınlar" },
         { href: "/konferanslarim", label: "Konferanslarım" },
         { href: "/kitaplar", label: "Kitaplarım" },

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { books } from "@/data/books";
 import { services } from "@/data/services";
 import { tools } from "@/data/tools";
+import { roadmaps } from "@/data/roadmaps";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,20 @@ const STATIC_PAGES: SearchResult[] = [
     title: t.title,
     description: t.summary,
     href: `/araclar/${t.slug}`,
+  })),
+  {
+    id: "p-roadmaps",
+    type: "page",
+    title: "Yol Haritaları",
+    description: "Siber güvenlik, büyük veri, yapay zekâ, web, mobil ve DevOps için adım adım öğrenme yolları",
+    href: "/yol-haritalari",
+  },
+  ...roadmaps.map<SearchResult>((r) => ({
+    id: `roadmap-${r.slug}`,
+    type: "page",
+    title: `${r.title} Yol Haritası`,
+    description: r.summary,
+    href: `/yol-haritalari/${r.slug}`,
   })),
   // Her hizmet ayrı ayrı aranabilsin — "pentest" yazan doğrudan bölüme düşsün.
   ...services.map<SearchResult>((sv) => ({

@@ -4,6 +4,7 @@ import { siteUrl } from "@/lib/site";
 import { books } from "@/data/books";
 import { publicTalks } from "@/presentations/publicTalks";
 import { tools } from "@/data/tools";
+import { roadmaps } from "@/data/roadmaps";
 import { locales, htmlLang, localizedRoutes } from "@/lib/i18n";
 
 // Build sırasında DB bağlanamazsa fail etmesin — request-time'da generate
@@ -33,6 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ["/araclar", 0.9],
     ["/hakkimda", 0.8],
     ["/dersler", 0.7],
+    ["/yol-haritalari", 0.85],
     ["/yazilarim", 0.8],
     ["/kitaplar", 0.8],
     ["/yayinlar", 0.7],
@@ -139,6 +141,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const roadmapPages: MetadataRoute.Sitemap = roadmaps.map((r) => ({
+    url: `${siteUrl}/yol-haritalari/${r.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
   const talkPages: MetadataRoute.Sitemap = publicTalks.map((t) => ({
     url: `${siteUrl}/sunumlar/${t.slug}`,
     lastModified: now,
@@ -158,6 +167,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...toolPages,
+    ...roadmapPages,
     ...talkPages,
     ...bookPages,
     ...postPages,
