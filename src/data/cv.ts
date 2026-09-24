@@ -56,6 +56,13 @@ export const cv: CVData = {
 
   experience: [
     {
+      title: "Merkez Müdür Yardımcısı",
+      org: "Manisa Celal Bayar Üniversitesi · Bilgisayar Uygulama ve Araştırma Merkezi (BAUM)",
+      start: "2026",
+      end: "Devam ediyor",
+      location: "Manisa",
+    },
+    {
       title: "Öğretim Görevlisi",
       org: "Manisa Celal Bayar Üniversitesi · Teknik Bilimler MYO",
       start: "Nis 2026",
@@ -113,6 +120,18 @@ export const cv: CVData = {
   ],
 
   publications: [
+    {
+      title:
+        "TurkPhish v2: A Template-Composed Generation Matrix for Turkish Phishing E-Mail Corpora, with a Leakage Audit and a Detection Benchmark",
+      venue: "Applied Sciences, 16(16), 8274 (SCI-E) — DOI: 10.3390/app16168274",
+      year: "2026",
+    },
+    {
+      title:
+        "Detection of False Data Injection Attacks (FDIA) Targeting Distribution Transformers in Smart Grids Using Hybrid Artificial Intelligence Methods",
+      venue: "Journal of Information Assurance and Security, 21(4), 217–229 (ESCI) — DOI: 10.2478/ias-2026-0011",
+      year: "2026",
+    },
     {
       title:
         "Using Explainable Artificial Intelligence in Buy and Sell Signals in the Cryptocurrency Market",

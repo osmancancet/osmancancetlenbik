@@ -32,7 +32,7 @@ export const profile = {
   ],
   stats: [
     { label: "Verdiği Dersler", value: 7, suffix: "" },
-    { label: "Akademik Yayın", value: 5, suffix: "" },
+    { label: "Akademik Yayın", value: 7, suffix: "" },
     { label: "GitHub Projesi", value: 6, suffix: "+" },
     { label: "Yıl Deneyim", value: 8, suffix: "+" },
   ] as ReadonlyArray<{ label: string; value: number; suffix: string }>,

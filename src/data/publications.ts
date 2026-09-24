@@ -11,6 +11,26 @@ export type Publication = {
 export const publications: Publication[] = [
   {
     title:
+      "TurkPhish v2: A Template-Composed Generation Matrix for Turkish Phishing E-Mail Corpora, with a Leakage Audit and a Detection Benchmark",
+    authors: "Çetlenbik, O. C., Süzen, A. A.",
+    venue: "Applied Sciences, 16(16), 8274 (SCI-E)",
+    year: "2026",
+    type: "Makale",
+    url: "https://doi.org/10.3390/app16168274",
+    tags: ["Phishing", "NLP", "Veri Seti"],
+  },
+  {
+    title:
+      "Detection of False Data Injection Attacks (FDIA) Targeting Distribution Transformers in Smart Grids Using Hybrid Artificial Intelligence Methods",
+    authors: "Akkan, R., Çetlenbik, O. C.",
+    venue: "Journal of Information Assurance and Security, 21(4), 217–229 (ESCI)",
+    year: "2026",
+    type: "Makale",
+    url: "https://doi.org/10.2478/ias-2026-0011",
+    tags: ["Akıllı Şebeke", "FDIA", "Hibrit YZ"],
+  },
+  {
+    title:
       "Using Explainable Artificial Intelligence in Buy and Sell Signals in the Cryptocurrency Market",
     authors: "Çetlenbik, O. C., Süzen, A. A.",
     venue:
