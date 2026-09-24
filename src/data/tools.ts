@@ -18,6 +18,11 @@ export type Tool = {
   problem: string;
   /** Dış servise istek gidiyor mu? Gizlilik rozeti bunu gösteriyor. */
   offline: boolean;
+  /**
+   * Çevrimdışı olmayan araçlarda rozet metni. Verilmezse CrossRef varsayılır
+   * (ilk araçların hepsi CrossRef kullanıyordu).
+   */
+  agNotu?: string;
   keywords: string[];
 };
 
@@ -236,6 +241,48 @@ export const tools: Tool[] = [
       "standart sapma hesaplama",
       "likert ölçek",
       "anket dağılımı",
+    ],
+  },
+  {
+    slug: "akademisyen-karti",
+    title: "Akademisyen Kartı",
+    summary:
+      "Adınızı yazın; yayın, atıf ve h-indeks özetinizi LinkedIn'de paylaşılacak tek bir kart olarak alın.",
+    description:
+      "Adınızı ya da ORCID numaranızı girin; OpenAlex verisinden yayın sayısı, atıf, h-indeks, en çok atıf alan çalışma, en sık birlikte çalıştığınız yazarlar ve konularınız tek bir görsel kartta toplanır. PNG olarak indirin ya da tek tıkla LinkedIn'de paylaşın.",
+    icon: "IdCard",
+    problem:
+      "Akademik profilinizi tek görselde anlatmak için her seferinde elle tasarım yapmak gerekiyor.",
+    offline: false,
+    agNotu:
+      "Yayın verisi OpenAlex'ten çekilir — ad ya da ORCID dışında bilgi istenmez",
+    keywords: [
+      "akademisyen kartı",
+      "h-indeks hesaplama",
+      "atıf sayısı öğrenme",
+      "openalex profil",
+      "linkedin akademik paylaşım",
+      "akademik özet kartı",
+    ],
+  },
+  {
+    slug: "docentlik-puan-hesaplayici",
+    title: "Doçentlik Puan Hesaplayıcı",
+    summary:
+      "ÜAK 2026 Mart tablolarına göre yayınlarınızı girin; puanınızı, tavanları ve eksik kalan asgari koşulları görün.",
+    description:
+      "Temel alanınızı seçin, yayın ve faaliyetlerinizi girin; ÜAK doçentlik başvuru şartlarına göre puanınız yazar payı, madde tavanları ve doktora sonrası koşulu dikkate alınarak hesaplanır. Hangi asgari koşulun eksik kaldığını madde madde gösterir.",
+    icon: "Gauge",
+    problem:
+      "ÜAK tablosundaki tavan ve yazar payı kurallarını elle uygulamak hataya çok açık.",
+    offline: true,
+    keywords: [
+      "doçentlik puan hesaplama",
+      "doçentlik başvuru şartları 2026",
+      "üak doçentlik kriterleri",
+      "doçentlik asgari koşullar",
+      "doçentlik yazar payı",
+      "doçentlik puan tablosu",
     ],
   },
 ];

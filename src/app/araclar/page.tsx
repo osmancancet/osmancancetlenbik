@@ -13,6 +13,8 @@ import {
   Braces,
   ListOrdered,
   BarChart3,
+  IdCard,
+  Gauge,
   ArrowUpRight,
   ShieldCheck,
   type LucideIcon,
@@ -36,13 +38,15 @@ const ICONS: Record<string, LucideIcon> = {
   Braces,
   ListOrdered,
   BarChart3,
+  IdCard,
+  Gauge,
 };
 
 export const metadata: Metadata = seoMeta({
   path: "/araclar",
   title: "Akademisyen Araçları — Ücretsiz ve Tarayıcıda Çalışan",
   description:
-    "Atıf denetleyici, PDF bölücü, anonimleştirici, kaynakça biçimlendirici, Türkçe karakter düzeltici, not hesaplayıcı ve sınav karıştırıcı. Hepsi ücretsiz, çoğu tarayıcıdan çıkmadan çalışıyor.",
+    "Akademisyen kartı, doçentlik puan hesaplayıcı, atıf denetleyici, PDF bölücü, anonimleştirici, kaynakça biçimlendirici ve sınav karıştırıcı. Hepsi ücretsiz, çoğu tarayıcıdan çıkmadan çalışıyor.",
   keywords: [
     "akademisyen araçları",
     "doi kontrol",
@@ -51,6 +55,8 @@ export const metadata: Metadata = seoMeta({
     "türkçe karakter düzeltme",
     "ağırlıklı not hesaplama",
     "sınav formu oluşturma",
+    "doçentlik puan hesaplama",
+    "akademisyen kartı",
   ],
 });
 

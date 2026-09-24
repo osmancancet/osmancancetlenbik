@@ -54,8 +54,8 @@ export function ToolShell({
             <>
               <Wifi className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span className="text-[var(--fg-muted)]">
-                Künye sorgusu için CrossRef&apos;e istek gider — belgeniz
-                gönderilmez
+                {tool.agNotu ??
+                  "Künye sorgusu için CrossRef'e istek gider — belgeniz gönderilmez"}
               </span>
             </>
           )}
