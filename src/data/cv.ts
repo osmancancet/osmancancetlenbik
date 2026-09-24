@@ -57,7 +57,7 @@ export const cv: CVData = {
   experience: [
     {
       title: "Merkez Müdür Yardımcısı",
-      org: "Manisa Celal Bayar Üniversitesi · Bilgisayar Uygulama ve Araştırma Merkezi (BAUM)",
+      org: "Manisa Celal Bayar Üniversitesi · Bilgisayar Uygulama ve Araştırma Merkezi (BUAM)",
       start: "2026",
       end: "Devam ediyor",
       location: "Manisa",
