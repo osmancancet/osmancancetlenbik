@@ -5,6 +5,8 @@ export type Project = {
   description: string;
   url: string;
   live?: string;
+  /** Tanıtım videosu (ör. Instagram Reels). */
+  video?: string;
   tags: string[];
   category: ProjectCategory;
   featured?: boolean;
@@ -20,6 +22,16 @@ export const categoryLabels: Record<ProjectCategory, string> = {
 
 export const projects: Project[] = [
   // ─── Öne çıkanlar ───────────────────────────────────────────────
+  {
+    name: "ArGör",
+    description:
+      "Akademisyenler için sesle çalışan yapay zekâ araştırma görevlisi. \"Hey ArGör\" dersin; mailleri özetler, ders sunumu ve sınav hazırlar, ödevleri rubriğe göre puanlar, OpenAlex'ten DOI'si doğrulanmış kaynakça verir, antetli resmi yazı yazar. Uyanma kelimesi cihazda algılanır; mail göndermek gibi geri alınamaz işlerden önce onay ister, mail ve web içeriğindeki talimatlara (prompt injection) uymaz.",
+    url: "https://github.com/osmancancet/argor",
+    video: "https://www.instagram.com/reel/DdtNJgINlfz/",
+    tags: ["Claude Agent SDK", "Swift", "Sesli Asistan", "MCP"],
+    category: "veri",
+    featured: true,
+  },
   {
     name: "Akadema",
     description:

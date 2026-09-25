@@ -10,7 +10,7 @@ import {
   type Project,
   type ProjectCategory,
 } from "@/data/projects";
-import { ArrowUpRight, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ExternalLink, Play } from "lucide-react";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -64,12 +64,23 @@ function ProjectCard({ p, large = false }: { p: Project; large?: boolean }) {
             {t}
           </span>
         ))}
+        {p.video && (
+          <a
+            href={p.video}
+            target="_blank"
+            rel="noreferrer"
+            className="relative z-10 ml-auto inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors"
+          >
+            <Play className="w-3 h-3" />
+            Video
+          </a>
+        )}
         {p.live && (
           <a
             href={p.live}
             target="_blank"
             rel="noreferrer"
-            className="relative z-10 ml-auto inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors"
+            className={`relative z-10 ${p.video ? "" : "ml-auto "}inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors`}
           >
             <ExternalLink className="w-3 h-3" />
             Canlı
@@ -113,8 +124,14 @@ export function Projects() {
             Öne çıkanlar
           </p>
           <div className="grid md:grid-cols-2 gap-4">
-            {featuredProjects.map((p) => (
-              <ProjectCard key={p.name} p={p} large />
+            {/* Sayı tekse ilk kart tam genişlikte, böylece son satırda yalnız kart kalmaz. */}
+            {featuredProjects.map((p, i) => (
+              <div
+                key={p.name}
+                className={i === 0 && featuredProjects.length % 2 ? "md:col-span-2" : undefined}
+              >
+                <ProjectCard p={p} large />
+              </div>
             ))}
           </div>
         </div>
