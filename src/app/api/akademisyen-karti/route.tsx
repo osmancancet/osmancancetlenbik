@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { kartVerisiGetir, type KartVerisi } from "@/lib/openalex";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+import { interFontlari } from "@/lib/ogFont";
 
 /**
  * Akademisyen kartı PNG'si.
@@ -9,10 +8,6 @@ import path from "node:path";
  * ?id=A123          OpenAlex yazar kimliği (zorunlu)
  * ?boyut=dikey|og   dikey: 1080×1350 (LinkedIn gönderi görseli, varsayılan)
  *                   og:    1200×630  (bağlantı önizlemesi)
- *
- * Yazı tipi: Satori'nin varsayılanı Türkçe harfleri kutucuk basıyor. public/fonts'taki
- * Inter-*.ttf CV PDF'i için altkümelenmiş (harflerin çoğu yok); bu yüzden tam
- * karakter setli InterFull-*.ttf ayrı duruyor. İlk istekte okunup modülde saklanıyor.
  */
 
 const BG = "#000000";
@@ -23,38 +18,6 @@ const SUBTLE = "#4d6657";
 const ACCENT = "#00ff41";
 const BORDER = "rgba(0, 255, 65, 0.22)";
 const SOFT = "rgba(0, 255, 65, 0.08)";
-
-let fontlar: Promise<{ normal: ArrayBuffer; kalin: ArrayBuffer }> | null = null;
-
-/**
- * Önce diskten (public/fonts), olmazsa isteğin geldiği adresten çekiyor.
- * Diskten okuma yerelde ve Vercel'de çalışıyor; adres yedeği ise dosya
- * izlemesinin fontu pakete almadığı durum için.
- */
-async function fontOku(dosya: string, istekUrl: string): Promise<ArrayBuffer> {
-  try {
-    const buf = await readFile(path.join(process.cwd(), "public", "fonts", dosya));
-    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
-  } catch {
-    const res = await fetch(new URL(`/fonts/${dosya}`, istekUrl));
-    if (!res.ok) throw new Error(`Yazı tipi alınamadı: ${dosya}`);
-    return res.arrayBuffer();
-  }
-}
-
-function fontGetir(istekUrl: string) {
-  if (!fontlar) {
-    fontlar = Promise.all([
-      fontOku("InterFull-Regular.ttf", istekUrl),
-      fontOku("InterFull-Bold.ttf", istekUrl),
-    ]).then(([normal, kalin]) => ({ normal, kalin }));
-    // Başarısız olursa bir sonraki istek yeniden denesin.
-    fontlar.catch(() => {
-      fontlar = null;
-    });
-  }
-  return fontlar;
-}
 
 const sayi = (n: number) => n.toLocaleString("tr-TR");
 /** CSS uppercase "i"yi "I" yapıyor; Türkçe için İ gerekiyor. */
@@ -515,7 +478,6 @@ export async function GET(request: Request) {
     return new Response("Yazar bulunamadı", { status: 404 });
   }
 
-  const { normal, kalin } = await fontGetir(request.url);
   const yil = new Date().getFullYear();
 
   return new ImageResponse(
@@ -523,10 +485,7 @@ export async function GET(request: Request) {
     {
       width: og ? 1200 : 1080,
       height: og ? 630 : 1350,
-      fonts: [
-        { name: "Inter", data: normal, weight: 400, style: "normal" },
-        { name: "Inter", data: kalin, weight: 700, style: "normal" },
-      ],
+      fonts: await interFontlari(request.url),
       headers: {
         "Cache-Control": "public, max-age=3600, s-maxage=86400",
         "Content-Disposition": `inline; filename="akademisyen-karti-${veri.id}.png"`,

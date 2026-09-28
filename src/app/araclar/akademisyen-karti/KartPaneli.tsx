@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Check, Copy, Download, ExternalLink, Share2 } from "lucide-react";
 import type { YazarAdayi } from "@/lib/openalex";
 import {
@@ -177,6 +178,15 @@ export function KartPaneli({ yazar }: { yazar: YazarAdayi }) {
             </a>
             . ORCID&apos;inizi yayınlarınıza bağlamak sayıları düzeltir.
           </p>
+
+          <Link
+            href="/araclar/ortak-yazar-agi"
+            className="block rounded-md border border-[var(--border-strong)] px-4 py-3 text-sm text-[var(--fg-muted)] hover:border-[var(--accent)] hover:text-[var(--fg)] transition-colors"
+          >
+            <span className="text-[var(--accent)]">Yeni:</span> Ortak yazar
+            ağınızı da çıkarın; birlikte yazdığınız kişileri etiketleyerek
+            paylaşın →
+          </Link>
         </div>
       </div>
     </section>

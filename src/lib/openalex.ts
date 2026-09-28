@@ -69,6 +69,7 @@ type Eser = {
   authorships?: {
     author: { id: string; display_name: string };
     countries?: string[];
+    institutions?: { display_name?: string; country_code?: string }[];
   }[];
   primary_location?: { source?: { display_name?: string } | null } | null;
   open_access?: { is_oa?: boolean };
@@ -226,6 +227,214 @@ export async function kartVerisiGetir(id: string): Promise<KartVerisi | null> {
       .sort((a, b) => b.sayi - a.sayi)
       .slice(0, 2),
     acikErisimYuzdesi: liste.length ? Math.round((oa / liste.length) * 100) : null,
+    kismi: yazar.works_count > YAYIN_LIMITI,
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Ortak yazar ağı                                                     */
+/* ------------------------------------------------------------------ */
+
+/** Ağda ayrıntısıyla taşınan en fazla ortak yazar (görselde ilk 12'si çıkıyor). */
+const AG_DUGUM_LIMITI = 40;
+/**
+ * Bundan kalabalık yazar listeli eserler ağa katılmıyor: yüzlerce yazarlı
+ * konsorsiyum makaleleri tek başına ağı "herkes herkesle bağlı" hâline
+ * getirip gerçek iş birliklerini gölgeliyor.
+ */
+const AG_EKIP_SINIRI = 25;
+
+export type AgDugumu = {
+  ad: string;
+  /** Birlikte yazılan yayın sayısı. */
+  sayi: number;
+  ilkYil: number | null;
+  kurum: string | null;
+  ulke: string | null;
+};
+
+export type AgBagi = { a: number; b: number; sayi: number };
+
+export type AgVerisi = {
+  id: string;
+  ad: string;
+  kurum: string | null;
+  orcid: string | null;
+  yayin: number;
+  /** En sık birlikte yazandan başlayarak. */
+  ortakYazarlar: AgDugumu[];
+  /** Ortak yazarların kendi aralarındaki bağlar; a/b `ortakYazarlar` dizinleri. */
+  baglar: AgBagi[];
+  ortakYazarSayisi: number;
+  kurumSayisi: number;
+  ulkeSayisi: number;
+  tekYazarli: number;
+  /** Yayın başına ortalama yazar sayısı (kendisi dahil). */
+  ortalamaYazar: number | null;
+  kismi: boolean;
+};
+
+/**
+ * Aynı kişi OpenAlex'te birden çok kayıtla görünebiliyor ("Ziya YILDIZ" /
+ * "Ziya Yıldız"); ağda tek düğüm olsun diye ad, büyük/küçük harf ve Türkçe
+ * işaretlerden arındırılıp anahtar yapılıyor.
+ */
+function adAnahtari(ad: string) {
+  return ad
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z\s-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Büyük harfle yazılmış sözcükleri ("Ziya YILDIZ", "AHMET ALİ SÜZEN") düzeltir;
+ * ağ görselinde adlar tek biçimde dursun. OpenAlex'in bazı kayıtlarında "i"nin
+ * üstünde fazladan birleşik nokta (U+0307) geliyor, o da atılıyor.
+ */
+function adDuzelt(ad: string) {
+  return ad
+    .normalize("NFC")
+    .replace(/\u0307/g, "")
+    .replace(/\p{L}+/gu, (s) =>
+      s.length > 1 && s === s.toLocaleUpperCase("tr-TR")
+        ? s[0] + s.slice(1).toLocaleLowerCase("tr-TR")
+        : s
+    );
+}
+
+export async function agVerisiGetir(id: string): Promise<AgVerisi | null> {
+  const temiz = kisaId(id);
+  if (!/^A\d+$/.test(temiz)) return null;
+
+  const [yazar, eserler] = await Promise.all([
+    getir<Yazar>(url(`/authors/${temiz}`, { select: YAZAR_ALANLARI })),
+    getir<{ results: Eser[] }>(
+      url("/works", {
+        filter: `authorships.author.id:${temiz}`,
+        "per-page": String(YAYIN_LIMITI),
+        sort: "publication_year:desc",
+        select: "id,publication_year,authorships",
+      })
+    ),
+  ]);
+  if (!yazar) return null;
+
+  const liste = eserler?.results ?? [];
+  const benimAnahtar = adAnahtari(yazar.display_name);
+
+  type Sayac = AgDugumu & { adlar: Map<string, number>; kurumYil: number };
+  const kisiler = new Map<string, Sayac>();
+  const kurumlar = new Set<string>();
+  const ulkeler = new Set<string>();
+  /** Her eserin (kalabalık olmayanların) ortak yazar anahtarları. */
+  const eserKisileri: string[][] = [];
+  let tekYazarli = 0;
+  let yazarToplami = 0;
+
+  for (const e of liste) {
+    const yazarlar = e.authorships ?? [];
+    yazarToplami += yazarlar.length;
+    if (yazarlar.length <= 1) {
+      tekYazarli += 1;
+      continue;
+    }
+    if (yazarlar.length > AG_EKIP_SINIRI) continue;
+
+    const buEser = new Set<string>();
+    for (const a of yazarlar) {
+      if (kisaId(a.author.id) === temiz) continue;
+      const anahtar = adAnahtari(a.author.display_name);
+      // Kişinin kendisinin ikinci bir kaydı ya da aynı eserde iki kez geçmesi.
+      if (!anahtar || anahtar === benimAnahtar || buEser.has(anahtar)) continue;
+      buEser.add(anahtar);
+
+      const kurum = a.institutions?.[0]?.display_name ?? null;
+      const ulke = a.institutions?.[0]?.country_code ?? a.countries?.[0] ?? null;
+      const yil = e.publication_year;
+      const k: Sayac = kisiler.get(anahtar) ?? {
+        ad: a.author.display_name,
+        sayi: 0,
+        ilkYil: null,
+        kurum: null,
+        ulke: null,
+        adlar: new Map(),
+        kurumYil: -1,
+      };
+      k.sayi += 1;
+      k.adlar.set(a.author.display_name, (k.adlar.get(a.author.display_name) ?? 0) + 1);
+      if (yil && (k.ilkYil === null || yil < k.ilkYil)) k.ilkYil = yil;
+      // Kurum olarak en yeni eserdeki kurum gösteriliyor.
+      if (kurum && (yil ?? 0) > k.kurumYil) {
+        k.kurum = kurum;
+        k.ulke = ulke;
+        k.kurumYil = yil ?? 0;
+      }
+      kisiler.set(anahtar, k);
+      if (kurum) kurumlar.add(kurum);
+      for (const u of a.countries ?? []) ulkeler.add(u);
+    }
+    eserKisileri.push([...buEser]);
+  }
+
+  const sirali = [...kisiler.entries()]
+    .sort(
+      ([, x], [, y]) =>
+        y.sayi - x.sayi || (x.ilkYil ?? 9999) - (y.ilkYil ?? 9999)
+    )
+    .slice(0, AG_DUGUM_LIMITI);
+
+  const dizin = new Map(sirali.map(([anahtar], i) => [anahtar, i]));
+  const bagSayac = new Map<string, number>();
+  for (const grup of eserKisileri) {
+    const iler = grup
+      .map((k) => dizin.get(k))
+      .filter((i): i is number => i !== undefined)
+      .sort((a, b) => a - b);
+    for (let i = 0; i < iler.length; i++) {
+      for (let j = i + 1; j < iler.length; j++) {
+        const k = `${iler[i]}-${iler[j]}`;
+        bagSayac.set(k, (bagSayac.get(k) ?? 0) + 1);
+      }
+    }
+  }
+
+  return {
+    id: temiz,
+    ad: yazar.display_name,
+    kurum: yazar.last_known_institutions?.[0]?.display_name ?? null,
+    orcid: yazar.orcid ? yazar.orcid.replace("https://orcid.org/", "") : null,
+    yayin: yazar.works_count,
+    ortakYazarlar: sirali.map(([, k]) => {
+      // Birden çok yazılışı varsa en sık geçeni, eşitlikte büyük harf olmayanı seç.
+      const ad = [...k.adlar.entries()].sort(
+        ([a, x], [b, y]) =>
+          y - x ||
+          Number(a === a.toLocaleUpperCase("tr-TR")) -
+            Number(b === b.toLocaleUpperCase("tr-TR"))
+      )[0][0];
+      return {
+        ad: adDuzelt(ad),
+        sayi: k.sayi,
+        ilkYil: k.ilkYil,
+        kurum: k.kurum,
+        ulke: k.ulke,
+      };
+    }),
+    baglar: [...bagSayac.entries()].map(([k, sayi]) => {
+      const [a, b] = k.split("-").map(Number);
+      return { a, b, sayi };
+    }),
+    ortakYazarSayisi: kisiler.size,
+    kurumSayisi: kurumlar.size,
+    ulkeSayisi: ulkeler.size,
+    tekYazarli,
+    ortalamaYazar: liste.length
+      ? Math.round((yazarToplami / liste.length) * 10) / 10
+      : null,
     kismi: yazar.works_count > YAYIN_LIMITI,
   };
 }

@@ -45,6 +45,7 @@ const COLUMNS: Record<
       title: "Araçlar",
       links: [
         { href: "/araclar/akademisyen-karti", label: "Akademisyen Kartı" },
+        { href: "/araclar/ortak-yazar-agi", label: "Ortak Yazar Ağı" },
         { href: "/araclar/docentlik-puan-hesaplayici", label: "Doçentlik Puan Hesaplayıcı" },
         { href: "/araclar/atif-denetleyici", label: "Atıf Denetleyici" },
         { href: "/araclar/pdf-bolucu", label: "PDF Bölücü" },

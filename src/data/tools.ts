@@ -266,6 +266,28 @@ export const tools: Tool[] = [
     ],
   },
   {
+    slug: "ortak-yazar-agi",
+    title: "Ortak Yazar Ağı",
+    summary:
+      "Kimlerle yazdığınızı tek görselde çıkarın; ortak yazarlarınızı etiketleyip LinkedIn'de paylaşın.",
+    description:
+      "Adınızı ya da ORCID numaranızı girin; OpenAlex verisinden ortak yazarlarınız, birlikte yazdığınız yayın sayısı, kurum ve ülke çeşitliliği bir ağ görseline dönüşür. PNG olarak indirin, hazır gönderi metniyle ortak yazarlarınızı etiketleyerek paylaşın.",
+    icon: "Network",
+    problem:
+      "Akademik iş birliklerinizi ve araştırma grubunuzu anlatan bir görsel yok.",
+    offline: false,
+    agNotu:
+      "Yayın verisi OpenAlex'ten çekilir — ad ya da ORCID dışında bilgi istenmez",
+    keywords: [
+      "ortak yazar ağı",
+      "akademik iş birliği ağı",
+      "co-author network",
+      "openalex ortak yazar",
+      "araştırma iş birliği haritası",
+      "linkedin akademik paylaşım",
+    ],
+  },
+  {
     slug: "docentlik-puan-hesaplayici",
     title: "Doçentlik Puan Hesaplayıcı",
     summary:
