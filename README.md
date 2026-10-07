@@ -51,6 +51,7 @@ Vercel'e otomatik deploy. Environment variables (Vercel dashboard'unda set edili
 - `DATABASE_URL` — Postgres connection string (Neon / Supabase / Vercel Postgres)
 - `JWT_SECRET` — uzun rastgele string (32+ karakter)
 - `ADMIN_PASSWORD` — admin paneli şifresi
+- `APPLICATIONS_PASSWORD_HASH` — (isteğe bağlı) yalnız `/admin/basvurular` sayfasını açan ikinci şifre
 - `NEXT_PUBLIC_SITE_URL` — `https://www.osmancancetlenbik.com`
 - `RESEND_API_KEY` — contact form için (https://resend.com)
 - `CONTACT_TO_EMAIL` — iletişim formu mail hedefi
