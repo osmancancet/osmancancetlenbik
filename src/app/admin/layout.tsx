@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -10,6 +11,7 @@ import {
   Megaphone,
   Newspaper,
   Radio,
+  Users,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -22,7 +24,11 @@ const links = [
   { href: "/admin/konferanslar", label: "Konferanslarım", icon: Mic },
   { href: "/admin/basin", label: "Basın", icon: Newspaper },
   { href: "/admin/duyurular", label: "Duyurular", icon: Megaphone },
+  { href: "/admin/basvurular", label: "Başvurular", icon: Users },
 ];
+
+// Yalnız başvuru yetkisi olan hesabın göreceği menü.
+const applicationsLinks = links.filter((l) => l.href === "/admin/basvurular");
 
 export default function AdminLayout({
   children,
@@ -31,6 +37,17 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const isLogin = pathname === "/admin/login";
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isLogin) return;
+    fetch("/api/admin/me")
+      .then((r) => r.json())
+      .then((d) => setRole(d.role ?? null))
+      .catch(() => {});
+  }, [isLogin]);
+
+  const visibleLinks = role === "applications" ? applicationsLinks : links;
 
   if (isLogin) {
     return <div className="min-h-screen bg-[var(--bg)]">{children}</div>;
@@ -48,7 +65,7 @@ export default function AdminLayout({
           </Link>
 
           <nav className="flex flex-col gap-1 flex-1">
-            {links.map((l) => {
+            {visibleLinks.map((l) => {
               const Icon = l.icon;
               const active =
                 pathname === l.href ||

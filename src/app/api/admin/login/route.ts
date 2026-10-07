@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { createSessionToken, SESSION_COOKIE } from "@/lib/auth";
+import {
+  createSessionToken,
+  SESSION_COOKIE,
+  type SessionRole,
+} from "@/lib/auth";
 import { verifyPassword, safeEqualString } from "@/lib/password";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
@@ -58,13 +62,25 @@ export async function POST(req: Request) {
     valid = safeEqualString(password, plain);
   }
 
+  let role: SessionRole = "admin";
+
+  // İkinci şifre: yalnız yarışma başvurularını görebilen hesap.
+  const applicationsHash = process.env.APPLICATIONS_PASSWORD_HASH;
+  if (!valid && applicationsHash) {
+    valid = await verifyPassword(password, applicationsHash);
+    role = "applications";
+  }
+
   if (!valid) {
     await sleep(FAIL_DELAY_MS);
     return NextResponse.json({ error: "Şifre hatalı." }, { status: 401 });
   }
 
-  const token = await createSessionToken();
-  const res = NextResponse.json({ ok: true });
+  const token = await createSessionToken(role);
+  const res = NextResponse.json({
+    ok: true,
+    redirect: role === "applications" ? "/admin/basvurular" : null,
+  });
   res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

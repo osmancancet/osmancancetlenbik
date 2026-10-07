@@ -42,6 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ["/projeler", 0.7],
     ["/iletisim", 0.7],
     ["/duyurular", 0.5],
+    ["/basvuru", 0.6],
     ["/basin", 0.5],
     ["/cv", 0.6],
   ];

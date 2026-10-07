@@ -7,7 +7,9 @@ import { Lock } from "lucide-react";
 export default function AdminLoginPage() {
   const router = useRouter();
   const search = useSearchParams();
-  const from = search.get("from") || "/admin";
+  // Yalnız panel içi yollara dön — dış adrese yönlendirmeyi engeller.
+  const rawFrom = search.get("from") || "";
+  const from = /^\/admin(\/|$)/.test(rawFrom) ? rawFrom : "/admin";
 
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,10 @@ export default function AdminLoginPage() {
       setError(data.error || "Giriş başarısız.");
       return;
     }
-    router.replace(from);
+    const data = (await res.json().catch(() => ({}))) as {
+      redirect?: string | null;
+    };
+    router.replace(data.redirect || from);
     router.refresh();
   }
 
