@@ -36,6 +36,25 @@ const nextConfig: NextConfig = {
     }));
   },
 
+  /**
+   * HASAT 2026 başvuru siteleri public/hasat2026 altında statik HTML olarak
+   * duruyor. Next.js public klasöründe dizin index'i sunmadığı için temiz
+   * adresleri ilgili index.html dosyalarına yeniden yazıyoruz.
+   */
+  async rewrites() {
+    return [
+      { source: "/hasat2026", destination: "/hasat2026/index.html" },
+      {
+        source: "/hasat2026/:proje(siper|tribosense|omur)",
+        destination: "/hasat2026/:proje/index.html",
+      },
+      {
+        source: "/hasat2026/:proje(siper|tribosense|omur)/demo",
+        destination: "/hasat2026/:proje/demo/index.html",
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

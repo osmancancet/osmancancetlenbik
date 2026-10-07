@@ -1,0 +1,1502 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TriboSense</title>
+<meta name="description" content="TriboSense: tribometre ve 2D stylus profilometre verisinden aşınma hacmini otomatik hesaplayan ve kaplama performansını erken tahmin eden yapay zekâ yazılımı. HASAT 2026 başvurusu.">
+<link rel="icon" href="/hasat2026/tribosense/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* Yerleşim: ölçüm defteri. Sol hizalı tek sütun akış, 1180px kap; graphite "cihaz paneli" bantları (hero, iletişim) ile milimetrik ızgaralı şekil panelleri; başlıkların solunda ölçü çizgisi (dimension line) işareti. */
+:root{
+  --graphite:#22282E;
+  --copper:#B8642A;        /* dolgu, çizgi */
+  --copper-logo:#C8763A;
+  --steel:#4F5E6B;
+
+  --bg:#EEF1F4;
+  --surface:#F8FAFB;
+  --fg:#22282E;
+  --muted:#4F5E6B;
+  --faint:#6B7884;
+  --rule:#C9D1D8;
+  --grid:rgba(79,94,107,.10);
+  --grid-strong:rgba(79,94,107,.20);
+  --accent-ink:#9A511F;    /* bakır metin, açık zeminde AA */
+  --accent-fill:#B8642A;
+  --accent-soft:rgba(184,100,42,.20);
+  --steel-soft:rgba(79,94,107,.28);
+  --ph-bg:rgba(184,100,42,.12);
+  --us-row:rgba(184,100,42,.14);
+  --yes:#2F6B4F;
+  --no:#6B7884;
+
+  /* graphite bantlar her iki temada aynı kalır */
+  --band:#22282E;
+  --band-2:#2B333B;
+  --band-fg:#EEF1F4;
+  --band-muted:#AEB9C3;
+  --band-rule:#3D4852;
+  --band-grid:rgba(174,185,195,.08);
+  --band-accent:#D9894E;
+
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+
+  --gutter:clamp(16px,4vw,40px);
+  --maxw:1180px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#171B1F; --surface:#1E2328; --fg:#E4E9ED; --muted:#A9B5BF; --faint:#8C99A4;
+    --rule:#323B44; --grid:rgba(169,181,191,.07); --grid-strong:rgba(169,181,191,.14);
+    --accent-ink:#E09A62; --accent-fill:#C8763A; --accent-soft:rgba(200,118,58,.30);
+    --steel-soft:rgba(140,160,178,.30); --ph-bg:rgba(224,154,98,.14); --us-row:rgba(200,118,58,.16);
+    --yes:#7CC4A0; --no:#8C99A4;
+    --band:#22282E; --band-2:#2A3138;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#171B1F; --surface:#1E2328; --fg:#E4E9ED; --muted:#A9B5BF; --faint:#8C99A4;
+  --rule:#323B44; --grid:rgba(169,181,191,.07); --grid-strong:rgba(169,181,191,.14);
+  --accent-ink:#E09A62; --accent-fill:#C8763A; --accent-soft:rgba(200,118,58,.30);
+  --steel-soft:rgba(140,160,178,.30); --ph-bg:rgba(224,154,98,.14); --us-row:rgba(200,118,58,.16);
+  --yes:#7CC4A0; --no:#8C99A4;
+  --band:#22282E; --band-2:#2A3138;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.6;overflow-x:hidden}
+img{max-width:100%;display:block}
+[hidden]{display:none!important}
+a{color:var(--accent-ink);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent-fill);outline-offset:3px;border-radius:2px}
+h1,h2,h3{font-family:var(--f-display);font-stretch:112%;line-height:1.12;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:clamp(1.7rem,1.2rem + 1.8vw,2.5rem);font-weight:700}
+h3{font-size:1.15rem;font-weight:650;font-stretch:105%;letter-spacing:0}
+p{margin:0}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+.lede{font-size:1.125rem;color:var(--muted);max-width:62ch}
+.small{font-size:.875rem;color:var(--faint)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ph{background:var(--ph-bg);border-bottom:1px dashed var(--accent-ink);padding:0 .2em;border-radius:2px;white-space:nowrap}
+.src{font-size:.8125rem;color:var(--faint);margin-top:.5rem}
+.src a{color:inherit}
+
+/* ---------- üst çubuk ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--band);color:var(--band-fg);border-bottom:1px solid var(--band-rule)}
+.top .wrap{display:flex;align-items:center;gap:1.25rem;padding-block:.6rem}
+.brand{display:flex;align-items:center;gap:.6rem;color:var(--band-fg);text-decoration:none;font-family:var(--f-display);font-weight:700;font-stretch:110%;font-size:1.05rem}
+.brand img{width:34px;height:34px;border-radius:6px;border:1px solid var(--band-rule)}
+.nav{display:flex;gap:1.1rem;margin-left:auto;flex-wrap:wrap}
+.nav a{color:var(--band-muted);text-decoration:none;font-size:.875rem}
+.nav a:hover{color:var(--band-fg)}
+.nav .cta-mini{color:var(--band-fg);border:1px solid var(--band-accent);padding:.2rem .7rem;border-radius:3px}
+@media (max-width:900px){.nav a:not(.cta-mini){display:none}}
+
+/* ---------- hero ---------- */
+.hero{background:var(--band);color:var(--band-fg);position:relative;overflow:hidden;
+  background-image:
+    linear-gradient(var(--band-grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--band-grid) 1px,transparent 1px);
+  background-size:24px 24px}
+.hero .wrap{padding-block:clamp(2.5rem,6vw,4.5rem) 0;display:grid;gap:1.4rem}
+.tag{display:inline-flex;align-items:center;gap:.55rem;font-size:.875rem;color:var(--band-muted);border:1px solid var(--band-rule);padding:.25rem .7rem;border-radius:3px;width:max-content;max-width:100%;background:var(--band-2)}
+.tag i{width:8px;height:8px;border-radius:50%;background:var(--band-accent);display:block;flex:none}
+.hero h1{font-size:clamp(2.8rem,1.6rem + 6vw,6rem);font-weight:800;font-stretch:118%;letter-spacing:-.025em;line-height:.95}
+.hero .value{font-family:var(--f-display);font-stretch:100%;font-weight:500;font-size:clamp(1.25rem,1rem + 1.1vw,1.75rem);line-height:1.3;max-width:34ch;color:var(--band-fg)}
+.hero .sub{color:var(--band-muted);max-width:62ch}
+.btns{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.4rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:.6rem 1.2rem;border-radius:3px;font-weight:600;font-size:1rem;text-decoration:none;border:1px solid transparent;font-family:var(--f-body);cursor:pointer}
+.btn-primary{background:var(--copper-logo);color:#1A1E22;border-color:var(--copper-logo)}
+.btn-primary:hover{background:#D9894E}
+.btn-ghost{color:var(--band-fg);border-color:var(--band-muted)}
+.btn-ghost:hover{border-color:var(--band-fg)}
+.facts{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;font-size:.875rem;color:var(--band-muted);margin-top:.4rem}
+.facts span{display:flex;gap:.45rem;align-items:baseline}
+.facts b{color:var(--band-fg);font-weight:600}
+.trace{position:relative;margin-top:2rem;height:150px}
+.trace svg{width:100%;height:100%;display:block}
+.trace .tlab{position:absolute;font-family:var(--f-mono);font-size:.75rem;color:var(--band-muted)}
+.trace .tlab.l{left:0;top:6px}
+.trace .tlab.r{right:0;top:6px}
+#traceLine{stroke-dasharray:1;stroke-dashoffset:0}
+@media (prefers-reduced-motion: no-preference){
+  #traceLine{animation:draw 1.8s cubic-bezier(.4,0,.2,1) .15s both}
+  @keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+}
+
+/* ---------- bölümler ---------- */
+section{scroll-margin-top:64px}
+.sec{padding-block:clamp(3.5rem,7vw,6rem)}
+.sec + .sec{border-top:1px solid var(--rule)}
+.sec-head{display:grid;gap:.9rem;margin-bottom:clamp(2rem,4vw,3rem);max-width:60rem}
+/* ölçü çizgisi işareti */
+.dim{display:flex;align-items:center;gap:.6rem;color:var(--accent-ink);font-family:var(--f-mono);font-size:.8125rem}
+.dim::before{content:"";width:56px;height:11px;flex:none;
+  background:
+    linear-gradient(currentColor,currentColor) left center/1px 100% no-repeat,
+    linear-gradient(currentColor,currentColor) right center/1px 100% no-repeat,
+    linear-gradient(currentColor,currentColor) center/100% 1px no-repeat}
+
+.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.cols3 > *{padding:0 1.6rem;border-left:1px solid var(--rule);min-width:0}
+.cols3 > *:first-child{padding-left:0;border-left:0}
+.cols3 h3{margin-bottom:.5rem}
+.cols3 p{color:var(--muted)}
+@media (max-width:820px){
+  .cols3{grid-template-columns:1fr;gap:1.6rem}
+  .cols3 > *{padding:1.4rem 0 0;border-left:0;border-top:1px solid var(--rule)}
+  .cols3 > *:first-child{padding-top:1.4rem}
+}
+.ico{width:34px;height:34px;color:var(--accent-ink);margin-bottom:.8rem;display:block}
+
+/* bugünkü süreç şeridi */
+.today{margin-top:2.6rem;display:grid;grid-template-columns:auto 1fr;gap:1rem 1.5rem;align-items:start;padding:1.25rem 1.4rem;border:1px dashed var(--rule);border-radius:4px;background:var(--surface)}
+.today .lbl{font-weight:600;font-size:.9375rem}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;list-style:none;margin:0;padding:0;font-size:.9375rem}
+.chain li{display:flex;align-items:center;gap:.5rem}
+.chain li + li::before{content:"";width:18px;height:1px;background:var(--faint)}
+.chain .manual{color:var(--accent-ink);font-weight:600}
+@media (max-width:640px){.today{grid-template-columns:1fr}}
+
+/* çözüm */
+.sol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.4rem 3rem}
+.sol > div{display:grid;grid-template-columns:44px 1fr;gap:1rem;min-width:0}
+.sol .ico{margin:0}
+.sol h3{margin-bottom:.35rem}
+.sol p{color:var(--muted)}
+@media (max-width:760px){.sol{grid-template-columns:1fr;gap:1.8rem}}
+
+/* akış */
+.flow{list-style:none;margin:0 0 3rem;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));counter-reset:s;border-top:2px solid var(--fg)}
+.flow li{counter-increment:s;padding:1rem 1.2rem 0 0;position:relative;min-width:0}
+.flow li::before{content:counter(s);font-family:var(--f-mono);font-size:.8125rem;color:var(--faint);display:block;margin-bottom:.3rem}
+.flow li::after{content:"";position:absolute;top:-6px;left:0;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--fg)}
+.flow li.hl::after{background:var(--accent-fill);border-color:var(--accent-fill)}
+.flow li.hl h3{color:var(--accent-ink)}
+.flow h3{margin-bottom:.25rem}
+.flow p{color:var(--muted);font-size:.9375rem}
+@media (max-width:760px){
+  .flow{grid-template-columns:1fr;border-top:0;border-left:2px solid var(--fg);gap:1.2rem;padding-left:1.4rem}
+  .flow li{padding:0}
+  .flow li::after{left:calc(-1.4rem - 6px);top:4px}
+}
+
+/* şekil paneli */
+.fig{border:1px solid var(--rule);border-radius:4px;background:var(--surface);overflow:hidden}
+.fig-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.4rem 1rem;padding:1rem 1.25rem;border-bottom:1px solid var(--rule)}
+.fig-head h3{font-size:1.05rem}
+.badge{font-family:var(--f-mono);font-size:.75rem;color:var(--accent-ink);border:1px solid currentColor;padding:.1rem .5rem;border-radius:2px;white-space:nowrap}
+.plot{background-color:var(--surface);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+    linear-gradient(var(--grid-strong) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid-strong) 1px,transparent 1px);
+  background-size:12px 12px,12px 12px,60px 60px,60px 60px;
+  padding:.5rem .5rem 0}
+.plot svg{width:100%;height:auto;display:block}
+.svgtxt{font-family:var(--f-mono);fill:var(--muted)}
+.fig-body{padding:1.1rem 1.25rem 1.3rem;display:grid;gap:1rem}
+.fig-body p{color:var(--muted);max-width:75ch}
+
+/* demo kontrolleri */
+.ctrls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem 2rem}
+.ctrl{display:grid;gap:.35rem;min-width:0}
+.ctrl label{display:flex;justify-content:space-between;gap:1rem;font-size:.9rem;font-weight:600}
+.ctrl output{font-family:var(--f-mono);font-weight:400;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent-fill);height:28px;margin:0}
+.readout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.readout div{padding:.7rem .9rem;border-left:1px solid var(--rule);min-width:0}
+.readout div:first-child{border-left:0;padding-left:0}
+.readout dt{font-size:.8125rem;color:var(--faint)}
+.readout dd{margin:0;font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.readout .delta.up{color:var(--accent-ink)}
+.demo-row{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;justify-content:space-between}
+.btn-line{background:transparent;color:var(--fg);border:1px solid var(--rule);min-height:40px;padding:.4rem .9rem;font-size:.9rem}
+.btn-line:hover{border-color:var(--fg)}
+@media (max-width:640px){
+  .ctrls{grid-template-columns:1fr}
+  .readout{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .readout div:nth-child(3){border-left:0;padding-left:0}
+  .readout div:nth-child(n+3){border-top:1px solid var(--rule)}
+}
+@media (max-width:640px){#demo .svgtxt{font-size:22px}}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.3rem;font-size:.8125rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:.45rem}
+.sw{width:14px;height:10px;border-radius:1px;display:inline-block}
+
+/* teknik */
+.tech{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(2rem,5vw,4rem);align-items:start}
+.deflist{margin:0;display:grid}
+.deflist > div{display:grid;grid-template-columns:minmax(0,13rem) minmax(0,1fr);gap:.4rem 1.5rem;padding-block:1.2rem;border-top:1px solid var(--rule)}
+.deflist > div:last-child{border-bottom:1px solid var(--rule)}
+.deflist dt{font-family:var(--f-display);font-stretch:105%;font-weight:650;font-size:1.05rem;line-height:1.3}
+.deflist dt small{display:block;font-family:var(--f-mono);font-weight:400;font-size:.75rem;color:var(--accent-ink);margin-top:.3rem;font-stretch:100%}
+.deflist dd{margin:0;color:var(--muted)}
+.deflist dd ul{margin:.4rem 0 0;padding-left:1.1rem}
+@media (max-width:980px){.tech{grid-template-columns:1fr}}
+@media (max-width:620px){.deflist > div{grid-template-columns:1fr}}
+.side{display:grid;gap:1.5rem;position:sticky;top:80px}
+@media (max-width:980px){.side{position:static}}
+.datanote{padding:1.1rem 1.25rem;border:1px solid var(--rule);border-radius:4px;background:var(--surface);display:grid;gap:.5rem}
+.datanote h3{font-size:1rem}
+.datanote ul{margin:0;padding-left:1.1rem;color:var(--muted);font-size:.9375rem}
+
+/* kullanım */
+.uses{margin:0;display:grid;border-top:2px solid var(--fg)}
+.uses > div{display:grid;grid-template-columns:minmax(0,19rem) minmax(0,1fr);gap:.3rem 2rem;padding-block:1.1rem;border-bottom:1px solid var(--rule)}
+.uses dt{font-family:var(--f-display);font-stretch:105%;font-weight:650;font-size:1.1rem;line-height:1.3}
+.uses dd{margin:0;color:var(--muted);max-width:68ch}
+@media (max-width:700px){.uses > div{grid-template-columns:1fr}}
+
+/* tablo */
+.swipe{display:none;margin-bottom:.5rem}
+@media (max-width:800px){.swipe{display:block}}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.9375rem}
+th,td{text-align:left;padding:.8rem 1rem;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{font-size:.8125rem;font-weight:600;color:var(--muted);background:var(--bg);vertical-align:bottom}
+tbody th{font-weight:600}
+tbody th small{display:block;font-weight:400;color:var(--faint);font-size:.8125rem;margin-top:.15rem}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+tr.us{background:var(--us-row)}
+tr.us th{color:var(--fg)}
+.v{display:inline-flex;align-items:baseline;gap:.45rem;white-space:nowrap}
+.v::before{content:"";width:9px;height:9px;flex:none;border:1.5px solid currentColor;border-radius:1px;transform:translateY(1px)}
+.v.y{color:var(--yes)} .v.y::before{background:currentColor}
+.v.n{color:var(--no)}
+.v.u{color:var(--no)} .v.u::before{border-style:dashed}
+.v em{font-style:normal;color:var(--faint);font-size:.8125rem}
+
+/* literatür */
+.lit{list-style:none;margin:0;padding:0;display:grid}
+.lit li{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:.3rem 1.5rem;padding-block:1.1rem;border-top:1px solid var(--rule)}
+.lit li:last-child{border-bottom:1px solid var(--rule)}
+.lit .yr{font-family:var(--f-mono);font-size:.875rem;color:var(--accent-ink);padding-top:.15rem}
+.lit p{color:var(--muted)}
+.lit strong{color:var(--fg)}
+.lit .key{font-family:var(--f-display);font-weight:700;font-stretch:110%;color:var(--fg);font-size:1.35rem;font-variant-numeric:tabular-nums}
+@media (max-width:620px){.lit li{grid-template-columns:1fr}}
+.callout{margin-top:1.8rem;padding:1rem 1.25rem;border-left:3px solid var(--accent-fill);background:var(--surface);max-width:75ch}
+.callout p{color:var(--muted)}
+.callout strong{color:var(--fg)}
+
+/* iş modeli */
+.biz{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.6rem}
+.biz > div{display:grid;gap:.5rem;align-content:start;padding:1.3rem;border:1px solid var(--rule);border-radius:4px;background:var(--surface);min-width:0}
+.biz .role{font-size:.8125rem;color:var(--accent-ink);font-weight:600}
+.biz p{color:var(--muted);font-size:.9375rem}
+@media (max-width:820px){.biz{grid-template-columns:1fr}}
+
+/* yol haritası */
+.road{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:relative}
+.road::before{content:"";position:absolute;left:0;right:0;top:2.15rem;height:1px;background:var(--fg)}
+.road li{padding-right:1rem;min-width:0;position:relative}
+.road .d{font-family:var(--f-mono);font-size:.875rem;color:var(--accent-ink);height:1.6rem}
+.road .tick{display:block;width:1px;height:14px;background:var(--fg);margin:.2rem 0 1rem}
+.road li.now .tick{width:11px;height:11px;border-radius:50%;background:var(--accent-fill);margin:calc(.2rem + 1px) 0 calc(1rem + 2px) -5px}
+.road h3{margin-bottom:.3rem;font-size:1.05rem}
+.road p{color:var(--muted);font-size:.9375rem}
+@media (max-width:860px){
+  .road{grid-template-columns:1fr;gap:1.3rem;padding-left:1.4rem}
+  .road::before{left:0;right:auto;top:0;bottom:0;width:1px;height:auto}
+  .road li{padding:0}
+  .road .tick{position:absolute;left:-1.4rem;top:.55rem;width:12px;height:1px;margin:0}
+  .road li.now .tick{width:11px;height:11px;left:calc(-1.4rem - 5px);top:.3rem;margin:0}
+  .road .d{height:auto}
+}
+
+/* ekip */
+.team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.team > div{padding:0 1.6rem;border-left:1px solid var(--rule);min-width:0;display:grid;gap:.6rem;align-content:start}
+.team > div:first-child{padding-left:0;border-left:0}
+.mono-ini{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-stretch:110%;background:var(--band);color:var(--band-fg);border:2px solid var(--accent-fill)}
+.team .role{font-size:.9rem;color:var(--accent-ink);font-weight:600}
+.team ul{margin:0;padding-left:1.1rem;color:var(--muted);font-size:.9375rem}
+.team li + li{margin-top:.25rem}
+.team .plinks{margin:0;font-size:.9rem;display:flex;flex-wrap:wrap;gap:.3rem 1rem}
+.team .doi{overflow-wrap:anywhere}
+@media (max-width:820px){
+  .team{grid-template-columns:1fr;gap:1.6rem}
+  .team > div{padding:1.4rem 0 0;border-left:0;border-top:1px solid var(--rule)}
+}
+
+/* iletişim bandı */
+.contact{background:var(--band);color:var(--band-fg);
+  background-image:linear-gradient(var(--band-grid) 1px,transparent 1px),linear-gradient(90deg,var(--band-grid) 1px,transparent 1px);
+  background-size:24px 24px}
+.contact .dim{color:var(--band-accent)}
+.contact .lede{color:var(--band-muted)}
+.contact-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(2rem,5vw,4rem)}
+@media (max-width:860px){.contact-grid{grid-template-columns:1fr}}
+.people{display:grid;gap:1.2rem}
+.person{padding:1.1rem 1.25rem;border:1px solid var(--band-rule);border-radius:4px;background:var(--band-2);display:grid;gap:.35rem}
+.person .nm{font-weight:700}
+.person .rl{color:var(--band-muted);font-size:.9rem}
+.addr{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-top:.3rem}
+.addr code{font-family:var(--f-mono);font-size:.9375rem;color:var(--band-fg);user-select:all;word-break:break-all}
+.addr .ph{color:var(--band-fg);background:rgba(217,137,78,.18);border-bottom-color:var(--band-accent)}
+.copy{background:transparent;color:var(--band-fg);border:1px solid var(--band-muted);border-radius:3px;font:500 .8125rem var(--f-body);padding:.3rem .7rem;cursor:pointer;min-height:32px}
+.copy:hover{border-color:var(--band-fg)}
+.mailto{color:var(--band-accent);font-size:.875rem}
+.asks{list-style:none;margin:0;padding:0;display:grid;gap:1rem}
+.asks li{display:grid;grid-template-columns:1.2rem 1fr;gap:.6rem}
+.asks li::before{content:"";width:9px;height:9px;border:1.5px solid var(--band-accent);margin-top:.55rem}
+.asks b{color:var(--band-fg)}
+.asks span{color:var(--band-muted)}
+.contact h3{color:var(--band-fg);margin-bottom:1rem}
+
+footer{background:var(--band);color:var(--band-muted);border-top:1px solid var(--band-rule);font-size:.875rem}
+footer .wrap{padding-block:1.6rem 2rem;display:flex;flex-wrap:wrap;gap:.8rem 2rem;justify-content:space-between;align-items:flex-start}
+footer p{max-width:72ch}
+
+/* ---------- yönetici özeti ---------- */
+.brief{background:var(--surface);border-bottom:1px solid var(--rule)}
+.brief .wrap{padding-block:clamp(1.8rem,3.5vw,2.6rem)}
+.brief dl{margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.brief dl > div{padding:0 1.4rem;border-left:1px solid var(--rule);min-width:0;display:grid;gap:.35rem;align-content:start}
+.brief dl > div:first-child{padding-left:0;border-left:0}
+.brief dt{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink)}
+.brief dd{margin:0;font-size:.9375rem;color:var(--fg);line-height:1.5}
+@media (max-width:900px){
+  .brief dl{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem 0}
+  .brief dl > div:nth-child(3){padding-left:0;border-left:0}
+}
+@media (max-width:560px){
+  .brief dl{grid-template-columns:1fr;gap:1.1rem}
+  .brief dl > div{padding:0;border-left:0}
+  .brief dl > div + div{padding-top:1.1rem;border-top:1px solid var(--rule)}
+}
+
+/* ---------- etiketler ---------- */
+.tgt{font-family:var(--f-mono);font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink);border:1px solid currentColor;padding:.05rem .45rem;border-radius:2px;white-space:nowrap;display:inline-block;line-height:1.5}
+.owner{font-size:.875rem;color:var(--faint);margin-top:.5rem}
+.owner b{color:var(--fg);font-weight:600}
+
+/* ---------- doğrulama hedefleri ---------- */
+.targets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.6rem}
+.target{display:grid;gap:.7rem;align-content:start;padding:1.4rem 1.4rem 1.3rem;border:1px solid var(--rule);border-radius:4px;background:var(--surface);min-width:0}
+.target .top-row{display:flex;justify-content:space-between;align-items:center;gap:.8rem}
+.target .metric{font-size:.875rem;color:var(--muted);font-weight:600}
+.target .val{font-family:var(--f-display);font-stretch:112%;font-weight:750;font-size:clamp(2.2rem,1.7rem + 1.6vw,3rem);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--fg)}
+.target .unit{font-size:.9375rem;color:var(--muted)}
+.target p{color:var(--muted);font-size:.9375rem}
+.target .how{font-size:.8125rem;color:var(--faint);border-top:1px solid var(--rule);padding-top:.7rem}
+@media (max-width:900px){.targets{grid-template-columns:1fr}}
+
+/* ---------- pazar ---------- */
+.mkts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.6rem}
+.mkt{border:1px solid var(--rule);border-radius:4px;background:var(--surface);display:grid;align-content:start;min-width:0}
+.mkt-head{padding:1.1rem 1.3rem;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.3rem 1rem}
+.mkt-head h3{font-size:1.1rem}
+.mkt-head .cagr{font-family:var(--f-mono);font-size:.875rem;color:var(--accent-ink);white-space:nowrap}
+.mkt-body{padding:1.2rem 1.3rem 1.3rem;display:grid;gap:1.1rem}
+.bars{display:grid;gap:.75rem}
+.bar{display:grid;grid-template-columns:3.2rem minmax(0,1fr) auto;gap:.8rem;align-items:center}
+.bar .yr{font-family:var(--f-mono);font-size:.8125rem;color:var(--faint)}
+.bar .track{height:14px;background:var(--grid-strong);border-radius:0 4px 4px 0;position:relative}
+.bar .fill{position:absolute;inset:0 auto 0 0;background:var(--accent-fill);border-radius:0 4px 4px 0}
+.bar .fill.pale{background:var(--steel)}
+.bar .num{font-family:var(--f-mono);font-size:.9375rem;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--fg)}
+.shares{display:grid;gap:.55rem;border-top:1px solid var(--rule);padding-top:1rem}
+.shares h4{margin:0;font-size:.8125rem;font-weight:600;color:var(--muted)}
+.share{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3rem;gap:.8rem;align-items:center;font-size:.875rem}
+.share .track{height:8px;background:var(--grid-strong);border-radius:0 4px 4px 0;position:relative}
+.share .fill{position:absolute;inset:0 auto 0 0;background:var(--steel);border-radius:0 4px 4px 0}
+.share .num{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.mkt .note{font-size:.875rem;color:var(--muted)}
+@media (max-width:860px){.mkts{grid-template-columns:1fr}}
+@media (max-width:420px){.share{grid-template-columns:minmax(0,7rem) minmax(0,1fr) 2.6rem}}
+.stack{margin-top:2.4rem;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:clamp(1.6rem,4vw,3.5rem);align-items:start}
+.layers{display:grid;gap:6px}
+.layer{padding:.85rem 1.1rem;border:1px solid var(--rule);border-radius:3px;background:var(--surface);display:flex;justify-content:space-between;gap:1rem;align-items:baseline;flex-wrap:wrap}
+.layer b{font-weight:600}
+.layer span{font-size:.8125rem;color:var(--faint);font-family:var(--f-mono)}
+.layer.us{background:var(--us-row);border-color:var(--accent-fill)}
+.layer.us span{color:var(--accent-ink)}
+.stack .txt{display:grid;gap:.9rem}
+.stack .txt p{color:var(--muted)}
+.stack .txt strong{color:var(--fg)}
+@media (max-width:860px){.stack{grid-template-columns:1fr}}
+
+/* ---------- pazara giriş ---------- */
+.gtm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:2px solid var(--fg)}
+.gtm > div{padding:1.4rem 1.6rem 1.5rem 0;border-bottom:1px solid var(--rule);min-width:0;display:grid;gap:.5rem;align-content:start}
+.gtm > div:nth-child(even){padding-left:1.6rem;padding-right:0;border-left:1px solid var(--rule)}
+.gtm .k{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink)}
+.gtm p,.gtm li{color:var(--muted);font-size:.9375rem}
+.gtm ul{margin:0;padding-left:1.1rem;display:grid;gap:.3rem}
+.gtm li strong{color:var(--fg);font-weight:600}
+@media (max-width:820px){
+  .gtm{grid-template-columns:1fr}
+  .gtm > div,.gtm > div:nth-child(even){padding:1.3rem 0;border-left:0}
+}
+.cycle{margin-top:2.4rem}
+.cycle h3{margin-bottom:1rem}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;counter-reset:st}
+.steps li{counter-increment:st;padding:1rem 1.1rem;border:1px solid var(--rule);border-radius:4px;background:var(--surface);min-width:0;display:grid;gap:.35rem;align-content:start}
+.steps li::before{content:"Adım " counter(st);font-family:var(--f-mono);font-size:.75rem;color:var(--accent-ink)}
+.steps b{font-weight:650;font-family:var(--f-display);font-stretch:105%;font-size:1.02rem}
+.steps p{color:var(--muted);font-size:.9rem}
+@media (max-width:900px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+
+/* ---------- fon ve plan ---------- */
+.fund{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(2rem,5vw,4rem);align-items:start;margin-bottom:clamp(2.6rem,5vw,3.6rem)}
+.fund-src{display:grid;gap:1rem}
+.fsrc{padding:1.2rem 1.3rem;border:1px solid var(--rule);border-radius:4px;background:var(--surface);display:grid;gap:.4rem}
+.fsrc .k{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink)}
+.fsrc h3{font-size:1.05rem}
+.fsrc p{color:var(--muted);font-size:.9375rem}
+.fsrc .big{font-family:var(--f-display);font-stretch:112%;font-weight:750;font-size:1.8rem;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--fg)}
+.alloc h3{margin-bottom:.3rem}
+.alloc .small{margin-bottom:1.1rem}
+.alloc-list{list-style:none;margin:0;padding:0;display:grid;gap:1rem}
+.alloc-list li{display:grid;grid-template-columns:minmax(0,1fr) 3.4rem;gap:.35rem 1rem;align-items:baseline}
+.alloc-list .nm{font-weight:600;font-size:.9375rem}
+.alloc-list .pc{font-family:var(--f-mono);font-size:1rem;text-align:right;font-variant-numeric:tabular-nums}
+.alloc-list .track{grid-column:1 / -1;height:10px;background:var(--grid-strong);border-radius:0 4px 4px 0;position:relative}
+.alloc-list .fill{position:absolute;inset:0 auto 0 0;background:var(--accent-fill);border-radius:0 4px 4px 0}
+.alloc-list .ds{grid-column:1 / -1;font-size:.875rem;color:var(--muted)}
+@media (max-width:900px){.fund{grid-template-columns:1fr}}
+
+.ms{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:2px solid var(--fg)}
+.ms > li{padding:1.1rem 1.3rem 1.2rem 0;min-width:0;display:grid;gap:.6rem;align-content:start;position:relative}
+.ms > li + li{padding-left:1.3rem;border-left:1px solid var(--rule)}
+.ms > li::after{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--fg)}
+.ms > li + li::after{left:-7px}
+.ms > li.now::after{background:var(--accent-fill);border-color:var(--accent-fill)}
+.ms .when{font-family:var(--f-mono);font-size:.8125rem;color:var(--accent-ink)}
+.ms h3{font-size:1.05rem}
+.ms ul{margin:0;padding-left:1.05rem;color:var(--muted);font-size:.9rem;display:grid;gap:.3rem}
+.ms .gate{font-size:.8125rem;color:var(--fg);border-top:1px dashed var(--rule);padding-top:.6rem}
+.ms .gate b{color:var(--accent-ink);font-weight:600}
+@media (max-width:980px){
+  .ms{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ms > li:nth-child(3){padding-left:0;border-left:0}
+  .ms > li:nth-child(3)::after{left:0}
+  .ms > li:nth-child(n+3){border-top:1px solid var(--rule);margin-top:.6rem}
+  .ms > li:nth-child(n+3)::after{display:none}
+}
+@media (max-width:620px){
+  .ms{grid-template-columns:1fr;border-top:0;border-left:2px solid var(--fg);padding-left:1.4rem;gap:1.2rem}
+  .ms > li,.ms > li + li{padding:0;border-left:0;border-top:0;margin-top:0}
+  .ms > li::after,.ms > li + li::after,.ms > li:nth-child(n+3)::after{display:block;left:calc(-1.4rem - 7px);top:.15rem}
+}
+.team-note{margin-top:2rem;padding:1rem 1.25rem;border:1px dashed var(--rule);border-radius:4px;color:var(--muted);font-size:.9375rem;background:var(--surface)}
+.team-note strong{color:var(--fg)}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* ekip portreleri */
+.portrait{width:96px;height:96px;border-radius:50%;object-fit:cover;object-position:50% 30%;border:2px solid var(--accent-fill);background:var(--band-2)}
+/* hero kanıt satırı */
+.proof{font-size:.875rem;color:var(--band-muted);max-width:68ch;padding:.55rem .9rem;border:1px solid var(--band-rule);border-left:3px solid var(--band-accent);border-radius:3px;background:var(--band-2)}
+.proof b{color:var(--band-fg);font-weight:600;font-variant-numeric:tabular-nums}
+.proof a{color:var(--band-accent)}
+/* çalışan prototip */
+.proto{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(2rem,4vw,3rem);align-items:start}
+.proto > *{min-width:0}
+.proto h3.sub-h{font-size:1.3rem;margin-bottom:1rem}
+.does{list-style:none;margin:0;padding:0;border-top:2px solid var(--fg)}
+.does li{padding:.85rem 0;border-bottom:1px solid var(--rule);display:grid;gap:.15rem}
+.does li b{font-weight:600}
+.does li span{color:var(--muted);font-size:.9375rem}
+.res{border:1px solid var(--rule);border-radius:4px;background:var(--surface);overflow:hidden}
+.res-body{padding:1.1rem 1.25rem 1.3rem;display:grid;gap:1rem}
+.kv{margin:0;display:grid}
+.kv > div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.2rem 1rem;padding:.7rem 0;border-top:1px solid var(--rule);align-items:baseline}
+.kv > div:first-child{border-top:0;padding-top:0}
+.kv dt{font-size:.9375rem}
+.kv dt small{display:block;color:var(--faint);font-size:.8125rem}
+.kv dd{margin:0;font-family:var(--f-display);font-stretch:108%;font-weight:750;font-size:1.35rem;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.sig-wrap{overflow-x:auto}
+.sig{width:100%;min-width:0;border-collapse:collapse;font-family:var(--f-mono);font-size:.8125rem;font-variant-numeric:tabular-nums}
+.sig caption{text-align:left;font-family:var(--f-body);font-size:.8125rem;color:var(--faint);padding-bottom:.4rem}
+.sig th,.sig td{padding:.35rem .4rem;border-bottom:1px solid var(--rule);text-align:right}
+.sig th:first-child{text-align:left;color:var(--muted);font-weight:500}
+.sig thead th{color:var(--faint);font-weight:500;background:transparent;font-size:.8125rem}
+.res-note{font-size:.875rem;color:var(--muted)}
+.res-note b{color:var(--fg)}
+.res-note.warn{padding:.7rem .85rem;border:1px dashed var(--accent-ink);border-radius:3px;background:var(--ph-bg);color:var(--fg)}
+.shots{list-style:none;margin:2.6rem 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4rem}
+.shots figure{margin:0;display:grid;gap:.6rem;min-width:0}
+.shots img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
+.shots figcaption{font-size:.875rem;color:var(--muted)}
+.shots figcaption b{display:block;color:var(--fg);font-weight:600}
+.proto-cta{margin-top:2rem;display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.4rem}
+.proto-cta p{font-size:.875rem;color:var(--muted);max-width:60ch}
+@media (max-width:900px){.proto{grid-template-columns:1fr}}
+@media (max-width:760px){.shots{grid-template-columns:1fr;gap:1.8rem}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#ust" aria-label="TriboSense ana sayfa"><img src="/hasat2026/tribosense/logo.png" alt="" width="34" height="34">TriboSense</a>
+    <nav class="nav" aria-label="Bölümler">
+      <a href="#problem">Problem</a>
+      <a href="#cozum">Çözüm</a>
+      <a href="#prototip">Prototip</a>
+      <a href="#teknik">Teknik</a>
+      <a href="#pazar">Pazar</a>
+      <a href="#pazara-giris">Pazara giriş</a>
+      <a href="#plan">Fon ve plan</a>
+      <a href="#ekip">Ekip</a>
+      <a class="cta-mini" href="#iletisim">İletişim</a>
+    </nav>
+  </div>
+</header>
+
+<main id="ust">
+
+<!-- ================= HERO ================= -->
+<section class="hero" aria-labelledby="h-hero">
+  <div class="wrap">
+    <span class="tag"><i></i>HASAT 2026 · İleri Üretim</span>
+    <h1 id="h-hero">TriboSense</h1>
+    <p class="value">Aşınma izini otomatik ölçen ve kaplamanın aşınma performansını testin ilk dakikalarından tahmin eden yapay zekâ yazılımı.</p>
+    <p class="sub">Tribometre ve 2D stylus profilometre verisini birlikte işler; cihazdan bağımsız çalışır, pahalı 3D optik sistem gerektirmez. Her sonucu, modelin dayandığı profil bölgesi ve eğri özelliğiyle birlikte verir.</p>
+    <div class="btns">
+      <a class="btn btn-primary" href="mailto:mustafa.kirman@cbu.edu.tr?subject=TriboSense">İletişim</a>
+      <a class="btn btn-ghost" href="#prototip">Çalışan prototip</a>
+    </div>
+    <p class="proof">Prototip, 1000 sentetik profilde: <b>kesit alanı medyan hatası %0,11–%0,67</b> (gürültüye göre), hiçbir profilde iz kaçırılmadı. Gerçek ölçüm verisiyle henüz denenmedi. <a href="#prototip">Ayrıntı</a></p>
+    <div class="facts">
+      <span>Proje lideri <b>Öğr. Gör. Dr. Mustafa Kırman, MCBÜ</b></span>
+      <span>Ekip <b>3 kurucu akademisyen</b></span>
+      <span>Aşama <b>Prototip / MVP</b></span>
+      <span>Sektör <b>İleri İmalat ve Endüstri 4.0</b></span>
+    </div>
+    <div class="trace" aria-hidden="true">
+      <span class="tlab l">profil z(x) · şematik</span>
+      <span class="tlab r">aşınma izi</span>
+      <svg id="heroTrace" viewBox="0 0 1200 150" preserveAspectRatio="none">
+        <line x1="0" y1="52" x2="1200" y2="52" stroke="#5E6E7B" stroke-width="1" stroke-dasharray="4 5" vector-effect="non-scaling-stroke"/>
+        <path id="traceFill" d="" fill="rgba(200,118,58,.22)"/>
+        <path id="traceLine" d="" fill="none" stroke="#C8763A" stroke-width="2.5" pathLength="1" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ÖZET ================= -->
+<section class="brief" aria-label="Özet">
+  <div class="wrap">
+    <dl>
+      <div><dt>Problem</dt><dd>Aşınma izinin sınırları profil verisinde elle seçiliyor; sonuç kişiye göre değişiyor, testler saatler sürüyor.</dd></div>
+      <div><dt>Çözüm</dt><dd>2D stylus profil ve CoF verisinden otomatik hacim hesabı, erken tahmin ve açıklamalı rapor üreten yazılım.</dd></div>
+      <div><dt>Pazar</dt><dd>Tribometre ve profilometre cihazlarının üzerinde çalışan yazılım katmanı; ek donanım gerektirmez.</dd></div>
+      <div><dt>Talep</dt><dd>HASAT yatırımı, pilot laboratuvar erişimi ve TÜBİTAK BİGG hedefiyle 12 ay içinde ilk lisans satışı hedefi.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Problem</span>
+      <h2>Her yeni kaplama, saatler süren bir testten ve elle yapılan bir ölçümden geçiyor.</h2>
+      <p class="lede">Kaplama ve yüzey işlem geliştirmede aşınma performansı tribometre testiyle ölçülüyor. Test bittikten sonra iz profilometreyle taranıyor, sınırları elle işaretleniyor, hacim elle hesaplanıyor.</p>
+    </div>
+    <div class="cols3">
+      <div>
+        <svg class="ico" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="17" cy="18" r="12"/><path d="M17 11v7l5 3M13 3h8"/></svg>
+        <h3>Uzun testler</h3>
+        <p>Bir formülasyonun aşınma davranışını görmek için saatler süren tribometre testleri gerekiyor. Formülasyon sayısı arttıkça test kuyruğu uzuyor ve geliştirme döngüsü yavaşlıyor.</p>
+      </div>
+      <div>
+        <svg class="ico" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12h8c3 0 4 12 7 12s4-12 7-12h8"/><path d="M9 4v26M25 4v26" stroke-dasharray="3 3"/></svg>
+        <h3>Elle işaretleme</h3>
+        <p>İzin başlangıç ve bitiş noktaları profilometre verisinde elle seçiliyor. Aynı profil farklı kişilerde farklı hacim veriyor; tekrarlanabilirlik düşüyor ve sonuçları karşılaştırmak zorlaşıyor.</p>
+      </div>
+      <div>
+        <svg class="ico" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 26l8-5 8 5 10-6V8l-10 6-8-5-8 5z"/><path d="M12 9v12M20 14v12"/></svg>
+        <h3>Pahalı otomasyon</h3>
+        <p>Otomatik hacim hesabı sunan ticari çözümler büyük ölçüde pahalı 3D optik profilometrelere bağlı ve kural/eşik tabanlı çalışıyor. Laboratuvarlarda yaygın olan 2D stylus cihazlarında işlem hâlâ elle.</p>
+      </div>
+    </div>
+    <div class="today">
+      <span class="lbl">Bugünkü süreç</span>
+      <ol class="chain" aria-label="Bugünkü süreç adımları">
+        <li>Tribometre testi (saatler)</li>
+        <li>2D profil taraması</li>
+        <li class="manual">İz sınırlarını elle işaretleme</li>
+        <li class="manual">Hacmi elle hesaplama</li>
+        <li>Rapora elle giriş</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ÇÖZÜM ================= -->
+<section id="cozum" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Çözüm</span>
+      <h2>Tribometre ve 2D stylus profilometre verisini birlikte işleyen, cihazdan bağımsız bir yazılım.</h2>
+      <p class="lede">TriboSense mevcut laboratuvar cihazlarının çıktısını alır. Yeni donanım almadan, elle yapılan adımları ortadan kaldırmayı ve test süresini kısaltmayı hedefler.</p>
+    </div>
+    <div class="sol">
+      <div>
+        <svg class="ico" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="17" cy="17" r="10"/><path d="M17 2v8M17 24v8M2 17h8M24 17h8"/><circle cx="17" cy="17" r="2" fill="currentColor"/></svg>
+        <div><h3>Otomatik iz tespiti</h3><p>Uzmanların işaretlediği profillerle eğitilen derin öğrenme modeli iz sınırlarını bulur ve aşınma hacmini hesaplar. Kullanıcıdan kaynaklanan fark ortadan kalkar.</p></div>
+      </div>
+      <div>
+        <svg class="ico" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 30V4M3 30h28"/><path d="M5 22c3-12 5-10 7-8s3 2 5 2"/><path d="M17 16c4 0 8 0 13 0" stroke-dasharray="3 3"/></svg>
+        <div><h3>CoF'den erken tahmin</h3><p>Testin ilk bölümündeki sürtünme katsayısı (CoF) eğrisinden nihai aşınmayı tahmin eder. Hedef, nitelendirme testlerini kısaltmak. Modül, rüzgâr gücü tahmininde CNN-LSTM modelleri geliştiren Dr. Orkun Teke'nin sorumluluğunda.</p></div>
+      </div>
+      <div>
+        <svg class="ico" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 3h8M14 3v9L5 28c-1 2 0 3 2 3h20c2 0 3-1 2-3l-9-16V3"/><path d="M9 22h16"/></svg>
+        <div><h3>Performans öngörüsü</h3><p>Kaplama ve test parametrelerinden (yük, hız, kaplama koşulları gibi) aşınma davranışını öngörür. Hangi deneyin yapılmaya değer olduğunu önceden gösterir, deney sayısını azaltır.</p></div>
+      </div>
+      <div>
+        <svg class="ico" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 17s5-9 15-9 15 9 15 9-5 9-15 9S2 17 2 17z"/><circle cx="17" cy="17" r="4"/></svg>
+        <div><h3>Açıklanabilir sonuç</h3><p>Her sonuç, modelin hangi profil bölgesine ve CoF eğrisinin hangi özelliğine dayandığını gösteren açıklamayla gelir. Uzman, sonucu kendi ölçüm bilgisiyle denetleyebilir.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NASIL ÇALIŞIR ================= -->
+<section id="nasil" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Nasıl çalışır</span>
+      <h2>Ham cihaz verisinden açıklamalı rapora.</h2>
+      <p class="lede">Aşınma hacmi, iz kesitinin alanından hesaplanır. Kesit alanı, referans yüzey ile profilin iz sınırları arasında kalan bölgedir; hacim yaklaşık olarak bu alanın iz uzunluğuyla çarpımıdır. Sonucu belirleyen adım, sınırların nereye konduğudur.</p>
+    </div>
+
+    <ol class="flow">
+      <li><h3>Tribometre</h3><p>Sürtünme katsayısı eğrisi ve test parametreleri</p></li>
+      <li><h3>2D profilometre</h3><p>Aşınma izinin kesit profilleri</p></li>
+      <li class="hl"><h3>TriboSense</h3><p>İz tespiti, kesit alanı ve hacim, CoF'den erken tahmin</p></li>
+      <li><h3>Rapor</h3><p>Hacim, aşınma oranı ve modelin dayandığı bölgeler</p></li>
+    </ol>
+
+    <figure class="fig" style="margin:0">
+      <div class="fig-head">
+        <h3>Profil üzerinde iz sınırları ve kesit alanı</h3>
+        <span class="badge">temsili demo · şematik veri</span>
+      </div>
+      <div class="plot">
+        <svg id="demo" viewBox="0 0 800 342" role="img" aria-labelledby="demoTitle demoDesc">
+          <title id="demoTitle">Temsili aşınma izi profili</title>
+          <desc id="demoDesc">Referans yüzeyin altında çukur şeklinde bir aşınma izi, iki yanında kenar yığılmaları. İki kesikli dikey çizgi iz sınırlarını, aradaki dolgu kesit alanı A'yı gösterir. Kaydırıcılarla sınırlar değiştirilebilir.</desc>
+          <defs>
+            <clipPath id="below"><rect x="0" y="100" width="800" height="230"/></clipPath>
+            <clipPath id="above"><rect x="0" y="0" width="800" height="100"/></clipPath>
+          </defs>
+          <!-- eksenler -->
+          <line x1="40" y1="290" x2="760" y2="290" stroke="var(--faint)" stroke-width="1"/>
+          <g id="xticks"></g>
+          <text class="svgtxt" x="760" y="336" text-anchor="end" font-size="12">x (mm, temsili)</text>
+          <line x1="40" y1="100" x2="760" y2="100" stroke="var(--faint)" stroke-width="1.2" stroke-dasharray="6 5"/>
+          <text class="svgtxt" x="756" y="92" text-anchor="end" font-size="12">referans yüzey</text>
+          <!-- alan -->
+          <path id="areaPos" d="" fill="var(--accent-soft)" clip-path="url(#below)"/>
+          <path id="areaNeg" d="" fill="var(--steel-soft)" clip-path="url(#above)"/>
+          <!-- profil -->
+          <path id="prof" d="" fill="none" stroke="var(--fg)" stroke-width="2" stroke-linejoin="round"/>
+          <!-- model sınırları (hayalet) -->
+          <line id="gL" x1="0" y1="40" x2="0" y2="285" stroke="var(--faint)" stroke-width="1" stroke-dasharray="2 4"/>
+          <line id="gR" x1="0" y1="40" x2="0" y2="285" stroke="var(--faint)" stroke-width="1" stroke-dasharray="2 4"/>
+          <!-- seçili sınırlar -->
+          <line id="bL" x1="0" y1="34" x2="0" y2="285" stroke="var(--accent-fill)" stroke-width="2" stroke-dasharray="8 5"/>
+          <line id="bR" x1="0" y1="34" x2="0" y2="285" stroke="var(--accent-fill)" stroke-width="2" stroke-dasharray="8 5"/>
+          <text id="tL" class="svgtxt" x="0" y="26" text-anchor="end" font-size="12" style="fill:var(--accent-ink)">sol sınır</text>
+          <text id="tR" class="svgtxt" x="0" y="26" font-size="12" style="fill:var(--accent-ink)">sağ sınır</text>
+          <text id="tA" x="400" y="175" text-anchor="middle" font-size="26" font-weight="700" style="fill:var(--fg);font-family:var(--f-display)">A</text>
+        </svg>
+      </div>
+      <div class="fig-body">
+        <div class="legend">
+          <span><i class="sw" style="background:var(--accent-soft);border:1px solid var(--accent-fill)"></i>Kesit alanına katkı (referansın altı)</span>
+          <span><i class="sw" style="background:var(--steel-soft);border:1px solid var(--faint)"></i>Kenar yığılması, alandan düşer</span>
+          <span><i class="sw" style="border-top:1px dashed var(--faint);height:0;width:16px"></i>Referans sınırlar</span>
+        </div>
+        <div class="ctrls">
+          <div class="ctrl">
+            <label for="sL">Sol sınır <output id="oL" for="sL">0,00 mm</output></label>
+            <input type="range" id="sL" min="70" max="385" step="3" value="271">
+          </div>
+          <div class="ctrl">
+            <label for="sR">Sağ sınır <output id="oR" for="sR">0,00 mm</output></label>
+            <input type="range" id="sR" min="415" max="730" step="3" value="529">
+          </div>
+        </div>
+        <dl class="readout">
+          <div><dt>İz genişliği</dt><dd id="rW">–</dd></div>
+          <div><dt>Kesit alanı A</dt><dd id="rA">–</dd></div>
+          <div><dt>Hacim ≈ A × L</dt><dd id="rV">–</dd></div>
+          <div><dt>Referansa göre fark</dt><dd id="rD" class="delta">–</dd></div>
+        </dl>
+        <div class="demo-row">
+          <p class="small">Aşınma hacmi ≈ kesit alanı A × iz uzunluğu L. Bu demoda L = 10 mm alınmıştır. Profil, ölçekler ve sonuçlar temsilidir; gerçek ölçüm değildir.</p>
+          <button type="button" class="btn btn-line" id="reset">Referans sınırlara dön</button>
+        </div>
+        <p>Sınırlardan biri biraz kaydığında hesaplanan hacim belirgin biçimde değişir. Elle işaretlemede yaşanan tekrarlanabilirlik sorunu budur. TriboSense'in hedefi, kenar yığılmalarını ve yüzey pürüzlülüğünü ayırt ederek sınırı her seferinde aynı ölçütle bulmak; kesit alanını her profil için hesaplayıp iz boyunca hacme dönüştürmek. Aynı veride elle işaretlemeyle karşılaştırma, prototipin ilk doğrulaması olacak.</p>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= PROTOTİP ================= -->
+<section id="prototip" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Çalışan prototip</span>
+      <h2>TriboSense v0.1: profil ve CoF dosyasından aşınma sonucuna, tarayıcıda.</h2>
+      <p class="lede">Prototip tek dosyalık bir uygulama; sunucu ve internet gerektirmez, veri bilgisayardan dışarı çıkmaz. CSV ya da TXT olarak dışa aktarılmış profilometre ve tribometre verisini okur. Aşağıdaki sayılar bu prototipin sentetik veri üzerindeki ölçümüdür.</p>
+    </div>
+
+    <div class="proto">
+      <div>
+        <h3 class="sub-h">Prototip ne yapıyor</h3>
+        <ul class="does">
+          <li><b>Otomatik iz sınırı</b><span>Sağlam taban çizgisi seviyeleme, MAD ile gürültü kestirimi ve kσ eşiğiyle iz sınırlarını her profilde aynı ölçütle bulur.</span></li>
+          <li><b>Kesit ve hacim</b><span>Kesit alanı, kenar yığılması, iz genişliği ve derinliği; hacim V = Ā·L ve özgül aşınma oranı k = V/(F·s).</span></li>
+          <li><b>Elle karşılaştırma modu</b><span>Operatör sınırları sürükleyerek işaretler; otomatik sonuçla fark ve operatörler arası yayılım canlı hesaplanır.</span></li>
+          <li><b>CoF analizi</b><span>Alıştırma ve kararlı bölgeyi ayırır; testin ilk %20'sinden üstel uyumla kararlı CoF'u erken tahmin eder.</span></li>
+          <li><b>Gerekçeli rapor</b><span>"Sınırlar neden burada?" paneli her sayıyı dayandığı veriyle açıklar; rapor düz metin ya da CSV olarak kopyalanır.</span></li>
+        </ul>
+      </div>
+      <div class="res">
+        <div class="fig-head"><h3>Ölçülen sonuçlar</h3><span class="badge">sentetik veri</span></div>
+        <div class="res-body">
+          <dl class="kv">
+            <div><dt>Kesit alanı, medyan hata<small>1000 sentetik profil, gürültü σ 0,05–0,8 µm</small></dt><dd>%0,11–%0,67</dd></div>
+            <div><dt>İzi bulunamayan profil<small>Aynı 1000 profil</small></dt><dd>0 / 1000</dd></div>
+            <div><dt>Kararlı CoF erken tahmini, medyan hata<small>İlk %20 ile, 300 sentetik CoF kaydı</small></dt><dd>%4,2</dd></div>
+          </dl>
+          <div class="sig-wrap"><table class="sig">
+            <caption>Gürültü düzeyine göre kesit alanı medyan hatası (her düzeyde 200 profil)</caption>
+            <thead><tr><th scope="col">σ (µm)</th><th scope="col">0,05</th><th scope="col">0,10</th><th scope="col">0,20</th><th scope="col">0,40</th><th scope="col">0,80</th></tr></thead>
+            <tbody><tr><th scope="row">medyan |hata|</th><td>%0,11</td><td>%0,14</td><td>%0,22</td><td>%0,39</td><td>%0,67</td></tr></tbody>
+          </table></div>
+          <p class="res-note"><b>Kaynak:</b> prototipin kendi algoritma koduyla çalışan tohumlu sentetik doğrulama testi; gerçek alan, gürültüsüz oluk fonksiyonundan hesaplandı.</p>
+          <p class="res-note warn"><b>Sınır:</b> algoritma yalnızca sentetik veride doğrulandı; gerçek ölçüm verisiyle henüz denenmedi. Doğrulama, Mustafa Kırman'ın profilometre ve tribometre dosyalarıyla yapılacak. CoF erken tahmini istatistiksel bir ön modeldir; aşınma tahmini için ML modülü uzman işaretli veriyle eğitilecek.</p>
+        </div>
+      </div>
+    </div>
+
+    <ul class="shots">
+      <li><figure><img src="/hasat2026/tribosense/proto_1.png" width="1600" height="1000" loading="lazy" alt="TriboSense profil analizi ekranı, örnek sentetik veri: aşınma izi kesit profilinde otomatik bulunan sol ve sağ sınırlar, bakır renkli kesit alanı, beş profilin genişlik, derinlik ve alan tablosu ve özgül aşınma oranı 9,89×10⁻⁵ mm³/(N·m)."><figcaption><b>Profil analizi</b>Otomatik iz sınırı, kesit alanı, hacim ve özgül aşınma oranı.</figcaption></figure></li>
+      <li><figure><img src="/hasat2026/tribosense/proto_2.png" width="1600" height="1000" loading="lazy" alt="TriboSense elle karşılaştırma ekranı, örnek sentetik veri: S1 ve S2 tutamaçlarıyla elle işaretlenen sınırlar, otomatik alanla fark yüzde 12,2 ve üç operatör kaydı arasında yüzde 11,4 alan yayılımı."><figcaption><b>Elle karşılaştırma</b>Üç operatör işaretlemesi ile otomatik sonuç yan yana.</figcaption></figure></li>
+      <li><figure><img src="/hasat2026/tribosense/proto_3.png" width="1600" height="1000" loading="lazy" alt="TriboSense CoF analizi ekranı, örnek sentetik veri: sürtünme katsayısı eğrisinde alıştırma bölgesi ve 909. saniyede başlayan kararlı bölge; kararlı ortalama 0,421, ilk yüzde 20'den erken tahmin 0,450."><figcaption><b>CoF analizi</b>Alıştırma ve kararlı bölge ayrımı, ilk %20'den erken tahmin.</figcaption></figure></li>
+    </ul>
+
+    <div class="proto-cta">
+      <a class="btn btn-primary" href="/hasat2026/tribosense/demo" target="_blank" rel="noopener">Canlı demoyu aç <span aria-hidden="true">&nbsp;↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a>
+      <p>Demo sentetik örnek veriyle dolu açılır ve her ekranda bunu belirtir. Kendi CSV dosyanızı yükleyip deneyebilirsiniz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TEKNİK ================= -->
+<section id="teknik" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Teknik yaklaşım</span>
+      <h2>Üç model, tek açıklama katmanı ve ölçülebilir bir doğrulama planı.</h2>
+      <p class="lede">Aşağıdaki yöntemler planlanan mimaridir. Model seçimi, elimizdeki veri setinde yapılacak karşılaştırmalı deneylerle kesinleşecek.</p>
+    </div>
+    <div class="tech">
+      <dl class="deflist">
+        <div>
+          <dt>Profil segmentasyonu<small>1D U-Net / 1D CNN</small></dt>
+          <dd>Her 2D kesit profili tek boyutlu bir sinyal olarak ele alınır. Model, her noktayı "iz içi" ya da "iz dışı" olarak etiketler; sınırlar bu etiketlerden çıkar. Eğitim, uzmanın işaretlediği sınırlarla denetimli yapılır. Kenar yığılmaları, pürüzlülük ve eğim düzeltmesi model girdisinde ayrı ele alınır.</dd>
+        </div>
+        <div>
+          <dt>CoF'den erken tahmin<small>CNN-LSTM / gradient boosting</small></dt>
+          <dd>Testin ilk bölümündeki CoF eğrisinden alışma (running-in) davranışı, eğim, dalgalanma ve kararlı bölgeye geçiş gibi özellikler çıkarılır; bu özelliklerle nihai aşınma hacmi veya aşınma oranı tahmin edilir. Ham eğri üzerinde CNN-LSTM, çıkarılmış özellikler üzerinde gradient boosting aynı veride karşılaştırılacak.
+            <p class="owner">Modül sahibi <b>Dr. Orkun Teke</b>. Problem yapısı, Teke'nin rüzgâr gücü tahmini çalışmalarıyla aynı: kısa bir gözlem penceresinden ilerideki değeri tahmin etmek. İlgili çalışma: özellik tabanlı CNN-LSTM modelleriyle çok kısa vadeli rüzgâr gücü tahmini (<i>Proc. IMechE</i>, 2026).</p></dd>
+        </div>
+        <div>
+          <dt>Performans modeli<small>kaplama + test parametreleri</small></dt>
+          <dd>Kaplama koşulları ve test parametreleri (ör. yük, hız, süre) ile ölçülen aşınma arasındaki ilişki öğrenilir. Amaç, deney yapmadan önce hangi parametre bölgesinin umut verici olduğunu göstermek.</dd>
+        </div>
+        <div>
+          <dt>Açıklanabilirlik<small>profil bölgesi ve eğri özelliği</small></dt>
+          <dd>Segmentasyon için modelin sınır kararını etkileyen profil bölgesi profil üzerinde gösterilir. Erken tahmin için hangi CoF özelliğinin tahmine ne kadar katkı verdiği raporlanır. Uzman, sonucu bu açıklamayla kabul ya da reddeder.</dd>
+        </div>
+        <div>
+          <dt>Doğrulama planı<small>elle hesapla karşılaştırma</small></dt>
+          <dd>
+            Otomatik sonuçlar aynı profillerde uzmanın elle hesabıyla karşılaştırılacak:
+            <ul>
+              <li>Sapma: otomatik ve elle hesaplanan hacim arasındaki fark</li>
+              <li>Tekrarlanabilirlik: aynı profilde farklı kişilerin ve modelin verdiği sonuçların dağılımı</li>
+              <li>Sızıntı denetimi: aynı teste ait profiller eğitim ve test kümelerine birlikte düşmeyecek; bölme test/numune bazında yapılacak</li>
+            </ul>
+            Sayısal eşikler aşağıdaki <a href="#dogrulama">doğrulama hedeflerinde</a>.
+          </dd>
+        </div>
+      </dl>
+
+      <div class="side">
+        <figure class="fig" style="margin:0">
+          <div class="fig-head">
+            <h3>Erken tahmin fikri</h3>
+            <span class="badge">şematik</span>
+          </div>
+          <div class="plot">
+            <svg viewBox="0 0 420 240" role="img" aria-label="Şematik: sürtünme katsayısı eğrisinin ilk bölümü gözlenir, kalan kısım ve nihai aşınma tahmin edilir.">
+              <rect x="44" y="20" width="96" height="180" fill="var(--accent-soft)"/>
+              <line x1="44" y1="200" x2="404" y2="200" stroke="var(--faint)" stroke-width="1"/>
+              <line x1="44" y1="20" x2="44" y2="200" stroke="var(--faint)" stroke-width="1"/>
+              <text class="svgtxt" x="36" y="30" text-anchor="end" font-size="12">CoF</text>
+              <text class="svgtxt" x="404" y="222" text-anchor="end" font-size="12">zaman</text>
+              <text class="svgtxt" x="92" y="222" text-anchor="middle" font-size="12" style="fill:var(--accent-ink)">ilk dakikalar</text>
+              <path d="M44 190 C 56 60, 70 50, 86 82 S 120 112, 140 106" fill="none" stroke="var(--fg)" stroke-width="2.2"/>
+              <path d="M140 106 C 180 98, 240 96, 300 94 S 380 92, 400 91" fill="none" stroke="var(--fg)" stroke-width="2" stroke-dasharray="6 5"/>
+              <text class="svgtxt" x="92" y="44" text-anchor="middle" font-size="12">gözlenen</text>
+              <text class="svgtxt" x="300" y="80" text-anchor="middle" font-size="12">tahmin edilen</text>
+              <path d="M150 150 h170" stroke="var(--accent-fill)" stroke-width="1.6"/>
+              <path d="M314 145 l8 5 -8 5" fill="none" stroke="var(--accent-fill)" stroke-width="1.6"/>
+              <text class="svgtxt" x="235" y="172" text-anchor="middle" font-size="12" style="fill:var(--accent-ink)">nihai aşınma tahmini</text>
+            </svg>
+          </div>
+          <div class="fig-body"><p class="small">Eksenler ölçeksizdir. Gerçek eğriler malzemeye ve test koşuluna göre değişir.</p></div>
+        </figure>
+        <div class="datanote">
+          <h3>Elimizdeki veri</h3>
+          <ul>
+            <li>Tribometre sürtünme katsayısı (CoF) kayıtları</li>
+            <li>Test parametreleri</li>
+            <li>Uzman tarafından sınırları işaretlenmiş 2D profilometre ölçümleri</li>
+          </ul>
+          <p class="small">Uzman tarafından işaretlenmiş profil ve CoF kayıtlarından oluşan bu başlangıç veri seti, iz tespit modelinin denetimli eğitimi için hazır. Pilot laboratuvar verisiyle genişletilecek.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DOĞRULAMA HEDEFLERİ ================= -->
+<section id="dogrulama" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Doğrulama hedefleri</span>
+      <h2>Prototipin geçmesi gereken üç ölçüt.</h2>
+      <p class="lede">Aşağıdaki değerler sonuç değil, kabul eşikleridir. Prototipin sentetik veride ölçülen sonuçları <a href="#prototip">Çalışan prototip</a> bölümünde; bu eşikler gerçek ölçüm verisinde, uzmanın elle yaptığı hesapla ve test bazında ayrılmış veriyle sınanacak.</p>
+    </div>
+    <div class="targets">
+      <article class="target">
+        <div class="top-row"><span class="metric">Hacim doğruluğu</span><span class="tgt">hedef</span></div>
+        <div><span class="val">≤ %5</span></div>
+        <p>Otomatik hesaplanan aşınma hacminin, aynı profilde uzmanın elle hesapladığı hacimden sapması.</p>
+        <p class="how">Ölçüm: profil başına bağıl sapma, test bazında ayrılmış değerlendirme kümesi.</p>
+      </article>
+      <article class="target">
+        <div class="top-row"><span class="metric">Tekrarlanabilirlik</span><span class="tgt">hedef</span></div>
+        <div><span class="val">≤ %2</span></div>
+        <p>Aynı profil farklı operatörler tarafından yüklendiğinde ve ön işlendiğinde hesaplanan hacimdeki varyasyon.</p>
+        <p class="how">Ölçüm: aynı profilde operatörler arası varyasyon katsayısı; elle işaretlemenin varyasyonuyla yan yana raporlanır.</p>
+      </article>
+      <article class="target">
+        <div class="top-row"><span class="metric">Erken tahmin</span><span class="tgt">hedef</span></div>
+        <div><span class="val">± %15</span></div>
+        <p>Testin ilk %20'sindeki CoF eğrisiyle, test sonunda ölçülen nihai aşınmanın ±%15 aralığında tahmin edilmesi.</p>
+        <p class="how">Ölçüm: modelin görmediği testlerde tahmin ile ölçülen nihai aşınma arasındaki bağıl hata.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KULLANIM ================= -->
+<section id="kullanim" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Kullanım alanları</span>
+      <h2>Aşınma testi yapan her laboratuvar.</h2>
+    </div>
+    <dl class="uses">
+      <div><dt>Kaplama üreticileri</dt><dd>Yeni formülasyonları daha kısa sürede nitelendirmek ve deney sayısını azaltmak isteyen firmalar. Erken tahmin, umut vermeyen formülasyonların test kuyruğundan erken çıkmasını sağlar.</dd></div>
+      <div><dt>Savunma ve otomotiv tedarik zinciri</dt><dd>Dişli, rulman ve motor parçası kaplamalarını test eden Ar-Ge ve kalite laboratuvarları. Burada aynı ölçütle, tekrarlanabilir biçimde hesaplanan hacim, kalite kaydının parçası olur.</dd></div>
+      <div><dt>Biyomedikal implant kaplamaları</dt><dd>Titanyum implantlar üzerindeki hidroksiapatit (HA) ve HA-GO gibi biyoseramik kaplamaların aşınma davranışını inceleyen laboratuvarlar. Proje lideri bu kaplamaları elektroforetik biriktirme ile üretip karakterize ediyor.</dd></div>
+      <div><dt>Üniversite laboratuvarları</dt><dd>Aşınma hacmini 2D stylus profilometreyle ölçüp elle hesaplayan araştırma grupları. Yeni donanım gerektirmediği için mevcut cihazlarla kullanılabilir.</dd></div>
+      <div><dt>Cihaz distribütörleri</dt><dd>Tribometre ve profilometre satışına gömülü bir analiz modülü eklemek isteyen üretici ve distribütörler.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ================= PAZAR ================= -->
+<section id="pazar" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Pazar</span>
+      <h2>Tribometre ve profilometre cihazlarının üzerinde çalışan yazılım katmanı.</h2>
+      <p class="lede">TriboSense cihaz satmaz. Aşınma testinde kullanılan iki cihaz ailesinin, tribometre ve profilometrenin ürettiği veriyi işler. Bu yüzden pazarı, bu cihazların kurulu tabanı ve yeni satışlarıyla birlikte büyür.</p>
+    </div>
+
+    <div class="mkts">
+      <article class="mkt">
+        <div class="mkt-head"><h3>Küresel tribometre pazarı</h3><span class="cagr">YBBO %5,5</span></div>
+        <div class="mkt-body">
+          <div class="bars" role="img" aria-label="Tribometre pazarı: 2025'te 316,5 milyon dolar, 2036'da 570,4 milyon dolar.">
+            <div class="bar" title="2025: 316,5 milyon $"><span class="yr">2025</span><span class="track"><span class="fill pale" style="width:19.2%"></span></span><span class="num">316,5 M$</span></div>
+            <div class="bar" title="2036: 570,4 milyon $"><span class="yr">2036</span><span class="track"><span class="fill" style="width:34.6%"></span></span><span class="num">570,4 M$</span></div>
+          </div>
+          <div class="shares">
+            <h4>Segment payları</h4>
+            <div class="share" title="Pin-on-disk: %35 pay"><span>Pin-on-disk</span><span class="track"><span class="fill" style="width:35%"></span></span><span class="num">%35</span></div>
+            <div class="share" title="Otomotiv: %30 pay"><span>Otomotiv</span><span class="track"><span class="fill" style="width:30%"></span></span><span class="num">%30</span></div>
+          </div>
+          <p class="note">En büyük test tipi pin-on-disk; TriboSense'in işlediği CoF eğrisi ve iz profili bu testin standart çıktılarıdır. En büyük kullanıcı sektörü otomotiv, ilk müşteri segmentimizle örtüşüyor.</p>
+          <p class="src">Kaynak: Future Market Insights, tribometre pazar raporu.</p>
+        </div>
+      </article>
+      <article class="mkt">
+        <div class="mkt-head"><h3>Küresel profilometre pazarı</h3><span class="cagr">YBBO %9,9</span></div>
+        <div class="mkt-body">
+          <div class="bars" role="img" aria-label="Profilometre pazarı: 2025'te 0,85 milyar dolar, 2032'de 1,65 milyar dolar.">
+            <div class="bar" title="2025: 0,85 milyar $"><span class="yr">2025</span><span class="track"><span class="fill pale" style="width:51.5%"></span></span><span class="num">0,85 Mr$</span></div>
+            <div class="bar" title="2032: 1,65 milyar $"><span class="yr">2032</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="num">1,65 Mr$</span></div>
+          </div>
+          <p class="note">Profilometre pazarı daha hızlı büyüyor. Otomatik hacim analizi bugün ağırlıkla 3D optik cihazlarda sunuluyor; laboratuvarlarda yaygın 2D stylus cihazların verisi için öğrenen bir analiz katmanı, TriboSense'in hedeflediği boşluk.</p>
+          <p class="src">Kaynak: Reportprime, profilometre pazar raporu.</p>
+        </div>
+      </article>
+    </div>
+    <p class="src">Çubuklar iki panelde aynı ölçektedir (M$ = milyon dolar, Mr$ = milyar dolar). Rakamlar cihaz pazarlarına aittir; TriboSense'in erişebileceği yazılım payı için ayrıca tahmin yapılmamıştır.</p>
+
+    <div class="stack">
+      <div class="layers" aria-label="Konumlandırma şeması">
+        <div class="layer us"><b>TriboSense</b><span>iz tespiti · hacim · erken tahmin · açıklama</span></div>
+        <div class="layer"><b>Cihaz yazılımı ve dışa aktarım</b><span>CoF kaydı · profil dosyası</span></div>
+        <div class="layer"><b>Tribometre</b><span>pin-on-disk, ball-on-disk</span></div>
+        <div class="layer"><b>2D stylus / 3D optik profilometre</b><span>iz kesit profili</span></div>
+      </div>
+      <div class="txt">
+        <h3>Konumlandırma</h3>
+        <p>Laboratuvar cihazı değiştirmeden TriboSense'i kullanır. Yazılım, cihazların dışa aktardığı CoF kaydını ve profil dosyasını alır; sonucu açıklamasıyla birlikte rapora dönüştürür.</p>
+        <p><strong>Neden yazılım katmanı?</strong> Yeni cihaz yatırımı gerektirmez, laboratuvardaki kurulu cihazlarda hemen kullanılabilir ve cihaz distribütörlerinin satışına eklenebilecek bir modül oluşturur.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RAKİPLER ================= -->
+<section id="rakipler" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Rakipler ve farkımız</span>
+      <h2>Otomatik hacim hesabı var; 2D stylus verisinde öğrenen sınır tespiti ve CoF tabanlı erken tahmin bir arada yok.</h2>
+      <p class="lede">Ticari çözümler çoğunlukla 3D optik veriye ve kural/eşik tabanlı sınır seçimine dayanıyor. TriboSense'in hedeflediği konum, laboratuvarda zaten bulunan 2D stylus profilometre ile tribometre verisini aynı modelde birleştirmek.</p>
+    </div>
+    <p class="small swipe">Tablonun tamamı için yana kaydırın.</p>
+    <div class="tscroll" role="region" aria-label="Rakip karşılaştırma tablosu" tabindex="0">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Çözüm</th>
+            <th scope="col">2D stylus verisiyle çalışır</th>
+            <th scope="col">Öğrenen sınır tespiti</th>
+            <th scope="col">CoF'den erken tahmin</th>
+            <th scope="col">Ek donanım gerekmez</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">MountainsMap (Digital Surf)<small>Yüzey analiz yazılımı, hacim analizi</small></th>
+            <td><span class="v y">Evet</span></td>
+            <td><span class="v n">Hayır <em>kural/eşik</em></span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v y">Evet</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Rtec<small>Tribometreye entegre 3D optik profilometre</small></th>
+            <td><span class="v n">Hayır <em>3D optik</em></span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v n">Hayır</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Nanovea<small>Opsiyonel 3D optik profilometre, otomatik aşınma oranı</small></th>
+            <td><span class="v n">Hayır <em>3D optik</em></span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v n">Hayır</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Keyence VK Analyzer<small>Üreticinin kendi 3D ölçüm cihazı için analiz yazılımı</small></th>
+            <td><span class="v n">Hayır <em>3D</em></span></td>
+            <td><span class="v u">Bilinmiyor</span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v n">Hayır <em>kendi cihazı</em></span></td>
+          </tr>
+          <tr>
+            <th scope="row">Novacam<small>3D optik ölçüm, hacim kaybı modülü</small></th>
+            <td><span class="v n">Hayır <em>3D optik</em></span></td>
+            <td><span class="v u">Bilinmiyor</span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v n">Hayır <em>kendi cihazı</em></span></td>
+          </tr>
+          <tr>
+            <th scope="row">Akademik kural tabanlı yöntemler<small>Eğrilik yarıçapı, Fourier filtre + taban çizgisi</small></th>
+            <td><span class="v y">Evet</span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v n">Hayır</span></td>
+            <td><span class="v y">Evet</span></td>
+          </tr>
+          <tr class="us">
+            <th scope="row">TriboSense<small>Geliştirme hedefi</small></th>
+            <td><span class="v y">Evet</span></td>
+            <td><span class="v y">Evet <em>hedef</em></span></td>
+            <td><span class="v y">Evet <em>hedef</em></span></td>
+            <td><span class="v y">Evet</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src">Üretici ve literatür bilgilerine dayalı genel değerlendirme, Ekim 2026. Ürün özellikleri sürüme göre değişebilir; "Bilinmiyor", kamuya açık bilgide net yanıt bulunamadığı anlamına gelir.</p>
+  </div>
+</section>
+
+<!-- ================= LİTERATÜR ================= -->
+<section id="literatur" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Literatür bağlamı</span>
+      <h2>Akademik yöntemler sınırı kurallarla buluyor; ML çalışmaları aşınmayı parametrelerden tahmin ediyor.</h2>
+    </div>
+    <ul class="lit">
+      <li>
+        <span class="yr">2001</span>
+        <p><strong>Kore'de yapılan bir çalışma</strong> aşınma izini Fourier filtreleme ve kullanıcının belirlediği taban çizgisiyle ayırıyor. Sonuç, kullanıcının seçtiği taban çizgisine bağlı kalıyor.</p>
+      </li>
+      <li>
+        <span class="yr">2012</span>
+        <p><strong>Eğrilik yarıçapına dayalı bir yöntem</strong> iz sınırını profilin eğrilik yarıçapından belirliyor. Kural tabanlı bir yaklaşım; öğrenen bir model kullanmıyor.</p>
+      </li>
+      <li>
+        <span class="yr">Lab uygulaması</span>
+        <p><strong>Gebze Teknik Üniversitesi (GTÜ)</strong> uygulamasında aşınma oranı profilometreyle ölçülüp elle giriliyor. Ölçüm ile sonuç arasında elle bir adım kalıyor.</p>
+      </li>
+      <li>
+        <span class="yr">2025</span>
+        <div>
+          <p><span class="key">%93,7</span> CoF ve <span class="key">%85,7</span> aşınma oranı tahmin doğruluğu</p>
+          <p>Epoksi kompozit kaplamada gradient boosting regresyon modeli, sürtünme katsayısını %93,7 ve aşınma oranını %85,7 doğrulukla tahmin etti. Girdi, malzeme ve test parametreleri.</p>
+          <p class="src">Yan H., Tan J., Chen H., He T., Zeng D., Zhang L. "Machine Learning-Based Prediction of Tribological Properties of Epoxy Composite Coating." <i>Polymers</i> 17(3):282, 2025. <a href="https://www.mdpi.com/2073-4360/17/3/282" target="_blank" rel="noopener">mdpi.com/2073-4360/17/3/282</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="yr">Literatür</span>
+        <p><strong>GO (grafen oksit) katkılı kompozitlerde</strong> pin-on-disk test verisiyle denetimli öğrenme çalışmaları, triboloji verisinin ML ile modellenebildiğini gösteriyor.</p>
+      </li>
+    </ul>
+    <div class="callout">
+      <p><strong>Bizim farkımız.</strong> Literatürdeki ML çalışmaları aşınmayı çoğunlukla yalnızca test parametrelerinden tahmin ediyor; ticari yazılımlar kural tabanlı. TriboSense ham profil verisini ve CoF eğrisini aynı modelde birleştiriyor ve 3D optik sistem gerektirmiyor. Yukarıdaki doğruluk değerleri ilgili çalışmanın kendi veri setine aittir; TriboSense'in sonucu değildir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= İŞ MODELİ ================= -->
+<section id="is-modeli" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">İş modeli</span>
+      <h2>Laboratuvar lisansı, cihaza gömülü modül ve düşük eşikli analiz hizmeti.</h2>
+    </div>
+    <div class="biz">
+      <div>
+        <span class="role">Ana gelir</span>
+        <h3>Yıllık laboratuvar lisansı</h3>
+        <p>Üniversite, Ar-Ge ve kalite laboratuvarları için kullanıcı veya cihaz bazlı yıllık lisans.</p>
+      </div>
+      <div>
+        <span class="role">Ölçek</span>
+        <h3>Gömülü modül</h3>
+        <p>Tribometre veya profilometre üreticisi ya da distribütörüyle cihaz başına lisans; yazılım cihazla birlikte satılır.</p>
+      </div>
+      <div>
+        <span class="role">Giriş ürünü</span>
+        <h3>Analiz hizmeti</h3>
+        <p>Laboratuvar verisini gönderir, raporu alır. Lisans öncesinde düşük eşikli bir deneme imkânı.</p>
+      </div>
+    </div>
+    <p class="src">Fiyatlandırma, ilk pilot laboratuvarlarla yapılacak görüşmelerde netleşecek.</p>
+  </div>
+</section>
+
+<!-- ================= PAZARA GİRİŞ ================= -->
+<section id="pazara-giris" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Pazara giriş</span>
+      <h2>Önce analiz hizmeti, ardından yıllık lisans.</h2>
+      <p class="lede">İlk satışı, aşınma testini düzenli yapan ve sonucu kayıt altına alması gereken laboratuvarlara yapmayı hedefliyoruz. Giriş ürünü, laboratuvarın kendi geçmiş verisi üzerinde yapılan analiz hizmeti.</p>
+    </div>
+    <div class="gtm">
+      <div>
+        <span class="k">İlk müşteri segmenti</span>
+        <h3>Kaplama Ar-Ge ve kalite laboratuvarları</h3>
+        <ul>
+          <li><strong>Kaplama üreticilerinin Ar-Ge birimleri:</strong> çok sayıda formülasyonu test eden, test süresini kısaltmak isteyen ekipler.</li>
+          <li><strong>Savunma ve otomotiv tedarikçilerinin kalite labları:</strong> dişli, rulman ve motor parçası kaplamalarında tekrarlanabilir, denetlenebilir ölçüm kaydı ihtiyacı olan birimler.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="k">Giriş ürünü</span>
+        <h3>Analiz hizmeti</h3>
+        <p>Laboratuvar mevcut CoF kayıtlarını ve profil dosyalarını gönderir. TriboSense iz sınırlarını, hacmi ve açıklamayı içeren raporu, laboratuvarın elle yaptığı hesapla yan yana teslim eder. Laboratuvar yöntemi kendi verisinde görür; lisansa geçiş kararı bu karşılaştırmaya dayanır.</p>
+      </div>
+      <div>
+        <span class="k">Kanallar</span>
+        <h3>Dört kanal</h3>
+        <ul>
+          <li><strong>Cihaz distribütörleri:</strong> tribometre ve profilometre satışına eklenen analiz modülü.</li>
+          <li><strong>Teknopark İstanbul:</strong> ekosistemdeki savunma, otomotiv ve ileri üretim firmalarıyla tanışma.</li>
+          <li><strong>MASTEK ağı:</strong> proje liderinin yer aldığı Manisa Savunma Sanayii Teknoloji Geliştirme Kümesi bağlantıları.</li>
+          <li><strong>Üniversite laboratuvarları:</strong> 2D stylus profilometreyle aşınma ölçen araştırma grupları; referans ve geri bildirim kaynağı.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="k">Gelir sırası</span>
+        <h3>Hizmetten lisansa, lisanstan modüle</h3>
+        <p>Analiz hizmeti ilk geliri ve ilk referansları sağlar. Doğrulanan laboratuvarlar yıllık lisansa geçer. Cihaz distribütörleriyle gömülü modül anlaşması, lisans tabanı oluştuktan sonra ölçek kanalı olur.</p>
+      </div>
+    </div>
+
+    <div class="cycle">
+      <h3>Satış döngüsü</h3>
+      <ol class="steps">
+        <li><b>Tanışma ve veri</b><p>Laboratuvar sorumlusuyla görüşme; geçmiş testlerden örnek CoF ve profil verisinin paylaşılması.</p></li>
+        <li><b>Analiz hizmeti</b><p>Örnek veri üzerinde rapor; elle hesapla sapma ve tekrarlanabilirlik karşılaştırması.</p></li>
+        <li><b>Değerlendirme</b><p>Sonuçların laboratuvar ve kalite sorumlularıyla birlikte incelenmesi; kullanım senaryosunun netleşmesi.</p></li>
+        <li><b>Lisans</b><p>Yıllık laboratuvar lisansı; kurumsal satın alma ve bütçe dönemine göre sözleşme.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FON VE 12 AY PLANI ================= -->
+<section id="plan" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Fon ve 12 ay planı</span>
+      <h2>Prototipten ilk lisansa, ölçülebilir kilometre taşlarıyla.</h2>
+      <p class="lede">İlk 12 ayın finansmanını HASAT yatırımı ve TÜBİTAK BİGG hedefi üzerine kuruyoruz. İlk 12 ay bütçesi pilot görüşmeleriyle netleşecek; aşağıdaki dağılım önerilen plandır.</p>
+    </div>
+
+    <div class="fund">
+      <div class="fund-src">
+        <div class="fsrc">
+          <span class="k">Kaynak 1</span>
+          <h3>HASAT 2026 yatırımı ve destekleri</h3>
+          <p>Finalde ilk 4'e Teknopark İstanbul doğrudan yatırımı; ofis, patent, şirketleşme ve mentörlük destekleri.</p>
+        </div>
+        <div class="fsrc">
+          <span class="k">Kaynak 2 · hedef</span>
+          <h3>TÜBİTAK BİGG (1812)</h3>
+          <span class="big">1.350.000 TL</span>
+          <p>Mükemmeliyet Mührü alan girişimlere %3 hisse karşılığı yatırım. Şirket kuruluşuyla birlikte başvuru planlanıyor.</p>
+        </div>
+      </div>
+      <div class="alloc">
+        <h3>Fon kullanımı</h3>
+        <p class="small">Önerilen dağılım (plan)</p>
+        <ul class="alloc-list">
+          <li><span class="nm">Ekip ve mühendislik</span><span class="pc">%50</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="ds">İki tam zamanlı mühendis istihdamı; model ve yazılım geliştirme.</span></li>
+          <li><span class="nm">Pilot ve saha çalışmaları</span><span class="pc">%20</span><span class="track"><span class="fill" style="width:20%"></span></span><span class="ds">Pilot laboratuvarlarda veri toplama, analiz hizmeti ve doğrulama çalışmaları.</span></li>
+          <li><span class="nm">Hesaplama ve test altyapısı</span><span class="pc">%15</span><span class="track"><span class="fill" style="width:15%"></span></span><span class="ds">Model eğitimi için hesaplama, karşılaştırma testleri ve ölçüm erişimi.</span></li>
+          <li><span class="nm">IP, şirketleşme ve mevzuat</span><span class="pc">%15</span><span class="track"><span class="fill" style="width:15%"></span></span><span class="ds">Patent başvurusu, şirket kuruluşu, sözleşme ve veri gizliliği süreçleri.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:1.6rem">12 ay kilometre taşları</h3>
+    <ol class="ms">
+      <li class="now">
+        <span class="when">Ay 1–3 · Eki–Ara 2026</span>
+        <h3>İz tespit prototipi</h3>
+        <ul>
+          <li>Veri setinin düzenlenmesi, etiket kontrolü, test bazında bölme</li>
+          <li>Çalışan prototipin gerçek profilometre ve tribometre dosyalarıyla doğrulanması; 1D segmentasyon modeli</li>
+          <li>HASAT finalinde çalışan demo</li>
+        </ul>
+        <p class="gate"><b>Ölçüt:</b> elle hesaba göre hacim sapması raporu</p>
+      </li>
+      <li>
+        <span class="when">Ay 4–6 · Oca–Mar 2027</span>
+        <h3>Erken tahmin ve şirket</h3>
+        <ul>
+          <li>CNN-LSTM ve gradient boosting karşılaştırması</li>
+          <li>Operatörler arası tekrarlanabilirlik çalışması</li>
+          <li>Şirket kuruluşu ve BİGG başvurusu</li>
+          <li>İlk yatırımla iki tam zamanlı mühendis istihdamı</li>
+        </ul>
+        <p class="gate"><b>Ölçüt:</b> ilk %20 ile ±%15 hedefine göre hata raporu</p>
+      </li>
+      <li>
+        <span class="when">Ay 7–9 · Nis–Haz 2027</span>
+        <h3>Pilot laboratuvarlar</h3>
+        <ul>
+          <li>Analiz hizmetinin ilk pilot laboratuvarlarda başlatılması</li>
+          <li>Dış laboratuvar verisinde doğrulama</li>
+          <li>Patent başvurusu</li>
+        </ul>
+        <p class="gate"><b>Ölçüt:</b> en az bir dış laboratuvar verisinde doğrulama raporu</p>
+      </li>
+      <li>
+        <span class="when">Ay 10–12 · Tem–Eyl 2027</span>
+        <h3>Ürün ve ilk satış</h3>
+        <ul>
+          <li>Lisanslanabilir yazılım sürümü 1.0</li>
+          <li>Fiyatlandırmanın pilot sonuçlarıyla kesinleşmesi</li>
+          <li>İlk lisans veya distribütör anlaşması hedefi</li>
+        </ul>
+        <p class="gate"><b>Ölçüt:</b> imzalı ilk lisans ya da distribütör sözleşmesi</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= EKİP ================= -->
+<section id="ekip" class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">Ekip</span>
+      <h2>Triboloji, makine öğrenmesi ve zaman serisi tahmini aynı ekipte.</h2>
+      <p class="lede">Üç kurucunun üçü de Manisa Celal Bayar Üniversitesi (MCBÜ), Manisa Teknik Bilimler Meslek Yüksekokulu öğretim elemanı. Kaplamayı üreten ve aşınma testini yapan uzman, veri setini ve açıklama katmanını kuran araştırmacı ve erken tahmin modelini geliştiren zaman serisi uzmanı aynı projede.</p>
+    </div>
+    <div class="team">
+      <div>
+        <img class="portrait" src="/hasat2026/tribosense/mustafa_kirman.jpg" width="160" height="160" alt="Öğr. Gör. Dr. Mustafa Kırman">
+        <h3>Öğr. Gör. Dr. Mustafa Kırman</h3>
+        <span class="role">Kurucu, proje lideri · Kaplama, EPD, aşınma testleri</span>
+        <ul>
+          <li>Makine ve Metal Teknolojileri Bölümü, Makine, Resim ve Konstrüksiyon Programı</li>
+          <li>Doktora (MCBÜ Makine Mühendisliği, 2025): yüzeyi modifiye edilen titanyumun elektroforetik biriktirme (EPD) ile HA-GO kompozitiyle kaplanması, biyouyumluluk ve yüzey özellikleri</li>
+          <li>Yüksek lisans (MCBÜ, 2016): titan bazlı alaşımların hidroksiapatit ile kaplanması</li>
+          <li>Seçili yayınlar: <i>Ceramics International</i> 2025, <i>Coatings</i> 2019, <i>Metals</i> 2018; toplam 16 yayın</li>
+          <li>Patent (2022): çoklu tampon sisteminde biyomimetik teknikle hidroksiapatit üretimi</li>
+          <li>MASTEK, Manisa Savunma Sanayii Teknoloji Geliştirme Kümesi projesi (Kalkınma Ajansı, 2018–2021)</li>
+          <li>Aşınma testleri, tribometre CoF ve profilometre ölçümleri</li>
+        </ul>
+        <p class="plinks"><a href="mailto:mustafa.kirman@cbu.edu.tr">mustafa.kirman@cbu.edu.tr</a><a href="https://avesis.mcbu.edu.tr/mustafa.kirman" target="_blank" rel="noopener">AVESİS</a></p>
+      </div>
+      <div>
+        <img class="portrait" src="/hasat2026/tribosense/osman_can_cetlenbik.jpg" width="160" height="160" alt="Öğr. Gör. Osman Can Çetlenbik">
+        <h3>Öğr. Gör. Osman Can Çetlenbik</h3>
+        <span class="role">Kurucu ortak · Makine öğrenmesi ve veri</span>
+        <ul>
+          <li>İstatistik Bölümü, Büyük Veri Analistliği Programı; 2026'dan beri MCBÜ Bilgisayar Uygulama ve Araştırma Merkezi (BUAM) Müdür Yardımcısı</li>
+          <li>Yüksek lisans (Isparta Uygulamalı Bilimler Üniv. Bilgisayar Müh., 2025): kripto para alım-satım sinyallerinde açıklanabilir yapay zekâ</li>
+          <li>Veri seti tasarımı ve sızıntı denetimi: TurkPhish v2 (2.653 e-posta, şablon-matris üretim çerçevesi, 3 katmanda 10 dedektör kıyaslaması); <i>Applied Sciences</i>'ta yayımlandı (2026, SCI-E, <a class="doi" href="https://doi.org/10.3390/app16168274" target="_blank" rel="noopener">doi:10.3390/app16168274</a>)</li>
+          <li>Zaman serisi verisiyle saldırı tespiti: dağıtım transformatörlerinde sahte veri enjeksiyonu (FDIA) tespiti, <i>Journal of Information Assurance and Security</i>'de yayımlandı (2026, <a class="doi" href="https://doi.org/10.2478/ias-2026-0011" target="_blank" rel="noopener">doi:10.2478/ias-2026-0011</a>); tahmin destekli AC FDIA çalışması değerlendirmede</li>
+          <li>2024–2026'da 3 hakemli makale; açıklanabilir YZ, doğal dil işleme, siber güvenlik</li>
+          <li>TriboSense'te: veri seti tasarımı, sızıntı denetimi, açıklama katmanı</li>
+        </ul>
+        <p class="plinks"><a href="mailto:osman.cetlenbik@cbu.edu.tr">osman.cetlenbik@cbu.edu.tr</a><a href="https://www.linkedin.com/in/osmancancetlenbik" target="_blank" rel="noopener">LinkedIn</a><a href="https://orcid.org/0009-0000-6561-1943" target="_blank" rel="noopener">ORCID</a></p>
+      </div>
+      <div>
+        <img class="portrait" src="/hasat2026/tribosense/orkun_teke.jpg" width="160" height="160" alt="Öğr. Gör. Dr. Orkun Teke">
+        <h3>Öğr. Gör. Dr. Orkun Teke</h3>
+        <span class="role">Kurucu ortak · Zaman serisi derin öğrenme</span>
+        <ul>
+          <li>Elektrik ve Enerji Bölümü, Alternatif Enerji Kaynakları Teknolojisi Programı</li>
+          <li>Doktora (İskenderun Teknik Üniv. Enerji Sistemleri Müh., 2025): rüzgâr gücü tahmini modellerinin performans analizi</li>
+          <li>Özellik tabanlı CNN-LSTM modelleriyle çok kısa vadeli rüzgâr gücü tahmini (<i>Proc. IMechE</i>, 2026); hibrit derin öğrenme ile çok kısa vadeli rüzgâr enerjisi tahmini (2025)</li>
+          <li>Denizcilik lojistiğinde makine öğrenmesiyle kestirimci bakım (kongre, 2023)</li>
+          <li>45 yayın, 17 proje; GuardOne YZ güvenlik cihaz yönetim platformu proje yürütücüsü, TÜBİTAK 3501 projesinde araştırmacı</li>
+          <li>TriboSense'te: CoF eğrisinden erken tahmin modülünün sahibi</li>
+        </ul>
+        <p class="plinks"><a href="mailto:orkun.teke@cbu.edu.tr">orkun.teke@cbu.edu.tr</a><a href="https://www.linkedin.com/in/orkun-teke-phd-5231aa4b/" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+    </div>
+    <p class="team-note"><strong>Ekip yapısı.</strong> Üç kurucu akademisyen; ilk yatırımla iki tam zamanlı mühendis istihdamı planlanıyor.</p>
+  </div>
+</section>
+
+<!-- ================= İLETİŞİM ================= -->
+<section id="iletisim" class="sec contact">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="dim">İletişim</span>
+      <h2>Gerçek kaplama testleriyle doğrulama yapmak istiyoruz.</h2>
+      <p class="lede">Aşınma testi yapan bir laboratuvarınız, bir cihaz ağınız ya da bu alana yatırım ilginiz varsa bize yazın.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="people">
+        <div class="person">
+          <span class="nm">Öğr. Gör. Dr. Mustafa Kırman</span>
+          <span class="rl">Kurucu, proje lideri · iletişim kişisi</span>
+          <div class="addr"><code id="mail1">mustafa.kirman@cbu.edu.tr</code><button type="button" class="copy" data-copy="mail1" id="copy1">Kopyala</button><a class="mailto" href="mailto:mustafa.kirman@cbu.edu.tr?subject=TriboSense">E-posta yaz</a></div>
+          <div class="addr"><span class="rl"><a href="https://avesis.mcbu.edu.tr/mustafa.kirman" target="_blank" rel="noopener" class="mailto">AVESİS profili</a></span></div>
+        </div>
+        <div class="person">
+          <span class="nm">Öğr. Gör. Osman Can Çetlenbik</span>
+          <span class="rl">Kurucu ortak · makine öğrenmesi ve veri</span>
+          <div class="addr"><code id="mail2">osman.cetlenbik@cbu.edu.tr</code><button type="button" class="copy" data-copy="mail2" id="copy2">Kopyala</button></div>
+          <div class="addr"><span class="rl"><a href="https://www.linkedin.com/in/osmancancetlenbik" target="_blank" rel="noopener" class="mailto">LinkedIn</a> · ORCID <a href="https://orcid.org/0009-0000-6561-1943" target="_blank" rel="noopener" class="mailto mono">0009-0000-6561-1943</a> · <a href="https://osmancancetlenbik.com" target="_blank" rel="noopener" class="mailto">osmancancetlenbik.com</a></span></div>
+        </div>
+        <div class="person">
+          <span class="nm">Öğr. Gör. Dr. Orkun Teke</span>
+          <span class="rl">Kurucu ortak · zaman serisi derin öğrenme</span>
+          <div class="addr"><code id="mail3">orkun.teke@cbu.edu.tr</code><button type="button" class="copy" data-copy="mail3" id="copy3">Kopyala</button></div>
+          <div class="addr"><span class="rl"><a href="https://www.linkedin.com/in/orkun-teke-phd-5231aa4b/" target="_blank" rel="noopener" class="mailto">LinkedIn</a></span></div>
+        </div>
+      </div>
+      <div>
+        <h3>HASAT 2026'dan beklediklerimiz</h3>
+        <ul class="asks">
+          <li><div><b>Pilot laboratuvar.</b> <span>Kaplama, savunma ve otomotiv firmalarının laboratuvarlarında gerçek test verisiyle analiz hizmeti pilotu.</span></div></li>
+          <li><div><b>Altyapı ve koruma.</b> <span>Teknopark İstanbul'daki ofis ve ölçüm altyapısına erişim, yöntemin patentle korunması.</span></div></li>
+          <li><div><b>Cihaz iş birliği.</b> <span>Tribometre ve profilometre üreticileri veya distribütörleriyle gömülü modül bağlantısı.</span></div></li>
+          <li><div><b>Şirketleşme ve yatırım.</b> <span>HASAT yatırımı ve mentörlükle şirket kuruluşu; TÜBİTAK BİGG hedefiyle birlikte prototipten ürüne geçiş.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Bu sayfa, TriboSense'in Teknopark İstanbul HASAT 2026 girişim yarışması başvurusu için hazırlanmıştır. Proje çalışan prototip (MVP) aşamasındadır; şirket henüz kurulmamıştır. Şematik ve temsili görseller gerçek ölçüm sonucu değildir.</p>
+    <p>TriboSense Teknoloji (henüz kurulmadı)</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  // ---------- deterministik temsili profil (content.js triboSvg ile aynı mantık)
+  function makeProfile(x0, x1, step, ref, c, w, depth, pile, pileW, noise, seed0){
+    var seed = seed0;
+    function rnd(){ seed = (seed * 9301 + 49297) % 233280; return seed / 233280 - 0.5; }
+    var pts = [];
+    for (var x = x0; x <= x1; x += step){
+      var y = ref + rnd() * noise;
+      var d = Math.abs(x - c);
+      if (d < w) y += depth * Math.pow(Math.cos((d / w) * Math.PI / 2), 1.6);
+      if (d >= w && d < w + pileW) y -= pile * Math.sin(((d - w) / pileW) * Math.PI);
+      pts.push([x, y]);
+    }
+    return pts;
+  }
+  function toPath(pts){ return pts.map(function(p,i){ return (i ? "L" : "M") + p[0] + " " + p[1].toFixed(1); }).join(" "); }
+
+  // ---------- hero izi
+  var hp = makeProfile(0, 1200, 6, 52, 600, 150, 80, 12, 40, 6, 11);
+  var hl = document.getElementById("traceLine");
+  var hf = document.getElementById("traceFill");
+  if (hl) hl.setAttribute("d", toPath(hp));
+  if (hf){
+    var inside = hp.filter(function(p){ return p[0] >= 450 && p[0] <= 750; });
+    hf.setAttribute("d", "M450 52 " + inside.map(function(p){ return "L" + p[0] + " " + p[1].toFixed(1); }).join(" ") + " L750 52 Z");
+  }
+
+  // ---------- etkileşimli temsili demo
+  var X0 = 40, X1 = 760, REF = 100, STEP = 3;
+  var MM_PER_PX = 2.4 / (X1 - X0);   // 0–2,4 mm (temsili)
+  var UM_PER_PX = 0.06;              // derinlik ölçeği (temsili)
+  var L_MM = 10;                     // iz uzunluğu (temsili)
+  var REF_L = 271, REF_R = 529;      // referans (uzman/model) sınırları
+  var pts = makeProfile(X0, X1, STEP, REF, 400, 130, 150, 16, 40, 5, 7);
+
+  var $ = function(id){ return document.getElementById(id); };
+  $("prof").setAttribute("d", toPath(pts));
+
+  // x eksen işaretleri
+  var g = $("xticks"), ns = "http://www.w3.org/2000/svg";
+  for (var mm = 0; mm <= 2.4001; mm += 0.4){
+    var x = X0 + mm / MM_PER_PX;
+    var t = document.createElementNS(ns, "line");
+    t.setAttribute("x1", x); t.setAttribute("x2", x); t.setAttribute("y1", 290); t.setAttribute("y2", 296);
+    t.setAttribute("stroke", "var(--faint)"); g.appendChild(t);
+    var lb = document.createElementNS(ns, "text");
+    lb.setAttribute("x", x); lb.setAttribute("y", 310); lb.setAttribute("text-anchor", "middle");
+    lb.setAttribute("font-size", "12"); lb.setAttribute("class", "svgtxt");
+    lb.textContent = mm.toFixed(1).replace(".", ","); g.appendChild(lb);
+  }
+
+  function yAt(x){
+    var i = Math.min(pts.length - 2, Math.max(0, Math.floor((x - X0) / STEP)));
+    var a = pts[i], b = pts[i + 1], t = (x - a[0]) / (b[0] - a[0]);
+    return a[1] + (b[1] - a[1]) * t;
+  }
+  function segment(L, R){
+    var s = [[L, yAt(L)]];
+    pts.forEach(function(p){ if (p[0] > L && p[0] < R) s.push(p); });
+    s.push([R, yAt(R)]);
+    return s;
+  }
+  function areaUm2(L, R){
+    var s = segment(L, R), A = 0;
+    for (var i = 1; i < s.length; i++){
+      var dx = (s[i][0] - s[i-1][0]) * MM_PER_PX * 1000;               // µm
+      var d1 = (s[i-1][1] - REF) * UM_PER_PX, d2 = (s[i][1] - REF) * UM_PER_PX; // µm, aşağı pozitif
+      A += (d1 + d2) / 2 * dx;
+    }
+    return A;
+  }
+  var nf0 = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 });
+  var nf2 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nf1 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var nf3 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+  var Aref = areaUm2(REF_L, REF_R);
+
+  function setLine(id, x){ var el = $(id); el.setAttribute("x1", x); el.setAttribute("x2", x); }
+  setLine("gL", REF_L); setLine("gR", REF_R);
+
+  function update(){
+    var L = +$("sL").value, R = +$("sR").value;
+    setLine("bL", L); setLine("bR", R);
+    $("tL").setAttribute("x", L - 6); $("tR").setAttribute("x", R + 6);
+    var s = segment(L, R);
+    var d = "M" + L + " " + REF + " " + s.map(function(p){ return "L" + p[0] + " " + p[1].toFixed(1); }).join(" ") + " L" + R + " " + REF + " Z";
+    $("areaPos").setAttribute("d", d); $("areaNeg").setAttribute("d", d);
+    var A = areaUm2(L, R);
+    var V = A * 1e-6 * L_MM; // µm² → mm², × mm
+    $("oL").textContent = nf2.format((L - X0) * MM_PER_PX) + " mm";
+    $("oR").textContent = nf2.format((R - X0) * MM_PER_PX) + " mm";
+    $("rW").textContent = nf2.format((R - L) * MM_PER_PX) + " mm";
+    $("rA").textContent = nf0.format(A) + " µm²";
+    $("rV").textContent = nf3.format(V) + " mm³";
+    var pct = (A / Aref - 1) * 100;
+    var el = $("rD");
+    el.textContent = (Math.abs(pct) < 0.05 ? "0,0" : (pct > 0 ? "+" : "−") + nf1.format(Math.abs(pct))) + " %";
+    el.classList.toggle("up", Math.abs(pct) >= 0.05);
+  }
+  $("sL").addEventListener("input", update);
+  $("sR").addEventListener("input", update);
+  $("reset").addEventListener("click", function(){ $("sL").value = REF_L; $("sR").value = REF_R; update(); });
+  update();
+
+  // ---------- e-posta kopyala
+  document.querySelectorAll(".copy").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var src = $(btn.getAttribute("data-copy"));
+      var text = src.textContent.trim();
+      function selectIt(){
+        try { var r = document.createRange(); r.selectNodeContents(src); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch(e){}
+        btn.textContent = "Seçildi, kopyalayın";
+      }
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(function(){ btn.textContent = "Kopyalandı"; }, selectIt);
+        } else { selectIt(); }
+      } catch(e){ selectIt(); }
+      setTimeout(function(){ btn.textContent = "Kopyala"; }, 2200);
+    });
+  });
+})();
+</script>
+</body>
+</html>

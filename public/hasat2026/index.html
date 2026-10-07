@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HASAT 2026 Projeleri</title>
+<meta name="description" content="MCBÜ Manisa Teknik Bilimler MYO öğretim elemanlarının Teknopark İstanbul HASAT 2026 başvuruları: SİPER, TriboSense ve ÖMÜR.">
+<style>
+  /* Sade portal: üst bilgi + üç eşit proje kartı, telefonda tek sütun */
+  :root {
+    --bg: #f5f6f8; --surface: #ffffff; --fg: #1d2127; --muted: #5d6570; --line: #dde1e6;
+    --siper: #b57f0e; --tribo: #b8642a; --omur: #d9542a;
+    --font: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #14171b; --surface: #1d2127; --fg: #eef0f3; --muted: #a5adb8; --line: #2f353d;
+    --siper: #e0a526; --tribo: #d98a52; --omur: #ef7a52; color-scheme: dark } }
+  :root[data-theme="dark"] {
+    --bg: #14171b; --surface: #1d2127; --fg: #eef0f3; --muted: #a5adb8; --line: #2f353d;
+    --siper: #e0a526; --tribo: #d98a52; --omur: #ef7a52; color-scheme: dark }
+  * { box-sizing: border-box }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font); padding-inline: 16px; padding-block: 48px 64px }
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 32px }
+  header { display: grid; gap: 8px; max-width: 720px }
+  .eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600 }
+  h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.15; text-wrap: balance }
+  header p { margin: 0; color: var(--muted) }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 14px; align-content: start; min-width: 0 }
+  .card img { width: 72px; height: 72px; border-radius: 12px }
+  .card h2 { margin: 0; font-size: 22px }
+  .tag { font-size: 13px; font-weight: 600; color: var(--muted) }
+  .card p { margin: 0 }
+  .lead { font-size: 14px; color: var(--muted) }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px }
+  .btn { display: inline-block; padding: 9px 14px; border-radius: 9px; font-weight: 600; font-size: 14px; text-decoration: none; border: 1px solid var(--line); color: var(--fg) }
+  .btn.primary { color: #fff; border-color: transparent }
+  .siper .btn.primary { background: var(--siper) } .tribo .btn.primary { background: var(--tribo) } .omur .btn.primary { background: var(--omur) }
+  .btn:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px }
+  footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 20px }
+  footer a { color: inherit }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Teknopark İstanbul · HASAT 2026</span>
+    <h1>Üç proje, üç çalışan prototip</h1>
+    <p>Manisa Celal Bayar Üniversitesi Manisa Teknik Bilimler MYO öğretim elemanları Osman Can Çetlenbik, Mustafa Kırman ve Orkun Teke'nin HASAT 2026 başvuruları.</p>
+  </header>
+
+  <main class="grid">
+    <article class="card siper">
+      <img src="/hasat2026/siper_logo.png" alt="SİPER logosu">
+      <h2>SİPER</h2>
+      <span class="tag">Savunma · Siber güvenlik · Lider: Osman Can Çetlenbik</span>
+      <p>Kapalı devre YZ ajanları için açıklanabilir güvenlik katmanı: Türkçe prompt injection tespiti, ajan araç denetimi ve denetim izi.</p>
+      <p class="lead">Prototip: iç örnek kümesinde saldırıların tamamı yakalandı; yanlış alarm oranı hedefe indiriliyor.</p>
+      <div class="actions"><a class="btn primary" href="/hasat2026/siper">Projeyi incele</a><a class="btn" href="/hasat2026/siper/demo">Canlı demo</a></div>
+    </article>
+
+    <article class="card tribo">
+      <img src="/hasat2026/tribosense_logo.png" alt="TriboSense logosu">
+      <h2>TriboSense</h2>
+      <span class="tag">İleri üretim · Lider: Mustafa Kırman</span>
+      <p>2D stylus profilometre ve tribometre verisinden otomatik aşınma hacmi, CoF eğrisinden erken tahmin ve açıklanabilir sonuç.</p>
+      <p class="lead">Prototip: sentetik profillerde kesit alanı medyan hatası %0,11–0,67.</p>
+      <div class="actions"><a class="btn primary" href="/hasat2026/tribosense">Projeyi incele</a><a class="btn" href="/hasat2026/tribosense/demo">Canlı demo</a></div>
+    </article>
+
+    <article class="card omur">
+      <img src="/hasat2026/omur_logo.png" alt="ÖMÜR logosu">
+      <h2>ÖMÜR</h2>
+      <span class="tag">Savunma · Havacılık · Lider: Orkun Teke</span>
+      <p>İHA ve uçak motorları için kalan ömür tahmini; her tahminde güven aralığı ve sensör katkısı.</p>
+      <p class="lead">Prototip: NASA C-MAPSS FD001'de RMSE 11,83 döngü, %90 aralık kapsaması %94.</p>
+      <div class="actions"><a class="btn primary" href="/hasat2026/omur">Projeyi incele</a><a class="btn" href="/hasat2026/omur/demo">Canlı demo</a></div>
+    </article>
+  </main>
+
+  <footer>İletişim: osman.cetlenbik@cbu.edu.tr · mustafa.kirman@cbu.edu.tr · orkun.teke@cbu.edu.tr</footer>
+</div>
+</body>
+</html>

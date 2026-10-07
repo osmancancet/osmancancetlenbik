@@ -1,0 +1,1354 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ÖMÜR Kalan Ömür Tahmini</title>
+<meta name="description" content="ÖMÜR: İHA ve uçak motorları için açıklanabilir kalan ömür tahmini. HASAT 2026 Savunma Sahnesi başvurusu.">
+<link rel="icon" type="image/png" href="/hasat2026/omur/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Saira+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Yerleşim: motor sağlık izleme ekranı. Gece mavisi gösterge paneli (hero) + teknik şartname gibi
+   iki sütunlu bölümler (sol: başlık, sağ: içerik). Sola hizalı, 1180px ızgara. */
+:root {
+  --bg: #F2F3F8;          /* soğuk, maviye kayan zemin */
+  --surface: #FFFFFF;
+  --ink: #1B1F3B;         /* gece mavisi */
+  --muted: #4B5175;
+  --line: #D6D9E6;
+  --accent: #D9542A;      /* jet turuncu (dolgu) */
+  --accent-ink: #B4431D;  /* turuncu metin, açık zeminde okunur */
+  --second: #39406B;
+  --second-soft: #E3E6F1;
+  --ok: #2F7D5B;
+  --warn: #B07A12;
+  --panel: #1B1F3B;       /* gösterge paneli: iki temada da koyu */
+  --panel-2: #232849;
+  --panel-ink: #EEF0F7;
+  --panel-muted: #A9AECB;
+  --panel-line: #39406B;
+  --panel-accent: #ED6A3A;
+  --on-accent: #1B1F3B;
+  --panel-ph: #F2A07E;    /* yer tutucu, koyu panelde */
+  --panel-warn: #E2B04A;
+  --alloc-3: #6F86B8;      /* fon dağılımı: çelik mavi */
+  --alloc-4: #C99A6B;      /* fon dağılımı: kum */
+  --font-display: "Saira Semi Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.1875rem;
+  --step-2: 1.5rem;
+  --step-3: clamp(1.75rem, 1.3rem + 1.6vw, 2.375rem);
+  --step-4: clamp(2.75rem, 1.6rem + 4.6vw, 5rem);
+  --r-sm: 4px;
+  --r-md: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11142A; --surface: #191D38; --ink: #E7E9F3; --muted: #A4A9C6; --line: #2E3459;
+    --accent: #ED6A3A; --accent-ink: #F2885F; --second: #8F97CC; --second-soft: #252A4C;
+    --ok: #5FC195; --warn: #E2B04A;
+    --panel: #181C36; --panel-2: #20254A; --panel-ink: #EEF0F7; --panel-muted: #A9AECB; --panel-line: #39406B; --panel-accent: #ED6A3A; --on-accent: #1B1F3B; --panel-ph: #F2A07E; --panel-warn: #E2B04A; --alloc-3: #5E9CC2; --alloc-4: #CFA678;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11142A; --surface: #191D38; --ink: #E7E9F3; --muted: #A4A9C6; --line: #2E3459;
+  --accent: #ED6A3A; --accent-ink: #F2885F; --second: #8F97CC; --second-soft: #252A4C;
+  --ok: #5FC195; --warn: #E2B04A;
+  --panel: #181C36; --panel-2: #20254A; --panel-ink: #EEF0F7; --panel-muted: #A9AECB; --panel-line: #39406B; --panel-accent: #ED6A3A; --on-accent: #1B1F3B; --panel-ph: #F2A07E; --panel-warn: #E2B04A; --alloc-3: #5E9CC2; --alloc-4: #CFA678;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: var(--step-0); line-height: 1.6;
+  overflow-x: hidden;
+}
+img, svg { max-width: 100%; }
+a { color: var(--accent-ink); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: var(--r-sm); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: 0.005em; }
+h2 { font-size: var(--step-3); font-weight: 600; }
+h3 { font-size: var(--step-1); font-weight: 600; }
+p { margin: 0; }
+.num { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.ph { color: var(--accent-ink); font-weight: 500; }   /* yer tutucu */
+
+.wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); }
+
+/* ---------- üst çubuk */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--panel-line); color: var(--panel-ink);
+}
+.top .wrap { display: flex; align-items: center; gap: 20px; min-height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--panel-ink); text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: 0.06em; }
+.brand img { width: 34px; height: 34px; border-radius: 7px; box-shadow: 0 0 0 1px var(--panel-line); }
+.nav { display: flex; gap: 4px; margin-left: auto; }
+.nav a { color: var(--panel-muted); text-decoration: none; font-size: var(--step--1); padding: 6px 10px; border-radius: var(--r-sm); }
+.nav a:hover { color: var(--panel-ink); background: var(--panel-2); }
+.top-actions { display: flex; align-items: center; gap: 8px; }
+.theme-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--panel-line);
+  background: transparent; color: var(--panel-ink); cursor: pointer; display: grid; place-items: center;
+}
+.theme-btn svg { width: 18px; height: 18px; }
+@media (max-width: 900px) { .nav { display: none; } .top-actions { margin-left: auto; } }
+
+/* ---------- butonlar */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px;
+  font-family: var(--font-display); font-weight: 600; font-size: 1.0625rem; letter-spacing: 0.02em;
+  text-decoration: none; border-radius: var(--r-sm); border: 1px solid transparent; cursor: pointer;
+}
+.btn-primary { background: var(--panel-accent); color: var(--on-accent); }
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-ghost { color: var(--panel-ink); border-color: var(--panel-line); background: transparent; }
+.btn-ghost:hover { background: var(--panel-2); }
+.btn-sm { min-height: 36px; padding: 6px 12px; font-size: 0.95rem; }
+
+/* ---------- hero: gösterge paneli */
+.hero {
+  background:
+    radial-gradient(circle at 78% 46%, color-mix(in srgb, var(--panel-line) 55%, transparent) 0 1px, transparent 1px) 0 0 / 22px 22px,
+    var(--panel);
+  color: var(--panel-ink);
+  border-bottom: 1px solid var(--panel-line);
+}
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(24px, 4vw, 64px); align-items: center; padding-block: clamp(40px, 6vw, 88px); }
+.hero-copy { min-width: 0; display: grid; gap: 22px; }
+.stage {
+  justify-self: start; display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em;
+  color: var(--panel-ink); padding: 5px 12px 5px 10px; border: 1px solid var(--panel-line); border-radius: 999px; background: var(--panel-2);
+}
+.stage i { width: 8px; height: 8px; border-radius: 50%; background: var(--panel-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--panel-accent) 25%, transparent); }
+.hero h1 { font-size: var(--step-4); font-weight: 700; letter-spacing: 0.04em; line-height: 0.95; }
+.hero h1 span { display: block; font-size: clamp(1.35rem, 1rem + 1.4vw, 2.1rem); font-weight: 500; letter-spacing: 0.01em; line-height: 1.2; margin-top: 14px; color: var(--panel-ink); max-width: 22ch; }
+.hero .lede { font-size: var(--step-1); color: var(--panel-muted); max-width: 54ch; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.hero-mail { font-size: var(--step--1); color: var(--panel-muted); }
+.hero-mail b { color: var(--panel-ink); font-weight: 500; user-select: all; }
+.readouts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; border-top: 1px solid var(--panel-line); padding-top: 16px; margin: 6px 0 0; }
+.readouts div { display: grid; gap: 2px; min-width: 0; padding-left: 12px; border-left: 2px solid var(--panel-line); }
+.hero-mail b { overflow-wrap: anywhere; }
+.readouts dt { font-size: 0.78rem; color: var(--panel-muted); letter-spacing: 0.04em; }
+.readouts dd { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+
+.instrument { min-width: 0; display: grid; gap: 10px; justify-items: center; }
+.instrument svg { width: min(100%, 380px); height: auto; overflow: visible; }
+.g-track { fill: none; stroke: var(--panel-line); stroke-width: 18; stroke-linecap: round; }
+.g-used { fill: none; stroke: var(--panel-accent); stroke-width: 18; stroke-linecap: round; }
+.g-band { fill: none; stroke: var(--panel-ink); stroke-opacity: 0.28; stroke-width: 34; }
+.g-band-edge { fill: none; stroke: var(--panel-ink); stroke-width: 2; stroke-dasharray: 3 4; }
+.g-ticks line { stroke: var(--panel-muted); stroke-width: 1.5; }
+.g-ticks .tk-b { stroke: var(--panel-ink); stroke-width: 2.5; }
+.g-blade { fill: var(--panel-ink); }
+.g-hub { fill: var(--panel-accent); }
+.g-txt { fill: var(--panel-ink); font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+.g-sub { fill: var(--panel-muted); font-family: var(--font-body); font-size: 12px; }
+.fan { transform-origin: 160px 158px; animation: spin 14s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.8rem; color: var(--panel-muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 18px; height: 6px; border-radius: 3px; display: inline-block; }
+.tag {
+  display: inline-block; font-size: 0.76rem; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px;
+  border: 1px dashed currentColor; white-space: nowrap;
+}
+.instrument .tag { color: var(--panel-muted); }
+
+/* ---------- bölümler: teknik şartname düzeni */
+section.band { padding-block: clamp(48px, 7vw, 96px); border-bottom: 1px solid var(--line); }
+section.band.alt { background: var(--surface); }
+.sec { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 4vw, 56px); }
+.sec-head { display: grid; gap: 14px; align-content: start; }
+.sec-head .kicker { font-family: var(--font-display); font-weight: 600; color: var(--accent-ink); font-size: 1rem; letter-spacing: 0.04em; }
+.sec-head p { color: var(--muted); max-width: 44ch; }
+.sec-body { min-width: 0; display: grid; gap: 28px; align-content: start; }
+.statement { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.35rem, 1.1rem + 0.9vw, 1.8rem); line-height: 1.3; max-width: 34ch; text-wrap: balance; }
+@media (max-width: 860px) { .sec { grid-template-columns: minmax(0, 1fr); } .hero .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+/* problem listesi: hata kodları gibi */
+.faults { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.fault { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding-block: 18px; border-bottom: 1px solid var(--line); }
+.fault .code { font-family: var(--font-display); font-weight: 600; color: var(--accent-ink); font-size: 0.95rem; letter-spacing: 0.04em; padding-top: 2px; }
+.fault h3 { margin-bottom: 4px; }
+.fault p { color: var(--muted); max-width: 62ch; }
+@media (max-width: 520px) { .fault { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+
+/* çözüm: üç bileşen */
+.pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.pillar { padding: 20px; display: grid; gap: 8px; align-content: start; border-right: 1px solid var(--line); min-width: 0; }
+.pillar:last-child { border-right: 0; }
+.pillar svg { width: 28px; height: 28px; color: var(--accent); }
+.pillar p { color: var(--muted); font-size: 0.97rem; }
+@media (max-width: 720px) { .pillars { grid-template-columns: minmax(0, 1fr); } .pillar { border-right: 0; border-bottom: 1px solid var(--line); } .pillar:last-child { border-bottom: 0; } }
+.physics { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; padding: 16px 18px; background: var(--second-soft); border-radius: var(--r-md); }
+.physics svg { width: 26px; height: 26px; color: var(--second); margin-top: 2px; }
+.physics p { max-width: 70ch; }
+
+/* motor kartı (temsili arayüz) */
+.mock { background: var(--panel); color: var(--panel-ink); border-radius: var(--r-md); border: 1px solid var(--panel-line); overflow: hidden; }
+.mock-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--panel-line); background: var(--panel-2); }
+.mock-head strong { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; letter-spacing: 0.03em; }
+.mock-head .tag { color: var(--panel-muted); }
+.mock-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.mock-cell { padding: 16px 18px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.mock-cell + .mock-cell { border-left: 1px solid var(--panel-line); }
+.mock-cell h4 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; color: var(--panel-muted); letter-spacing: 0.03em; }
+.rul-bar { position: relative; height: 34px; border-radius: 6px; background: var(--panel-2); border: 1px solid var(--panel-line); }
+.rul-bar .rng { position: absolute; top: 6px; bottom: 6px; left: 46%; right: 20%; background: color-mix(in srgb, var(--panel-accent) 35%, transparent); border: 1px solid var(--panel-accent); border-radius: 4px; }
+.rul-bar .pt { position: absolute; top: 2px; bottom: 2px; left: 62%; width: 3px; background: var(--panel-accent); border-radius: 2px; }
+.rul-scale { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--panel-muted); }
+.contrib { display: grid; gap: 9px; }
+.contrib div { display: grid; grid-template-columns: minmax(0, 1fr) 42%; gap: 10px; align-items: center; font-size: 0.86rem; }
+.contrib span:first-child { color: var(--panel-ink); min-width: 0; }
+.contrib span:first-child b { font-family: var(--font-display); font-weight: 600; margin-right: 6px; }
+.contrib .bar { height: 8px; border-radius: 4px; background: var(--panel-2); position: relative; overflow: hidden; }
+.contrib .bar i { position: absolute; inset: 0 auto 0 0; background: var(--panel-accent); border-radius: 4px; }
+.contrib .bar i.neg { background: var(--panel-muted); }
+.precedents { display: grid; gap: 8px; font-size: 0.86rem; color: var(--panel-muted); }
+.precedents li { list-style: none; display: flex; gap: 10px; align-items: baseline; }
+.precedents ul { margin: 0; padding: 0; display: grid; gap: 6px; }
+.precedents li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; border: 2px solid var(--panel-accent); flex: none; transform: translateY(-1px); }
+.status { display: inline-flex; gap: 8px; align-items: center; font-size: 0.86rem; color: var(--panel-ink); }
+.status i { width: 9px; height: 9px; border-radius: 50%; background: var(--panel-warn); flex: none; }
+.mock-foot { padding: 12px 18px; border-top: 1px solid var(--panel-line); font-size: 0.86rem; color: var(--panel-muted); }
+@media (max-width: 640px) { .mock-grid { grid-template-columns: minmax(0, 1fr); } .mock-cell + .mock-cell { border-left: 0; border-top: 1px solid var(--panel-line); } }
+
+/* nasıl çalışır: akış */
+.flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; counter-reset: st; }
+.flow li { position: relative; padding: 16px 18px 16px 0; display: grid; gap: 6px; align-content: start; min-width: 0; counter-increment: st; }
+.flow li::before { content: counter(st); font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--second); color: var(--ink); background: var(--bg); position: relative; z-index: 1; }
+.flow li::after { content: ""; position: absolute; top: 31px; left: 30px; right: 0; height: 2px; background: var(--line); }
+.flow li:last-child::after { display: none; }
+.flow li.hot::before { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+.flow li p { color: var(--muted); font-size: 0.95rem; }
+@media (max-width: 760px) {
+  .flow { grid-template-columns: minmax(0, 1fr); }
+  .flow li { padding: 0 0 18px 46px; }
+  .flow li::before { position: absolute; left: 0; top: 0; }
+  .flow li::after { top: 30px; bottom: 0; left: 14px; right: auto; width: 2px; height: auto; }
+}
+.figure { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.figure-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; }
+.figure-head h3 { font-size: var(--step-1); }
+.figure-head .tag { color: var(--accent-ink); }
+.chart-scroll { overflow-x: auto; }
+.chart { display: block; width: 100%; min-width: 520px; height: auto; }
+.c-axis { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.c-grid { stroke: var(--line); stroke-width: 1; fill: none; }
+.c-thr { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 8 6; fill: none; }
+.c-band { fill: var(--second); fill-opacity: 0.2; }
+.c-past { stroke: var(--ink); stroke-width: 3; fill: none; }
+.c-fut { stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 7 6; fill: none; }
+.c-pts circle { fill: var(--second); fill-opacity: 0.75; }
+.c-today { stroke: var(--ink); stroke-width: 1.5; }
+.c-rul { stroke: var(--accent); stroke-width: 3; fill: none; }
+.c-rul-head { fill: var(--accent); }
+.c-ci { stroke: var(--second); stroke-width: 2.5; fill: none; }
+.c-t { fill: var(--muted); font-family: var(--font-body); font-size: 13px; }
+.c-tb { fill: var(--ink); font-family: var(--font-display); font-weight: 600; font-size: 14px; }
+.c-ta { fill: var(--accent-ink); font-family: var(--font-display); font-weight: 600; font-size: 14px; }
+.c-ts { fill: var(--second); font-family: var(--font-display); font-weight: 600; font-size: 13px; }
+@media (max-width: 560px) {
+  .figure { padding: 14px 12px; }
+  .chart { min-width: 0; }
+  .c-t { font-size: 22px; }
+  .c-tb, .c-ta { font-size: 24px; }
+  .c-ts { font-size: 22px; }
+}
+.figure p.cap { color: var(--muted); font-size: 0.95rem; max-width: 72ch; }
+
+/* teknik yaklaşım: şartname tablosu */
+.spec { margin: 0; display: grid; border-top: 1px solid var(--line); }
+.spec > div { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 18px; padding-block: 18px; border-bottom: 1px solid var(--line); }
+.spec dt { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; }
+.spec dd { margin: 0; color: var(--muted); display: grid; gap: 8px; max-width: 70ch; }
+.spec dd strong { color: var(--ink); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 0.82rem; padding: 2px 9px; border-radius: 999px; background: var(--second-soft); color: var(--ink); border: 1px solid var(--line); }
+.formula { font-family: var(--font-display); font-size: 1.02rem; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; overflow-x: auto; line-height: 1.8; }
+.formula sub, .formula sup { font-size: 0.72em; }
+section.alt .formula { background: var(--bg); }
+@media (max-width: 620px) { .spec > div { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
+
+/* neden şimdi: göstergeler */
+.gauges { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-block: 1px solid var(--line); }
+.gauges > div { padding: 20px 18px 18px 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.gauges > div + div { padding-left: 18px; border-left: 1px solid var(--line); }
+.gauges .val { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 2px; font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 1.5rem + 1.6vw, 2.75rem); line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.gauges .val small { font-size: 0.45em; font-weight: 600; color: var(--muted); margin-left: 4px; letter-spacing: 0.02em; }
+.gauges p { color: var(--muted); font-size: 0.93rem; }
+@media (max-width: 900px) { .gauges { grid-template-columns: repeat(2, minmax(0, 1fr)); } .gauges > div:nth-child(3) { padding-left: 0; border-left: 0; } .gauges > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+@media (max-width: 420px) { .gauges > div { padding-right: 10px; } .gauges > div + div { padding-left: 12px; } }
+.source { font-size: 0.82rem; color: var(--muted); }
+.source cite { font-style: normal; color: var(--ink); }
+.context { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.context > div { padding: 18px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); display: grid; gap: 8px; align-content: start; min-width: 0; }
+.context p { color: var(--muted); font-size: 0.97rem; }
+.context > .wide { grid-column: 1 / -1; background: var(--second-soft); border-color: transparent; }
+.context > .wide p { max-width: 74ch; }
+@media (max-width: 720px) { .context { grid-template-columns: minmax(0, 1fr); } }
+
+/* müşteri, iş modeli */
+.rows3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.rows3 > div { display: grid; gap: 8px; align-content: start; padding-top: 14px; border-top: 2px solid var(--ink); min-width: 0; }
+.rows3 > div.lead { border-top-color: var(--accent); }
+.rows3 p { color: var(--muted); font-size: 0.97rem; }
+.rows3 .meta { font-family: var(--font-display); font-weight: 600; font-size: 0.92rem; color: var(--accent-ink); letter-spacing: 0.03em; }
+@media (max-width: 760px) { .rows3 { grid-template-columns: minmax(0, 1fr); } }
+.note { font-size: 0.9rem; color: var(--muted); }
+
+/* rakipler tablosu */
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.95rem; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; color: var(--muted); background: var(--bg); }
+tbody th { font-weight: 600; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+tr.us th, tr.us td { background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+tr.us th { color: var(--accent-ink); }
+.scroll-hint { display: none; font-size: 0.85rem; color: var(--muted); margin-bottom: -16px; }
+@media (max-width: 700px) { .scroll-hint { display: block; } }
+.v { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.v::before { content: ""; width: 9px; height: 9px; border-radius: 50%; flex: none; border: 2px solid var(--muted); }
+.v.y::before { background: var(--ok); border-color: var(--ok); }
+.v.p::before { background: linear-gradient(90deg, var(--warn) 50%, transparent 50%); border-color: var(--warn); }
+.v.n::before { background: transparent; border-color: var(--muted); }
+.v.t::before { background: var(--accent); border-color: var(--accent); }
+
+/* yol haritası */
+.road { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.road > li { position: relative; padding: 26px 16px 0 0; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.road > li::before { content: ""; position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 3px solid var(--second); z-index: 1; }
+.road > li::after { content: ""; position: absolute; top: 6px; left: 14px; right: 0; height: 2px; background: var(--line); }
+.road > li:last-child::after { display: none; }
+.road > li.now::before { background: var(--accent); border-color: var(--accent); }
+.road .when { font-family: var(--font-display); font-weight: 600; color: var(--accent-ink); font-variant-numeric: tabular-nums; }
+.road p { color: var(--muted); font-size: 0.93rem; }
+@media (max-width: 860px) {
+  .road { grid-template-columns: minmax(0, 1fr); }
+  .road > li { padding: 0 0 20px 32px; }
+  .road > li::after { top: 14px; left: 6px; right: auto; width: 2px; bottom: 0; height: auto; }
+}
+.status-box { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.status-box > div { padding: 18px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; min-width: 0; }
+.status-box ul { margin: 0; padding-left: 1.1em; color: var(--muted); display: grid; gap: 6px; }
+@media (max-width: 720px) { .status-box { grid-template-columns: minmax(0, 1fr); } }
+
+/* ekip */
+.team { display: grid; gap: 16px; }
+.person { display: grid; gap: 16px; align-content: start; padding: 22px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--bg); min-width: 0; }
+.p-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+.person .ini { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; background: var(--panel); color: var(--panel-ink); box-shadow: inset 0 0 0 3px var(--panel-accent); flex: none; }
+.person .ini-open { background: transparent; color: var(--muted); box-shadow: none; border: 2px dashed var(--line); }
+.person h3 { font-size: var(--step-2); }
+.person .role { color: var(--accent-ink); font-weight: 500; margin-top: 4px; }
+.person .dept { color: var(--muted); font-size: 0.93rem; margin-top: 2px; }
+.p-stats { margin: 0; display: flex; gap: 14px; }
+.p-stats div { display: grid; justify-items: end; }
+.p-stats dt { font-size: 0.78rem; color: var(--muted); }
+.p-stats dd { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.p-facts { margin: 0; display: grid; border-top: 1px solid var(--line); }
+.p-facts > div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; padding-block: 12px; border-bottom: 1px solid var(--line); }
+.p-facts > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.p-facts dt { font-family: var(--font-display); font-weight: 600; font-size: 0.98rem; }
+.p-facts dd { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.p-facts ul { margin: 0; padding-left: 1.1em; display: grid; gap: 5px; }
+.person-open { grid-template-columns: auto minmax(0, 1fr); align-items: center; background: transparent; border-style: dashed; }
+.person-open h3 { font-size: var(--step-1); }
+@media (max-width: 620px) {
+  .p-head { grid-template-columns: auto minmax(0, 1fr); }
+  .p-stats { grid-column: 1 / -1; justify-content: flex-start; }
+  .p-stats div { justify-items: start; }
+  .p-facts > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+
+/* iletişim */
+.contact { background: var(--panel); color: var(--panel-ink); padding-block: clamp(48px, 7vw, 88px); }
+.contact .sec-head .kicker { color: var(--panel-accent); }
+.contact .sec-head p { color: var(--panel-muted); }
+.contact h2 { color: var(--panel-ink); }
+.asks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--panel-line); border-bottom: 1px solid var(--panel-line); }
+.asks > div { padding: 18px 18px 18px 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.asks > div + div { padding-left: 18px; border-left: 1px solid var(--panel-line); }
+.asks p { color: var(--panel-muted); font-size: 0.95rem; }
+.asks .ph, .contact .ph { color: var(--panel-ph); }
+@media (max-width: 760px) { .asks { grid-template-columns: minmax(0, 1fr); } .asks > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--panel-line); } }
+.card-contact { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; align-items: center; padding: 20px; border: 1px solid var(--panel-line); border-radius: var(--r-md); background: var(--panel-2); }
+.card-contact dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 16px; }
+.card-contact dt { color: var(--panel-muted); font-size: 0.9rem; }
+.card-contact dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.card-contact .who { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; }
+.cc-body { display: grid; gap: 12px; min-width: 0; }
+.cc-actions { display: grid; gap: 10px; justify-items: stretch; }
+.mail { user-select: all; }
+.p-links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.p-facts dd a, .card-contact dd a { overflow-wrap: anywhere; }
+.copy-msg { font-size: 0.85rem; color: var(--panel-muted); min-height: 1.2em; }
+@media (max-width: 560px) { .card-contact { grid-template-columns: minmax(0, 1fr); } .card-contact dl { grid-template-columns: minmax(0, 1fr); gap: 2px; } .card-contact dd { margin-bottom: 8px; } .cc-actions { justify-items: start; } }
+
+/* alt bantta kartlar zemine göre ayrışsın */
+section.alt .context > div:not(.wide), section.alt .mkt-row, section.alt .status-box > div, section.alt .fund > div, section.alt .target { background: var(--bg); }
+section.alt .table-scroll { background: var(--bg); }
+section.alt tr.us th, section.alt tr.us td { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); }
+section.alt thead th { background: var(--surface); }
+
+.sub-h { font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.t-target { color: var(--accent-ink); }
+
+/* pazar: büyüme defteri */
+.mkt { display: grid; gap: 14px; }
+.mkt-row { padding: 20px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px 28px; align-items: start; min-width: 0; }
+.mkt-name { display: grid; gap: 6px; min-width: 0; }
+.mkt-name p { color: var(--muted); font-size: 0.93rem; }
+.mkt-data { display: grid; gap: 10px; min-width: 0; }
+.mkt-fig { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mkt-fig > div { display: grid; gap: 4px; min-width: 0; align-content: start; }
+.mkt-fig dt { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.04em; }
+.mkt-fig dd { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 4px; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.45rem, 1.2rem + 0.9vw, 2rem); line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--ink); }
+.mkt-fig dd small { flex-basis: 100%; font-size: 0.5em; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+.mkt-fig dd.up { color: var(--accent-ink); }
+.mkt-bar { position: relative; height: 12px; border-radius: 6px; background: var(--second-soft); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.mkt-bar i { position: absolute; inset: 0 auto 0 0; background: var(--second); border-radius: 6px 0 0 6px; }
+.mkt-cap { font-size: 0.8rem; color: var(--muted); }
+@media (max-width: 760px) { .mkt-row { grid-template-columns: minmax(0, 1fr); padding: 16px; } }
+@media (max-width: 400px) { .mkt-fig { gap: 8px; } }
+
+.tr-export { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 24px; align-items: center; padding: 20px; border-radius: var(--r-md); background: var(--panel); color: var(--panel-ink); }
+.tr-export .big { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.4rem, 1.8rem + 2vw, 3.4rem); line-height: 1; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 6px; }
+.tr-export .big small { font-size: 0.4em; font-weight: 600; color: var(--panel-muted); }
+.tr-export > div { display: grid; gap: 6px; min-width: 0; }
+.tr-export p { color: var(--panel-muted); }
+.tr-export p b { color: var(--panel-ink); font-weight: 500; }
+.tr-export .source { color: var(--panel-muted); }
+.tr-export .source cite { color: var(--panel-ink); }
+@media (max-width: 560px) { .tr-export { grid-template-columns: minmax(0, 1fr); } }
+
+/* pazara giriş: satış döngüsü */
+.cycle { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: cy; }
+.cycle li { counter-increment: cy; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.cycle li::before { content: counter(cy); font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--second); color: var(--ink); transform: translateY(-1px); }
+.cycle li:last-child::before { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.cycle b { color: var(--ink); font-weight: 600; }
+
+/* doğrulama hedefleri */
+.targets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.target { display: grid; gap: 10px; align-content: start; padding: 20px; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: var(--r-sm); background: var(--surface); min-width: 0; }
+.target .tval { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; font-family: var(--font-display); font-weight: 700; font-size: clamp(2.2rem, 1.7rem + 1.6vw, 3rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.target .tval small { font-size: 0.42em; font-weight: 600; color: var(--muted); }
+.target p { color: var(--muted); font-size: 0.95rem; }
+.target .tag { justify-self: start; }
+@media (max-width: 760px) { .targets { grid-template-columns: minmax(0, 1fr); } }
+
+/* fon */
+.fund { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.fund > div { display: grid; gap: 8px; align-content: start; padding: 20px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); min-width: 0; }
+.fund .meta { font-family: var(--font-display); font-weight: 600; font-size: 0.92rem; color: var(--accent-ink); letter-spacing: 0.03em; }
+.fund .amt { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.8rem, 1.4rem + 1.2vw, 2.4rem); line-height: 1.05; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+.fund .amt small { font-size: 0.45em; font-weight: 600; color: var(--muted); }
+.fund p { color: var(--muted); font-size: 0.95rem; }
+@media (max-width: 720px) { .fund { grid-template-columns: minmax(0, 1fr); } }
+.alloc { display: grid; gap: 14px; }
+.alloc-bar { display: flex; height: 22px; gap: 3px; border-radius: 6px; overflow: hidden; }
+.alloc-bar i { display: block; height: 100%; }
+.alloc-legend { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; }
+.alloc-legend > div { display: grid; grid-template-columns: 14px 3.3rem minmax(0, 1fr); gap: 4px 10px; align-items: baseline; min-width: 0; }
+.alloc-legend .sw { width: 14px; height: 14px; border-radius: 3px; transform: translateY(1px); }
+.alloc-legend dt { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.alloc-legend dd { margin: 0; font-weight: 600; min-width: 0; }
+.alloc-legend dd span { display: block; font-weight: 400; color: var(--muted); font-size: 0.9rem; }
+.s1 { background: var(--accent); } .s2 { background: var(--second); } .s3 { background: var(--alloc-3); } .s4 { background: var(--alloc-4); }
+@media (max-width: 560px) { .alloc-legend { grid-template-columns: minmax(0, 1fr); } }
+.road.q4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.road ul { margin: 0; padding-left: 1.05em; color: var(--muted); font-size: 0.93rem; display: grid; gap: 4px; }
+.road .crit { font-size: 0.86rem; color: var(--ink); border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 6px; }
+.road .crit b { display: block; font-family: var(--font-display); font-weight: 600; color: var(--accent-ink); letter-spacing: 0.03em; }
+@media (max-width: 860px) { .road.q4 { grid-template-columns: minmax(0, 1fr); } }
+
+.team-line { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 14px 18px; border-radius: var(--r-md); background: var(--second-soft); }
+.team-line svg { width: 24px; height: 24px; color: var(--second); }
+
+footer { background: var(--panel); color: var(--panel-muted); border-top: 1px solid var(--panel-line); font-size: 0.86rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; padding-block: 24px; }
+footer p { max-width: 80ch; }
+footer strong { color: var(--panel-ink); font-weight: 500; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+/* ekip portreleri */
+.person .portrait { width: 104px; height: 104px; border-radius: 50%; object-fit: cover; object-position: 50% 30%; flex: none; background: var(--panel); box-shadow: 0 0 0 3px var(--panel-accent); margin: 3px; display: block; }
+@media (max-width: 420px) { .person .portrait { width: 84px; height: 84px; } }
+/* hero kanıt satırı */
+.proof { font-size: var(--step--1); color: var(--panel-muted); max-width: 60ch; padding: 10px 14px; border: 1px solid var(--panel-line); border-left: 3px solid var(--panel-accent); border-radius: var(--r-sm); background: var(--panel-2); }
+.proof b { color: var(--panel-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.proof a { color: var(--panel-ph); }
+/* hedef kartlarında prototip sonucu */
+.t-proto { border-top: 1px solid var(--line); padding-top: 10px; font-size: 0.9rem !important; color: var(--ink) !important; }
+.t-proto b { color: var(--ok); font-weight: 600; }
+/* çalışan prototip: gösterge paneli bandı */
+section.band.panel-band { background: var(--panel); color: var(--panel-ink); border-bottom-color: var(--panel-line); }
+.panel-band .sec-head .kicker { color: var(--panel-accent); }
+.panel-band .sec-head p { color: var(--panel-muted); }
+.panel-band .full { grid-column: 1 / -1; min-width: 0; }
+.does { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--panel-line); }
+.does li { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 4px 18px; padding-block: 12px; border-bottom: 1px solid var(--panel-line); }
+.does b { font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; }
+.does span { color: var(--panel-muted); font-size: 0.95rem; }
+.gauges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.gauges > div { display: grid; gap: 4px; align-content: start; padding: 14px; border: 1px solid var(--panel-line); border-top: 3px solid var(--panel-accent); border-radius: var(--r-sm); background: var(--panel-2); min-width: 0; }
+.gauges > div.muted { border-top-color: var(--panel-line); }
+.gauges dt { font-size: 0.8rem; color: var(--panel-muted); letter-spacing: 0.02em; }
+.gauges dd { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.7rem, 1.4rem + 1vw, 2.2rem); line-height: 1.05; font-variant-numeric: tabular-nums; }
+.gauges dd small { font-size: 0.45em; font-weight: 600; color: var(--panel-muted); margin-left: 3px; }
+.gauges .gnote { font-size: 0.8rem; color: var(--panel-muted); }
+.gauges .gnote b { color: var(--panel-ink); font-weight: 600; }
+.pnotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
+.pnotes p { font-size: 0.9rem; color: var(--panel-muted); }
+.pnotes p b { color: var(--panel-ink); font-weight: 600; }
+.shots { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.shots figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.shots img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border: 1px solid var(--panel-line); border-radius: var(--r-sm); background: var(--panel-2); }
+.shots figcaption { font-size: 0.9rem; color: var(--panel-muted); }
+.shots figcaption b { display: block; color: var(--panel-ink); font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
+.proto-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.proto-cta p { font-size: var(--step--1); color: var(--panel-muted); max-width: 60ch; }
+@media (max-width: 760px) { .shots { grid-template-columns: minmax(0, 1fr); gap: 26px; } .pnotes { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 520px) { .does li { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#ust" aria-label="ÖMÜR ana sayfa"><img src="/hasat2026/omur/logo.png" alt="" width="34" height="34">ÖMÜR</a>
+    <nav class="nav" aria-label="Bölümler">
+      <a href="#cozum">Çözüm</a>
+      <a href="#prototip">Prototip</a>
+      <a href="#teknik">Teknik</a>
+      <a href="#hedefler">Hedefler</a>
+      <a href="#pazar">Pazar</a>
+      <a href="#pazara-giris">Pazara giriş</a>
+      <a href="#fon">Fon ve plan</a>
+      <a href="#ekip">Ekip</a>
+    </nav>
+    <div class="top-actions">
+      <a class="btn btn-primary btn-sm" href="#iletisim">İletişim</a>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Açık/koyu tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="ust">
+<!-- ===================== HERO ===================== -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="stage"><i aria-hidden="true"></i>HASAT 2026 · Savunma Sahnesi</span>
+      <h1 id="hero-title">ÖMÜR<span>İHA ve uçak motorları için açıklanabilir kalan ömür tahmini</span></h1>
+      <p class="lede">Motor sensör verisinden kaç uçuş döngüsü sonra arıza beklendiğini tahmin ediyoruz ve bu tahminin nedenini, güven aralığını ve benzer geçmiş arızaları bakım teknisyenine gösteriyoruz. Kapalı ağda çalışan yerli bir kestirimci bakım platformu.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="mailto:orkun.teke@cbu.edu.tr">İletişim</a>
+        <a class="btn btn-ghost" href="#prototip">Çalışan prototip</a>
+      </div>
+      <p class="proof">Prototip, NASA C-MAPSS FD001 resmi test setinde (100 motor, simülasyon verisi): <b>RMSE 11,83 döngü</b>, <b>%90 aralık kapsaması %94</b>. Gerçek motor verisiyle doğrulama pilotla yapılacak. <a href="#prototip">Ayrıntı</a></p>
+      <p class="hero-mail">Proje lideri Öğr. Gör. Dr. Orkun Teke: <b>orkun.teke@cbu.edu.tr</b></p>
+      <dl class="readouts">
+        <div><dt>Aşama</dt><dd>Prototip / MVP</dd></div>
+        <div><dt>Sektör</dt><dd>Savunma &amp; Havacılık</dd></div>
+        <div><dt>Ekip</dt><dd>3 kurucu akademisyen, MCBÜ</dd></div>
+        <div><dt>İlk veri</dt><dd>NASA C-MAPSS, N-CMAPSS, CWRU</dd></div>
+      </dl>
+    </div>
+
+    <figure class="instrument" aria-label="Kalan ömür göstergesi, şematik">
+      <svg viewBox="0 0 320 312" role="img" aria-labelledby="g-title">
+        <title id="g-title">Şematik kalan ömür göstergesi: tüketilen ömür turuncu, beklenen arıza aralığı taralı bant</title>
+        <g class="g-ticks"><line x1="70.9" y1="247.1" x2="62.4" y2="255.6" class="tk-b"/><line x1="52.6" y1="223.8" x2="47.5" y2="227.0"/><line x1="40.2" y1="196.9" x2="34.5" y2="198.8"/><line x1="34.4" y1="167.9" x2="28.4" y2="168.4"/><line x1="35.6" y1="138.3" x2="29.6" y2="137.4"/><line x1="43.6" y1="109.8" x2="32.5" y2="105.2" class="tk-b"/><line x1="58.1" y1="83.9" x2="53.2" y2="80.4"/><line x1="78.2" y1="62.2" x2="74.3" y2="57.6"/><line x1="102.8" y1="45.7" x2="100.1" y2="40.4"/><line x1="130.6" y1="35.5" x2="129.2" y2="29.6"/><line x1="160.0" y1="32.0" x2="160.0" y2="20.0" class="tk-b"/><line x1="189.4" y1="35.5" x2="190.8" y2="29.6"/><line x1="217.2" y1="45.7" x2="219.9" y2="40.4"/><line x1="241.8" y1="62.2" x2="245.7" y2="57.6"/><line x1="261.9" y1="83.9" x2="266.8" y2="80.4"/><line x1="276.4" y1="109.8" x2="287.5" y2="105.2" class="tk-b"/><line x1="284.4" y1="138.3" x2="290.4" y2="137.4"/><line x1="285.6" y1="167.9" x2="291.6" y2="168.4"/><line x1="279.8" y1="196.9" x2="285.5" y2="198.8"/><line x1="267.4" y1="223.8" x2="272.5" y2="227.0"/><line x1="249.1" y1="247.1" x2="257.6" y2="255.6" class="tk-b"/></g>
+        <path class="g-track" d="M80.8 237.2 A112 112 0 1 1 239.2 237.2"/>
+        <path class="g-band" d="M268.5 130.1 A112 112 0 0 1 262.8 202.5"/>
+        <path class="g-used" d="M80.8 237.2 A112 112 0 0 1 210.8 58.2"/>
+        <g class="fan">
+          <g transform="translate(160 158)">
+            <path id="blade" class="g-blade" d="M-4 -10 C -6 -30, 2 -46, 10 -54 C 9 -40, 9 -24, 6 -10 Z"/>
+            <use href="#blade" transform="rotate(51.4)"/>
+            <use href="#blade" transform="rotate(102.8)"/>
+            <use href="#blade" transform="rotate(154.2)"/>
+            <use href="#blade" transform="rotate(205.6)"/>
+            <use href="#blade" transform="rotate(257)"/>
+            <use href="#blade" transform="rotate(308.4)"/>
+          </g>
+        </g>
+        <circle class="g-hub" cx="160" cy="158" r="13"/>
+        <text class="g-txt" x="160" y="287" text-anchor="middle">kalan ömür = aralık + gerekçe</text>
+        <text class="g-sub" x="160" y="306" text-anchor="middle">tek bir sayı değil</text>
+      </svg>
+      <div class="legend">
+        <span><i style="background: var(--panel-accent)"></i>tüketilen ömür</span>
+        <span><i style="background: color-mix(in srgb, var(--panel-ink) 35%, transparent)"></i>beklenen arıza aralığı</span>
+      </div>
+      <span class="tag">şematik, gerçek veri değildir</span>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== PROBLEM ===================== -->
+<section class="band" id="problem" aria-labelledby="problem-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Problem</span>
+      <h2 id="problem-title">Kalan ömür modelleri var, ama sahaya inmiyor</h2>
+      <p>Teknisyen ve sertifikasyon otoritesi, gerekçesini görmediği bir tahmine dayanarak bakım kararı veremez.</p>
+    </div>
+    <div class="sec-body">
+      <p class="statement">"Bu motorun 40 uçuşu kaldı" diyen bir model, neden 40 olduğunu söyleyemiyorsa bakım planına giremez.</p>
+      <div class="faults">
+        <div class="fault">
+          <span class="code">Plansız arıza</span>
+          <div><h3>Görev kaybı ve yerde kalan uçak</h3><p>İHA filolarında beklenmedik motor arızası görev kaybı demek. Sivil havacılıkta uçak yerde kalıyor, parça ve ekip son anda bulunmaya çalışılıyor, maliyet yükseliyor.</p></div>
+        </div>
+        <div class="fault">
+          <span class="code">Takvim bakımı</span>
+          <div><h3>Motorun gerçek durumu hesaba katılmıyor</h3><p>Bakım bugün çoğunlukla takvime ya da çalışma saatine göre, ya da arızadan sonra yapılıyor. Sağlam parçalar erken değişiyor, bozulmakta olan parça ise bir sonraki kontrole kadar fark edilmeyebiliyor.</p></div>
+        </div>
+        <div class="fault">
+          <span class="code">Kara kutu</span>
+          <div><h3>Gerekçesiz tahmin kullanılamıyor</h3><p>Literatürde kalan faydalı ömür (RUL) tahmini yapan çok sayıda model var. Çoğu tek bir sayı üretiyor: hangi sensörün, hangi eğilimin bu sonuca yol açtığını ve tahminin ne kadar güvenilir olduğunu göstermiyor. Bu yüzden bakım kararında ve sertifikasyonda kullanılamıyor.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ÇÖZÜM ===================== -->
+<section class="band alt" id="cozum" aria-labelledby="cozum-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Çözüm</span>
+      <h2 id="cozum-title">Her tahmin, gerekçesiyle birlikte gelir</h2>
+      <p>ÖMÜR motor ve alt sistem sensörlerinden kalan faydalı ömrü tahmin eder. Karar teknisyende kalır; sistem ona kararını savunabileceği kanıtı verir.</p>
+    </div>
+    <div class="sec-body">
+      <div class="pillars">
+        <div class="pillar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 17l5-5 4 3 8-9"/><path d="M15 6h5v5"/></svg>
+          <h3>Gerekçe</h3>
+          <p>Hangi sensördeki hangi eğilimin tahmini belirlediğini, hangi zaman aralığında belirginleştiğini gösterir.</p>
+        </div>
+        <div class="pillar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12h18"/><path d="M7 8v8M17 8v8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+          <h3>Güven aralığı</h3>
+          <p>Tahmini bir aralık olarak verir. Belirsizlik yüksekse uyarı üretir ve "emin değilim" der.</p>
+        </div>
+        <div class="pillar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h11v14H4z"/><path d="M8 3h12v14"/><path d="M7 9h5M7 13h5"/></svg>
+          <h3>Emsal arızalar</h3>
+          <p>Benzer bozulma yörüngesi izlemiş geçmiş arıza kayıtlarını tahminin yanına koyar.</p>
+        </div>
+      </div>
+
+      <div class="physics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="4" r="1.3" fill="currentColor"/><circle cx="20" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="20" r="1.3" fill="currentColor"/><circle cx="4" cy="12" r="1.3" fill="currentColor"/></svg>
+        <p><strong>Arıza fiziği modele kısıt olarak girer.</strong> Rulman hasarı ve yüzey aşınmasının nasıl ilerlediğine dair bilgi (triboloji) modelin öğrenmesini sınırlar: bozulma geri dönmez, aşınma yük ve kaymayla birikir. Bu kısıtlar az veriyle daha tutarlı tahmin almayı ve fiziksel olarak anlamsız sonuçları elemeyi hedefler.</p>
+      </div>
+
+      <div class="mock" role="group" aria-label="Motor kartı, temsili arayüz">
+        <div class="mock-head">
+          <strong>Motor kartı · Örnek motor · temsili</strong>
+          <span class="tag">temsili arayüz, gerçek veri değildir</span>
+        </div>
+        <div class="mock-grid">
+          <div class="mock-cell">
+            <h4>Kalan ömür tahmini</h4>
+            <div class="rul-bar" aria-hidden="true"><span class="rng"></span><span class="pt"></span></div>
+            <div class="rul-scale"><span>bugün</span><span>alt sınır · tahmin · üst sınır</span><span>uçuş döngüsü</span></div>
+            <span class="status"><i aria-hidden="true"></i>Belirsizlik orta: bir sonraki kontrolde yeniden değerlendir</span>
+          </div>
+          <div class="mock-cell">
+            <h4>Tahmini belirleyen sensörler</h4>
+            <div class="contrib">
+              <div><span><b>T50</b>AB türbin çıkış sıcaklığı</span><span class="bar"><i style="width: 82%"></i></span></div>
+              <div><span><b>P30</b>YB kompresör çıkış basıncı</span><span class="bar"><i style="width: 55%"></i></span></div>
+              <div><span><b>Nc</b>Çekirdek devri</span><span class="bar"><i style="width: 34%"></i></span></div>
+              <div><span><b>BPR</b>Baypas oranı</span><span class="bar"><i class="neg" style="width: 16%"></i></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-cell" style="border-top: 1px solid var(--panel-line)">
+          <h4>Emsal arızalar</h4>
+          <div class="precedents">
+            <ul>
+              <li>Geçmiş kayıt A: benzer T50 yükselişi, ardından kompresör verim kaybı</li>
+              <li>Geçmiş kayıt B: benzer devir dalgalanması, rulman hasarı ile sonuçlandı</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mock-foot">Sensör kısaltmaları NASA C-MAPSS veri setindeki adlandırmayı izler (AB: alçak basınç, YB: yüksek basınç). Çubuklar yalnızca gösterimin biçimini anlatır.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NASIL ÇALIŞIR ===================== -->
+<section class="band" id="nasil-calisir" aria-labelledby="nasil-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Nasıl çalışır</span>
+      <h2 id="nasil-title">Sensörden bakım planına dört adım</h2>
+      <p>Sonuçlar bakım planlama sistemine aktarılır; parça siparişi ve bakım penceresi arızadan önce planlanır.</p>
+    </div>
+    <div class="sec-body">
+      <ol class="flow">
+        <li><h3>Sensörler</h3><p>Sıcaklık, basınç, devir, titreşim ve çalışma koşulu kayıtları.</p></li>
+        <li class="hot"><h3>ÖMÜR modeli</h3><p>Sağlık göstergesi çıkarılır, fizik bilgili model kalan ömrü tahmin eder.</p></li>
+        <li><h3>Açıklama</h3><p>Gerekçe, güven aralığı ve emsal arızalar tahmine eklenir.</p></li>
+        <li><h3>Bakım planı</h3><p>Bakım penceresi ve parça siparişi önceden planlanır.</p></li>
+      </ol>
+
+      <figure class="figure" style="margin: 0">
+        <div class="figure-head">
+          <h3>Sağlık göstergesi, kalan ömür ve güven aralığı</h3>
+          <span class="tag">şematik, gerçek veri değildir</span>
+        </div>
+        <div class="chart-scroll">
+          <svg class="chart" viewBox="0 0 740 340" role="img" aria-labelledby="c-title">
+            <defs><clipPath id="plot-clip"><rect x="64" y="36" width="636" height="250"/></clipPath></defs>
+            <title id="c-title">Şematik çizim: sağlık göstergesi zamanla düşer; bugünden sonrası tahmin, genişleyen güven bandıyla gösterilir; bandın arıza eşiğini kestiği aralık kalan ömrün güven aralığıdır.</title>
+            <line class="c-grid" x1="64" y1="96" x2="700" y2="96"/>
+            <line class="c-grid" x1="64" y1="156" x2="700" y2="156"/>
+            <line class="c-axis" x1="64" y1="36" x2="64" y2="286"/>
+            <line class="c-axis" x1="64" y1="286" x2="700" y2="286"/>
+            <text class="c-t" x="64" y="22">sağlık göstergesi</text>
+            <text class="c-t" x="76" y="56">sağlıklı</text>
+            <text class="c-t" x="700" y="312" text-anchor="end">uçuş döngüsü</text>
+            <path class="c-band" clip-path="url(#plot-clip)" d="M432 145.8 L436 146.9 L440 148.0 L444 149.1 L448 150.3 L452 151.4 L456 152.6 L460 153.8 L464 155.0 L468 156.2 L472 157.5 L476 158.7 L480 160.0 L484 161.3 L488 162.5 L492 163.9 L496 165.2 L500 166.5 L504 167.9 L508 169.3 L512 170.6 L516 172.0 L520 173.5 L524 174.9 L528 176.3 L532 177.8 L536 179.3 L540 180.8 L544 182.3 L548 183.8 L552 185.3 L556 186.9 L560 188.5 L564 190.0 L568 191.6 L572 193.2 L576 194.9 L580 196.5 L584 198.2 L588 199.8 L592 201.5 L596 203.2 L600 204.9 L604 206.7 L608 208.4 L612 210.2 L616 211.9 L620 213.7 L624 215.5 L628 217.4 L632 219.2 L636 221.0 L640 222.9 L644 224.8 L648 226.7 L652 228.6 L656 230.5 L660 232.4 L664 234.4 L668 236.4 L672 238.3 L676 240.3 L680 242.3 L684 244.4 L688 246.4 L692 248.5 L696 250.5 L700 252.6 L700 317.4 L696 314.4 L692 311.3 L688 308.3 L684 305.3 L680 302.3 L676 299.4 L672 296.4 L668 293.5 L664 290.5 L660 287.6 L656 284.7 L652 281.9 L648 279.0 L644 276.1 L640 273.3 L636 270.5 L632 267.7 L628 264.9 L624 262.1 L620 259.3 L616 256.6 L612 253.9 L608 251.1 L604 248.4 L600 245.7 L596 243.1 L592 240.4 L588 237.8 L584 235.1 L580 232.5 L576 229.9 L572 227.3 L568 224.8 L564 222.2 L560 219.7 L556 217.1 L552 214.6 L548 212.1 L544 209.6 L540 207.2 L536 204.7 L532 202.3 L528 199.9 L524 197.5 L520 195.1 L516 192.7 L512 190.3 L508 188.0 L504 185.6 L500 183.3 L496 181.0 L492 178.7 L488 176.5 L484 174.2 L480 172.0 L476 169.7 L472 167.5 L468 165.3 L464 163.2 L460 161.0 L456 158.8 L452 156.7 L448 154.6 L444 152.5 L440 150.4 L436 148.3 L432 146.3 Z"/>
+            <g class="c-pts"><circle cx="70" cy="72.1" r="2.6"/><circle cx="82" cy="75.9" r="2.6"/><circle cx="94" cy="67.8" r="2.6"/><circle cx="106" cy="65.7" r="2.6"/><circle cx="118" cy="68.2" r="2.6"/><circle cx="130" cy="76.5" r="2.6"/><circle cx="142" cy="69.7" r="2.6"/><circle cx="154" cy="72.8" r="2.6"/><circle cx="166" cy="80.9" r="2.6"/><circle cx="178" cy="75.9" r="2.6"/><circle cx="190" cy="81.6" r="2.6"/><circle cx="202" cy="86.6" r="2.6"/><circle cx="214" cy="90.2" r="2.6"/><circle cx="226" cy="86.3" r="2.6"/><circle cx="238" cy="85.5" r="2.6"/><circle cx="250" cy="90.1" r="2.6"/><circle cx="262" cy="92.6" r="2.6"/><circle cx="274" cy="97.4" r="2.6"/><circle cx="286" cy="95.7" r="2.6"/><circle cx="298" cy="106.5" r="2.6"/><circle cx="310" cy="100.0" r="2.6"/><circle cx="322" cy="112.6" r="2.6"/><circle cx="334" cy="105.8" r="2.6"/><circle cx="346" cy="113.3" r="2.6"/><circle cx="358" cy="118.8" r="2.6"/><circle cx="370" cy="124.1" r="2.6"/><circle cx="382" cy="128.9" r="2.6"/><circle cx="394" cy="134.0" r="2.6"/><circle cx="406" cy="139.4" r="2.6"/><circle cx="418" cy="138.8" r="2.6"/><circle cx="430" cy="150.0" r="2.6"/></g>
+            <path class="c-past" d="M64 70.0 L68 70.0 L72 70.1 L76 70.1 L80 70.2 L84 70.3 L88 70.4 L92 70.6 L96 70.7 L100 70.9 L104 71.1 L108 71.3 L112 71.6 L116 71.8 L120 72.1 L124 72.4 L128 72.7 L132 73.1 L136 73.4 L140 73.8 L144 74.2 L148 74.6 L152 75.0 L156 75.5 L160 75.9 L164 76.4 L168 76.9 L172 77.4 L176 77.9 L180 78.5 L184 79.0 L188 79.6 L192 80.2 L196 80.8 L200 81.5 L204 82.1 L208 82.8 L212 83.5 L216 84.2 L220 84.9 L224 85.6 L228 86.4 L232 87.1 L236 87.9 L240 88.7 L244 89.5 L248 90.4 L252 91.2 L256 92.1 L260 93.0 L264 93.9 L268 94.8 L272 95.7 L276 96.7 L280 97.6 L284 98.6 L288 99.6 L292 100.6 L296 101.6 L300 102.7 L304 103.7 L308 104.8 L312 105.9 L316 107.0 L320 108.2 L324 109.3 L328 110.4 L332 111.6 L336 112.8 L340 114.0 L344 115.2 L348 116.5 L352 117.7 L356 119.0 L360 120.3 L364 121.6 L368 122.9 L372 124.2 L376 125.6 L380 126.9 L384 128.3 L388 129.7 L392 131.1 L396 132.5 L400 134.0 L404 135.4 L408 136.9 L412 138.4 L416 139.9 L420 141.4 L424 142.9 L428 144.5"/>
+            <path class="c-fut" d="M432 146.0 L436 147.6 L440 149.2 L444 150.8 L448 152.4 L452 154.1 L456 155.7 L460 157.4 L464 159.1 L468 160.8 L472 162.5 L476 164.2 L480 166.0 L484 167.7 L488 169.5 L492 171.3 L496 173.1 L500 174.9 L504 176.8 L508 178.6 L512 180.5 L516 182.4 L520 184.3 L524 186.2 L528 188.1 L532 190.0 L536 192.0 L540 194.0 L544 196.0 L548 198.0 L552 200.0 L556 202.0 L560 204.1 L564 206.1 L568 208.2 L572 210.3 L576 212.4 L580 214.5 L584 216.6 L588 218.8 L592 221.0 L596 223.1 L600 225.3 L604 227.5 L608 229.8 L612 232.0 L616 234.3 L620 236.5 L624 238.8 L628 241.1 L632 243.4 L636 245.8 L640 248.1 L644 250.5 L648 252.8 L652 255.2 L656 257.6 L660 260.0 L664 262.5 L668 264.9 L672 267.4 L676 269.8 L680 272.3 L684 274.8 L688 277.4 L692 279.9 L696 282.4 L700 285.0"/>
+            <line class="c-thr" x1="64" y1="226" x2="700" y2="226"/>
+            <text class="c-ta" x="76" y="216">arıza eşiği</text>
+            <line class="c-today" x1="430" y1="36" x2="430" y2="286"/>
+            <text class="c-tb" x="430" y="24" text-anchor="middle">bugün</text>
+            <text class="c-t" x="250" y="150" text-anchor="middle">ölçülen</text>
+            <text class="c-t" x="530" y="118" text-anchor="middle">tahmin</text>
+            <!-- güven aralığı: bandın eşiği kestiği yer -->
+            <path class="c-ci" d="M572 218 V234 M572 226 H648 M648 218 V234"/>
+            <circle class="c-rul-head" cx="604" cy="226" r="5"/>
+            <text class="c-ts" x="700" y="174" text-anchor="end">güven aralığı</text><line class="c-grid" x1="648" y1="180" x2="648" y2="216" stroke-dasharray="3 4"/>
+            <!-- kalan ömür oku -->
+            <line class="c-rul" x1="434" y1="271" x2="594" y2="271"/>
+            <path class="c-rul-head" d="M594 263 L604 271 L594 279 Z"/>
+            <line class="c-grid" x1="604" y1="226" x2="604" y2="279" stroke-dasharray="3 4"/>
+            <text class="c-ta" x="517" y="256" text-anchor="middle">kalan ömür</text>
+          </svg>
+        </div>
+        <p class="cap">Sağlık göstergesi, sensörlerden türetilen ve motorun bozulmasını özetleyen bir değerdir. Bugüne kadar ölçülen kısım düz, sonrası tahmindir. Tahmin ileriye gittikçe belirsizlik bandı genişler; bandın arıza eşiğini kestiği aralık, kalan ömrün güven aralığıdır. Teknisyen tek bir sayı yerine bu aralığı ve gerekçesini görür.</p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ÇALIŞAN PROTOTİP ===================== -->
+<section class="band panel-band" id="prototip" aria-labelledby="proto-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Çalışan prototip</span>
+      <h2 id="proto-title">ÖMÜR v0.1, 100 motorluk test filosunda çalışıyor</h2>
+      <p>Tek dosyalık bir uygulama; tarayıcıda açılır, internet ve sunucu gerektirmez. Aşağıdaki sayılar NASA C-MAPSS FD001 resmi test setinde ölçüldü.</p>
+    </div>
+    <div class="sec-body">
+      <ul class="does">
+        <li><b>Filo görünümü</b><span>100 test motorunun tahmini kalan ömrü (döngü), %90 güven aralığı ve aralığın alt sınırına göre Kritik / İzle / Normal durumu.</span></li>
+        <li><b>Motor detayı</b><span>Sağlık göstergesi, ömür projeksiyonu ve güven bandı; 15 sinyal grubunun Shapley katkısı ve "Neden bu tahmin?" açıklaması.</span></li>
+        <li><b>Model performansı</b><span>Tahmin–gerçek saçılımı, hata dağılımı, 100 motorun %90 aralıkları ve proje hedefleriyle kıyas.</span></li>
+        <li><b>Veri yükle</b><span>C-MAPSS biçimindeki dosya tarayıcıda çalışan hafif modelle değerlendirilir; dosya bilgisayardan çıkmaz.</span></li>
+      </ul>
+      <dl class="gauges">
+        <div><dt>RMSE · ana model</dt><dd>11,83<small>döngü</small></dd><span class="gnote">Hedef ≤13: <b>karşılandı</b></span></div>
+        <div><dt>%90 aralık kapsaması</dt><dd>%94</dd><span class="gnote">Hedef ≥%85: <b>karşılandı</b></span></div>
+        <div><dt>NASA skoru</dt><dd>213,4</dd><span class="gnote">Düşük daha iyi; geç tahmine ağır ceza</span></div>
+        <div class="muted"><dt>RMSE · hafif model</dt><dd>15,21<small>döngü</small></dd><span class="gnote">Tarayıcıda çalışan model</span></div>
+      </dl>
+      <div class="pnotes">
+        <p><b>Kaynak ve protokol:</b> NASA C-MAPSS FD001 resmi test seti, 100 motorun son döngüsü; standart protokolde gerçek RUL 125 döngüde kırpıldı. Ana model gradient boosting, aralıklar kantil modellerle ve konformal düzeltmeyle üretildi.</p>
+        <p><b>Sınır:</b> C-MAPSS simülasyon verisidir; gerçek motor ve İHA verisiyle doğrulama pilot iş birliğiyle yapılacak. Literatür referansı DCNN (Li vd. 2018) FD001'de RMSE 12,61; ön işleme farkları nedeniyle kıyas yaklaşıktır.</p>
+      </div>
+    </div>
+    <ul class="shots full">
+      <li><figure><img src="/hasat2026/omur/proto_1.png" width="1600" height="1000" loading="lazy" alt="ÖMÜR filo görünümü: C-MAPSS FD001 test setindeki 100 motorun 10×10 filo haritası ve motor listesi; 22 motor Kritik, 29 İzle, 49 Normal; her motor için tahmini kalan ömür, yüzde 90 aralık ve baskın sinyal."><figcaption><b>Filo görünümü</b>100 motorun kalan ömrü, güven aralığı ve risk durumu.</figcaption></figure></li>
+      <li><figure><img src="/hasat2026/omur/proto_2.png" width="1600" height="1000" loading="lazy" alt="ÖMÜR motor detayı, motor 34: tahmini kalan ömür 4 döngü, yüzde 90 aralık 0–14 döngü; sağlık göstergesi eğrisi arıza eşiğine yaklaşıyor; sensör katkıları grafiğinde en büyük etki s4 T50 LPT çıkış sıcaklığından. Bakım önerisi temsili olarak işaretli."><figcaption><b>Motor detayı</b>Ömür projeksiyonu ve tahmini belirleyen sensör katkıları.</figcaption></figure></li>
+      <li><figure><img src="/hasat2026/omur/proto_3.png" width="1600" height="1000" loading="lazy" alt="ÖMÜR model performansı ekranı: ana model RMSE 11,83 döngü, NASA skoru 213,4, yüzde 90 aralık kapsaması yüzde 94, hafif model RMSE 15,21; tahmin ve gerçek kalan ömür saçılım grafiği ile hata dağılımı histogramı."><figcaption><b>Model performansı</b>Resmi test setinde ölçülen metrikler ve hata dağılımı.</figcaption></figure></li>
+    </ul>
+    <div class="proto-cta full">
+      <a class="btn btn-primary" href="/hasat2026/omur/demo" target="_blank" rel="noopener">Canlı demoyu aç <span aria-hidden="true">&nbsp;↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a>
+      <p>Demo, C-MAPSS FD001 test filosuyla dolu açılır. Uygulamadaki gerçek kalan ömür değerleri yalnızca doğrulama içindir; sahada bu bilgi olmaz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TEKNİK YAKLAŞIM ===================== -->
+<section class="band alt" id="teknik" aria-labelledby="teknik-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Teknik yaklaşım</span>
+      <h2 id="teknik-title">Açık veriyle başlayan, sahaya uyarlanacak bir model hattı</h2>
+      <p>İlk model, herkesin erişebildiği ve literatürde kıyas için kullanılan NASA veri setleriyle geliştiriliyor. Böylece sonuçlarımız yayımlanmış yöntemlerle doğrudan karşılaştırılabilir.</p>
+    </div>
+    <div class="sec-body">
+      <dl class="spec">
+        <div>
+          <dt>Veri</dt>
+          <dd>
+            <p><strong>Turbofan bozulma verisi:</strong> NASA C-MAPSS (FD001–FD004 alt kümeleri) ve uçuş profillerini içeren N-CMAPSS. <strong>Rulman hasarı:</strong> CWRU rulman veri seti.</p>
+            <p>Sonraki adım: bir İHA üreticisi, operatör veya bakım merkezinden gerçek motor verisiyle pilot (hedef).</p>
+            <div class="chips"><span class="chip">C-MAPSS</span><span class="chip">N-CMAPSS</span><span class="chip">CWRU</span></div>
+          </dd>
+        </div>
+        <div>
+          <dt>Ön işleme</dt>
+          <dd><p>Çalışma koşuluna göre normalizasyon, kayan zaman pencereleri, gürültü süzme ve sensörlerden sağlık göstergesi çıkarımı.</p></dd>
+        </div>
+        <div>
+          <dt>Model</dt>
+          <dd>
+            <p><strong>Ana model: CNN-LSTM.</strong> Orkun Teke'nin çok kısa vadeli rüzgâr gücü tahmininde kullandığı öznitelik tabanlı CNN-LSTM yaklaşımını kalan ömür problemine uyarlıyoruz. Evrişim katmanları sensörler arasındaki yerel örüntüleri, LSTM katmanları bozulmanın uçuş döngüleri boyunca seyrini öğrenir. Rüzgâr gücü tahmini de motor bozulması da gürültülü, çok değişkenli zaman serisi problemidir; öznitelik seçimi ve pencereleme deneyimi doğrudan aktarılır.</p>
+            <p>Karşılaştırma için LSTM, 1D-CNN ve transformer tabanlı kodlayıcılar; referans olarak gradient boosting gibi klasik yöntemler kullanılacak.</p>
+            <div class="chips"><span class="chip">CNN-LSTM (ana)</span><span class="chip">LSTM</span><span class="chip">1D-CNN</span><span class="chip">Transformer</span><span class="chip">Gradient boosting (referans)</span></div>
+          </dd>
+        </div>
+        <div>
+          <dt>Belirsizlik</dt>
+          <dd><p>Kantil regresyon (pinball kaybı) ve derin model topluluğu (ensemble) ile her tahmin için alt ve üst sınır. Aralıkların kalibrasyonu kapsama oranıyla kontrol edilir; aralık çok genişse sistem uyarı üretir.</p></dd>
+        </div>
+        <div>
+          <dt>Açıklanabilirlik</dt>
+          <dd><p>Sensör ve zaman penceresi düzeyinde katkı (SHAP benzeri öznitelik katkısı, integrated gradients): teknisyen "tahmini en çok T50 sıcaklığındaki son döngülerde başlayan yükseliş belirledi" gibi bir gerekçe görür. Emsal arama: modelin öğrendiği temsil uzayında en yakın geçmiş arıza yörüngelerinin bulunması.</p></dd>
+        </div>
+        <div>
+          <dt>Fizik bilgili kısıtlar</dt>
+          <dd><p>Kalan ömrün döngüyle azalması ve sağlık göstergesinin monoton bozulması kayıp fonksiyonuna ceza terimi olarak eklenir. Rulman ve yüzey aşınması için Archard tipi aşınma ilişkileri gibi triboloji bilgisinin kısıt olarak kullanılması hedefleniyor.</p></dd>
+        </div>
+        <div>
+          <dt>Değerlendirme</dt>
+          <dd>
+            <p><strong>RMSE</strong> (uçuş döngüsü cinsinden hata), <strong>NASA skor fonksiyonu</strong> (geç tahmini erken tahminden daha ağır cezalandırır, çünkü geç kalan bakım arızaya yol açar) ve <strong>kapsama oranı</strong> (gerçek kalan ömrün tahmin aralığına düşme oranı) ile aralık genişliği.</p>
+            <p class="formula">s = Σ<sub>i</sub> (e<sup>−d<sub>i</sub>/13</sup> − 1) eğer d<sub>i</sub> &lt; 0; &nbsp; (e<sup>d<sub>i</sub>/10</sup> − 1) eğer d<sub>i</sub> ≥ 0; &nbsp; d<sub>i</sub> = tahmin − gerçek</p>
+            <p class="note">Skor fonksiyonu: Saxena vd., PHM 2008 (C-MAPSS ile birlikte tanımlanan değerlendirme ölçütü).</p>
+          </dd>
+        </div>
+        <div>
+          <dt>Veri sızıntısı denetimi</dt>
+          <dd><p>Eğitim ve test kümeleri motor bazında ayrılır; aynı motorun döngüleri iki kümeye birden düşmez. Normalizasyon istatistikleri yalnızca eğitim verisinden hesaplanır, kayan pencereler test sınırını aşmaz. Bu denetim, yüksek görünen ama sahada tekrarlanmayan sonuçları baştan eler.</p></dd>
+        </div>
+        <div>
+          <dt>Çalışma ortamı ve güvenlik</dt>
+          <dd><p>Kurumun kendi sunucusunda, internet bağlantısı olmadan, kapalı ağda çalışacak şekilde tasarlanıyor. Rol tabanlı erişim, model sürümü ve girdi verisi için bütünlük kaydı, her tahmin için denetim izi. Sonuçlar bakım planlama sistemine aktarılır.</p></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DOĞRULAMA HEDEFLERİ ===================== -->
+<section class="band" id="hedefler" aria-labelledby="hedef-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Doğrulama hedefleri</span>
+      <h2 id="hedef-title">Başarıyı ölçülebilir eşiklerle tanımladık</h2>
+      <p>Hedefleri baştan, literatürde kullanılan test kümesi ve ölçütlerle tanımladık. Prototipin C-MAPSS FD001 (simülasyon verisi) üzerindeki ölçümü her kartın altında; gerçek motor verisinde aynı eşikler pilotla sınanacak.</p>
+    </div>
+    <div class="sec-body">
+      <div class="targets">
+        <div class="target">
+          <span class="tag t-target">hedef</span>
+          <span class="tval">≤13<small>döngü</small></span>
+          <h3>Tahmin hatası (RMSE)</h3>
+          <p>NASA C-MAPSS FD001 test kümesinde kalan ömür tahmininin kök ortalama kare hatası.</p>
+          <p class="t-proto">Prototipte: <b>11,83 döngü</b>, hedef karşılandı.</p>
+        </div>
+        <div class="target">
+          <span class="tag t-target">hedef</span>
+          <span class="tval">≥%85<small>kapsama</small></span>
+          <h3>Güven aralığı kalibrasyonu</h3>
+          <p>%90 güven aralığı için verilen aralıkların, gerçek kalan ömrü en az %85 oranında kapsaması.</p>
+          <p class="t-proto">Prototipte: <b>%94</b> (standart protokol, RUL 125'te kırpılmış).</p>
+        </div>
+        <div class="target">
+          <span class="tag t-target">hedef</span>
+          <span class="tval">Her<small>tahmin</small></span>
+          <h3>Sensör katkı açıklaması</h3>
+          <p>Üretilen her tahmin için hangi sensörün ve hangi zaman penceresinin sonucu belirlediğini gösteren açıklama.</p>
+          <p class="t-proto">Prototipte: <b>her tahmin</b> için 15 sinyal grubunun Shapley katkısı.</p>
+        </div>
+      </div>
+      <dl class="spec">
+        <div>
+          <dt>Ek ölçütler</dt>
+          <dd><p>RMSE'nin yanında NASA skor fonksiyonu (geç tahmine daha ağır ceza) ve ortalama aralık genişliği raporlanır. Dar ama tutmayan aralık da, geniş ama işe yaramayan aralık da başarısızlık sayılır.</p></dd>
+        </div>
+        <div>
+          <dt>Sızıntı denetimi</dt>
+          <dd><p>Motor bazında ayrılmış eğitim ve test kümeleri, yalnızca eğitimden hesaplanan normalizasyon. Hedefler bu denetimden geçen sonuçlarla değerlendirilir.</p></dd>
+        </div>
+        <div>
+          <dt>Karşılaştırma</dt>
+          <dd><p>LSTM, 1D-CNN, transformer tabanlı kodlayıcı ve gradient boosting referans modelleri aynı veri bölmesiyle eğitilir; sonuçlar yan yana sunulur.</p></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PAZAR ===================== -->
+<section class="band alt" id="pazar" aria-labelledby="pazar-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Pazar</span>
+      <h2 id="pazar-title">Motor bakımı büyüyor, kestirimci bakım daha hızlı</h2>
+      <p>Uçak motoru bakımı büyük ve istikrarlı büyüyen bir pazar. Kestirimci bakım yazılımları bu pazarın içinde çok daha hızlı büyüyor. Türkiye ise hem savunma ihracatında hem motor bakımında kapasitesini artırıyor.</p>
+    </div>
+    <div class="sec-body">
+      <h3 class="sub-h">Küresel pazar</h3>
+      <div class="mkt">
+        <article class="mkt-row">
+          <div class="mkt-name">
+            <h3>Uçak motoru bakım, onarım ve revizyon (MRO) pazarı</h3>
+            <p>ÖMÜR'ün çıktısı bu harcamanın planlanmasına girer: bakım penceresi, parça siparişi, motorun sökülme zamanı.</p>
+            <span class="source">Kaynak: <cite>Stratview Research</cite></span>
+          </div>
+          <div class="mkt-data">
+            <dl class="mkt-fig">
+              <div><dt>2024</dt><dd>89,1<small>milyar $</small></dd></div>
+              <div><dt>2035</dt><dd>121,0<small>milyar $</small></dd></div>
+              <div><dt>Yıllık büyüme</dt><dd class="up">%2,4</dd></div>
+            </dl>
+            <div class="mkt-bar" role="img" aria-label="2024 pazar büyüklüğü, 2035 beklentisinin yaklaşık yüzde 74'ü"><i style="width: 73.6%"></i></div>
+            <span class="mkt-cap">Dolu kısım 2024 büyüklüğü, çubuğun tamamı 2035 beklentisi.</span>
+          </div>
+        </article>
+        <article class="mkt-row">
+          <div class="mkt-name">
+            <h3>Kestirimci bakım pazarı (küresel, tüm sektörler)</h3>
+            <p>ÖMÜR'ün doğrudan içinde yer aldığı yazılım ve çözüm kategorisi.</p>
+            <span class="source">Kaynak: <cite>Next Move Strategy Consulting</cite></span>
+          </div>
+          <div class="mkt-data">
+            <dl class="mkt-fig">
+              <div><dt>2023</dt><dd>5,93<small>milyar $</small></dd></div>
+              <div><dt>2030</dt><dd>32,30<small>milyar $</small></dd></div>
+              <div><dt>Yıllık büyüme</dt><dd class="up">%27,4</dd></div>
+            </dl>
+            <div class="mkt-bar" role="img" aria-label="2023 pazar büyüklüğü, 2030 beklentisinin yaklaşık yüzde 18'i"><i style="width: 18.4%"></i></div>
+            <span class="mkt-cap">Dolu kısım 2023 büyüklüğü, çubuğun tamamı 2030 beklentisi.</span>
+          </div>
+        </article>
+      </div>
+      <p class="note">Rakamlar küresel pazar büyüklüğünü gösterir. ÖMÜR'ün erişebileceği pay için ayrı bir tahmin yapmıyoruz; bunu ilk müşteri görüşmeleri ve fiyat doğrulamasıyla belirleyeceğiz.</p>
+
+      <h3 class="sub-h">Türkiye</h3>
+      <div class="tr-export">
+        <span class="big">8,6<small>milyar $</small></span>
+        <div>
+          <p><b>Türkiye'nin savunma ve havacılık ihracatı, 185 ülkeye.</b> Yerli İHA'lar bu ihracatın önemli kalemlerinden; ihraç edilen her filo, motor kullanılabilirliği ve bakım planlaması ihtiyacını da beraberinde götürüyor.</p>
+          <span class="source">Kaynak: <cite>SSB Başkanı, HASAT2025 konuşması; DHA, 03.09.2026</cite></span>
+        </div>
+      </div>
+
+      <div class="gauges">
+        <div><span class="val">2027</span><p>THY Teknik–Rolls-Royce motor bakım merkezinin İstanbul Havalimanı'nda açılış yılı.</p></div>
+        <div><span class="val">200</span><p>Tesiste yılda bakımı yapılması planlanan motor sayısı.</p></div>
+        <div><span class="val">1.000</span><p>Tesiste çalışması planlanan nitelikli personel.</p></div>
+        <div><span class="val">~700<small>M$</small></span><p>Hedeflenen yıllık ihracat katkısı.</p></div>
+      </div>
+      <p class="source">İş birliği 2027–2048 dönemini kapsıyor; Trent XWB-84, Trent XWB-97 ve Trent 7000 motorlarına hizmet verilecek, faaliyetin %65'i ihracat odaklı. Kaynak: <cite>Bigpara/Hürriyet; Forbes Türkiye, Mayıs 2025</cite>.</p>
+
+      <div class="context">
+        <div>
+          <h3>Savunmada YZ önceliği</h3>
+          <p>Türkiye'nin savunma alanındaki yapay zekâ önceliği otonom sistemler ve İHA'lar üzerinde yoğunlaşıyor. Filolar büyüdükçe motor kullanılabilirliği bir operasyon meselesine dönüşüyor.</p>
+          <span class="source">Kaynak: <cite>Kurç, Springer, 2024</cite></span>
+        </div>
+        <div>
+          <h3>Kapalı ağ gereksinimi</h3>
+          <p>Savunma bakım birimleri motor verisini bulut tabanlı yabancı servislere gönderemez. Kurum içinde çalışan ve kararını açıklayabilen yerli bir çözüm bu ortamın şartı.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PAZARA GİRİŞ ===================== -->
+<section class="band" id="pazara-giris" aria-labelledby="giris-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Pazara giriş</span>
+      <h2 id="giris-title">Yerli İHA filolarıyla başla, bakım merkezlerine genişle</h2>
+      <p>İlk gelir, kurumun kendi sensör verisiyle yapılan sınırlı kapsamlı bir analiz projesinden hedefleniyor. Proje değer gösterdiğinde filo aboneliğine ya da kurum lisansına geçiliyor.</p>
+    </div>
+    <div class="sec-body">
+      <div class="rows3">
+        <div class="lead"><span class="meta">İlk segment</span><h3>Yerli İHA üreticileri ve operatörleri</h3><p>Filo kullanılabilirliğini artırmak ve plansız motor arızasından kaynaklanan görev kaybını azaltmak isteyen üreticiler ve operatörler. Karar alıcıya ulaşmak kısa, veri kurum içinde kalıyor.</p></div>
+        <div><span class="meta">Genişleme</span><h3>Motor bakım merkezleri (MRO)</h3><p>Türkiye'de büyüyen motor bakım kapasitesi. Bakım penceresini ve parça siparişini veriyle planlamak isteyen merkezler.</p></div>
+        <div><span class="meta">Savunma</span><h3>Savunma bakım birimleri</h3><p>Verinin kurum dışına çıkamadığı, kapalı ağda çalışan ve kararını açıklayan yerli çözüm gerektiren ortamlar.</p></div>
+      </div>
+
+      <dl class="spec">
+        <div>
+          <dt>Giriş ürünü</dt>
+          <dd>
+            <p><strong>Veri analizi projesi.</strong> Kurumun mevcut motor sensör kayıtlarıyla sınırlı kapsamlı model ve rapor: hangi motorların bozulma eğiliminde olduğu, tahminlerin güven aralığı ve gerekçesi. Kurulum kurumun kendi sunucusunda, veri dışarı çıkmadan yapılır.</p>
+            <p>Bu proje müşteri için düşük riskli bir deneme, bizim için gerçek veriyle modelin doğrulanması anlamına gelir.</p>
+          </dd>
+        </div>
+        <div>
+          <dt>Kanal</dt>
+          <dd>
+            <p><strong>Teknopark İstanbul ve SSB ekosistemi:</strong> HASAT süreci, Savunma Sahnesi ve SSB ortaklığı üzerinden İHA üreticileri ve operatörleriyle tanışma.</p>
+            <p><strong>MASTEK ağı:</strong> Mustafa Kırman'ın yer aldığı Manisa Savunma Sanayii Teknoloji Geliştirme Kümesi projesi üzerinden bölgesel savunma tedarikçilerine erişim.</p>
+            <p><strong>MRO merkezleri:</strong> Türkiye'deki motor bakım merkezleriyle doğrudan görüşme; genişleme aşamasında kurum lisansı.</p>
+          </dd>
+        </div>
+        <div>
+          <dt>Satış döngüsü</dt>
+          <dd>
+            <ol class="cycle">
+              <li><span><b>Tanışma ve ihtiyaç görüşmesi:</b> filo büyüklüğü, mevcut bakım yöntemi, eldeki sensör verisi.</span></li>
+              <li><span><b>Veri paylaşım protokolü:</b> gizlilik sözleşmesi, verinin kurum içinde kalacağı kurulum planı.</span></li>
+              <li><span><b>Veri analizi projesi:</b> kurumun verisiyle model, açıklamalı tahmin raporu.</span></li>
+              <li><span><b>Değerlendirme:</b> sonuçların bakım ekibiyle gözden geçirilmesi, gerçekleşen bakım kayıtlarıyla karşılaştırma.</span></li>
+              <li><span><b>Abonelik veya lisans:</b> izlenen motor başına yıllık abonelik ya da bakım merkezi için kurum lisansı.</span></li>
+            </ol>
+            <p>Savunma tarafında güvenlik ve tedarik süreçleri döngüyü uzatır. Bu yüzden ilk gelir abonelikten değil, kapsamı belli analiz projesinden hedefleniyor.</p>
+          </dd>
+        </div>
+        <div>
+          <dt>Gelir modeli</dt>
+          <dd>
+            <p><strong>Motor / araç başına yıllık abonelik</strong> (ana gelir), <strong>bakım merkezi lisansı</strong> ve bakım planlama sistemine entegrasyon, <strong>veri analizi projesi</strong> (giriş). Fiyatlandırma ilk müşteri görüşmelerinde doğrulanacak.</p>
+          </dd>
+        </div>
+      </dl>
+
+      <div class="context">
+        <div class="wide">
+          <h3>İkinci pazar: rüzgâr türbinleri</h3>
+          <p>Rüzgâr türbinlerinde de dişli kutusu ve ana rulman gibi dönen parçalar aşınarak bozulur ve aynı soru sorulur: bu parça kaç saat daha güvenle çalışır? Orkun Teke'nin rüzgâr gücü tahmini ve enerji sistemleri çalışmaları, aynı açıklanabilir kalan ömür altyapısını havacılıktan sonra rüzgâr türbini işletmecilerine ve türbin bakım firmalarına taşımayı mümkün kılıyor. Öncelik havacılık; enerji ikinci adım.</p>
+        </div>
+      </div>
+      <p class="note">Bu segmentlerdeki kurumlarla henüz görüşme yapılmadı; ilk görüşmeleri HASAT süreci içinde yapmayı hedefliyoruz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RAKİPLER ===================== -->
+<section class="band alt" id="rakipler" aria-labelledby="rakip-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Rekabet</span>
+      <h2 id="rakip-title">Farkımız: açıklama, güven aralığı ve arıza fiziği bir arada</h2>
+      <p>Çözüm türlerini kamuya açık bilgilere dayanarak karşılaştırdık. Tek tek firma değerlendirmesi değildir.</p>
+    </div>
+    <div class="sec-body">
+      <p class="scroll-hint">Tablonun tamamı için yana kaydırın.</p>
+      <div class="table-scroll" role="region" aria-label="Rakip karşılaştırma tablosu" tabindex="0">
+        <table>
+          <thead>
+            <tr><th scope="col">Çözüm türü</th><th scope="col">Yerli / kapalı ağ</th><th scope="col">Tahmin gerekçesi</th><th scope="col">Güven aralığı</th><th scope="col">Arıza fiziği bilgisi</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Motor üreticisi izleme servisleri</th><td><span class="v n">Hayır</span></td><td><span class="v p">Kısmen</span></td><td><span class="v p">Kısmen</span></td><td><span class="v y">Var</span></td></tr>
+            <tr><th scope="row">Genel kestirimci bakım platformları</th><td><span class="v p">Kısmen</span></td><td><span class="v p">Kısmen</span></td><td><span class="v p">Kısmen</span></td><td><span class="v n">Yok</span></td></tr>
+            <tr><th scope="row">Akademik kalan ömür modelleri</th><td><span class="v n">Yok (ürün değil)</span></td><td><span class="v p">Nadiren</span></td><td><span class="v p">Kısmen</span></td><td><span class="v p">Kısmen</span></td></tr>
+            <tr class="us"><th scope="row">ÖMÜR (hedef)</th><td><span class="v t">Evet</span></td><td><span class="v t">Evet</span></td><td><span class="v t">Evet</span></td><td><span class="v t">Evet</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Kamuya açık bilgilere dayalı genel değerlendirme, Ekim 2026. ÖMÜR satırı ürünün tasarım hedeflerini gösterir; geliştirme sürüyor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FON VE 12 AY PLANI ===================== -->
+<section class="band" id="fon" aria-labelledby="fon-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Fon ve 12 ay planı</span>
+      <h2 id="fon-title">İlk 12 ayın finansmanı ve planı</h2>
+      <p>Çalışan prototip (MVP) aşamasındayız. Hedefimiz HASAT yatırımı ile TÜBİTAK BİGG yatırımını birleştirerek ilk 12 ayı finanse etmek. İlk 12 ay bütçesi pilot görüşmeleriyle netleşecek.</p>
+    </div>
+    <div class="sec-body">
+      <div class="fund">
+        <div>
+          <span class="meta">Hedef 1 · Teknopark İstanbul</span>
+          <h3>HASAT 2026 yatırımı</h3>
+          <p>Finalde ilk dört girişime Teknopark İstanbul doğrudan yatırımı; yatırım, hibe, ofis, patent, şirketleşme ve mentörlük desteklerinden oluşan 100 milyon TL'ye varan havuz.</p>
+          <span class="source">Kaynak: <cite>Teknopark İstanbul duyurusu; DHA, 03.09.2026</cite></span>
+        </div>
+        <div>
+          <span class="meta">Hedef 2 · TÜBİTAK BİGG (1812)</span>
+          <span class="amt">1.350.000<small>TL · %3 hisse</small></span>
+          <p>Mükemmeliyet Mührü alan girişimlere %3 hisse karşılığı yapılan yatırım. Şirketleşmenin ardından başvuru planlanıyor.</p>
+          <span class="source">Kaynak: <cite>tubitak.gov.tr</cite></span>
+        </div>
+      </div>
+
+      <div class="figure alloc">
+        <div class="figure-head">
+          <h3>Önerilen fon kullanımı</h3>
+          <span class="tag t-target">plan</span>
+        </div>
+        <div class="alloc-bar" role="img" aria-label="Önerilen dağılım: ekip ve mühendislik yüzde 50, pilot ve saha çalışmaları yüzde 20, hesaplama ve test altyapısı yüzde 15, fikri mülkiyet, şirketleşme ve mevzuat yüzde 15">
+          <i class="s1" style="width: 50%"></i><i class="s3" style="width: 20%"></i><i class="s2" style="width: 15%"></i><i class="s4" style="width: 15%"></i>
+        </div>
+        <dl class="alloc-legend">
+          <div><i class="sw s1" aria-hidden="true"></i><dt>%50</dt><dd>Ekip ve mühendislik<span>İlk yatırımla iki tam zamanlı mühendis istihdamı planlanıyor.</span></dd></div>
+          <div><i class="sw s3" aria-hidden="true"></i><dt>%20</dt><dd>Pilot ve saha çalışmaları<span>Gerçek motor verisiyle analiz projesi, yerinde kurulum.</span></dd></div>
+          <div><i class="sw s2" aria-hidden="true"></i><dt>%15</dt><dd>Hesaplama ve test altyapısı<span>Model eğitimi için GPU sunucu, kapalı ağ test ortamı.</span></dd></div>
+          <div><i class="sw s4" aria-hidden="true"></i><dt>%15</dt><dd>Fikri mülkiyet, şirketleşme, mevzuat<span>Şirket kuruluşu, patent başvurusu, savunma tedarik gereklilikleri.</span></dd></div>
+        </dl>
+      </div>
+
+      <h3 class="sub-h">12 ay kilometre taşları</h3>
+      <ol class="road q4">
+        <li class="now">
+          <span class="when">Ay 1–3 · Eki–Ara 2026</span>
+          <h3>Açık veride çalışan demo</h3>
+          <ul><li>C-MAPSS FD001'de CNN-LSTM, güven aralığı ve sensör katkı açıklaması</li><li>Referans modellerle karşılaştırma</li><li>HASAT finali demosu</li></ul>
+          <p class="crit"><b>Ölçüt</b>FD001 doğrulama hedeflerine karşı ilk rapor</p>
+        </li>
+        <li>
+          <span class="when">Ay 4–6 · Oca–Mar 2027</span>
+          <h3>Şirket ve genişletilmiş model</h3>
+          <ul><li>Şirket kuruluşu, BİGG başvurusu</li><li>İki tam zamanlı mühendisin işe alınması</li><li>FD002–FD004, N-CMAPSS ve CWRU'ya genişleme; fizik bilgili kısıtlar</li></ul>
+          <p class="crit"><b>Ölçüt</b>Tüm C-MAPSS alt kümelerinde raporlanmış sonuç</p>
+        </li>
+        <li>
+          <span class="when">Ay 7–9 · Nis–Haz 2027</span>
+          <h3>İlk veri ortağı</h3>
+          <ul><li>Bir İHA üreticisi veya operatörle veri paylaşım protokolü (hedef)</li><li>Kapalı ağ kurulum paketi</li><li>Veri analizi projesinin başlaması</li></ul>
+          <p class="crit"><b>Ölçüt</b>İmzalı veri protokolü; internet bağlantısız çalışan kurulum</p>
+        </li>
+        <li>
+          <span class="when">Ay 10–12 · Tem–Eyl 2027</span>
+          <h3>İlk ücretli müşteri</h3>
+          <ul><li>Gerçek motor verisiyle değerlendirme raporu</li><li>Abonelik veya lisans teklifi</li><li>Rüzgâr türbini uygulaması için fizibilite</li></ul>
+          <p class="crit"><b>Ölçüt</b>İlk ücretli sözleşme (hedef)</p>
+        </li>
+      </ol>
+
+      <div class="status-box">
+        <div>
+          <h3>Bugün elimizde</h3>
+          <ul>
+            <li>Model geliştirmeye hemen başlanabilecek açık veri: NASA C-MAPSS, N-CMAPSS ve CWRU.</li>
+            <li>Tanımlı değerlendirme protokolü: ölçütler, hedef eşikler, sızıntı denetimi.</li>
+            <li>Orkun Teke'nin zaman serisi tahmininde yayımlanmış CNN-LSTM çalışması ve kestirimci bakım üzerine kongre bildirisi.</li>
+            <li>Zaman serisi derin öğrenme, aşınma fiziği ve açıklanabilir YZ'yi bir araya getiren üç kişilik kurucu ekip.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Aralık 2026 hedefi</h3>
+          <ul>
+            <li>Açık veride referans modellerle karşılaştırılmış, her tahmini açıklayan çalışan demo.</li>
+            <li>Bir savunma veya havacılık firmasından gerçek veriyle pilot için niyet beyanı almayı hedefliyoruz.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== EKİP ===================== -->
+<section class="band alt" id="ekip" aria-labelledby="ekip-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">Ekip</span>
+      <h2 id="ekip-title">Model, arıza fiziği ve güvenilir YZ aynı masada</h2>
+      <p>Kestirimci bakım girişimlerinin çoğunda arızanın fiziksel kökenini bilen bir ekip üyesi bulunmuyor. ÖMÜR'de zaman serisi tahmini, yüzey ve aşınma uzmanlığı ve açıklanabilir YZ aynı üründe buluşuyor.</p>
+      <p>Üç kurucu da Manisa Celal Bayar Üniversitesi (MCBÜ) Manisa Teknik Bilimler Meslek Yüksekokulu'nda öğretim elemanı.</p>
+    </div>
+    <div class="sec-body">
+      <div class="team">
+        <article class="person">
+          <header class="p-head">
+            <img class="portrait" src="/hasat2026/omur/orkun_teke.jpg" width="160" height="160" alt="Öğr. Gör. Dr. Orkun Teke">
+            <div>
+              <h3>Öğr. Gör. Dr. Orkun Teke</h3>
+              <p class="role">Kurucu · Proje lideri · Zaman serisi derin öğrenme ve kestirimci bakım</p>
+              <p class="dept">MCBÜ, Elektrik ve Enerji Bölümü, Alternatif Enerji Kaynakları Teknolojisi Programı</p>
+            </div>
+            <dl class="p-stats"><div><dt>Yayın</dt><dd>45</dd></div><div><dt>Proje</dt><dd>17</dd></div></dl>
+          </header>
+          <dl class="p-facts">
+            <div><dt>Doktora</dt><dd>İskenderun Teknik Üniversitesi, Enerji Sistemleri Mühendisliği (2025): rüzgâr gücü tahmini için oluşturulan modellerin performans analizi.</dd></div>
+            <div><dt>Öne çıkan yayınlar</dt><dd>
+              <ul>
+                <li>"Enhancing ultra short-term wind power prediction accuracy with feature-based CNN-LSTM models", <i>Proc. IMechE</i>, 2026. ÖMÜR'ün ana modeli bu yaklaşımın uyarlaması.</li>
+                <li>Hibrit derin öğrenme ile çok kısa vadeli rüzgâr enerjisi tahmini, 2025.</li>
+                <li>"Predictive Maintenance in Maritime Logistics: A Machine Learning Approach", kongre bildirisi, 2023.</li>
+                <li>PET/BT radyomik ve makine öğrenmesi, <i>Nuclear Medicine Communications</i>, 2025.</li>
+              </ul>
+            </dd></div>
+            <div><dt>Projeler</dt><dd>
+              <ul>
+                <li>GuardOne: YZ güvenlik cihaz yönetim platformu (özel sektör, proje yürütücüsü, 2025–2026).</li>
+                <li>Üretken YZ karar destek prototipi (kamu, 2026).</li>
+                <li>TÜBİTAK 3501: YZ destekli deprem performans modeli (araştırmacı, 2026–2029).</li>
+                <li>KOSGEB: VR ve YZ tabanlı metaverse ürünleri (2023–2025); MetaCBU sanal kampüs.</li>
+              </ul>
+            </dd></div>
+            <div><dt>ÖMÜR'deki rolü</dt><dd>CNN-LSTM model mimarisi, belirsizlik kestirimi ve fizik bilgili eğitim; proje yönetimi ve yatırımcı ilişkileri.</dd></div>
+            <div><dt>Bağlantılar</dt><dd class="p-links"><a href="mailto:orkun.teke@cbu.edu.tr">orkun.teke@cbu.edu.tr</a><a href="https://www.linkedin.com/in/orkun-teke-phd-5231aa4b/" target="_blank" rel="noopener">LinkedIn</a></dd></div>
+          </dl>
+        </article>
+
+        <article class="person">
+          <header class="p-head">
+            <img class="portrait" src="/hasat2026/omur/mustafa_kirman.jpg" width="160" height="160" alt="Öğr. Gör. Dr. Mustafa Kırman">
+            <div>
+              <h3>Öğr. Gör. Dr. Mustafa Kırman</h3>
+              <p class="role">Kurucu ortak · Hasar mekanizmaları, yüzey ve aşınma</p>
+              <p class="dept">MCBÜ, Makine ve Metal Teknolojileri Bölümü, Makine, Resim ve Konstrüksiyon Programı</p>
+            </div>
+            <dl class="p-stats"><div><dt>Yayın</dt><dd>16</dd></div><div><dt>Patent</dt><dd>1</dd></div></dl>
+          </header>
+          <dl class="p-facts">
+            <div><dt>Doktora</dt><dd>MCBÜ Makine Mühendisliği (2025): yüzeyi modifiye edilen titanyumun elektroforetik biriktirme (EPD) ile HA-GO kompozitiyle kaplanması, yüzey özelliklerinin incelenmesi.</dd></div>
+            <div><dt>Öne çıkan yayınlar</dt><dd>
+              <ul>
+                <li><i>Ceramics International</i>, 2025: modifiye Ti yüzeyinde EPD ile HA-GO kaplama.</li>
+                <li><i>Coatings</i>, 2019: Ti6Al7Nb üzerinde EPD ile HA kaplama.</li>
+                <li><i>Metals</i>, 2018: HA kaplamanın kırılma ve yapışma davranışı.</li>
+              </ul>
+            </dd></div>
+            <div><dt>Deneyim</dt><dd>Aşınma testleri, tribometre ile sürtünme katsayısı ve profilometre ölçümleri. Patent (2022): çoklu tampon sisteminde biyomimetik teknikle hidroksiapatit üretimi. MASTEK, Manisa Savunma Sanayii Teknoloji Geliştirme Kümesi projesi (Kalkınma Ajansı, 2018–2021).</dd></div>
+            <div><dt>ÖMÜR'deki rolü</dt><dd>Rulman ve yüzey aşınmasının fiziğini modele kısıt olarak taşımak (monoton bozulma, Archard tipi aşınma ilişkileri); bozulma mekanizmalarının yorumlanması; savunma sanayii bağlantıları.</dd></div>
+            <div><dt>Bağlantılar</dt><dd class="p-links"><a href="mailto:mustafa.kirman@cbu.edu.tr">mustafa.kirman@cbu.edu.tr</a><a href="https://avesis.mcbu.edu.tr/mustafa.kirman" target="_blank" rel="noopener">AVESİS</a></dd></div>
+          </dl>
+        </article>
+
+        <article class="person">
+          <header class="p-head">
+            <img class="portrait" src="/hasat2026/omur/osman_can_cetlenbik.jpg" width="160" height="160" alt="Öğr. Gör. Osman Can Çetlenbik">
+            <div>
+              <h3>Öğr. Gör. Osman Can Çetlenbik</h3>
+              <p class="role">Kurucu ortak · Açıklanabilir YZ, veri sızıntısı denetimi ve kapalı ağ güvenliği</p>
+              <p class="dept">MCBÜ, İstatistik Bölümü, Büyük Veri Analistliği Programı · MCBÜ Bilgisayar Uygulama ve Araştırma Merkezi (BUAM) Müdür Yardımcısı</p>
+            </div>
+            <dl class="p-stats"><div><dt>Makale</dt><dd>3</dd></div></dl>
+          </header>
+          <dl class="p-facts">
+            <div><dt>Eğitim</dt><dd>Yüksek lisans: Isparta Uygulamalı Bilimler Üniversitesi, Bilgisayar Mühendisliği (2025), kripto para alım-satım sinyallerinde açıklanabilir YZ. Lisans: Süleyman Demirel Üniversitesi, Bilgisayar Mühendisliği (2022).</dd></div>
+            <div><dt>Çalışmalar</dt><dd>
+              <ul>
+                <li>2024–2026 arasında oltalama tespiti ve akıllı şebeke güvenliği dahil 3 hakemli makale.</li>
+                <li>TurkPhish v2: Türkçe oltalama e-postası korpusu; veri sızıntısı denetimi ve klasik ML, transformer ve LLM tabanlı 10 dedektörün kıyaslaması. <i>Applied Sciences</i>, 2026 (SCI-E), <a href="https://doi.org/10.3390/app16168274" target="_blank" rel="noopener">doi:10.3390/app16168274</a>.</li>
+                <li>Akıllı şebekede dağıtım transformatörlerine yönelik sahte veri enjeksiyonu (FDIA) saldırılarının hibrit YZ yöntemleriyle tespiti. <i>Journal of Information Assurance and Security</i>, 2026, <a href="https://doi.org/10.2478/ias-2026-0011" target="_blank" rel="noopener">doi:10.2478/ias-2026-0011</a>.</li>
+                <li>Tahmin destekli gizli AC sahte veri enjeksiyonu saldırılarının tespiti ve konumlandırılması, IEEE 14/30 baralı sistemler (değerlendirmede).</li>
+              </ul>
+            </dd></div>
+            <div><dt>Alanlar</dt><dd>Siber güvenlik (oltalama tespiti, sosyal mühendislik, IoT güvenliği), doğal dil işleme, açıklanabilir YZ, finansal veri bilimi. ORCID 0009-0000-6561-1943.</dd></div>
+            <div><dt>ÖMÜR'deki rolü</dt><dd>Sensör katkı açıklamalarının üretilmesi ve tutarlılık testleri; eğitim ve test verisi arasındaki sızıntının denetimi; kapalı ağ kurulumu, erişim denetimi ve model/veri bütünlüğü.</dd></div>
+            <div><dt>Bağlantılar</dt><dd class="p-links"><a href="mailto:osman.cetlenbik@cbu.edu.tr">osman.cetlenbik@cbu.edu.tr</a><a href="https://www.linkedin.com/in/osmancancetlenbik" target="_blank" rel="noopener">LinkedIn</a><a href="https://orcid.org/0009-0000-6561-1943" target="_blank" rel="noopener">ORCID</a></dd></div>
+          </dl>
+        </article>
+
+        <div class="team-line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 11v6M14 14h6"/></svg>
+          <p>Üç kurucu akademisyen. İlk yatırımla iki tam zamanlı mühendis istihdamı planlanıyor.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== İLETİŞİM ===================== -->
+<section class="contact" id="iletisim" aria-labelledby="iletisim-title">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="kicker">İletişim</span>
+      <h2 id="iletisim-title">Sahaya çıkmak için aradıklarımız</h2>
+      <p>Gerçek motor sensör verisiyle bir pilot başlatmak en büyük hedefimiz. Veri, pilot ya da yatırım için bize yazın.</p>
+    </div>
+    <div class="sec-body">
+      <div class="asks">
+        <div><h3>Veri ve pilot ortağı</h3><p>Gerçek motor sensör verisini paylaşacak bir İHA üreticisi, operatör veya bakım merkezi.</p></div>
+        <div><h3>Tohum yatırım</h3><p>HASAT yatırımı ve TÜBİTAK BİGG (1.350.000 TL, %3 hisse) hedefi. İlk 12 ay bütçesi pilot görüşmeleriyle netleşecek.</p></div>
+        <div><h3>Ekosistem desteği</h3><p>Havacılık ve İHA firmalarıyla eşleşme, sertifikasyon mentorluğu, patent ve şirketleşme.</p></div>
+      </div>
+      <div class="card-contact">
+        <div class="cc-body">
+          <p class="who">Öğr. Gör. Dr. Orkun Teke</p>
+          <dl>
+            <dt>Rol</dt><dd>Kurucu, proje lideri</dd>
+            <dt>E-posta</dt><dd><span class="mail">orkun.teke@cbu.edu.tr</span></dd>
+            <dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/orkun-teke-phd-5231aa4b/" target="_blank" rel="noopener">linkedin.com/in/orkun-teke-phd-5231aa4b</a></dd>
+            <dt>Kurucu ortak</dt><dd>Öğr. Gör. Dr. Mustafa Kırman, <span class="mail">mustafa.kirman@cbu.edu.tr</span></dd>
+            <dt>Kurucu ortak</dt><dd>Öğr. Gör. Osman Can Çetlenbik, <span class="mail">osman.cetlenbik@cbu.edu.tr</span></dd>
+            <dt>Kurum</dt><dd>Manisa Celal Bayar Üniversitesi, Manisa Teknik Bilimler MYO</dd>
+          </dl>
+        </div>
+        <div class="cc-actions">
+          <a class="btn btn-primary" href="mailto:orkun.teke@cbu.edu.tr">E-posta yaz</a>
+          <button class="btn btn-ghost" type="button" id="copy-mail" data-mail="orkun.teke@cbu.edu.tr">Adresi kopyala</button>
+          <span class="copy-msg" id="copy-msg" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>ÖMÜR</strong>: İHA ve uçak motorları için açıklanabilir kalan ömür tahmini. Teknopark İstanbul HASAT 2026 girişim yarışması, Savunma Sahnesi başvurusu. Girişim çalışan prototip (MVP) aşamasında; şirket henüz kurulmadı.</p>
+    <p>Şematik çizimler ve arayüz örnekleri temsilidir, gerçek veri içermez. Rakip değerlendirmesi kamuya açık bilgilere dayanır (Ekim 2026).</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var KEY = "omur-theme";
+  try { var saved = localStorage.getItem(KEY); if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved); } catch (e) {}
+  var btn = document.getElementById("theme-toggle");
+  if (!btn) return;
+  btn.addEventListener("click", function () {
+    var current = root.getAttribute("data-theme");
+    if (!current) current = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    var next = current === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+  });
+})();
+(function () {
+  var b = document.getElementById("copy-mail"), m = document.getElementById("copy-msg");
+  if (!b || !m) return;
+  b.addEventListener("click", function () {
+    var t = b.getAttribute("data-mail");
+    function fallback() {
+      var el = document.querySelector(".card-contact .mail");
+      try { var r = document.createRange(); r.selectNodeContents(el); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch (e) {}
+      m.textContent = "Adres seçildi; kopyalamak için Ctrl+C kullanın.";
+    }
+    try {
+      navigator.clipboard.writeText(t).then(function () { m.textContent = "Adres kopyalandı."; }, fallback);
+    } catch (e) { fallback(); }
+  });
+})();
+</script>
+</body>
+</html>
