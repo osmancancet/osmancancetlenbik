@@ -23,6 +23,8 @@ export const metadata: Metadata = seoMeta({
   title: `${tool.title} — TÜBİTAK 2209-A Başvuru Kontrolü`,
   description: tool.description,
   keywords: tool.keywords,
+  // Sitenin genel /api/og kartı yerine araca özel görsel (fotoğraf, 12/18 paneli, son başvuru tarihi).
+  image: `/araclar/${SLUG}/opengraph-image`,
 });
 
 const LVL = { bad: "Düzelt", warn: "Gözden geçir", tip: "İpucu" } as const;
