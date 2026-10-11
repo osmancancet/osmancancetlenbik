@@ -30,7 +30,9 @@ function weekHasContent(w: WeekLike): boolean {
 // anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
 export const revalidate = 86400;
 
-export const generateStaticParams = courseWeekParams;
+export async function generateStaticParams() {
+  return courseWeekParams();
+}
 
 export async function generateMetadata({
   params,

@@ -21,7 +21,9 @@ import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 // anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
 export const revalidate = 86400;
 
-export const generateStaticParams = courseSlugParams;
+export async function generateStaticParams() {
+  return courseSlugParams();
+}
 
 export async function generateMetadata({
   params,
