@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { refreshPublicPages } from "@/lib/revalidate";
 import { isAuthenticated } from "@/lib/auth";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -48,6 +49,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
       ...(body.slug !== undefined && { slug: body.slug }),
     },
   });
+  refreshPublicPages();
   return NextResponse.json({ course });
 }
 
@@ -57,5 +59,6 @@ export async function DELETE(_: Request, { params }: Ctx) {
   }
   const { id } = await params;
   await prisma.course.delete({ where: { id } });
+  refreshPublicPages();
   return NextResponse.json({ ok: true });
 }

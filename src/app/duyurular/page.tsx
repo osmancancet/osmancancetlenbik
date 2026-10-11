@@ -11,7 +11,9 @@ export const metadata: Metadata = {
   alternates: canonicalOnly("/duyurular"),
 };
 
-export const revalidate = 60;
+// Duyuruların bitiş tarihi saate bağlı olduğu için saatlik tazeleniyor;
+// admin paneldeki değişiklikler zaten anında yansıyor (lib/revalidate.ts).
+export const revalidate = 3600;
 
 const TYPE_LABEL: Record<string, string> = {
   GENEL: "Genel",

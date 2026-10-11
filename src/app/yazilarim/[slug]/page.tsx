@@ -12,7 +12,15 @@ import { extractToc } from "@/lib/toc";
 import { absoluteUrl } from "@/lib/site";
 import { articleJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
 
-export const revalidate = 300;
+// İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
+// anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
+export const revalidate = 86400;
+
+// Boş liste: sayfalar build'de değil, ilk ziyarette üretilip önbelleğe
+// alınır (ISR). Bu satır olmadan Next.js her isteği yeniden render eder.
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({
   params,

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { refreshPublicPages } from "@/lib/revalidate";
 import { isAuthenticated } from "@/lib/auth";
 
 export async function GET() {
@@ -48,5 +49,6 @@ export async function POST(req: Request) {
     },
   });
 
+  refreshPublicPages();
   return NextResponse.json({ conference });
 }

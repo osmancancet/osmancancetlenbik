@@ -16,7 +16,9 @@ import { Mail } from "lucide-react";
 import { seoMeta } from "@/lib/seo/metadata";
 import { professionalServiceJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
 
-export const revalidate = 60;
+// Duyuruların bitiş tarihi saate bağlı olduğu için saatlik tazeleniyor;
+// admin paneldeki değişiklikler zaten anında yansıyor (lib/revalidate.ts).
+export const revalidate = 3600;
 
 export const metadata: Metadata = seoMeta({
   path: "/",
