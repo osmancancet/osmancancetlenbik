@@ -21,13 +21,18 @@ export function AnnouncementBar({
 
   useEffect(() => {
     if (!announcement) return;
-    const dismissed = localStorage.getItem(`announcement-dismissed-${announcement.id}`);
+    let dismissed: string | null = null;
+    try {
+      dismissed = localStorage.getItem(`announcement-dismissed-${announcement.id}`);
+    } catch {}
     if (!dismissed) setVisible(true);
   }, [announcement]);
 
   function dismiss() {
     if (!announcement) return;
-    localStorage.setItem(`announcement-dismissed-${announcement.id}`, "1");
+    try {
+      localStorage.setItem(`announcement-dismissed-${announcement.id}`, "1");
+    } catch {}
     setVisible(false);
   }
 

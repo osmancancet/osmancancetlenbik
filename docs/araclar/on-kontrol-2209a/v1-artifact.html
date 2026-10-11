@@ -1,0 +1,811 @@
+<title>2209-A Ön Kontrol</title>
+<meta name="description" content="TÜBİTAK 2209-A başvuru metnini TYBS'ye girmeden önce bilgi notundaki kurallara göre kontrol et. Metin tarayıcıdan çıkmaz.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=IBM+Plex+Mono:wght@500&family=Schibsted+Grotesk:wght@600;700&display=swap">
+<style>
+/* Düzen: solda başvuru formu (TYBS adım sırası), sağda yapışkan canlı kontrol listesi; iş takvimi 12 aylık ızgarada çizilir. */
+:root {
+  --paper: #f5f7fa;
+  --surface: #ffffff;
+  --ink: #152033;
+  --muted: #5b6880;
+  --line: #d8dfe9;
+  --accent: #2646c4;
+  --accent-soft: #e7ecfb;
+  --bad: #b42318;
+  --bad-soft: #fdecea;
+  --warn: #9a5a06;
+  --warn-soft: #fcf0dc;
+  --ok: #1b7343;
+  --ok-soft: #e3f3e9;
+  --tip: #4c5b74;
+  --tip-soft: #edf0f5;
+  --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f141c; --surface: #161d28; --ink: #e6ebf3; --muted: #9ba8bc; --line: #29334a;
+    --accent: #8ea4ff; --accent-soft: #1d2747; --bad: #ff8b7c; --bad-soft: #3a1d1a;
+    --warn: #f1b04e; --warn-soft: #382812; --ok: #62d293; --ok-soft: #12301f;
+    --tip: #aab5c7; --tip-soft: #1d2533; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f141c; --surface: #161d28; --ink: #e6ebf3; --muted: #9ba8bc; --line: #29334a;
+  --accent: #8ea4ff; --accent-soft: #1d2747; --bad: #ff8b7c; --bad-soft: #3a1d1a;
+  --warn: #f1b04e; --warn-soft: #382812; --ok: #62d293; --ok-soft: #12301f;
+  --tip: #aab5c7; --tip-soft: #1d2533; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 56px; }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.1; }
+h2 { font-size: 1.05rem; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* Üst bölüm */
+.top { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; margin-bottom: 24px; }
+.top-text { display: grid; gap: 8px; max-width: 62ch; }
+.top-text p { color: var(--muted); }
+.deadline {
+  display: grid; gap: 2px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); min-width: 0;
+}
+.deadline strong { font-family: var(--font-display); font-size: 1.35rem; }
+.deadline span { font-size: 0.82rem; color: var(--muted); }
+
+.notice {
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between;
+  padding: 10px 14px; margin-bottom: 18px; border-radius: var(--radius);
+  background: var(--accent-soft); color: var(--ink); font-size: 0.9rem;
+}
+
+/* Yerleşim */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
+.side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 12px; min-width: 0; }
+@media (max-width: 920px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; order: -1; }
+  .findings { max-height: 46vh; }
+}
+
+/* Form */
+.form { display: grid; gap: 14px; min-width: 0; }
+.group-title { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+.group-title .num { font-family: var(--font-mono); color: var(--accent); font-size: 0.85rem; }
+.field {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 16px; display: grid; gap: 8px; min-width: 0; scroll-margin-top: 20px;
+}
+.field.flash { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; }
+.field-head label, .field-head .label { font-weight: 700; }
+.field-head .rule { font-size: 0.8rem; color: var(--muted); }
+.field p.help { font-size: 0.85rem; color: var(--muted); }
+textarea, input[type="text"], input[type="number"] {
+  width: 100%; font: inherit; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px;
+}
+textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
+.counter { display: flex; justify-content: space-between; gap: 8px; font-size: 0.8rem; color: var(--muted); }
+.counter .mono { padding: 1px 8px; border-radius: 999px; background: var(--tip-soft); }
+.counter[data-state="eksik"] .mono, .counter[data-state="fazla"] .mono { background: var(--bad-soft); color: var(--bad); }
+.counter[data-state="uygun"] .mono { background: var(--ok-soft); color: var(--ok); }
+
+/* İş takvimi */
+.table-scroll { overflow-x: auto; }
+table.wp { width: 100%; min-width: 660px; border-collapse: collapse; font-size: 0.9rem; }
+table.wp th { text-align: left; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 4px 6px; font-weight: 700; }
+table.wp td { padding: 4px 6px; vertical-align: top; }
+table.wp td.n { font-family: var(--font-mono); color: var(--muted); padding-top: 13px; }
+table.wp input { padding: 7px 8px; }
+table.wp input[type="number"] { width: 64px; }
+.wp-actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.sum { font-size: 0.85rem; }
+.sum .mono { padding: 2px 8px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); }
+.sum[data-bad="1"] .mono { background: var(--bad-soft); color: var(--bad); }
+
+.gantt { display: grid; grid-template-columns: 34px repeat(12, minmax(0, 1fr)); gap: 3px 2px; align-items: center; font-size: 0.72rem; }
+.gantt .m { text-align: center; color: var(--muted); font-family: var(--font-mono); }
+.gantt .rl { font-family: var(--font-mono); color: var(--muted); }
+.gantt .cell { height: 18px; background: var(--paper); border-radius: 3px; }
+.gantt .bar { height: 18px; border-radius: 4px; background: var(--accent); opacity: 0.85; z-index: 1; }
+.gantt .bar.badbar { background: var(--bad); }
+.gantt-wrap { overflow-x: auto; }
+.gantt-legend { font-size: 0.78rem; color: var(--muted); }
+
+/* Düğmeler */
+button {
+  font: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; border-radius: 8px;
+  padding: 7px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+button.primary:hover { color: var(--surface); opacity: 0.92; }
+button.ghost { border-color: transparent; background: transparent; color: var(--muted); padding: 6px 8px; }
+button.ghost:hover { color: var(--bad); }
+button.armed { border-color: var(--bad); color: var(--bad); }
+
+/* Rapor */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+.score { display: grid; gap: 10px; }
+.score-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score-big { font-family: var(--font-display); font-size: 2.1rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.score-of { color: var(--muted); }
+.meter { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
+.meter i { height: 8px; border-radius: 2px; background: var(--line); }
+.meter i.ok { background: var(--ok); }
+.meter i.bad { background: var(--bad); }
+.meter i.warn { background: var(--warn); }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.tip { background: var(--tip-soft); color: var(--tip); }
+.pill.okp { background: var(--ok-soft); color: var(--ok); }
+.side-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.copy-status { font-size: 0.8rem; color: var(--ok); }
+.copy-status:empty { display: none; }
+
+.findings { display: grid; gap: 8px; overflow-y: auto; max-height: calc(100vh - 330px); padding-right: 2px; }
+.finding {
+  display: grid; gap: 3px; text-align: left; width: 100%; font-weight: 400; font-size: 0.88rem;
+  padding: 10px 12px 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+  border-left: 4px solid var(--tip); color: var(--ink);
+}
+.finding:hover { color: var(--ink); border-color: var(--accent); }
+.finding.bad { border-left-color: var(--bad); }
+.finding.warn { border-left-color: var(--warn); }
+.finding .where { font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.finding .hint { color: var(--muted); font-size: 0.84rem; }
+.empty-ok { padding: 14px; border-radius: 8px; background: var(--ok-soft); color: var(--ok); font-weight: 700; }
+details.passed summary { cursor: pointer; font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+details.passed ul { margin: 8px 0 0; padding-left: 18px; font-size: 0.84rem; color: var(--muted); display: grid; gap: 2px; }
+
+.footer { margin-top: 36px; display: grid; gap: 6px; font-size: 0.82rem; color: var(--muted); max-width: 80ch; }
+.footer a { color: var(--accent); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .meter i, .finding { transition: background-color .2s ease, border-color .2s ease; }
+}
+</style>
+
+<div class="wrap" lang="tr">
+  <header class="top">
+    <div class="top-text">
+      <span class="eyebrow">TÜBİTAK 2209-A · 2026 çağrısı</span>
+      <h1>2209-A Ön Kontrol</h1>
+      <p>Başvuru metnini TYBS'ye girmeden önce bilgi notundaki kurallara göre kontrol et. Yazdıkça kontrol listesi güncellenir. Metnin tarayıcından çıkmaz.</p>
+    </div>
+    <div class="deadline" id="deadline">
+      <span>Son başvuru · 11 Kasım 2026, 17.30</span>
+      <strong id="days" class="mono">—</strong>
+    </div>
+  </header>
+
+  <div class="notice" id="notice">
+    <span id="notice-text">Örnek bir başvuru yüklü. Kendi metnini yapıştırınca kontrol listesi ona göre değişir.</span>
+    <span class="side-actions">
+      <button type="button" id="btn-sample">Örneği yükle</button>
+      <button type="button" id="btn-clear">Formu temizle</button>
+    </span>
+  </div>
+
+  <div class="layout">
+    <form class="form" id="form" autocomplete="off">
+      <div class="field" id="f-ozet">
+        <div class="field-head"><label for="ozet">Özet</label><span class="rule">25–450 kelime · en son yazılması önerilir</span></div>
+        <textarea id="ozet" data-key="ozet"></textarea>
+        <div class="counter" data-for="ozet"></div>
+      </div>
+
+      <div class="group-title"><span class="num">1</span><h2>Araştırma önerisinin bilimsel niteliği</h2></div>
+      <div class="field" id="f-bilimsel">
+        <div class="field-head"><label for="bilimsel">1.1 Konunun önemi ve bilimsel nitelik</label><span class="rule">en az 350 karakter</span></div>
+        <p class="help">Kapsam, literatürdeki eksiklik, araştırma sorusu ya da hipotez; literatüre atıfla.</p>
+        <textarea id="bilimsel" data-key="bilimsel"></textarea>
+        <div class="counter" data-for="bilimsel"></div>
+      </div>
+      <div class="field" id="f-amac">
+        <div class="field-head"><label for="amac">1.2 Amaç ve hedefler</label><span class="rule">en az 350 karakter</span></div>
+        <p class="help">Açık, ölçülebilir, gerçekçi ve ulaşılabilir hedefler.</p>
+        <textarea id="amac" data-key="amac"></textarea>
+        <div class="counter" data-for="amac"></div>
+      </div>
+
+      <div class="group-title"><span class="num">2</span><h2>Yöntem</h2></div>
+      <div class="field" id="f-yontem">
+        <div class="field-head"><label for="yontem">2. Yöntem</label><span class="rule">en az 350 karakter</span></div>
+        <p class="help">Araştırma tasarımı, bağımlı ve bağımsız değişkenler, istatistiksel yöntemler; yöntemleri çalışma takvimiyle ilişkilendir.</p>
+        <textarea id="yontem" data-key="yontem"></textarea>
+        <div class="counter" data-for="yontem"></div>
+      </div>
+
+      <div class="group-title"><span class="num">3</span><h2>Proje yönetimi</h2></div>
+      <div class="field" id="f-takvim">
+        <div class="field-head"><span class="label">3.1 Çalışma takvimi</span><span class="rule">en fazla 12 ay · katkı toplamı 100</span></div>
+        <p class="help">Literatür taraması, sonuç raporu hazırlama, sonuçların paylaşımı ve malzeme alımı ayrı iş adımı olarak yazılmaz.</p>
+        <div class="table-scroll">
+          <table class="wp">
+            <thead><tr><th>#</th><th>İş adımı</th><th>Başl. ayı</th><th>Bitiş ayı</th><th>Başarı ölçütü</th><th>Katkı %</th><th></th></tr></thead>
+            <tbody id="wp-body"></tbody>
+          </table>
+        </div>
+        <div class="wp-actions">
+          <button type="button" id="btn-add-wp">İş adımı ekle</button>
+          <span class="sum" id="wp-sum"></span>
+        </div>
+        <div class="gantt-wrap"><div class="gantt" id="gantt" aria-label="Çalışma takvimi, 12 ay"></div></div>
+        <span class="gantt-legend">Izgara 12 aylık proje süresini gösterir; kırmızı çubuk süreyi aşan ya da hatalı aralığı işaret eder.</span>
+      </div>
+      <div class="field" id="f-risk">
+        <div class="field-head"><label for="risk">3.2 Risk yönetimi</label><span class="rule">riskler ve B planları</span></div>
+        <textarea id="risk" data-key="risk"></textarea>
+        <div class="counter" data-for="risk"></div>
+      </div>
+      <div class="field" id="f-olanak">
+        <div class="field-head"><label for="olanak">3.3 Araştırma olanakları</label><span class="rule">altyapı ve ekipman</span></div>
+        <textarea id="olanak" data-key="olanak"></textarea>
+        <div class="counter" data-for="olanak"></div>
+      </div>
+
+      <div class="group-title"><span class="num">4</span><h2>Yaygın etki</h2></div>
+      <div class="field" id="f-etki">
+        <div class="field-head"><label for="etki">4. Yaygın etki</label><span class="rule">ölçülebilir, gerçekçi çıktılar</span></div>
+        <textarea id="etki" data-key="etki"></textarea>
+        <div class="counter" data-for="etki"></div>
+      </div>
+
+      <div class="group-title"><h2>Kaynaklar</h2></div>
+      <div class="field" id="f-kaynak">
+        <div class="field-head"><label for="kaynak">Kaynakça</label><span class="rule">her satıra bir kaynak · DOI varsa zorunlu</span></div>
+        <p class="help">Listedeki her kaynağa metinde atıf yapılmalı. (Soyad, 2023) ve [1] biçimindeki atıflar tanınır.</p>
+        <textarea id="kaynak" data-key="kaynak" style="min-height:150px"></textarea>
+        <div class="counter" data-for="kaynak"></div>
+      </div>
+    </form>
+
+    <aside class="side" aria-label="Kontrol listesi">
+      <div class="card score">
+        <span class="eyebrow">Kontrol listesi</span>
+        <div class="score-line">
+          <span class="score-big" id="score">0/0</span>
+          <span class="score-of">kural tamam</span>
+        </div>
+        <div class="meter" id="meter"></div>
+        <div class="pills" id="pills"></div>
+        <div class="side-actions">
+          <button type="button" class="primary" id="btn-copy">Raporu kopyala</button>
+        </div>
+        <span class="copy-status" id="copy-status" aria-live="polite"></span>
+      </div>
+      <div class="findings" id="findings" aria-live="polite"></div>
+      <details class="passed card" id="passed"><summary>Tamam olan kurallar</summary><ul id="passed-list"></ul></details>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <p>Kurallar <a href="https://tubitak.gov.tr/sites/default/files/2026-10/2209-A_Basvuru_Icerigi_Bilgi_Notu.pdf" target="_blank" rel="noopener">2209-A Başvuru İçeriği Bilgi Notu</a> ve <a href="https://tubitak.gov.tr/sites/default/files/2026-10/2209-A_2026_Yili_Cagri_Duyurusu.pdf" target="_blank" rel="noopener">2026 çağrı duyurusuna</a> göre hazırlandı (Ekim 2026). Yapay zekâ kullandıysan <a href="https://tubitak.gov.tr/sites/default/files/2025-09/UYZ_Rehberi-v02.pdf" target="_blank" rel="noopener">TÜBİTAK ÜYZ rehberine</a> göre beyan et.</p>
+    <p>Bu araç TÜBİTAK'ın resmî aracı değildir ve TÜBİTAK ile bağlantısı yoktur. Kontroller otomatik ve sezgiseldir; başvurunun kabul edileceğini göstermez. Karakter sayımı boşluklar dahil yapılır; TYBS'nin sayımı farklı olabilir, sınıra yakınsan pay bırak.</p>
+    <p>Metnin hiçbir sunucuya gönderilmez. Taslağın yalnızca bu tarayıcıda saklanır.</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Kurallar ve sözlükler ----------
+  const SECTIONS = {
+    ozet: "Özet", bilimsel: "1.1 Bilimsel nitelik", amac: "1.2 Amaç ve hedefler", yontem: "2. Yöntem",
+    takvim: "3.1 Çalışma takvimi", risk: "3.2 Risk yönetimi", olanak: "3.3 Araştırma olanakları",
+    etki: "4. Yaygın etki", kaynak: "Kaynakça"
+  };
+  const LIMITS = {
+    ozet: { unit: "kelime", min: 25, max: 450 },
+    bilimsel: { unit: "karakter", min: 350 },
+    amac: { unit: "karakter", min: 350 },
+    yontem: { unit: "karakter", min: 350 }
+  };
+  const GENERIC = [
+    [/standart (yöntem|teknik|prosedür|analiz)\p{L}* (kullanıl|uygulan|yapıl)\p{L}*/u, "Hangi yöntemin, hangi parametrelerle ve neden seçildiğini yaz."],
+    [/uygun (bir )?(istatistik(sel)? )?(yöntem|analiz|teknik|test)\p{L}* (ile|kullanılarak|yapılacak|uygulanacak)/u, "“Uygun” yerine yöntemin adını ve seçim gerekçesini yaz."],
+    [/gerekli (analiz|çalışma|işlem|test)\p{L}* (yapılacak|gerçekleştirilecek)\p{L}*/u, "Hangi analizlerin yapılacağını tek tek yaz."],
+    [/literatürde(ki)? (yer alan|bulunan|mevcut) yöntem\p{L}*/u, "Yöntemin adını, kaynağını ve projeye nasıl uyarlanacağını yaz."],
+    [/en (son|güncel|yeni) teknoloji\p{L}* (kullanıl|ile)\p{L}*/u, "Kullanılacak teknolojiyi adıyla belirt."],
+    [/(çeşitli|bazı) (yöntem|analiz|teknik|test)ler\p{L}*/u, "Yöntemleri tek tek adıyla yaz."]
+  ];
+  const FORBIDDEN = [
+    [/literatür (taraması|araştırması|incelemesi|çalışması|derlemesi)/u, "literatür taraması"],
+    [/(sonuç |proje |final |ara )?rapor(un|u|lar)? (yazım|hazırlan)\p{L}*|raporlama/u, "sonuç raporu hazırlama"],
+    [/sonuçların (paylaşıl|paylaşım|yaygınlaştırıl|sunul)\p{L}*|yaygınlaştırma/u, "sonuçların paylaşımı"],
+    [/(malzeme|ekipman|cihaz|sarf) (alım|temin|satın)\p{L}*|satın alma/u, "malzeme alımı"]
+  ];
+  const VAGUE = [
+    /başarı(yla|lı( bir şekilde)?) (tamamlan|gerçekleştiril|sonuçlan)\p{L}*/u,
+    /^(iş adımının |iş paketinin |çalışmanın )?(tamamlanması|bitmesi|bitirilmesi|tamamlandı)\.?$/u,
+    /olumlu sonuç/u, /hedef(ler)?e ulaşıl\p{L}*/u, /istenilen (düzey|seviye|sonuç)/u, /^%?\s*100\s*%?$/u
+  ];
+  const METHOD_WORDS = /tasarım|değişken|örneklem|istatisti|analiz|model|deney|ölçek|anket|veri seti|katılımcı/u;
+
+  // ---------- Yardımcılar ----------
+  const $ = (id) => document.getElementById(id);
+  const lower = (s) => s.toLocaleLowerCase("tr-TR");
+  const words = (s) => (s.match(/\S+/g) || []).length;
+  const chars = (s) => [...s.trim()].length;
+  const hasNum = (s) => /\d/.test(s);
+  const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function tcknValid(v) {
+    if (!/^[1-9]\d{10}$/.test(v)) return false;
+    const d = [...v].map(Number);
+    const t = ((d[0] + d[2] + d[4] + d[6] + d[8]) * 7 - (d[1] + d[3] + d[5] + d[7])) % 10;
+    const e = d.slice(0, 10).reduce((a, b) => a + b, 0) % 10;
+    return ((t + 10) % 10) === d[9] && e === d[10];
+  }
+  const mask = (v) => v.length <= 4 ? "****" : v.slice(0, 2) + "*".repeat(v.length - 4) + v.slice(-2);
+
+  const UP = "A-ZÇĞİÖŞÜ";
+  const RX_PAREN = /\(([^()]*?(?:19|20)\d{2}[a-z]?[^()]*)\)/g;
+  const RX_AY = new RegExp(`([${UP}][\\p{L}'’\\-]+)(?:\\s+(?:ve|vd\\.|et al\\.|&|and)(?:\\s+[${UP}][\\p{L}'’\\-]+)?)?,?\\s*((?:19|20)\\d{2})`, "gu");
+  const RX_NARR = new RegExp(`([${UP}][\\p{L}'’\\-]+)(?:\\s+(?:vd\\.|et al\\.))?\\s+\\(((?:19|20)\\d{2})[a-z]?\\)`, "gu");
+  const RX_NUM = /\[(\d+(?:\s*[-–,]\s*\d+)*)\]/g;
+  const RX_DOI = /10\.\d{4,9}\/[^\s"<>]+/i;
+
+  function citations(text) {
+    const numeric = [];
+    for (const m of text.matchAll(RX_NUM)) {
+      for (const part of m[1].split(",")) {
+        const b = part.trim().split(/\s*[-–]\s*/);
+        if (b.length === 2) { for (let n = +b[0]; n <= +b[1] && n - +b[0] < 200; n++) numeric.push(n); }
+        else if (/^\d+$/.test(b[0])) numeric.push(+b[0]);
+      }
+    }
+    const ay = [];
+    for (const m of text.matchAll(RX_PAREN)) {
+      for (const part of m[1].split(";")) for (const a of part.matchAll(RX_AY)) ay.push({ s: a[1], y: a[2] });
+    }
+    for (const m of text.matchAll(RX_NARR)) ay.push({ s: m[1], y: m[2] });
+    return { numeric, ay };
+  }
+  const refMatches = (ref, c) => lower(ref).includes(lower(c.s)) && ref.includes(c.y);
+  const refLines = (raw) => raw.split("\n").map((l) => l.trim().replace(/^(\[\d+\]|\d+[.)])\s*/, "")).filter(Boolean);
+
+  // ---------- Durum ----------
+  const TEXT_KEYS = ["ozet", "bilimsel", "amac", "yontem", "risk", "olanak", "etki", "kaynak"];
+  const state = { text: {}, wp: [] };
+  const STORE_KEY = "on-kontrol-2209a-v1";
+
+  const SAMPLE = {
+    text: {
+      ozet: "Bu proje, üniversite öğrencilerinin ders çalışma alışkanlıklarını akıllı telefon kullanım verileriyle ilişkilendirmeyi amaçlamaktadır. Gönüllü 120 öğrenciden dört hafta boyunca anonim ekran süresi verisi ve haftalık öz bildirim anketleri toplanacaktır. Veriler karma etkiler modeliyle analiz edilecek ve sonuçlar açık erişimli bir veri setiyle paylaşılacaktır. Projenin çıktısı, öğrencilerin dikkat dağınıklığını azaltmaya yönelik kanıta dayalı öneriler olacaktır.",
+      bilimsel: "Akıllı telefon kullanımı ile akademik başarı arasındaki ilişki birçok çalışmada incelenmiştir (Yılmaz, 2022; Demir vd., 2023). Ancak bu çalışmaların büyük kısmı tek seferlik öz bildirim anketlerine dayanmakta ve gerçek kullanım verisini ölçmemektedir. Kaya ve Arslan (2024) nesnel ekran süresi verisinin öz bildirimden anlamlı biçimde farklılaştığını göstermiştir. Bu proje, nesnel kullanım verisini haftalık tekrarlı ölçümle birleştirerek literatürdeki bu boşluğu doldurmayı hedeflemektedir. Araştırma sorusu şudur: Haftalık ekran süresindeki artış, aynı haftadaki ders çalışma süresini azaltmakta mıdır?",
+      amac: "Projenin amacı, ekran süresi ile haftalık ders çalışma süresi arasındaki ilişkiyi nesnel veriyle ortaya koymaktır. Hedef 1: Dört hafta boyunca en az 120 öğrenciden eksiksiz veri toplamak. Hedef 2: Ekran süresindeki her bir saatlik artışın haftalık çalışma süresine etkisini %95 güven aralığıyla tahmin etmek. Hedef 3: Anonim veri setini proje bitiminden önce açık erişimli bir depoda yayımlamak. Hedef 4: Sonuçları en az bir ulusal kongrede bildiri olarak sunmak.",
+      yontem: "Araştırma, tekrarlı ölçümlü gözlemsel bir tasarımla yürütülecektir. Katılımcılar, etik kurul onayı alındıktan sonra bilgilendirilmiş onamla gönüllülük esasına göre seçilecektir. Bağımsız değişken haftalık ekran süresi, bağımlı değişken haftalık ders çalışma süresidir. Ekran süresi verisi telefonların yerleşik dijital denge raporlarından haftalık olarak toplanacaktır. Haftalık çalışma süresi, geçerlik ve güvenirlik çalışması yapılmış bir öz bildirim formuyla ölçülecektir. Elde edilen veriler uygun istatistik yöntemleri ile analiz edilecektir.",
+      risk: "Katılımcı kaybı riski için başlangıçta hedeflenenden yüzde yirmi fazla katılımcı alınacaktır (B planı). Veri gönderiminin aksaması durumunda haftalık hatırlatma mesajları kullanılacak, gerekirse veri toplama bir hafta uzatılacaktır.",
+      olanak: "Analizler için bölümün bilgisayar laboratuvarı ve açık kaynak R yazılımı kullanılacaktır. Ek bir ekipman gerekmemektedir.",
+      etki: "Sonuçlar en az bir ulusal kongrede sunulacak, anonim veri seti açık erişimli bir depoda paylaşılacak ve üniversitenin rehberlik birimiyle öğrencilere yönelik bir bilgilendirme semineri düzenlenecektir.",
+      kaynak: [
+        "Demir, A., Çelik, B. ve Şahin, C. (2023). Smartphone use and academic performance. Computers & Education, 190, 104610. https://doi.org/10.1016/j.compedu.2023.104610",
+        "Kaya, D. ve Arslan, E. (2024). Objective versus self-reported screen time. Journal of Behavioral Research, 12(3), 45-60. https://doi.org/10.1234/jbr.2024.045",
+        "Öztürk, H. (2021). Dijital çağda öğrenme. Ankara: Örnek Yayınevi.",
+        "Yılmaz, F. (2022). Üniversite öğrencilerinde dijital dikkat dağınıklığı. Eğitim ve Bilim, 47(210), 1-20. https://doi.org/10.15390/EB.2022.11111"
+      ].join("\n")
+    },
+    wp: [
+      { name: "Literatür taraması ve etik kurul başvurusu", start: 1, end: 2, crit: "Etik kurul onayının alınması", pct: 20 },
+      { name: "Veri toplama", start: 3, end: 5, crit: "En az 120 katılımcıdan dört haftalık eksiksiz veri", pct: 40 },
+      { name: "Veri analizi ve modelleme", start: 6, end: 9, crit: "Başarıyla tamamlanması", pct: 30 }
+    ]
+  };
+
+  let isSample = false;
+
+  function save() {
+    if (isSample) return;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* depolama kapalı olabilir */ }
+  }
+  function loadSaved() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      return data && data.text && Array.isArray(data.wp) ? data : null;
+    } catch (e) { return null; }
+  }
+
+  // ---------- Kontroller ----------
+  // Her kural: {id, sec, title, sev: "bad"|"warn", run(ctx) -> {applies, issues:[{msg,hint,sec?}]}}
+  // İpuçları puana sayılmaz.
+  function buildRules() {
+    const R = [];
+    for (const [key, lim] of Object.entries(LIMITS)) {
+      R.push({
+        id: "len-" + key, sec: key, sev: "bad",
+        title: `${SECTIONS[key]}: ${lim.max ? `${lim.min}–${lim.max}` : `en az ${lim.min}`} ${lim.unit}`,
+        run: (c) => {
+          const t = c.text[key]; const n = lim.unit === "kelime" ? words(t) : chars(t);
+          if (!t.trim()) return { issues: [{ msg: `${SECTIONS[key]} boş.`, hint: "Bu bölüm zorunlu." }] };
+          if (n < lim.min) return { issues: [{ msg: `${SECTIONS[key]} ${n} ${lim.unit}; en az ${lim.min} olmalı.`, hint: `${lim.min - n} ${lim.unit} eksik. Somut bilgiyle genişlet, dolgu cümlesi ekleme.` }] };
+          if (lim.max && n > lim.max) return { issues: [{ msg: `${SECTIONS[key]} ${n} ${lim.unit}; en fazla ${lim.max} olmalı.`, hint: `${n - lim.max} ${lim.unit} fazla. Tekrarları ve genel ifadeleri çıkar.` }] };
+          return { issues: [] };
+        }
+      });
+    }
+    R.push({ id: "wp-any", sec: "takvim", sev: "bad", title: "Çalışma takviminde en az bir iş adımı",
+      run: (c) => ({ issues: c.wp.length ? [] : [{ msg: "Çalışma takviminde iş adımı yok.", hint: "En az bir iş adımı eklenmeli." }] }) });
+    R.push({ id: "wp-time", sec: "takvim", sev: "bad", title: "İş adımları 1–12. aylar arasında",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        const issues = [];
+        c.wp.forEach((w, i) => {
+          const s = +w.start, e = +w.end;
+          if (!s || !e) issues.push({ msg: `İA${i + 1}: başlangıç ya da bitiş ayı boş.`, hint: "Her iş adımına ay aralığı gir." });
+          else if (e < s) issues.push({ msg: `İA${i + 1}: bitiş ayı (${e}) başlangıçtan (${s}) önce.`, hint: "Ay aralığını düzelt." });
+          else if (s < 1 || e > 12) issues.push({ msg: `İA${i + 1}: ${s}–${e}. aylar; proje süresi en fazla 12 ay.`, hint: "İş adımını 12 aya sığdır." });
+        });
+        return { issues };
+      } });
+    R.push({ id: "wp-sum", sec: "takvim", sev: "bad", title: "Başarı ölçütü katkıları toplamı 100",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        const sum = c.wp.reduce((a, w) => a + (+w.pct || 0), 0);
+        return { issues: Math.abs(sum - 100) < 0.01 ? [] : [{ msg: `Katkı değerlerinin toplamı ${fmt(sum)}; 100 olmalı.`, hint: "Her iş adımının projenin başarısına katkısını yeniden dağıt." }] };
+      } });
+    R.push({ id: "wp-forbidden", sec: "takvim", sev: "bad", title: "Ayrı iş adımı olmaması gereken işler yok",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        const issues = [];
+        c.wp.forEach((w, i) => {
+          const hit = FORBIDDEN.find(([rx]) => rx.test(lower(w.name)));
+          if (hit) issues.push({ msg: `İA${i + 1} “${w.name}”: ${hit[1]} ayrı iş adımı olarak gösterilmez.`, hint: "Bilgi notu bu işi ayrı iş adımı saymıyor. Çıktı üreten bir işle birleştir ya da çıkar." });
+        });
+        return { issues };
+      } });
+    R.push({ id: "wp-crit", sec: "takvim", sev: "bad", title: "Her iş adımının başarı ölçütü var",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        return { issues: c.wp.map((w, i) => w.crit.trim() ? null : { msg: `İA${i + 1} için başarı ölçütü yazılmamış.`, hint: "Bu adımın bittiğini neyle kanıtlayacağını yaz." }).filter(Boolean) };
+      } });
+    R.push({ id: "wp-vague", sec: "takvim", sev: "warn", title: "Başarı ölçütleri ölçülebilir",
+      run: (c) => {
+        const filled = c.wp.filter((w) => w.crit.trim());
+        if (!filled.length) return { applies: false, issues: [] };
+        return { issues: c.wp.map((w, i) => w.crit.trim() && VAGUE.some((rx) => rx.test(lower(w.crit.trim()))) ? { msg: `İA${i + 1} başarı ölçütü ölçülebilir değil: “${w.crit.trim()}”.`, hint: "Örnek: “120 katılımcıdan eksiksiz veri” ya da “modelin test setinde F1 ≥ 0,80”." } : null).filter(Boolean) };
+      } });
+    for (const key of ["risk", "olanak", "etki"]) {
+      R.push({ id: "fill-" + key, sec: key, sev: "warn", title: `${SECTIONS[key]} dolu`,
+        run: (c) => ({ issues: c.text[key].trim() ? [] : [{ msg: `${SECTIONS[key]} boş.`, hint: "Bu bölüm değerlendirmede puanlanıyor; boş bırakma." }] }) });
+    }
+    R.push({ id: "cite-11", sec: "bilimsel", sev: "warn", title: "1.1'de literatüre atıf var",
+      run: (c) => {
+        if (!c.text.bilimsel.trim()) return { applies: false, issues: [] };
+        const ct = citations(c.text.bilimsel);
+        return { issues: ct.numeric.length || ct.ay.length ? [] : [{ msg: "1.1 bölümünde tanınabilir bir atıf yok.", hint: "Bilgi notu konunun önemini literatüre atıfla açıklamanı istiyor." }] };
+      } });
+    R.push({ id: "refs-match", sec: "kaynak", sev: "warn", title: "Kaynakça ile metin içi atıflar eşleşiyor",
+      run: (c) => {
+        const refs = refLines(c.text.kaynak);
+        if (!refs.length) return { applies: false, issues: [] };
+        const body = TEXT_KEYS.filter((k) => k !== "kaynak").map((k) => c.text[k]).join("\n");
+        const ct = citations(body);
+        const issues = [];
+        if (ct.numeric.length) {
+          const cited = new Set(ct.numeric);
+          const missing = [...cited].filter((n) => n < 1 || n > refs.length).sort((a, b) => a - b);
+          const uncited = refs.map((_, i) => i + 1).filter((n) => !cited.has(n));
+          if (missing.length) issues.push({ msg: `Kaynakçada karşılığı olmayan atıflar: ${list(missing.map((n) => `[${n}]`))}.`, hint: "Atıf numaralarını kaynakça sırasıyla eşleştir." });
+          if (uncited.length) issues.push({ msg: `Metinde atıf yapılmamış kaynaklar: ${list(uncited.map((n) => `${n}. satır`))}.`, hint: "Bilgi notuna göre listedeki tüm kaynaklara metinde atıf yapılmalı." });
+        } else if (!ct.ay.length) {
+          issues.push({ msg: "Kaynakça var ama metinde tanınabilir atıf yok.", hint: "Atıfları (Soyad, Yıl) ya da [1] biçiminde yaz." });
+        } else {
+          const unmatched = [...new Set(ct.ay.filter((a) => !refs.some((r) => refMatches(r, a))).map((a) => `${a.s}, ${a.y}`))];
+          const uncited = refs.map((r, i) => ct.ay.some((a) => refMatches(r, a)) ? null : i + 1).filter(Boolean);
+          if (unmatched.length) issues.push({ msg: `Kaynakçada bulunamayan atıflar: ${list(unmatched)}.`, hint: "Soyadı ve yılın kaynakçayla aynı yazıldığını kontrol et." });
+          if (uncited.length) issues.push({ msg: `Metinde atıf yapılmamış görünen kaynaklar: ${list(uncited.map((n) => `${n}. satır`))}.`, hint: "Bilgi notuna göre listedeki tüm kaynaklara metinde atıf yapılmalı." });
+        }
+        return { issues };
+      } });
+    R.push({ id: "refs-doi", sec: "kaynak", sev: "warn", title: "DOI'si olan kaynaklarda DOI eklenmiş",
+      run: (c) => {
+        const refs = refLines(c.text.kaynak);
+        if (!refs.length) return { applies: false, issues: [] };
+        const no = refs.map((r, i) => RX_DOI.test(r) ? null : i + 1).filter(Boolean);
+        return { issues: no.length ? [{ msg: `${refs.length} kaynaktan ${no.length} tanesinde DOI yok: ${list(no.map((n) => `${n}. satır`))}.`, hint: "DOI'si olan kaynaklara DOI eklemek zorunlu. Kitap ve raporların DOI'si yoksa sorun değil." }] : [] };
+      } });
+    R.push({ id: "generic", sec: null, sev: "warn", title: "Genel, içi boş ifade yok",
+      run: (c) => {
+        const issues = [];
+        for (const key of TEXT_KEYS.filter((k) => k !== "kaynak")) {
+          const t = lower(c.text[key]);
+          for (const [rx, hint] of GENERIC) {
+            const m = t.match(rx);
+            if (m) issues.push({ sec: key, msg: `${SECTIONS[key]}: “${c.text[key].substr(m.index, m[0].length)}”.`, hint });
+          }
+        }
+        return { issues };
+      } });
+    R.push({ id: "pii", sec: null, sev: "bad", title: "Metinde kişisel veri izi yok",
+      run: (c) => {
+        const issues = [];
+        for (const key of TEXT_KEYS.filter((k) => k !== "kaynak")) {
+          const t = c.text[key];
+          for (const m of t.matchAll(/(?<!\d)[1-9]\d{10}(?!\d)/g)) if (tcknValid(m[0])) issues.push({ sec: key, msg: `${SECTIONS[key]}: olası TC kimlik numarası (${mask(m[0])}).`, hint: "Kişisel verileri başvuru metninden çıkar." });
+          for (const m of t.matchAll(/(?<!\d)(?:\+90[\s-]?|0)?5\d{2}[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}(?!\d)/g)) issues.push({ sec: key, msg: `${SECTIONS[key]}: olası telefon numarası (${mask(m[0].replace(/\s/g, ""))}).`, hint: "Kişisel verileri başvuru metninden çıkar." });
+          for (const m of t.matchAll(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g)) issues.push({ sec: key, msg: `${SECTIONS[key]}: e-posta adresi (${mask(m[0])}).`, hint: "Kişisel verileri başvuru metninden çıkar." });
+        }
+        return { issues };
+      } });
+    return R;
+  }
+
+  function tips(c) {
+    const T = [];
+    for (const key of ["bilimsel", "amac", "yontem"]) {
+      const n = chars(c.text[key]);
+      if (n >= 350 && n < 385) T.push({ sec: key, msg: `${SECTIONS[key]} ${n} karakter; alt sınıra çok yakın.`, hint: "TYBS sayımı farklı olabilir; biraz pay bırak." });
+    }
+    if (c.text.amac.trim() && !hasNum(c.text.amac)) T.push({ sec: "amac", msg: "Hedeflerde sayı, oran ya da süre yok.", hint: "Bilgi notu hedeflerin ölçülebilir olmasını istiyor." });
+    if (c.text.yontem.trim() && !METHOD_WORDS.test(lower(c.text.yontem))) T.push({ sec: "yontem", msg: "Yöntemde tasarım, değişken ya da analiz ifadesi bulunamadı.", hint: "Araştırma tasarımını, değişkenleri ve istatistiksel yöntemi yaz." });
+    if (c.text.risk.trim() && !/b plan/u.test(lower(c.text.risk))) T.push({ sec: "risk", msg: "Risk yönetiminde B planı ifadesi geçmiyor.", hint: "Her önemli risk için bir B planı yaz; B planı temel hedeflerden saptırmamalı." });
+    c.wp.forEach((w, i) => {
+      const crit = w.crit.trim();
+      if (crit && !hasNum(crit) && !VAGUE.some((rx) => rx.test(lower(crit)))) T.push({ sec: "takvim", msg: `İA${i + 1} başarı ölçütünde sayısal bir eşik yok: “${crit}”.`, hint: "Mümkünse sayı, oran ya da somut bir çıktı ekle." });
+    });
+    return T;
+  }
+
+  const fmt = (n) => Number.isInteger(n) ? String(n) : n.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+  const list = (items, limit = 5) => items.slice(0, limit).join(", ") + (items.length > limit ? ` ve ${items.length - limit} tane daha` : "");
+
+  const RULES = buildRules();
+
+  function evaluate() {
+    const c = { text: state.text, wp: state.wp };
+    const results = RULES.map((r) => {
+      const out = r.run(c);
+      const applies = out.applies !== false;
+      return { rule: r, applies, pass: applies && out.issues.length === 0, issues: out.issues };
+    });
+    return { results, tips: tips(c) };
+  }
+
+  // ---------- Çizim ----------
+  const wpBody = $("wp-body");
+
+  function renderWpRows() {
+    wpBody.innerHTML = "";
+    state.wp.forEach((w, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="n">İA${i + 1}</td>
+        <td><input type="text" id="wp-name-${i}" aria-label="İA${i + 1} iş adımı" data-i="${i}" data-f="name"></td>
+        <td><input type="number" id="wp-start-${i}" aria-label="İA${i + 1} başlangıç ayı" min="1" max="12" data-i="${i}" data-f="start"></td>
+        <td><input type="number" id="wp-end-${i}" aria-label="İA${i + 1} bitiş ayı" min="1" max="12" data-i="${i}" data-f="end"></td>
+        <td><input type="text" id="wp-crit-${i}" aria-label="İA${i + 1} başarı ölçütü" data-i="${i}" data-f="crit"></td>
+        <td><input type="number" id="wp-pct-${i}" aria-label="İA${i + 1} katkı yüzdesi" min="0" max="100" data-i="${i}" data-f="pct"></td>
+        <td><button type="button" class="ghost" data-del="${i}" aria-label="İA${i + 1} sil">Sil</button></td>`;
+      wpBody.appendChild(tr);
+      tr.querySelectorAll("input").forEach((inp) => { inp.value = w[inp.dataset.f] ?? ""; });
+    });
+  }
+
+  function renderGantt() {
+    const g = $("gantt");
+    let html = `<span></span>`;
+    for (let m = 1; m <= 12; m++) html += `<span class="m">${m}</span>`;
+    state.wp.forEach((w, i) => {
+      const s = +w.start, e = +w.end;
+      html += `<span class="rl" style="grid-row:${i + 2};grid-column:1">İA${i + 1}</span>`;
+      for (let m = 1; m <= 12; m++) html += `<span class="cell" style="grid-row:${i + 2};grid-column:${m + 1}"></span>`;
+      if (s && e) {
+        const bad = e < s || s < 1 || e > 12;
+        const from = Math.min(Math.max(Math.min(s, e), 1), 12), to = Math.min(Math.max(s, e), 12);
+        html += `<span class="bar${bad ? " badbar" : ""}" style="grid-row:${i + 2};grid-column:${from + 1} / ${to + 2}" title="İA${i + 1}: ${s}–${e}. ay"></span>`;
+      }
+    });
+    g.innerHTML = html;
+    const sum = state.wp.reduce((a, w) => a + (+w.pct || 0), 0);
+    const sumEl = $("wp-sum");
+    sumEl.dataset.bad = Math.abs(sum - 100) < 0.01 ? "0" : "1";
+    sumEl.innerHTML = `Katkı toplamı <span class="mono">${fmt(sum)} / 100</span>`;
+  }
+
+  function renderCounters() {
+    document.querySelectorAll(".counter").forEach((el) => {
+      const key = el.dataset.for; const t = state.text[key] || "";
+      if (key === "kaynak") {
+        const refs = refLines(t); const doi = refs.filter((r) => RX_DOI.test(r)).length;
+        el.innerHTML = `<span>${refs.length} kaynak · ${doi} tanesinde DOI</span>`;
+        return;
+      }
+      const lim = LIMITS[key];
+      const w = words(t), c = chars(t);
+      let st = "", shown = `${w} kelime · ${c} karakter`;
+      if (lim) {
+        const n = lim.unit === "kelime" ? w : c;
+        st = n === 0 ? "bos" : n < lim.min ? "eksik" : (lim.max && n > lim.max) ? "fazla" : "uygun";
+        shown = lim.unit === "kelime" ? `${w} / ${lim.min}–${lim.max} kelime` : `${c} / en az ${lim.min} karakter`;
+      }
+      el.dataset.state = st;
+      el.innerHTML = `<span class="mono">${shown}</span>${lim && lim.unit === "karakter" ? `<span>${w} kelime</span>` : `<span>${c} karakter</span>`}`;
+    });
+  }
+
+  function renderReport() {
+    const { results, tips: T } = evaluate();
+    const applicable = results.filter((r) => r.applies);
+    const passed = applicable.filter((r) => r.pass);
+    $("score").textContent = `${passed.length}/${applicable.length}`;
+    $("meter").innerHTML = applicable.map((r) => `<i class="${r.pass ? "ok" : r.rule.sev === "bad" ? "bad" : "warn"}" title="${esc(r.rule.title)}"></i>`).join("");
+
+    const bad = results.filter((r) => !r.pass && r.applies && r.rule.sev === "bad").reduce((a, r) => a + r.issues.length, 0);
+    const warn = results.filter((r) => !r.pass && r.applies && r.rule.sev === "warn").reduce((a, r) => a + r.issues.length, 0);
+    $("pills").innerHTML =
+      (bad ? `<span class="pill bad">${bad} düzelt</span>` : "") +
+      (warn ? `<span class="pill warn">${warn} gözden geçir</span>` : "") +
+      (T.length ? `<span class="pill tip">${T.length} ipucu</span>` : "") +
+      (!bad && !warn ? `<span class="pill okp">Kurallara uygun</span>` : "");
+
+    const items = [];
+    for (const sev of ["bad", "warn"]) {
+      for (const r of results.filter((x) => !x.pass && x.applies && x.rule.sev === sev)) {
+        for (const is of r.issues) items.push({ sev, sec: is.sec || r.rule.sec, msg: is.msg, hint: is.hint });
+      }
+    }
+    for (const t of T) if (t.msg) items.push({ sev: "tip", sec: t.sec, msg: t.msg, hint: t.hint });
+
+    const label = { bad: "Düzelt", warn: "Gözden geçir", tip: "İpucu" };
+    $("findings").innerHTML = items.length
+      ? items.map((f) => `<button type="button" class="finding ${f.sev}" data-sec="${f.sec || ""}">
+          <span class="where">${label[f.sev]}${f.sec ? " · " + esc(SECTIONS[f.sec]) : ""}</span>
+          <span>${esc(f.msg)}</span>${f.hint ? `<span class="hint">${esc(f.hint)}</span>` : ""}</button>`).join("")
+      : `<div class="empty-ok">Bilgi notundaki kuralların hepsi tamam görünüyor. Son kontrol için TYBS önizlemesine bak.</div>`;
+
+    $("passed-list").innerHTML = passed.map((r) => `<li>${esc(r.rule.title)}</li>`).join("") || "<li>Henüz yok</li>";
+    $("passed").querySelector("summary").textContent = `Tamam olan kurallar (${passed.length})`;
+    lastReport = { applicable: applicable.length, passed: passed.length, items };
+  }
+
+  let lastReport = null;
+  let timer = null;
+  function update() {
+    renderCounters();
+    renderGantt();
+    clearTimeout(timer);
+    timer = setTimeout(() => { renderReport(); save(); }, 120);
+  }
+
+  function setNotice() {
+    $("notice-text").textContent = isSample
+      ? "Örnek bir başvuru yüklü; içinde bilerek bırakılmış hatalar var. Kendi metnini yazınca taslağın bu tarayıcıda saklanır."
+      : "Taslağın yalnızca bu tarayıcıda saklanıyor. Metnin hiçbir yere gönderilmiyor.";
+  }
+
+  function load(data, sample) {
+    isSample = sample;
+    for (const k of TEXT_KEYS) { state.text[k] = (data.text && data.text[k]) || ""; $(k).value = state.text[k]; }
+    state.wp = (data.wp || []).map((w) => ({ name: w.name || "", start: w.start ?? "", end: w.end ?? "", crit: w.crit || "", pct: w.pct ?? "" }));
+    renderWpRows();
+    setNotice();
+    renderCounters(); renderGantt(); renderReport();
+  }
+
+  function leaveSample() {
+    if (isSample) { isSample = false; setNotice(); }
+  }
+
+  // ---------- Olaylar ----------
+  $("form").addEventListener("submit", (e) => e.preventDefault());
+  $("form").addEventListener("input", (e) => {
+    const t = e.target;
+    if (t.dataset.key) state.text[t.dataset.key] = t.value;
+    else if (t.dataset.f) state.wp[+t.dataset.i][t.dataset.f] = t.value;
+    else return;
+    leaveSample();
+    update();
+  });
+  wpBody.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-del]");
+    if (!b) return;
+    state.wp.splice(+b.dataset.del, 1);
+    leaveSample(); renderWpRows(); update();
+  });
+  $("btn-add-wp").addEventListener("click", () => {
+    const last = state.wp[state.wp.length - 1];
+    const start = last && +last.end ? Math.min(+last.end + 1, 12) : 1;
+    state.wp.push({ name: "", start, end: start, crit: "", pct: "" });
+    leaveSample(); renderWpRows(); update();
+    $(`wp-name-${state.wp.length - 1}`).focus();
+  });
+  $("btn-sample").addEventListener("click", () => load(SAMPLE, true));
+
+  let armTimer = null;
+  $("btn-clear").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    if (!b.classList.contains("armed")) {
+      b.classList.add("armed"); b.textContent = "Silmek için tekrar tıkla";
+      clearTimeout(armTimer);
+      armTimer = setTimeout(() => { b.classList.remove("armed"); b.textContent = "Formu temizle"; }, 3500);
+      return;
+    }
+    clearTimeout(armTimer); b.classList.remove("armed"); b.textContent = "Formu temizle";
+    load({ text: {}, wp: [{ name: "", start: 1, end: 1, crit: "", pct: "" }] }, false);
+    save();
+    $("ozet").focus();
+  });
+
+  $("findings").addEventListener("click", (e) => {
+    const f = e.target.closest(".finding");
+    if (!f || !f.dataset.sec) return;
+    const field = $("f-" + f.dataset.sec);
+    if (!field) return;
+    field.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    field.classList.add("flash");
+    setTimeout(() => field.classList.remove("flash"), 1400);
+    const input = field.querySelector("textarea, input");
+    if (input) setTimeout(() => input.focus({ preventScroll: true }), 300);
+  });
+
+  $("btn-copy").addEventListener("click", async () => {
+    if (!lastReport) return;
+    const label = { bad: "Düzelt", warn: "Gözden geçir", tip: "İpucu" };
+    const lines = [`2209-A Ön Kontrol: ${lastReport.passed}/${lastReport.applicable} kural tamam`, ""];
+    for (const sev of ["bad", "warn", "tip"]) {
+      const group = lastReport.items.filter((i) => i.sev === sev);
+      if (!group.length) continue;
+      lines.push(`${label[sev]}:`);
+      for (const i of group) lines.push(`- ${i.sec ? SECTIONS[i.sec] + ": " : ""}${i.msg}`);
+      lines.push("");
+    }
+    const text = lines.join("\n").trim();
+    const status = $("copy-status");
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = "Rapor kopyalandı. Danışmanına yapıştırabilirsin.";
+    } catch (err) {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch (e2) { ok = false; }
+      ta.remove();
+      status.textContent = ok ? "Rapor kopyalandı." : "Kopyalanamadı. Raporu elle seçip kopyala.";
+    }
+    setTimeout(() => { status.textContent = ""; }, 4000);
+  });
+
+  // ---------- Geri sayım ----------
+  function renderDeadline() {
+    const deadline = new Date("2026-11-11T17:30:00+03:00").getTime();
+    const ms = deadline - Date.now();
+    const el = $("days");
+    if (ms <= 0) { el.textContent = "Süre doldu"; return; }
+    const days = Math.floor(ms / 86400000);
+    const hours = Math.floor((ms % 86400000) / 3600000);
+    el.textContent = days > 0 ? `${days} gün ${hours} saat kaldı` : `${hours} saat kaldı`;
+  }
+  renderDeadline();
+  setInterval(renderDeadline, 60000);
+
+  // ---------- Başlangıç ----------
+  const saved = loadSaved();
+  load(saved || SAMPLE, !saved);
+})();
+</script>

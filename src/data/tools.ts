@@ -28,6 +28,26 @@ export type Tool = {
 
 export const tools: Tool[] = [
   {
+    slug: "2209a-on-kontrol",
+    title: "2209-A Ön Kontrol",
+    summary:
+      "TÜBİTAK 2209-A başvuru metnini TYBS'ye girmeden önce bilgi notundaki kurallara göre kontrol eder.",
+    description:
+      "2209-A başvuru metnini TYBS'ye girmeden önce bilgi notundaki kurallara göre kontrol et: özet ve bölüm sınırları, 12 aylık çalışma takvimi, katkı toplamı, ayrı iş adımı olamayacak işler, atıf–kaynakça eşleşmesi, DOI ve kişisel veri. Ücretsiz, metin tarayıcıdan çıkmaz.",
+    icon: "ClipboardCheck",
+    problem: "Katkı toplamı 100 değil, literatür taraması iş adımı yapılmış, DOI eksik.",
+    offline: true,
+    keywords: [
+      "2209-A",
+      "tübitak 2209-a başvuru",
+      "tybs",
+      "2209-a çalışma takvimi",
+      "başarı ölçütü",
+      "2209-a kontrol listesi",
+      "kaynakça doi",
+    ],
+  },
+  {
     slug: "atif-denetleyici",
     title: "Atıf Denetleyici",
     summary:

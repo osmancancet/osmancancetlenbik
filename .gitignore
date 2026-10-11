@@ -60,3 +60,7 @@ AGENTS.md
 
 # tek seferlik script ciktilari
 /scripts/.out/
+
+# playwright
+/test-results/
+/playwright-report/

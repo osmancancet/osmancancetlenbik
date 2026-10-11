@@ -18,6 +18,7 @@ import {
   Gauge,
   ArrowUpRight,
   ShieldCheck,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
@@ -42,6 +43,7 @@ const ICONS: Record<string, LucideIcon> = {
   IdCard,
   Network,
   Gauge,
+  ClipboardCheck,
 };
 
 export const metadata: Metadata = seoMeta({

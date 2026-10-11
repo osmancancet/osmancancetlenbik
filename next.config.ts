@@ -20,11 +20,37 @@ const aliasRedirects = [
   { source: "/sizma-testi", destination: "/hizmetler#web-sizma-testi" },
   { source: "/pentest", destination: "/hizmetler#web-sizma-testi" },
   { source: "/blog", destination: "/yazilarim" },
+  { source: "/2209", destination: "/araclar/2209a-on-kontrol" },
   { source: "/services", destination: "/en/services" },
   { source: "/about", destination: "/en/about" },
   { source: "/contact", destination: "/en/contact" },
   { source: "/publications", destination: "/en/publications" },
 ];
+
+/**
+ * 2209-A Ön Kontrol: başvuru metni tarayıcıdan çıkmaz. connect-src 'self' bunu
+ * tarayıcı düzeyinde de garanti eder (Vercel Analytics aynı kökten çalışır).
+ * Geliştirme sunucusu eval kullandığı için yalnızca üretimde eklenir.
+ */
+const onKontrolCsp = {
+  source: "/araclar/2209a-on-kontrol",
+  headers: [
+    {
+      key: "Content-Security-Policy",
+      value: [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data:",
+        "connect-src 'self'",
+        "frame-ancestors 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ].join("; "),
+    },
+  ],
+};
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -57,6 +83,7 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
+      ...(process.env.NODE_ENV === "production" ? [onKontrolCsp] : []),
       {
         source: "/:path*",
         headers: [
