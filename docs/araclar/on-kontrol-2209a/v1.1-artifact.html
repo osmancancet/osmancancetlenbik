@@ -1,0 +1,1355 @@
+<title>2209-A Ön Kontrol</title>
+<meta name="author" content="Öğr. Gör. Osman Can Çetlenbik">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232646c4'/%3E%3Crect x='12' y='15' width='22' height='7' rx='3.5' fill='%23fff'/%3E%3Crect x='22' y='27' width='22' height='7' rx='3.5' fill='%23fff' fill-opacity='.72'/%3E%3Cpath d='M33 45l5.5 5.5L52 37' fill='none' stroke='%239ff0c2' stroke-width='5.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="description" content="TÜBİTAK 2209-A başvuru metnini TYBS'ye girmeden önce bilgi notundaki kurallara göre kontrol et. Ücretsiz; metin tarayıcıdan çıkmaz.">
+<meta property="og:title" content="2209-A Ön Kontrol">
+<meta property="og:description" content="Katkı toplamı, 12 ay sınırı, iş adımları, atıf ve DOI kontrolü. Ücretsiz, tarayıcıda çalışır.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:url" content="https://osmancancetlenbik.com/araclar/2209a-on-kontrol">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://osmancancetlenbik.com/araclar/2209a-on-kontrol">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=IBM+Plex+Mono:wght@500&family=Schibsted+Grotesk:wght@600;700;800&display=swap">
+<style>
+/* Düzen: üstte imzalı başlık ve başvuru penceresi sayacı; ortada araç (solda TYBS sırasında form, sağda yapışkan kontrol paneli);
+   altta "ne kontrol ediliyor", gizlilik, SSS ve hazırlayan kartı. Tek gösterişli an: açılışta takvim çubukları dolar, puan halkası sayar. */
+:root {
+  --paper: #f3f6fa;
+  --surface: #ffffff;
+  --ink: #152033;
+  --muted: #5b6880;
+  --line: #d8dfe9;
+  --accent: #2646c4;
+  --accent-ink: #ffffff;
+  --accent-soft: #e7ecfb;
+  --hero: #101a33;
+  --hero-ink: #eef2fb;
+  --hero-muted: #a9b5d0;
+  --hero-line: #26345a;
+  --hero-accent: #8ea4ff;
+  --bad: #b42318;
+  --bad-soft: #fdecea;
+  --warn: #9a5a06;
+  --warn-soft: #fcf0dc;
+  --ok: #1b7343;
+  --ok-soft: #e3f3e9;
+  --tip: #4c5b74;
+  --tip-soft: #edf0f5;
+  --shadow: 0 1px 2px rgb(21 32 51 / 6%), 0 8px 24px -12px rgb(21 32 51 / 18%);
+  --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d121a; --surface: #151c27; --ink: #e6ebf3; --muted: #9ba8bc; --line: #29334a;
+    --accent: #8ea4ff; --accent-ink: #0d121a; --accent-soft: #1d2747;
+    --hero: #0a1022; --hero-ink: #eef2fb; --hero-muted: #9aa7c4; --hero-line: #222f52; --hero-accent: #9fb2ff;
+    --bad: #ff8b7c; --bad-soft: #3a1d1a; --warn: #f1b04e; --warn-soft: #382812; --ok: #62d293; --ok-soft: #12301f;
+    --tip: #aab5c7; --tip-soft: #1d2533; --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px -12px rgb(0 0 0 / 60%);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d121a; --surface: #151c27; --ink: #e6ebf3; --muted: #9ba8bc; --line: #29334a;
+  --accent: #8ea4ff; --accent-ink: #0d121a; --accent-soft: #1d2747;
+  --hero: #0a1022; --hero-ink: #eef2fb; --hero-muted: #9aa7c4; --hero-line: #222f52; --hero-accent: #9fb2ff;
+  --bad: #ff8b7c; --bad-soft: #3a1d1a; --warn: #f1b04e; --warn-soft: #382812; --ok: #62d293; --ok-soft: #12301f;
+  --tip: #aab5c7; --tip-soft: #1d2533; --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px -12px rgb(0 0 0 / 60%);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 1.05rem; }
+p { margin: 0; }
+a { color: var(--accent); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.skip { position: absolute; left: 16px; top: -40px; padding: 6px 10px; background: var(--accent); color: var(--accent-ink); border-radius: 6px; z-index: 10; }
+.skip:focus { top: 8px; }
+
+/* ---------- Üst şerit ---------- */
+.bar { background: var(--hero); color: var(--hero-ink); border-bottom: 1px solid var(--hero-line); }
+.bar .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--hero-ink); text-decoration: none; min-width: 0; }
+.brand-mark {
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; flex: none;
+  background: var(--hero-accent); color: var(--hero); font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; letter-spacing: -0.02em;
+}
+.brand-text { display: grid; line-height: 1.2; min-width: 0; }
+.brand-text strong { font-family: var(--font-display); font-size: 0.95rem; }
+.brand-text span { font-size: 0.75rem; color: var(--hero-muted); }
+.bar-links { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.bar-links a, .bar-links button {
+  font: inherit; font-size: 0.82rem; font-weight: 700; color: var(--hero-ink); text-decoration: none;
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--hero-line); background: transparent; cursor: pointer;
+}
+.bar-links a:hover, .bar-links button:hover { border-color: var(--hero-accent); color: var(--hero-accent); }
+
+/* ---------- Kahraman bölüm ---------- */
+.hero { background: var(--hero); color: var(--hero-ink); position: relative; overflow: hidden; }
+.hero::before {
+  /* 12 aylık proje ızgarası: konuya özgü arka plan */
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+  background-image: repeating-linear-gradient(90deg, var(--hero-line) 0 1px, transparent 1px calc(100% / 12));
+  mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+}
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px 40px; align-items: center; padding-block: 36px 40px; }
+@media (max-width: 860px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); } }
+.hero-text { display: grid; gap: 14px; min-width: 0; }
+.hero .eyebrow { color: var(--hero-accent); }
+.hero h1 { font-size: clamp(2rem, 5.2vw, 3.3rem); line-height: 1.02; font-weight: 800; letter-spacing: -0.025em; }
+.hero h1 em { font-style: normal; color: var(--hero-accent); }
+.hero-lead { color: var(--hero-muted); font-size: 1.05rem; max-width: 56ch; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.btn-hero {
+  display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem; text-decoration: none;
+  padding: 10px 16px; border-radius: 10px; border: 1px solid var(--hero-line); color: var(--hero-ink);
+  transition: transform .2s var(--ease), border-color .2s ease, background-color .2s ease;
+}
+.btn-hero.primary { background: var(--hero-accent); border-color: var(--hero-accent); color: var(--hero); }
+.btn-hero:hover { transform: translateY(-1px); border-color: var(--hero-accent); }
+.btn-hero:focus-visible { outline: 2px solid var(--hero-accent); outline-offset: 3px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 6px; font-size: 0.85rem; color: var(--hero-muted); }
+.facts b { font-family: var(--font-mono); color: var(--hero-ink); font-weight: 500; font-size: 1.05rem; margin-right: 4px; }
+.byline { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--hero-muted); }
+.byline a { color: var(--hero-ink); font-weight: 700; text-decoration-color: var(--hero-accent); text-underline-offset: 3px; }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--hero-line); color: var(--hero-ink); font-family: var(--font-display); font-weight: 700; font-size: 0.75rem;
+}
+
+/* Başvuru penceresi kartı */
+.window {
+  background: color-mix(in srgb, var(--hero) 70%, var(--hero-line)); border: 1px solid var(--hero-line);
+  border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0;
+}
+.window-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.window-head span { font-size: 0.8rem; color: var(--hero-muted); }
+.countdown { display: flex; gap: 10px; flex-wrap: wrap; }
+.cd-unit { display: grid; gap: 2px; min-width: 64px; padding: 10px 12px; border-radius: 10px; background: var(--hero); border: 1px solid var(--hero-line); }
+.cd-unit strong { font-family: var(--font-mono); font-size: 1.9rem; line-height: 1; font-weight: 500; font-variant-numeric: tabular-nums; }
+.cd-unit span { font-size: 0.72rem; color: var(--hero-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.cd-done { font-family: var(--font-display); font-size: 1.5rem; }
+.track { display: grid; gap: 6px; }
+.track-bar { position: relative; height: 10px; border-radius: 999px; background: var(--hero); border: 1px solid var(--hero-line); overflow: hidden; }
+.track-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--hero-accent); border-radius: 999px; transition: width 1.2s var(--ease); }
+.track-labels { display: flex; justify-content: space-between; gap: 8px; font-size: 0.75rem; color: var(--hero-muted); font-family: var(--font-mono); }
+.window-note { font-size: 0.8rem; color: var(--hero-muted); }
+
+/* ---------- Adımlar ---------- */
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-block: 22px 18px; padding: 0; list-style: none; counter-reset: s; }
+@media (max-width: 760px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.steps li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 12px; align-items: start; font-size: 0.88rem; color: var(--muted); }
+.steps li::before {
+  counter-increment: s; content: counter(s); grid-row: span 2; display: grid; place-items: center;
+  width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); color: var(--accent);
+  font-family: var(--font-mono); font-size: 0.85rem;
+}
+.steps strong { color: var(--ink); font-family: var(--font-display); font-size: 0.95rem; }
+
+.notice {
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between;
+  padding: 10px 14px; margin-bottom: 18px; border-radius: var(--radius);
+  background: var(--accent-soft); color: var(--ink); font-size: 0.9rem;
+}
+
+/* ---------- Yerleşim ---------- */
+.tool { padding-block: 4px 24px; scroll-margin-top: 12px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
+.side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 12px; min-width: 0; }
+@media (max-width: 920px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; order: -1; }
+  .findings { max-height: 46vh; }
+}
+
+/* Form */
+.form { display: grid; gap: 14px; min-width: 0; }
+.group-title { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+.group-title .num { font-family: var(--font-mono); color: var(--accent); font-size: 0.85rem; }
+.field {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 16px; display: grid; gap: 8px; min-width: 0; scroll-margin-top: 20px;
+  transition: border-color .2s ease, box-shadow .3s ease;
+}
+.field:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: var(--shadow); }
+.field.flash { animation: flash 1.4s var(--ease); }
+@keyframes flash {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent); outline: 2px solid var(--accent); outline-offset: 2px; }
+  70% { box-shadow: 0 0 0 10px transparent; outline: 2px solid var(--accent); outline-offset: 2px; }
+  100% { box-shadow: 0 0 0 0 transparent; outline: 2px solid transparent; outline-offset: 2px; }
+}
+.field-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; }
+.field-head label, .field-head .label { font-weight: 700; }
+.field-head .rule { font-size: 0.8rem; color: var(--muted); }
+.field p.help { font-size: 0.85rem; color: var(--muted); }
+textarea, input[type="text"], input[type="number"] {
+  width: 100%; font: inherit; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px;
+}
+textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
+.counter { display: flex; justify-content: space-between; gap: 8px; font-size: 0.8rem; color: var(--muted); }
+.counter .mono { padding: 1px 8px; border-radius: 999px; background: var(--tip-soft); transition: background-color .25s ease, color .25s ease; }
+.counter[data-state="eksik"] .mono, .counter[data-state="fazla"] .mono { background: var(--bad-soft); color: var(--bad); }
+.counter[data-state="uygun"] .mono { background: var(--ok-soft); color: var(--ok); }
+.lenbar { height: 3px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.lenbar i { display: block; height: 100%; width: 0; background: var(--muted); border-radius: inherit; transition: width .35s var(--ease), background-color .25s ease; }
+.lenbar[data-state="eksik"] i, .lenbar[data-state="fazla"] i { background: var(--bad); }
+.lenbar[data-state="uygun"] i { background: var(--ok); }
+
+/* İş takvimi */
+.table-scroll { overflow-x: auto; }
+table.wp { width: 100%; min-width: 660px; border-collapse: collapse; font-size: 0.9rem; }
+table.wp th { text-align: left; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 4px 6px; font-weight: 700; }
+table.wp td { padding: 4px 6px; vertical-align: top; }
+table.wp td.n { font-family: var(--font-mono); color: var(--muted); padding-top: 13px; }
+table.wp input { padding: 7px 8px; }
+table.wp input[type="number"] { width: 64px; }
+table.wp tr.row-new { animation: rowin .45s var(--ease) both; }
+@keyframes rowin { from { transform: translateY(-6px); background: var(--accent-soft); } to { transform: none; background: transparent; } }
+.wp-actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.sum { font-size: 0.85rem; }
+.sum .mono { padding: 2px 8px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); transition: background-color .25s ease, color .25s ease; }
+.sum[data-bad="1"] .mono { background: var(--bad-soft); color: var(--bad); }
+
+.gantt { display: grid; grid-template-columns: 34px repeat(12, minmax(0, 1fr)); gap: 3px 2px; align-items: center; font-size: 0.72rem; }
+.gantt .m { text-align: center; color: var(--muted); font-family: var(--font-mono); }
+.gantt .rl { font-family: var(--font-mono); color: var(--muted); }
+.gantt .cell { height: 18px; background: var(--paper); border-radius: 3px; }
+.gantt .bar { height: 18px; border-radius: 4px; background: var(--accent); opacity: 0.85; z-index: 1; transform-origin: left center; }
+.gantt .bar.badbar { background: var(--bad); }
+.gantt .bar.grow { animation: grow .7s var(--ease) both; animation-delay: calc(var(--i, 0) * 110ms + 150ms); }
+@keyframes grow { from { transform: scaleX(0.04); } to { transform: none; } }
+.gantt-wrap { overflow-x: auto; }
+.gantt-legend { font-size: 0.78rem; color: var(--muted); }
+
+/* Düğmeler */
+button {
+  font: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; border-radius: 8px;
+  padding: 7px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease, transform .15s var(--ease);
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:active { transform: translateY(1px); }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+button.primary:hover { color: var(--accent-ink); opacity: 0.92; }
+button.ghost { border-color: transparent; background: transparent; color: var(--muted); padding: 6px 8px; }
+button.ghost:hover { color: var(--bad); }
+button.armed { border-color: var(--bad); color: var(--bad); animation: shake .35s ease; }
+@keyframes shake { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+
+/* Rapor */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+.score { display: grid; gap: 12px; box-shadow: var(--shadow); }
+.score-top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; }
+.ring { width: 76px; height: 76px; flex: none; }
+.ring circle { fill: none; stroke-width: 7; }
+.ring .ring-bg { stroke: var(--line); }
+.ring .ring-fg { stroke: var(--ok); stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .8s var(--ease), stroke .3s ease; }
+.ring[data-tone="bad"] .ring-fg { stroke: var(--bad); }
+.ring[data-tone="warn"] .ring-fg { stroke: var(--warn); }
+.ring text { fill: var(--ink); font-family: var(--font-mono); font-size: 15px; font-weight: 500; }
+.score-line { display: grid; gap: 2px; }
+.score-big { font-family: var(--font-display); font-size: 2.1rem; line-height: 1; font-variant-numeric: tabular-nums; font-weight: 700; }
+.score-of { color: var(--muted); font-size: 0.88rem; }
+.meter { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
+.meter i { height: 8px; border-radius: 2px; background: var(--line); transition: background-color .3s ease; }
+.meter i.ok { background: var(--ok); }
+.meter i.bad { background: var(--bad); }
+.meter i.warn { background: var(--warn); }
+.meter.intro i { animation: pop .4s var(--ease) both; animation-delay: calc(var(--i) * 40ms + 200ms); }
+@keyframes pop { from { transform: scaleY(0.2); background: var(--line); } }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.tip { background: var(--tip-soft); color: var(--tip); }
+.pill.okp { background: var(--ok-soft); color: var(--ok); }
+.side-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.copy-status { font-size: 0.8rem; color: var(--ok); }
+.copy-status:empty { display: none; }
+
+.findings { display: grid; gap: 8px; overflow-y: auto; max-height: calc(100vh - 360px); padding-right: 2px; }
+.finding {
+  display: grid; gap: 3px; text-align: left; width: 100%; font-weight: 400; font-size: 0.88rem;
+  padding: 10px 12px 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+  border-left: 4px solid var(--tip); color: var(--ink);
+}
+.finding:hover { color: var(--ink); border-color: var(--accent); transform: translateX(2px); }
+.finding.bad { border-left-color: var(--bad); }
+.finding.warn { border-left-color: var(--warn); }
+.finding.enter { animation: slidein .45s var(--ease) both; animation-delay: calc(var(--i, 0) * 55ms); }
+@keyframes slidein { from { transform: translateX(14px); opacity: 0.2; } to { transform: none; opacity: 1; } }
+.finding .where { font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.finding .hint { color: var(--muted); font-size: 0.84rem; }
+.empty-ok { padding: 14px; border-radius: 8px; background: var(--ok-soft); color: var(--ok); font-weight: 700; animation: slidein .5s var(--ease) both; }
+details.passed summary { cursor: pointer; font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+details.passed ul { margin: 8px 0 0; padding-left: 18px; font-size: 0.84rem; color: var(--muted); display: grid; gap: 2px; }
+
+.side-promo { display: grid; gap: 6px; font-size: 0.84rem; color: var(--muted); }
+.side-promo strong { color: var(--ink); font-family: var(--font-display); }
+.side-promo .links { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.side-promo a { font-weight: 700; text-decoration: none; }
+.side-promo a:hover { text-decoration: underline; }
+
+/* ---------- Alt bölümler ---------- */
+.section { padding-block: 44px 8px; display: grid; gap: 18px; scroll-margin-top: 12px; }
+.section-head { display: grid; gap: 6px; max-width: 70ch; }
+.section-head h2 { font-size: clamp(1.4rem, 3vw, 1.85rem); line-height: 1.15; }
+.section-head p { color: var(--muted); }
+.lift { transition: transform .6s var(--ease); }
+.js .lift.below { transform: translateY(18px); }
+
+.catalog { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 12px; }
+.cat { display: grid; gap: 8px; align-content: start; }
+.cat h3 { font-size: 0.95rem; display: flex; gap: 8px; align-items: baseline; }
+.cat h3 .mono { color: var(--accent); font-size: 0.8rem; }
+.cat ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cat li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: baseline; font-size: 0.86rem; padding-top: 6px; border-top: 1px solid var(--line); }
+.cat li:first-child { border-top: 0; padding-top: 0; }
+.lvl { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.lvl.bad { background: var(--bad-soft); color: var(--bad); }
+.lvl.warn { background: var(--warn-soft); color: var(--warn); }
+.lvl.tip { background: var(--tip-soft); color: var(--tip); }
+.src { display: block; font-size: 0.75rem; color: var(--muted); }
+
+.privacy { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.privacy .card { display: grid; gap: 6px; align-content: start; }
+.privacy h3 { font-size: 1rem; }
+.privacy p { font-size: 0.88rem; color: var(--muted); }
+.privacy .big { font-family: var(--font-mono); font-size: 1.6rem; color: var(--ok); line-height: 1.1; }
+
+.faq { display: grid; gap: 8px; max-width: 820px; }
+.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; }
+.faq summary { cursor: pointer; font-weight: 700; font-family: var(--font-display); list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--font-mono); color: var(--accent); transition: transform .25s var(--ease); }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { margin-top: 8px; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
+.faq details[open] p { animation: slidein .35s var(--ease) both; }
+
+/* Hazırlayan */
+.author {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px 22px; align-items: start;
+  background: var(--hero); color: var(--hero-ink); border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+}
+.author::after {
+  content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%;
+  border: 1px solid var(--hero-line); box-shadow: 0 0 0 30px color-mix(in srgb, var(--hero-line) 35%, transparent);
+  pointer-events: none;
+}
+@media (max-width: 600px) { .author { grid-template-columns: minmax(0, 1fr); } }
+.photo { border-radius: 50%; object-fit: cover; flex: none; background: var(--hero-line); }
+.author-svg { box-shadow: 0 0 0 3px var(--hero-accent), 0 0 0 9px color-mix(in srgb, var(--hero-accent) 18%, transparent); }
+@media (prefers-reduced-motion: no-preference) { .author-svg { animation: halo 3.2s ease-in-out infinite; } }
+@keyframes halo { 50% { box-shadow: 0 0 0 3px var(--hero-accent), 0 0 0 14px color-mix(in srgb, var(--hero-accent) 8%, transparent); } }
+.brand-svg { box-shadow: 0 0 0 2px var(--hero-accent); }
+.byline-svg { box-shadow: 0 0 0 2px var(--hero-line); }
+.author-body .author-role { color: var(--hero-ink); font-weight: 700; margin-top: -6px; }
+.brand-svg { flex: none; transition: transform .3s var(--ease); }
+.brand:hover .brand-svg { transform: scale(1.06); }
+.byline-svg { flex: none; }
+.author-body { display: grid; gap: 10px; min-width: 0; position: relative; z-index: 1; }
+.author-body .eyebrow { color: var(--hero-accent); }
+.author-body h2 { font-size: clamp(1.4rem, 3vw, 1.8rem); }
+.author-body p { color: var(--hero-muted); max-width: 62ch; }
+.author-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.share { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 0.85rem; color: var(--hero-muted); }
+.share a, .share button {
+  font: inherit; font-size: 0.82rem; font-weight: 700; color: var(--hero-ink); background: transparent; text-decoration: none;
+  padding: 6px 11px; border-radius: 999px; border: 1px solid var(--hero-line); cursor: pointer;
+}
+.share a:hover, .share button:hover { border-color: var(--hero-accent); color: var(--hero-accent); }
+.share-status { font-size: 0.8rem; color: var(--hero-accent); }
+.share-status:empty { display: none; }
+
+.footer { margin-top: 36px; padding-block: 20px 48px; border-top: 1px solid var(--line); display: grid; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+.footer p { max-width: 90ch; }
+
+/* ---------- Açılış hareketi ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .rise { animation: rise .7s var(--ease) both; animation-delay: calc(var(--d, 0) * 90ms); }
+  @keyframes rise { from { transform: translateY(14px); opacity: 0.01; } to { transform: none; opacity: 1; } }
+  .bump { animation: bump .45s var(--ease); }
+  @keyframes bump { 40% { transform: scale(1.08); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
+}
+
+/* ---------- Yazdırma ---------- */
+@media print {
+  .bar, .hero, .steps, .notice, .side-actions, .side-promo, .section, .author, .gantt-legend, button.ghost, #btn-add-wp { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .layout { grid-template-columns: 1fr; }
+  .side { position: static; order: -1; }
+  .findings { max-height: none; overflow: visible; }
+  .field, .card { break-inside: avoid; box-shadow: none; }
+}
+</style>
+
+<div lang="tr">
+<a class="skip" href="#arac">Araca geç</a>
+
+<div class="bar">
+  <div class="wrap">
+    <a class="brand" href="https://osmancancetlenbik.com" target="_blank" rel="noopener">
+      <img class="brand-svg photo" src="data:image/jpeg;base64,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" width="36" height="36" alt="">
+      <span class="brand-text"><strong>osmancancetlenbik.com</strong><span>Akademik araçlar</span></span>
+    </a>
+    <nav class="bar-links" aria-label="Site">
+      <a href="https://osmancancetlenbik.com/araclar" target="_blank" rel="noopener">Tüm araçlar</a>
+      <a href="#hazirlayan">Hazırlayan</a>
+      <button type="button" id="btn-theme" aria-label="Temayı değiştir">Koyu tema</button>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-text">
+      <span class="eyebrow rise" style="--d:0;display:flex;align-items:center;gap:10px"><svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true" style="flex:none"><rect width="64" height="64" rx="16" fill="#2646c4"/><rect x="12" y="15" width="22" height="7" rx="3.5" fill="#fff"/><rect x="22" y="27" width="22" height="7" rx="3.5" fill="#fff" fill-opacity="0.72"/><path d="M33 45 l5.5 5.5 L52 37" fill="none" stroke="#9ff0c2" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>TÜBİTAK 2209-A · 2026 çağrısı · ücretsiz araç</span>
+      <h1 class="rise" style="--d:1">Başvurunu TYBS'ye girmeden <em>kurallara göre</em> kontrol et.</h1>
+      <p class="hero-lead rise" style="--d:2">Özet ve bölüm sınırları, 12 aylık çalışma takvimi, katkı toplamı, ayrı iş adımı olamayacak işler, atıf–kaynakça eşleşmesi, DOI ve unutulmuş kişisel veri. Yazdıkça kontrol listesi güncellenir; metnin tarayıcından çıkmaz.</p>
+      <div class="hero-cta rise" style="--d:3">
+        <a class="btn-hero primary" href="#arac">Kontrole başla <span aria-hidden="true">↓</span></a>
+        <a class="btn-hero" href="#kontroller">Ne kontrol ediliyor?</a>
+      </div>
+      <div class="facts rise" style="--d:4" aria-label="Araç özeti">
+        <span><b data-count="18">18</b>puanlı kural</span>
+        <span><b data-count="5">5</b>ipucu</span>
+        <span><b data-count="0">0</b>sunucuya giden bayt</span>
+      </div>
+      <div class="byline rise" style="--d:5">
+        <img class="byline-svg photo" src="data:image/jpeg;base64,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" width="34" height="34" alt="">
+        <span>Hazırlayan <a href="#hazirlayan">Öğr. Gör. Osman Can Çetlenbik</a> · osmancancetlenbik.com</span>
+      </div>
+    </div>
+
+    <div class="window rise" style="--d:3" aria-label="Başvuru penceresi">
+      <div class="window-head">
+        <strong>Son başvuruya kalan</strong>
+        <span>11 Kasım 2026, 17.30</span>
+      </div>
+      <div class="countdown" id="countdown" aria-live="off">
+        <div class="cd-unit"><strong id="cd-d">—</strong><span>gün</span></div>
+        <div class="cd-unit"><strong id="cd-h">—</strong><span>saat</span></div>
+        <div class="cd-unit"><strong id="cd-m">—</strong><span>dakika</span></div>
+      </div>
+      <div class="track">
+        <div class="track-bar" role="progressbar" aria-label="Başvuru süresinin geçen kısmı" aria-valuemin="0" aria-valuemax="100" id="track"><span class="track-fill" id="track-fill"></span></div>
+        <div class="track-labels"><span>7 Eki · çağrı açıldı</span><span>11 Kas · son gün</span></div>
+      </div>
+      <p class="window-note">Kurum e-imzası için son gün 23 Kasım 2026. Sınıra yakın gün TYBS yavaşlayabilir; erken gönder.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <ol class="steps" aria-label="Nasıl kullanılır">
+    <li><strong>Örneği incele</strong>Sayfa, içinde bilerek hata bırakılmış bir örnek başvuruyla açılır.</li>
+    <li><strong>Kendi metnini yapıştır</strong>"Formu temizle" de, bölümleri TYBS sırasıyla doldur. Bulguya tıklayınca ilgili alana gidersin.</li>
+    <li><strong>Raporu danışmanına gönder</strong>Raporu kopyala ya da .txt indir; WhatsApp ya da e-postayla paylaş.</li>
+  </ol>
+
+  <section class="tool" id="arac" aria-label="2209-A Ön Kontrol aracı">
+    <div class="notice" id="notice">
+      <span id="notice-text">Örnek bir başvuru yüklü. Kendi metnini yapıştırınca kontrol listesi ona göre değişir.</span>
+      <span class="side-actions">
+        <button type="button" id="btn-sample">Örneği yükle</button>
+        <button type="button" id="btn-clear">Formu temizle</button>
+      </span>
+    </div>
+
+    <div class="layout">
+      <form class="form" id="form" autocomplete="off">
+        <div class="field" id="f-ozet">
+          <div class="field-head"><label for="ozet">Özet</label><span class="rule">25–450 kelime · en son yazılması önerilir</span></div>
+          <textarea id="ozet" data-key="ozet"></textarea>
+          <div class="lenbar" data-for="ozet"><i></i></div>
+          <div class="counter" data-for="ozet"></div>
+        </div>
+
+        <div class="group-title"><span class="num">1</span><h2>Araştırma önerisinin bilimsel niteliği</h2></div>
+        <div class="field" id="f-bilimsel">
+          <div class="field-head"><label for="bilimsel">1.1 Konunun önemi ve bilimsel nitelik</label><span class="rule">en az 350 karakter</span></div>
+          <p class="help">Kapsam, literatürdeki eksiklik, araştırma sorusu ya da hipotez; literatüre atıfla.</p>
+          <textarea id="bilimsel" data-key="bilimsel"></textarea>
+          <div class="lenbar" data-for="bilimsel"><i></i></div>
+          <div class="counter" data-for="bilimsel"></div>
+        </div>
+        <div class="field" id="f-amac">
+          <div class="field-head"><label for="amac">1.2 Amaç ve hedefler</label><span class="rule">en az 350 karakter</span></div>
+          <p class="help">Açık, ölçülebilir, gerçekçi ve ulaşılabilir hedefler.</p>
+          <textarea id="amac" data-key="amac"></textarea>
+          <div class="lenbar" data-for="amac"><i></i></div>
+          <div class="counter" data-for="amac"></div>
+        </div>
+
+        <div class="group-title"><span class="num">2</span><h2>Yöntem</h2></div>
+        <div class="field" id="f-yontem">
+          <div class="field-head"><label for="yontem">2. Yöntem</label><span class="rule">en az 350 karakter</span></div>
+          <p class="help">Araştırma tasarımı, bağımlı ve bağımsız değişkenler, istatistiksel yöntemler; yöntemleri çalışma takvimiyle ilişkilendir.</p>
+          <textarea id="yontem" data-key="yontem"></textarea>
+          <div class="lenbar" data-for="yontem"><i></i></div>
+          <div class="counter" data-for="yontem"></div>
+        </div>
+
+        <div class="group-title"><span class="num">3</span><h2>Proje yönetimi</h2></div>
+        <div class="field" id="f-takvim">
+          <div class="field-head"><span class="label">3.1 Çalışma takvimi</span><span class="rule">en fazla 12 ay · katkı toplamı 100</span></div>
+          <p class="help">Literatür taraması, sonuç raporu hazırlama, sonuçların paylaşımı ve malzeme alımı ayrı iş adımı olarak yazılmaz.</p>
+          <div class="table-scroll">
+            <table class="wp">
+              <thead><tr><th>#</th><th>İş adımı</th><th>Başl. ayı</th><th>Bitiş ayı</th><th>Başarı ölçütü</th><th>Katkı %</th><th></th></tr></thead>
+              <tbody id="wp-body"></tbody>
+            </table>
+          </div>
+          <div class="wp-actions">
+            <button type="button" id="btn-add-wp">İş adımı ekle</button>
+            <span class="sum" id="wp-sum"></span>
+          </div>
+          <div class="gantt-wrap"><div class="gantt" id="gantt" aria-label="Çalışma takvimi, 12 ay"></div></div>
+          <span class="gantt-legend">Izgara 12 aylık proje süresini gösterir; kırmızı çubuk süreyi aşan ya da hatalı aralığı işaret eder.</span>
+        </div>
+        <div class="field" id="f-risk">
+          <div class="field-head"><label for="risk">3.2 Risk yönetimi</label><span class="rule">riskler ve B planları</span></div>
+          <textarea id="risk" data-key="risk"></textarea>
+          <div class="counter" data-for="risk"></div>
+        </div>
+        <div class="field" id="f-olanak">
+          <div class="field-head"><label for="olanak">3.3 Araştırma olanakları</label><span class="rule">altyapı ve ekipman</span></div>
+          <textarea id="olanak" data-key="olanak"></textarea>
+          <div class="counter" data-for="olanak"></div>
+        </div>
+
+        <div class="group-title"><span class="num">4</span><h2>Yaygın etki</h2></div>
+        <div class="field" id="f-etki">
+          <div class="field-head"><label for="etki">4. Yaygın etki</label><span class="rule">ölçülebilir, gerçekçi çıktılar</span></div>
+          <textarea id="etki" data-key="etki"></textarea>
+          <div class="counter" data-for="etki"></div>
+        </div>
+
+        <div class="group-title"><h2>Kaynaklar</h2></div>
+        <div class="field" id="f-kaynak">
+          <div class="field-head"><label for="kaynak">Kaynakça</label><span class="rule">her satıra bir kaynak · DOI varsa zorunlu</span></div>
+          <p class="help">Listedeki her kaynağa metinde atıf yapılmalı. (Soyad, 2023) ve [1] biçimindeki atıflar tanınır.</p>
+          <textarea id="kaynak" data-key="kaynak" style="min-height:150px"></textarea>
+          <div class="counter" data-for="kaynak"></div>
+        </div>
+      </form>
+
+      <aside class="side" aria-label="Kontrol listesi">
+        <div class="card score">
+          <span class="eyebrow">Kontrol listesi</span>
+          <div class="score-top">
+            <svg class="ring" id="ring" viewBox="0 0 76 76" aria-hidden="true">
+              <circle class="ring-bg" cx="38" cy="38" r="31"></circle>
+              <circle class="ring-fg" id="ring-fg" cx="38" cy="38" r="31" stroke-dasharray="194.78" stroke-dashoffset="194.78"></circle>
+              <text id="ring-pct" x="38" y="43" text-anchor="middle">0%</text>
+            </svg>
+            <div class="score-line">
+              <span class="score-big" id="score">0/0</span>
+              <span class="score-of">kural tamam</span>
+            </div>
+          </div>
+          <div class="meter" id="meter"></div>
+          <div class="pills" id="pills"></div>
+          <div class="side-actions">
+            <button type="button" class="primary" id="btn-copy">Raporu kopyala</button>
+            <button type="button" id="btn-download">.txt indir</button>
+          </div>
+          <span class="copy-status" id="copy-status" aria-live="polite"></span>
+        </div>
+        <div class="findings" id="findings" aria-live="polite"></div>
+        <details class="passed card" id="passed"><summary>Tamam olan kurallar</summary><ul id="passed-list"></ul></details>
+        <div class="card side-promo">
+          <strong>Kaynakçan için de araç var</strong>
+          <span>Atıflarını ve kaynakça biçimini ayrıca denetlemek istersen osmancancetlenbik.com'daki diğer ücretsiz araçlara bak.</span>
+          <span class="links">
+            <a href="https://osmancancetlenbik.com/araclar/atif-denetleyici" target="_blank" rel="noopener">Atıf denetleyici →</a>
+            <a href="https://osmancancetlenbik.com/araclar" target="_blank" rel="noopener">Tüm araçlar →</a>
+          </span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="kontroller" aria-labelledby="kontroller-h">
+    <div class="section-head lift">
+      <span class="eyebrow">Kural kaynağı · 2209-A Başvuru İçeriği Bilgi Notu (2026)</span>
+      <h2 id="kontroller-h">Ne kontrol ediliyor?</h2>
+      <p>18 kural puana sayılır. "Düzelt" yalnızca bilgi notunda yazan kurallar içindir. Sezgisel tespitler "Gözden geçir" ya da puana sayılmayan "İpucu" olarak gösterilir.</p>
+    </div>
+    <div class="catalog">
+      <div class="card cat lift">
+        <h3><span class="mono">Özet · 1.1 · 1.2 · 2</span>Uzunluk ve içerik</h3>
+        <ul>
+          <li><span>Özet 25–450 kelime<span class="src">Bilgi notu</span></span><span class="lvl bad">Düzelt</span></li>
+          <li><span>1.1, 1.2 ve 2. bölüm en az 350 karakter<span class="src">Bilgi notu · 3 kural</span></span><span class="lvl bad">Düzelt</span></li>
+          <li><span>1.1'de literatüre atıf var<span class="src">Bilgi notu · sezgisel tespit</span></span><span class="lvl warn">Gözden geçir</span></li>
+          <li><span>Hedeflerde sayı, oran ya da süre<span class="src">Bilgi notu: ölçülebilir hedef</span></span><span class="lvl tip">İpucu</span></li>
+          <li><span>Yöntemde tasarım, değişken, analiz<span class="src">Bilgi notu</span></span><span class="lvl tip">İpucu</span></li>
+          <li><span>Karakter sınırına çok yakın (350–384)<span class="src">İyi uygulama: TYBS sayımı farklı olabilir</span></span><span class="lvl tip">İpucu</span></li>
+        </ul>
+      </div>
+      <div class="card cat lift">
+        <h3><span class="mono">3.1</span>Çalışma takvimi</h3>
+        <ul>
+          <li><span>En az bir iş adımı<span class="src">Bilgi notu</span></span><span class="lvl bad">Düzelt</span></li>
+          <li><span>İş adımları 1–12. aylar arasında<span class="src">Bilgi notu</span></span><span class="lvl bad">Düzelt</span></li>
+          <li><span>Katkı değerlerinin toplamı 100<span class="src">Bilgi notu</span></span><span class="lvl bad">Düzelt</span></li>
+          <li><span>Literatür taraması, rapor yazımı, sonuç paylaşımı, malzeme alımı ayrı iş adımı değil<span class="src">Bilgi notu · sezgisel tespit</span></span><span class="lvl bad">Düzelt</span></li>
+          <li><span>Her iş adımının başarı ölçütü var<span class="src">Bilgi notu</span></span><span class="lvl bad">Düzelt</span></li>
+          <li><span>Başarı ölçütü ölçülebilir ("başarıyla tamamlanması" değil)<span class="src">Bilgi notu · sezgisel tespit</span></span><span class="lvl warn">Gözden geçir</span></li>
+          <li><span>Başarı ölçütünde sayısal eşik<span class="src">İyi uygulama</span></span><span class="lvl tip">İpucu</span></li>
+        </ul>
+      </div>
+      <div class="card cat lift">
+        <h3><span class="mono">3.2 · 3.3 · 4 · Kaynakça</span>Bölümler ve kaynaklar</h3>
+        <ul>
+          <li><span>Risk yönetimi, araştırma olanakları ve yaygın etki dolu<span class="src">Bilgi notu · 3 kural</span></span><span class="lvl warn">Gözden geçir</span></li>
+          <li><span>Risklerde B planı<span class="src">Bilgi notu</span></span><span class="lvl tip">İpucu</span></li>
+          <li><span>Kaynakçadaki her kaynağa metinde atıf; atıfların kaynakçada karşılığı<span class="src">Bilgi notu · sezgisel tespit</span></span><span class="lvl warn">Gözden geçir</span></li>
+          <li><span>DOI'si olan kaynaklarda DOI<span class="src">Bilgi notu · sezgisel tespit</span></span><span class="lvl warn">Gözden geçir</span></li>
+        </ul>
+      </div>
+      <div class="card cat lift">
+        <h3><span class="mono">Tüm metin</span>Dil ve kişisel veri</h3>
+        <ul>
+          <li><span>"Uygun istatistik yöntemleri ile" gibi içi boş ifadeler<span class="src">İyi uygulama: hakem raporlarında sık eleştiri</span></span><span class="lvl warn">Gözden geçir</span></li>
+          <li><span>Geçerli TC kimlik no, cep telefonu, e-posta<span class="src">İyi uygulama: KVKK</span></span><span class="lvl bad">Düzelt</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="gizlilik" aria-labelledby="gizlilik-h">
+    <div class="section-head lift">
+      <span class="eyebrow">Gizlilik</span>
+      <h2 id="gizlilik-h">Metnin bu tarayıcıda kalır</h2>
+      <p>Araç sunucusuz çalışır. Kontrollerin hepsi senin bilgisayarında yapılır.</p>
+    </div>
+    <div class="privacy">
+      <div class="card lift"><span class="big">0 bayt</span><h3>Sunucuya giden metin</h3><p>Başvuru metni hiçbir sunucuya, analitiğe ya da üçüncü tarafa gönderilmez. Ağ sekmesinden kendin doğrulayabilirsin.</p></div>
+      <div class="card lift"><span class="big">Yerel</span><h3>Taslak saklama</h3><p>Taslağın yalnızca bu tarayıcıda saklanır; ertesi gün kaldığın yerden devam edersin. "Formu temizle" ile silinir.</p></div>
+      <div class="card lift"><span class="big">Yok</span><h3>Çerez ve hesap</h3><p>Giriş, hesap ya da çerez yok. Kişisel veri bulunursa raporda bile maskelenmiş gösterilir.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="sss" aria-labelledby="sss-h">
+    <div class="section-head lift">
+      <span class="eyebrow">Sık sorulanlar</span>
+      <h2 id="sss-h">Sorular</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Bu TÜBİTAK'ın resmî aracı mı?</summary><p>Hayır. Bağımsız ve ücretsiz bir araçtır; TÜBİTAK ile bağlantısı yoktur. Kurallar herkese açık bilgi notundan alınmıştır. Son kontrolü TYBS önizlemesinde yap.</p></details>
+      <details><summary>Tüm kurallar tamamsa başvurum kabul edilir mi?</summary><p>Hayır. Araç yalnızca biçim ve bilgi notundaki mekanik kuralları kontrol eder. Projenin bilimsel değerini hakemler değerlendirir.</p></details>
+      <details><summary>Karakter sayısı TYBS ile neden farklı olabilir?</summary><p>Araç boşlukları sayar. TYBS'nin sayımı farklı olabilir. Bu yüzden 350–384 karakter arasında ipucu verilir; sınıra yakınsan biraz pay bırak.</p></details>
+      <details><summary>Metnimi yapay zekâyla yazdırabilir miyim?</summary><p>Araç metin üretmez ve yeniden yazmaz. Yapay zekâ kullandıysan TÜBİTAK Üretken Yapay Zekâ Rehberi'ne göre beyan et.</p></details>
+      <details><summary>Bir kural yanlış alarm veriyor, ne yapmalıyım?</summary><p>Hangi kuralın, hangi cümlede yanıldığını geri bildirim olarak gönder. Metnin tamamını paylaşman gerekmez; ilgili cümle yeter.</p></details>
+    </div>
+  </section>
+
+  <section class="section" id="hazirlayan" aria-labelledby="hazirlayan-h">
+    <div class="author lift">
+      <img class="author-svg photo" src="data:image/jpeg;base64,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" width="96" height="96" alt="">
+      <div class="author-body">
+        <span class="eyebrow">Hazırlayan</span>
+        <h2 id="hazirlayan-h">Öğr. Gör. Osman Can Çetlenbik</h2>
+        <p class="author-role">Öğretim Görevlisi · osmancancetlenbik.com</p>
+        <p>Öğrenciler, danışmanlar ve araştırmacılar için ücretsiz akademik araçlar geliştiriyorum. 2209-A Ön Kontrol, osmancancetlenbik.com/araclar altındaki araçlardan biri. Hepsi tarayıcıda çalışır; metnin sende kalır.</p>
+        <div class="author-links">
+          <a class="btn-hero primary" href="https://osmancancetlenbik.com" target="_blank" rel="noopener">osmancancetlenbik.com</a>
+          <a class="btn-hero" href="https://osmancancetlenbik.com/araclar" target="_blank" rel="noopener">Diğer akademik araçlar</a>
+          <a class="btn-hero" href="https://osmancancetlenbik.com/iletisim" target="_blank" rel="noopener">Geri bildirim gönder</a>
+        </div>
+        <div class="share">
+          <span>Öğrencilerinle paylaş:</span>
+          <a id="share-linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fosmancancetlenbik.com%2Faraclar%2F2209a-on-kontrol" target="_blank" rel="noopener">LinkedIn</a>
+          <a id="share-whatsapp" href="https://wa.me/?text=2209-A%20%C3%B6n%20kontrol%20arac%C4%B1%3A%20https%3A%2F%2Fosmancancetlenbik.com%2Faraclar%2F2209a-on-kontrol" target="_blank" rel="noopener">WhatsApp</a>
+          <button type="button" id="btn-share-copy">Bağlantıyı kopyala</button>
+          <span class="share-status" id="share-status" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Kurallar <a href="https://tubitak.gov.tr/sites/default/files/2026-10/2209-A_Basvuru_Icerigi_Bilgi_Notu.pdf" target="_blank" rel="noopener">2209-A Başvuru İçeriği Bilgi Notu</a> ve <a href="https://tubitak.gov.tr/sites/default/files/2026-10/2209-A_2026_Yili_Cagri_Duyurusu.pdf" target="_blank" rel="noopener">2026 çağrı duyurusuna</a> göre hazırlandı. Son doğrulama: 12 Ekim 2026. Yapay zekâ kullandıysan <a href="https://tubitak.gov.tr/sites/default/files/2025-09/UYZ_Rehberi-v02.pdf" target="_blank" rel="noopener">TÜBİTAK ÜYZ rehberine</a> göre beyan et.</p>
+    <p>Bu araç TÜBİTAK'ın resmî aracı değildir ve TÜBİTAK ile bağlantısı yoktur. Kontroller otomatik ve sezgiseldir; başvurunun kabul edileceğini göstermez. Karakter sayımı boşluklar dahil yapılır; TYBS'nin sayımı farklı olabilir, sınıra yakınsan pay bırak.</p>
+    <p>Metnin hiçbir sunucuya gönderilmez. Taslağın yalnızca bu tarayıcıda saklanır.</p>
+    <p>© 2026 Öğr. Gör. Osman Can Çetlenbik · <a href="https://osmancancetlenbik.com" target="_blank" rel="noopener">osmancancetlenbik.com</a></p>
+  </footer>
+</main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Kurallar ve sözlükler ----------
+  const SECTIONS = {
+    ozet: "Özet", bilimsel: "1.1 Bilimsel nitelik", amac: "1.2 Amaç ve hedefler", yontem: "2. Yöntem",
+    takvim: "3.1 Çalışma takvimi", risk: "3.2 Risk yönetimi", olanak: "3.3 Araştırma olanakları",
+    etki: "4. Yaygın etki", kaynak: "Kaynakça"
+  };
+  const LIMITS = {
+    ozet: { unit: "kelime", min: 25, max: 450 },
+    bilimsel: { unit: "karakter", min: 350 },
+    amac: { unit: "karakter", min: 350 },
+    yontem: { unit: "karakter", min: 350 }
+  };
+  const GENERIC = [
+    [/standart (yöntem|teknik|prosedür|analiz)\p{L}* (kullanıl|uygulan|yapıl)\p{L}*/u, "Hangi yöntemin, hangi parametrelerle ve neden seçildiğini yaz."],
+    [/uygun (bir )?(istatistik(sel)? )?(yöntem|analiz|teknik|test)\p{L}* (ile|kullanılarak|yapılacak|uygulanacak)/u, "“Uygun” yerine yöntemin adını ve seçim gerekçesini yaz."],
+    [/gerekli (analiz|çalışma|işlem|test)\p{L}* (yapılacak|gerçekleştirilecek)\p{L}*/u, "Hangi analizlerin yapılacağını tek tek yaz."],
+    [/literatürde(ki)? (yer alan|bulunan|mevcut) yöntem\p{L}*/u, "Yöntemin adını, kaynağını ve projeye nasıl uyarlanacağını yaz."],
+    [/en (son|güncel|yeni) teknoloji\p{L}* (kullanıl|ile)\p{L}*/u, "Kullanılacak teknolojiyi adıyla belirt."],
+    [/(çeşitli|bazı) (yöntem|analiz|teknik|test)ler\p{L}*/u, "Yöntemleri tek tek adıyla yaz."]
+  ];
+  const FORBIDDEN = [
+    [/literatür (taraması|araştırması|incelemesi|çalışması|derlemesi)/u, "literatür taraması"],
+    [/(sonuç |proje |final |ara )?rapor\p{L}* (yazım|hazırlan)\p{L}*|raporlama/u, "sonuç raporu hazırlama"],
+    [/sonuçların (paylaşıl|paylaşım|yaygınlaştırıl|sunul)\p{L}*|yaygınlaştırma/u, "sonuçların paylaşımı"],
+    [/(malzeme|ekipman|cihaz|sarf) (alım|temin|satın)\p{L}*|satın alma/u, "malzeme alımı"]
+  ];
+  const VAGUE = [
+    /başarı(yla|lı( bir şekilde)?) (tamamlan|gerçekleştiril|sonuçlan)\p{L}*/u,
+    /^(iş adımının |iş paketinin |çalışmanın )?(tamamlanması|bitmesi|bitirilmesi|tamamlandı)\.?$/u,
+    /olumlu sonuç/u, /hedef(ler)?e ulaşıl\p{L}*/u, /istenilen (düzey|seviye|sonuç)/u, /^%?\s*100\s*%?$/u
+  ];
+  const METHOD_WORDS = /tasarım|değişken|örneklem|istatisti|analiz|model|deney|ölçek|anket|veri seti|katılımcı/u;
+
+  // ---------- Yardımcılar ----------
+  const $ = (id) => document.getElementById(id);
+  const lower = (s) => s.toLocaleLowerCase("tr-TR");
+  const words = (s) => (s.match(/\S+/g) || []).length;
+  const chars = (s) => [...s.trim()].length;
+  const hasNum = (s) => /\d/.test(s);
+  const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function tcknValid(v) {
+    if (!/^[1-9]\d{10}$/.test(v)) return false;
+    const d = [...v].map(Number);
+    const t = ((d[0] + d[2] + d[4] + d[6] + d[8]) * 7 - (d[1] + d[3] + d[5] + d[7])) % 10;
+    const e = d.slice(0, 10).reduce((a, b) => a + b, 0) % 10;
+    return ((t + 10) % 10) === d[9] && e === d[10];
+  }
+  const mask = (v) => v.length <= 4 ? "****" : v.slice(0, 2) + "*".repeat(v.length - 4) + v.slice(-2);
+
+  const UP = "A-ZÇĞİÖŞÜ";
+  const RX_PAREN = /\(([^()]*?(?:19|20)\d{2}[a-z]?[^()]*)\)/g;
+  const RX_AY = new RegExp(`([${UP}][\\p{L}'’\\-]+)(?:\\s+(?:ve|vd\\.|et al\\.|&|and)(?:\\s+[${UP}][\\p{L}'’\\-]+)?)?,?\\s*((?:19|20)\\d{2})`, "gu");
+  const RX_NARR = new RegExp(`([${UP}][\\p{L}'’\\-]+)(?:\\s+(?:vd\\.|et al\\.))?\\s+\\(((?:19|20)\\d{2})[a-z]?\\)`, "gu");
+  const RX_NUM = /\[(\d+(?:\s*[-–,]\s*\d+)*)\]/g;
+  const RX_DOI = /10\.\d{4,9}\/[^\s"<>]+/i;
+
+  function citations(text) {
+    const numeric = [];
+    for (const m of text.matchAll(RX_NUM)) {
+      for (const part of m[1].split(",")) {
+        const b = part.trim().split(/\s*[-–]\s*/);
+        if (b.length === 2) { for (let n = +b[0]; n <= +b[1] && n - +b[0] < 200; n++) numeric.push(n); }
+        else if (/^\d+$/.test(b[0])) numeric.push(+b[0]);
+      }
+    }
+    const ay = [];
+    for (const m of text.matchAll(RX_PAREN)) {
+      for (const part of m[1].split(";")) for (const a of part.matchAll(RX_AY)) ay.push({ s: a[1], y: a[2] });
+    }
+    for (const m of text.matchAll(RX_NARR)) ay.push({ s: m[1], y: m[2] });
+    return { numeric, ay };
+  }
+  const refMatches = (ref, c) => lower(ref).includes(lower(c.s)) && ref.includes(c.y);
+  const refLines = (raw) => raw.split("\n").map((l) => l.trim().replace(/^(\[\d+\]|\d+[.)])\s*/, "")).filter(Boolean);
+
+  // ---------- Durum ----------
+  const TEXT_KEYS = ["ozet", "bilimsel", "amac", "yontem", "risk", "olanak", "etki", "kaynak"];
+  const state = { text: {}, wp: [] };
+  const STORE_KEY = "on-kontrol-2209a-v1";
+
+  const SAMPLE = {
+    text: {
+      ozet: "Bu proje, üniversite öğrencilerinin ders çalışma alışkanlıklarını akıllı telefon kullanım verileriyle ilişkilendirmeyi amaçlamaktadır. Gönüllü 120 öğrenciden dört hafta boyunca anonim ekran süresi verisi ve haftalık öz bildirim anketleri toplanacaktır. Veriler karma etkiler modeliyle analiz edilecek ve sonuçlar açık erişimli bir veri setiyle paylaşılacaktır. Projenin çıktısı, öğrencilerin dikkat dağınıklığını azaltmaya yönelik kanıta dayalı öneriler olacaktır.",
+      bilimsel: "Akıllı telefon kullanımı ile akademik başarı arasındaki ilişki birçok çalışmada incelenmiştir (Yılmaz, 2022; Demir vd., 2023). Ancak bu çalışmaların büyük kısmı tek seferlik öz bildirim anketlerine dayanmakta ve gerçek kullanım verisini ölçmemektedir. Kaya ve Arslan (2024) nesnel ekran süresi verisinin öz bildirimden anlamlı biçimde farklılaştığını göstermiştir. Bu proje, nesnel kullanım verisini haftalık tekrarlı ölçümle birleştirerek literatürdeki bu boşluğu doldurmayı hedeflemektedir. Araştırma sorusu şudur: Haftalık ekran süresindeki artış, aynı haftadaki ders çalışma süresini azaltmakta mıdır?",
+      amac: "Projenin amacı, ekran süresi ile haftalık ders çalışma süresi arasındaki ilişkiyi nesnel veriyle ortaya koymaktır. Hedef 1: Dört hafta boyunca en az 120 öğrenciden eksiksiz veri toplamak. Hedef 2: Ekran süresindeki her bir saatlik artışın haftalık çalışma süresine etkisini %95 güven aralığıyla tahmin etmek. Hedef 3: Anonim veri setini proje bitiminden önce açık erişimli bir depoda yayımlamak. Hedef 4: Sonuçları en az bir ulusal kongrede bildiri olarak sunmak.",
+      yontem: "Araştırma, tekrarlı ölçümlü gözlemsel bir tasarımla yürütülecektir. Katılımcılar, etik kurul onayı alındıktan sonra bilgilendirilmiş onamla gönüllülük esasına göre seçilecektir. Bağımsız değişken haftalık ekran süresi, bağımlı değişken haftalık ders çalışma süresidir. Ekran süresi verisi telefonların yerleşik dijital denge raporlarından haftalık olarak toplanacaktır. Haftalık çalışma süresi, geçerlik ve güvenirlik çalışması yapılmış bir öz bildirim formuyla ölçülecektir. Elde edilen veriler uygun istatistik yöntemleri ile analiz edilecektir.",
+      risk: "Katılımcı kaybı riski için başlangıçta hedeflenenden yüzde yirmi fazla katılımcı alınacaktır (B planı). Veri gönderiminin aksaması durumunda haftalık hatırlatma mesajları kullanılacak, gerekirse veri toplama bir hafta uzatılacaktır.",
+      olanak: "Analizler için bölümün bilgisayar laboratuvarı ve açık kaynak R yazılımı kullanılacaktır. Ek bir ekipman gerekmemektedir.",
+      etki: "Sonuçlar en az bir ulusal kongrede sunulacak, anonim veri seti açık erişimli bir depoda paylaşılacak ve üniversitenin rehberlik birimiyle öğrencilere yönelik bir bilgilendirme semineri düzenlenecektir.",
+      kaynak: [
+        "Demir, A., Çelik, B. ve Şahin, C. (2023). Smartphone use and academic performance. Computers & Education, 190, 104610. https://doi.org/10.1016/j.compedu.2023.104610",
+        "Kaya, D. ve Arslan, E. (2024). Objective versus self-reported screen time. Journal of Behavioral Research, 12(3), 45-60. https://doi.org/10.1234/jbr.2024.045",
+        "Öztürk, H. (2021). Dijital çağda öğrenme. Ankara: Örnek Yayınevi.",
+        "Yılmaz, F. (2022). Üniversite öğrencilerinde dijital dikkat dağınıklığı. Eğitim ve Bilim, 47(210), 1-20. https://doi.org/10.15390/EB.2022.11111"
+      ].join("\n")
+    },
+    wp: [
+      { name: "Literatür taraması ve etik kurul başvurusu", start: 1, end: 2, crit: "Etik kurul onayının alınması", pct: 20 },
+      { name: "Veri toplama", start: 3, end: 5, crit: "En az 120 katılımcıdan dört haftalık eksiksiz veri", pct: 40 },
+      { name: "Veri analizi ve modelleme", start: 6, end: 9, crit: "Başarıyla tamamlanması", pct: 30 }
+    ]
+  };
+
+  let isSample = false;
+
+  function save() {
+    if (isSample) return;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* depolama kapalı olabilir */ }
+  }
+  function loadSaved() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      return data && data.text && Array.isArray(data.wp) ? data : null;
+    } catch (e) { return null; }
+  }
+
+  // ---------- Kontroller ----------
+  // Her kural: {id, sec, title, sev: "bad"|"warn", run(ctx) -> {applies, issues:[{msg,hint,sec?}]}}
+  // İpuçları puana sayılmaz.
+  function buildRules() {
+    const R = [];
+    for (const [key, lim] of Object.entries(LIMITS)) {
+      R.push({
+        id: "len-" + key, sec: key, sev: "bad",
+        title: `${SECTIONS[key]}: ${lim.max ? `${lim.min}–${lim.max}` : `en az ${lim.min}`} ${lim.unit}`,
+        run: (c) => {
+          const t = c.text[key]; const n = lim.unit === "kelime" ? words(t) : chars(t);
+          if (!t.trim()) return { issues: [{ msg: `${SECTIONS[key]} boş.`, hint: "Bu bölüm zorunlu." }] };
+          if (n < lim.min) return { issues: [{ msg: `${SECTIONS[key]} ${n} ${lim.unit}; en az ${lim.min} olmalı.`, hint: `${lim.min - n} ${lim.unit} eksik. Somut bilgiyle genişlet, dolgu cümlesi ekleme.` }] };
+          if (lim.max && n > lim.max) return { issues: [{ msg: `${SECTIONS[key]} ${n} ${lim.unit}; en fazla ${lim.max} olmalı.`, hint: `${n - lim.max} ${lim.unit} fazla. Tekrarları ve genel ifadeleri çıkar.` }] };
+          return { issues: [] };
+        }
+      });
+    }
+    R.push({ id: "wp-any", sec: "takvim", sev: "bad", title: "Çalışma takviminde en az bir iş adımı",
+      run: (c) => ({ issues: c.wp.length ? [] : [{ msg: "Çalışma takviminde iş adımı yok.", hint: "En az bir iş adımı eklenmeli." }] }) });
+    R.push({ id: "wp-time", sec: "takvim", sev: "bad", title: "İş adımları 1–12. aylar arasında",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        const issues = [];
+        c.wp.forEach((w, i) => {
+          const s = +w.start, e = +w.end;
+          if (!s || !e) issues.push({ msg: `İA${i + 1}: başlangıç ya da bitiş ayı boş.`, hint: "Her iş adımına ay aralığı gir." });
+          else if (e < s) issues.push({ msg: `İA${i + 1}: bitiş ayı (${e}) başlangıçtan (${s}) önce.`, hint: "Ay aralığını düzelt." });
+          else if (s < 1 || e > 12) issues.push({ msg: `İA${i + 1}: ${s}–${e}. aylar; proje süresi en fazla 12 ay.`, hint: "İş adımını 12 aya sığdır." });
+        });
+        return { issues };
+      } });
+    R.push({ id: "wp-sum", sec: "takvim", sev: "bad", title: "Başarı ölçütü katkıları toplamı 100",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        const sum = c.wp.reduce((a, w) => a + (+w.pct || 0), 0);
+        return { issues: Math.abs(sum - 100) < 0.01 ? [] : [{ msg: `Katkı değerlerinin toplamı ${fmt(sum)}; 100 olmalı.`, hint: "Her iş adımının projenin başarısına katkısını yeniden dağıt." }] };
+      } });
+    R.push({ id: "wp-forbidden", sec: "takvim", sev: "bad", title: "Ayrı iş adımı olmaması gereken işler yok",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        const issues = [];
+        c.wp.forEach((w, i) => {
+          const hit = FORBIDDEN.find(([rx]) => rx.test(lower(w.name)));
+          if (hit) issues.push({ msg: `İA${i + 1} “${w.name}”: ${hit[1]} ayrı iş adımı olarak gösterilmez.`, hint: "Bilgi notu bu işi ayrı iş adımı saymıyor. Çıktı üreten bir işle birleştir ya da çıkar." });
+        });
+        return { issues };
+      } });
+    R.push({ id: "wp-crit", sec: "takvim", sev: "bad", title: "Her iş adımının başarı ölçütü var",
+      run: (c) => {
+        if (!c.wp.length) return { applies: false, issues: [] };
+        return { issues: c.wp.map((w, i) => w.crit.trim() ? null : { msg: `İA${i + 1} için başarı ölçütü yazılmamış.`, hint: "Bu adımın bittiğini neyle kanıtlayacağını yaz." }).filter(Boolean) };
+      } });
+    R.push({ id: "wp-vague", sec: "takvim", sev: "warn", title: "Başarı ölçütleri ölçülebilir",
+      run: (c) => {
+        const filled = c.wp.filter((w) => w.crit.trim());
+        if (!filled.length) return { applies: false, issues: [] };
+        return { issues: c.wp.map((w, i) => w.crit.trim() && VAGUE.some((rx) => rx.test(lower(w.crit.trim()))) ? { msg: `İA${i + 1} başarı ölçütü ölçülebilir değil: “${w.crit.trim()}”.`, hint: "Örnek: “120 katılımcıdan eksiksiz veri” ya da “modelin test setinde F1 ≥ 0,80”." } : null).filter(Boolean) };
+      } });
+    for (const key of ["risk", "olanak", "etki"]) {
+      R.push({ id: "fill-" + key, sec: key, sev: "warn", title: `${SECTIONS[key]} dolu`,
+        run: (c) => ({ issues: c.text[key].trim() ? [] : [{ msg: `${SECTIONS[key]} boş.`, hint: "Bu bölüm değerlendirmede puanlanıyor; boş bırakma." }] }) });
+    }
+    R.push({ id: "cite-11", sec: "bilimsel", sev: "warn", title: "1.1'de literatüre atıf var",
+      run: (c) => {
+        if (!c.text.bilimsel.trim()) return { applies: false, issues: [] };
+        const ct = citations(c.text.bilimsel);
+        return { issues: ct.numeric.length || ct.ay.length ? [] : [{ msg: "1.1 bölümünde tanınabilir bir atıf yok.", hint: "Bilgi notu konunun önemini literatüre atıfla açıklamanı istiyor." }] };
+      } });
+    R.push({ id: "refs-match", sec: "kaynak", sev: "warn", title: "Kaynakça ile metin içi atıflar eşleşiyor",
+      run: (c) => {
+        const refs = refLines(c.text.kaynak);
+        if (!refs.length) return { applies: false, issues: [] };
+        const body = TEXT_KEYS.filter((k) => k !== "kaynak").map((k) => c.text[k]).join("\n");
+        const ct = citations(body);
+        const issues = [];
+        if (ct.numeric.length) {
+          const cited = new Set(ct.numeric);
+          const missing = [...cited].filter((n) => n < 1 || n > refs.length).sort((a, b) => a - b);
+          const uncited = refs.map((_, i) => i + 1).filter((n) => !cited.has(n));
+          if (missing.length) issues.push({ msg: `Kaynakçada karşılığı olmayan atıflar: ${list(missing.map((n) => `[${n}]`))}.`, hint: "Atıf numaralarını kaynakça sırasıyla eşleştir." });
+          if (uncited.length) issues.push({ msg: `Metinde atıf yapılmamış kaynaklar: ${list(uncited.map((n) => `${n}. satır`))}.`, hint: "Bilgi notuna göre listedeki tüm kaynaklara metinde atıf yapılmalı." });
+        } else if (!ct.ay.length) {
+          issues.push({ msg: "Kaynakça var ama metinde tanınabilir atıf yok.", hint: "Atıfları (Soyad, Yıl) ya da [1] biçiminde yaz." });
+        } else {
+          const unmatched = [...new Set(ct.ay.filter((a) => !refs.some((r) => refMatches(r, a))).map((a) => `${a.s}, ${a.y}`))];
+          const uncited = refs.map((r, i) => ct.ay.some((a) => refMatches(r, a)) ? null : i + 1).filter(Boolean);
+          if (unmatched.length) issues.push({ msg: `Kaynakçada bulunamayan atıflar: ${list(unmatched)}.`, hint: "Soyadı ve yılın kaynakçayla aynı yazıldığını kontrol et." });
+          if (uncited.length) issues.push({ msg: `Metinde atıf yapılmamış görünen kaynaklar: ${list(uncited.map((n) => `${n}. satır`))}.`, hint: "Bilgi notuna göre listedeki tüm kaynaklara metinde atıf yapılmalı." });
+        }
+        return { issues };
+      } });
+    R.push({ id: "refs-doi", sec: "kaynak", sev: "warn", title: "DOI'si olan kaynaklarda DOI eklenmiş",
+      run: (c) => {
+        const refs = refLines(c.text.kaynak);
+        if (!refs.length) return { applies: false, issues: [] };
+        const no = refs.map((r, i) => RX_DOI.test(r) ? null : i + 1).filter(Boolean);
+        return { issues: no.length ? [{ msg: `${refs.length} kaynaktan ${no.length} tanesinde DOI yok: ${list(no.map((n) => `${n}. satır`))}.`, hint: "DOI'si olan kaynaklara DOI eklemek zorunlu. Kitap ve raporların DOI'si yoksa sorun değil." }] : [] };
+      } });
+    R.push({ id: "generic", sec: null, sev: "warn", title: "Genel, içi boş ifade yok",
+      run: (c) => {
+        const issues = [];
+        for (const key of TEXT_KEYS.filter((k) => k !== "kaynak")) {
+          const t = lower(c.text[key]);
+          for (const [rx, hint] of GENERIC) {
+            const m = t.match(rx);
+            if (m) issues.push({ sec: key, msg: `${SECTIONS[key]}: “${c.text[key].substr(m.index, m[0].length)}”.`, hint });
+          }
+        }
+        return { issues };
+      } });
+    R.push({ id: "pii", sec: null, sev: "bad", title: "Metinde kişisel veri izi yok",
+      run: (c) => {
+        const issues = [];
+        for (const key of TEXT_KEYS.filter((k) => k !== "kaynak")) {
+          const t = c.text[key];
+          for (const m of t.matchAll(/(?<!\d)[1-9]\d{10}(?!\d)/g)) if (tcknValid(m[0])) issues.push({ sec: key, msg: `${SECTIONS[key]}: olası TC kimlik numarası (${mask(m[0])}).`, hint: "Kişisel verileri başvuru metninden çıkar." });
+          for (const m of t.matchAll(/(?<!\d)(?:\+90[\s-]?|0)?5\d{2}[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}(?!\d)/g)) issues.push({ sec: key, msg: `${SECTIONS[key]}: olası telefon numarası (${mask(m[0].replace(/\s/g, ""))}).`, hint: "Kişisel verileri başvuru metninden çıkar." });
+          for (const m of t.matchAll(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g)) issues.push({ sec: key, msg: `${SECTIONS[key]}: e-posta adresi (${mask(m[0])}).`, hint: "Kişisel verileri başvuru metninden çıkar." });
+        }
+        return { issues };
+      } });
+    return R;
+  }
+
+  function tips(c) {
+    const T = [];
+    for (const key of ["bilimsel", "amac", "yontem"]) {
+      const n = chars(c.text[key]);
+      if (n >= 350 && n < 385) T.push({ sec: key, msg: `${SECTIONS[key]} ${n} karakter; alt sınıra çok yakın.`, hint: "TYBS sayımı farklı olabilir; biraz pay bırak." });
+    }
+    if (c.text.amac.trim() && !hasNum(c.text.amac)) T.push({ sec: "amac", msg: "Hedeflerde sayı, oran ya da süre yok.", hint: "Bilgi notu hedeflerin ölçülebilir olmasını istiyor." });
+    if (c.text.yontem.trim() && !METHOD_WORDS.test(lower(c.text.yontem))) T.push({ sec: "yontem", msg: "Yöntemde tasarım, değişken ya da analiz ifadesi bulunamadı.", hint: "Araştırma tasarımını, değişkenleri ve istatistiksel yöntemi yaz." });
+    if (c.text.risk.trim() && !/b plan/u.test(lower(c.text.risk))) T.push({ sec: "risk", msg: "Risk yönetiminde B planı ifadesi geçmiyor.", hint: "Her önemli risk için bir B planı yaz; B planı temel hedeflerden saptırmamalı." });
+    c.wp.forEach((w, i) => {
+      const crit = w.crit.trim();
+      if (crit && !hasNum(crit) && !VAGUE.some((rx) => rx.test(lower(crit)))) T.push({ sec: "takvim", msg: `İA${i + 1} başarı ölçütünde sayısal bir eşik yok: “${crit}”.`, hint: "Mümkünse sayı, oran ya da somut bir çıktı ekle." });
+    });
+    return T;
+  }
+
+  const fmt = (n) => Number.isInteger(n) ? String(n) : n.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+  const list = (items, limit = 5) => items.slice(0, limit).join(", ") + (items.length > limit ? ` ve ${items.length - limit} tane daha` : "");
+
+  const RULES = buildRules();
+
+  function evaluate() {
+    const c = { text: state.text, wp: state.wp };
+    const results = RULES.map((r) => {
+      const out = r.run(c);
+      const applies = out.applies !== false;
+      return { rule: r, applies, pass: applies && out.issues.length === 0, issues: out.issues };
+    });
+    return { results, tips: tips(c) };
+  }
+
+  // ---------- Hareket ----------
+  const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function replay(el, cls) {
+    if (!el || reduceMotion()) return;
+    el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+  }
+  function countTo(el, from, to, render, ms = 520) {
+    const tok = el._countTok = {};
+    if (reduceMotion() || from === to) { el.textContent = render(to); return; }
+    // Sekme arka plandayken requestAnimationFrame durur; son değer her durumda yazılsın.
+    setTimeout(() => { if (el._countTok === tok) el.textContent = render(to); }, ms + 80);
+    const t0 = performance.now();
+    const step = (t) => {
+      if (el._countTok !== tok) return;
+      const k = Math.min((t - t0) / ms, 1);
+      const e = 1 - Math.pow(1 - k, 3);
+      el.textContent = render(Math.round(from + (to - from) * e));
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Analitik kancası: sitenin çerezsiz analitiğine bağlanır. Yalnızca olay adı ve sabit bir değer alır; metin asla.
+  const EVENTS = new Set(["sayfa_gorundu", "ornek_temizlendi", "ilk_duzenleme", "rapor_kopyalandi", "rapor_indirildi", "bulguya_tiklandi"]);
+  function track(name, prop) {
+    if (!EVENTS.has(name)) return;
+    if (typeof window.__onKontrolTrack === "function") { try { window.__onKontrolTrack(name, typeof prop === "string" ? prop : undefined); } catch (e) { /* yok say */ } }
+  }
+  const scoreBand = (p) => p >= 18 ? "18" : p >= 13 ? "13-17" : p >= 7 ? "7-12" : "0-6";
+  let edited = false;
+
+  // ---------- Çizim ----------
+  const wpBody = $("wp-body");
+  let growGantt = true;
+  let newRow = -1;
+
+  function renderWpRows() {
+    wpBody.innerHTML = "";
+    state.wp.forEach((w, i) => {
+      const tr = document.createElement("tr");
+      if (i === newRow) tr.className = "row-new";
+      tr.innerHTML = `
+        <td class="n">İA${i + 1}</td>
+        <td><input type="text" id="wp-name-${i}" aria-label="İA${i + 1} iş adımı" data-i="${i}" data-f="name"></td>
+        <td><input type="number" id="wp-start-${i}" aria-label="İA${i + 1} başlangıç ayı" min="1" max="12" data-i="${i}" data-f="start"></td>
+        <td><input type="number" id="wp-end-${i}" aria-label="İA${i + 1} bitiş ayı" min="1" max="12" data-i="${i}" data-f="end"></td>
+        <td><input type="text" id="wp-crit-${i}" aria-label="İA${i + 1} başarı ölçütü" data-i="${i}" data-f="crit"></td>
+        <td><input type="number" id="wp-pct-${i}" aria-label="İA${i + 1} katkı yüzdesi" min="0" max="100" data-i="${i}" data-f="pct"></td>
+        <td><button type="button" class="ghost" data-del="${i}" aria-label="İA${i + 1} sil">Sil</button></td>`;
+      wpBody.appendChild(tr);
+      tr.querySelectorAll("input").forEach((inp) => { inp.value = w[inp.dataset.f] ?? ""; });
+    });
+    newRow = -1;
+  }
+
+  function renderGantt() {
+    const g = $("gantt");
+    let html = `<span></span>`;
+    for (let m = 1; m <= 12; m++) html += `<span class="m">${m}</span>`;
+    state.wp.forEach((w, i) => {
+      const s = +w.start, e = +w.end;
+      html += `<span class="rl" style="grid-row:${i + 2};grid-column:1">İA${i + 1}</span>`;
+      for (let m = 1; m <= 12; m++) html += `<span class="cell" style="grid-row:${i + 2};grid-column:${m + 1}"></span>`;
+      if (s && e) {
+        const bad = e < s || s < 1 || e > 12;
+        const from = Math.min(Math.max(Math.min(s, e), 1), 12), to = Math.min(Math.max(s, e), 12);
+        html += `<span class="bar${bad ? " badbar" : ""}${growGantt ? " grow" : ""}" style="--i:${i};grid-row:${i + 2};grid-column:${from + 1} / ${to + 2}" title="İA${i + 1}: ${s}–${e}. ay"></span>`;
+      }
+    });
+    g.innerHTML = html;
+    growGantt = false;
+    const sum = state.wp.reduce((a, w) => a + (+w.pct || 0), 0);
+    const sumEl = $("wp-sum");
+    const wasBad = sumEl.dataset.bad;
+    sumEl.dataset.bad = Math.abs(sum - 100) < 0.01 ? "0" : "1";
+    sumEl.innerHTML = `Katkı toplamı <span class="mono">${fmt(sum)} / 100</span>`;
+    if (wasBad && wasBad !== sumEl.dataset.bad) replay(sumEl.querySelector(".mono"), "bump");
+  }
+
+  function renderCounters() {
+    document.querySelectorAll(".counter").forEach((el) => {
+      const key = el.dataset.for; const t = state.text[key] || "";
+      if (key === "kaynak") {
+        const refs = refLines(t); const doi = refs.filter((r) => RX_DOI.test(r)).length;
+        el.innerHTML = `<span>${refs.length} kaynak · ${doi} tanesinde DOI</span>`;
+        return;
+      }
+      const lim = LIMITS[key];
+      const w = words(t), c = chars(t);
+      let st = "", shown = `${w} kelime · ${c} karakter`;
+      if (lim) {
+        const n = lim.unit === "kelime" ? w : c;
+        st = n === 0 ? "bos" : n < lim.min ? "eksik" : (lim.max && n > lim.max) ? "fazla" : "uygun";
+        shown = lim.unit === "kelime" ? `${w} / ${lim.min}–${lim.max} kelime` : `${c} / en az ${lim.min} karakter`;
+        const bar = document.querySelector(`.lenbar[data-for="${key}"]`);
+        if (bar) {
+          const target = lim.max || lim.min * 2;
+          bar.dataset.state = st;
+          bar.firstElementChild.style.width = `${Math.min(n / target, 1) * 100}%`;
+        }
+      }
+      const prev = el.dataset.state;
+      el.dataset.state = st;
+      el.innerHTML = `<span class="mono">${shown}</span>${lim && lim.unit === "karakter" ? `<span>${w} kelime</span>` : `<span>${c} karakter</span>`}`;
+      if (prev !== undefined && prev !== st && st === "uygun") replay(el.querySelector(".mono"), "bump");
+    });
+  }
+
+  const CIRC = 2 * Math.PI * 31;
+  let shownPassed = 0, firstReport = true;
+  let prevKeys = new Set();
+
+  function renderReport() {
+    const { results, tips: T } = evaluate();
+    const applicable = results.filter((r) => r.applies);
+    const passed = applicable.filter((r) => r.pass);
+
+    const scoreEl = $("score");
+    const total = applicable.length;
+    const fromP = shownPassed;
+    countTo(scoreEl, fromP, passed.length, (v) => `${v}/${total}`);
+    if (!firstReport && passed.length > fromP) replay(scoreEl, "bump");
+    shownPassed = passed.length;
+    const ratio = total ? passed.length / total : 0;
+    $("ring-fg").style.strokeDashoffset = String(CIRC * (1 - ratio));
+    countTo($("ring-pct"), Math.round((fromP / (total || 1)) * 100), Math.round(ratio * 100), (v) => `${v}%`);
+
+    const meter = $("meter");
+    meter.innerHTML = applicable.map((r, i) => `<i style="--i:${i}" class="${r.pass ? "ok" : r.rule.sev === "bad" ? "bad" : "warn"}" title="${esc(r.rule.title)}"></i>`).join("");
+    if (firstReport) replay(meter, "intro");
+
+    const bad = results.filter((r) => !r.pass && r.applies && r.rule.sev === "bad").reduce((a, r) => a + r.issues.length, 0);
+    const warn = results.filter((r) => !r.pass && r.applies && r.rule.sev === "warn").reduce((a, r) => a + r.issues.length, 0);
+    $("ring").dataset.tone = bad ? "bad" : warn ? "warn" : "ok";
+    $("pills").innerHTML =
+      (bad ? `<span class="pill bad">${bad} düzelt</span>` : "") +
+      (warn ? `<span class="pill warn">${warn} gözden geçir</span>` : "") +
+      (T.length ? `<span class="pill tip">${T.length} ipucu</span>` : "") +
+      (!bad && !warn ? `<span class="pill okp">Kurallara uygun</span>` : "");
+
+    const items = [];
+    for (const sev of ["bad", "warn"]) {
+      for (const r of results.filter((x) => !x.pass && x.applies && x.rule.sev === sev)) {
+        for (const is of r.issues) items.push({ sev, sec: is.sec || r.rule.sec, msg: is.msg, hint: is.hint, id: r.rule.id });
+      }
+    }
+    for (const t of T) if (t.msg) items.push({ sev: "tip", sec: t.sec, msg: t.msg, hint: t.hint, id: "tip" });
+
+    const label = { bad: "Düzelt", warn: "Gözden geçir", tip: "İpucu" };
+    const keys = new Set();
+    let n = 0;
+    $("findings").innerHTML = items.length
+      ? items.map((f) => {
+          const k = `${f.sev}|${f.msg}`; keys.add(k);
+          const isNew = !prevKeys.has(k);
+          return `<button type="button" class="finding ${f.sev}${isNew ? " enter" : ""}" style="--i:${isNew ? n++ : 0}" data-sec="${f.sec || ""}" data-rule="${f.id}">
+          <span class="where">${label[f.sev]}${f.sec ? " · " + esc(SECTIONS[f.sec]) : ""}</span>
+          <span>${esc(f.msg)}</span>${f.hint ? `<span class="hint">${esc(f.hint)}</span>` : ""}</button>`;
+        }).join("")
+      : `<div class="empty-ok">Bilgi notundaki kuralların hepsi tamam görünüyor. Son kontrol için TYBS önizlemesine bak.</div>`;
+    prevKeys = keys;
+
+    $("passed-list").innerHTML = passed.map((r) => `<li>${esc(r.rule.title)}</li>`).join("") || "<li>Henüz yok</li>";
+    $("passed").querySelector("summary").textContent = `Tamam olan kurallar (${passed.length})`;
+    lastReport = { applicable: applicable.length, passed: passed.length, items };
+    firstReport = false;
+  }
+
+  let lastReport = null;
+  let timer = null;
+  function update() {
+    renderCounters();
+    renderGantt();
+    clearTimeout(timer);
+    timer = setTimeout(() => { renderReport(); save(); }, 120);
+  }
+
+  function setNotice() {
+    $("notice-text").textContent = isSample
+      ? "Örnek bir başvuru yüklü; içinde bilerek bırakılmış hatalar var. Kendi metnini yazınca taslağın bu tarayıcıda saklanır."
+      : "Taslağın yalnızca bu tarayıcıda saklanıyor. Metnin hiçbir yere gönderilmiyor.";
+  }
+
+  function load(data, sample) {
+    isSample = sample;
+    for (const k of TEXT_KEYS) { state.text[k] = (data.text && data.text[k]) || ""; $(k).value = state.text[k]; }
+    state.wp = (data.wp || []).map((w) => ({ name: w.name || "", start: w.start ?? "", end: w.end ?? "", crit: w.crit || "", pct: w.pct ?? "" }));
+    growGantt = true; prevKeys = new Set();
+    renderWpRows();
+    setNotice();
+    renderCounters(); renderGantt(); renderReport();
+  }
+
+  function leaveSample() {
+    if (isSample) { isSample = false; setNotice(); }
+    if (!edited) { edited = true; track("ilk_duzenleme"); }
+  }
+
+  // ---------- Rapor metni ----------
+  function reportText() {
+    const label = { bad: "Düzelt", warn: "Gözden geçir", tip: "İpucu" };
+    const lines = [`2209-A Ön Kontrol: ${lastReport.passed}/${lastReport.applicable} kural tamam`, ""];
+    for (const sev of ["bad", "warn", "tip"]) {
+      const group = lastReport.items.filter((i) => i.sev === sev);
+      if (!group.length) continue;
+      lines.push(`${label[sev]}:`);
+      for (const i of group) lines.push(`- ${i.sec ? SECTIONS[i.sec] + ": " : ""}${i.msg}`);
+      lines.push("");
+    }
+    return lines.join("\n").trim();
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (err) {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch (e2) { ok = false; }
+      ta.remove();
+      return ok;
+    }
+  }
+
+  // ---------- Olaylar ----------
+  $("form").addEventListener("submit", (e) => e.preventDefault());
+  $("form").addEventListener("input", (e) => {
+    const t = e.target;
+    if (t.dataset.key) state.text[t.dataset.key] = t.value;
+    else if (t.dataset.f) state.wp[+t.dataset.i][t.dataset.f] = t.value;
+    else return;
+    leaveSample();
+    update();
+  });
+  wpBody.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-del]");
+    if (!b) return;
+    state.wp.splice(+b.dataset.del, 1);
+    leaveSample(); renderWpRows(); update();
+  });
+  $("btn-add-wp").addEventListener("click", () => {
+    const last = state.wp[state.wp.length - 1];
+    const start = last && +last.end ? Math.min(+last.end + 1, 12) : 1;
+    state.wp.push({ name: "", start, end: start, crit: "", pct: "" });
+    newRow = state.wp.length - 1; growGantt = true;
+    leaveSample(); renderWpRows(); update();
+    $(`wp-name-${state.wp.length - 1}`).focus();
+  });
+  $("btn-sample").addEventListener("click", () => load(SAMPLE, true));
+
+  let armTimer = null;
+  $("btn-clear").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    if (!b.classList.contains("armed")) {
+      b.classList.add("armed"); b.textContent = "Silmek için tekrar tıkla";
+      clearTimeout(armTimer);
+      armTimer = setTimeout(() => { b.classList.remove("armed"); b.textContent = "Formu temizle"; }, 3500);
+      return;
+    }
+    clearTimeout(armTimer); b.classList.remove("armed"); b.textContent = "Formu temizle";
+    load({ text: {}, wp: [{ name: "", start: 1, end: 1, crit: "", pct: "" }] }, false);
+    save();
+    track("ornek_temizlendi");
+    $("ozet").focus();
+  });
+
+  $("findings").addEventListener("click", (e) => {
+    const f = e.target.closest(".finding");
+    if (!f || !f.dataset.sec) return;
+    const field = $("f-" + f.dataset.sec);
+    if (!field) return;
+    track("bulguya_tiklandi", f.dataset.rule);
+    field.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+    field.classList.remove("flash"); void field.offsetWidth; field.classList.add("flash");
+    setTimeout(() => field.classList.remove("flash"), 1400);
+    const input = field.querySelector("textarea, input");
+    if (input) setTimeout(() => input.focus({ preventScroll: true }), 300);
+  });
+
+  function flashStatus(id, msg) {
+    const status = $(id);
+    status.textContent = msg;
+    clearTimeout(status._t);
+    status._t = setTimeout(() => { status.textContent = ""; }, 4000);
+  }
+
+  $("btn-copy").addEventListener("click", async () => {
+    if (!lastReport) return;
+    const ok = await copyText(reportText());
+    if (ok) track("rapor_kopyalandi", scoreBand(lastReport.passed));
+    flashStatus("copy-status", ok ? "Rapor kopyalandı. Danışmanına yapıştırabilirsin." : "Kopyalanamadı. Raporu elle seçip kopyala.");
+  });
+
+  $("btn-download").addEventListener("click", () => {
+    if (!lastReport) return;
+    const d = new Date();
+    const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const name = `2209-A Ön Kontrol Raporu ${stamp}.txt`;
+    try {
+      const url = URL.createObjectURL(new Blob(["﻿" + reportText() + "\n"], { type: "text/plain;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      track("rapor_indirildi", scoreBand(lastReport.passed));
+      flashStatus("copy-status", `“${name}” indirildi. İndirme başlamadıysa “Raporu kopyala”yı kullan.`);
+    } catch (e) {
+      flashStatus("copy-status", "İndirilemedi. “Raporu kopyala”yı kullan.");
+    }
+  });
+
+  const PAGE_URL = "https://osmancancetlenbik.com/araclar/2209a-on-kontrol";
+  $("btn-share-copy").addEventListener("click", async () => {
+    const ok = await copyText(PAGE_URL);
+    flashStatus("share-status", ok ? "Bağlantı kopyalandı." : PAGE_URL);
+  });
+
+  // ---------- Tema ----------
+  const THEME_KEY = "on-kontrol-2209a-tema";
+  const themeBtn = $("btn-theme");
+  const isDark = () => {
+    const t = document.documentElement.dataset.theme;
+    return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  };
+  const syncThemeBtn = () => { themeBtn.textContent = isDark() ? "Açık tema" : "Koyu tema"; };
+  try { const t = localStorage.getItem(THEME_KEY); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) { /* depolama kapalı */ }
+  syncThemeBtn();
+  themeBtn.addEventListener("click", () => {
+    const next = isDark() ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* depolama kapalı */ }
+    syncThemeBtn();
+  });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", syncThemeBtn);
+
+  // ---------- Geri sayım ----------
+  const OPEN = new Date("2026-10-07T00:00:00+03:00").getTime();
+  const DEADLINE = new Date("2026-11-11T17:30:00+03:00").getTime();
+  function renderDeadline() {
+    const now = Date.now();
+    const ms = DEADLINE - now;
+    const pct = Math.max(0, Math.min(1, (now - OPEN) / (DEADLINE - OPEN))) * 100;
+    $("track-fill").style.width = `${pct}%`;
+    $("track").setAttribute("aria-valuenow", String(Math.round(pct)));
+    if (ms <= 0) { $("countdown").innerHTML = `<span class="cd-done">Süre doldu</span>`; return; }
+    const set = (id, v) => { const el = $(id); const s = String(v); if (el.textContent !== s) { el.textContent = s; replay(el, "bump"); } };
+    set("cd-d", Math.floor(ms / 86400000));
+    set("cd-h", Math.floor((ms % 86400000) / 3600000));
+    set("cd-m", Math.floor((ms % 3600000) / 60000));
+  }
+  requestAnimationFrame(renderDeadline);
+  setInterval(renderDeadline, 30000);
+
+  // ---------- Kaydırınca hafif yükselme (öğeler hep görünür kalır) ----------
+  if ("IntersectionObserver" in window && !reduceMotion()) {
+    document.documentElement.classList.add("js");
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) if (en.isIntersecting) { en.target.classList.remove("below"); io.unobserve(en.target); }
+    }, { rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".lift").forEach((el) => {
+      if (el.getBoundingClientRect().top > innerHeight) { el.classList.add("below"); io.observe(el); }
+    });
+  }
+
+  // ---------- Başlangıç ----------
+  const saved = loadSaved();
+  load(saved || SAMPLE, !saved);
+  const ref = /linkedin/i.test(document.referrer) ? "linkedin" : /whatsapp/i.test(document.referrer) ? "whatsapp" : document.referrer ? "diger" : "dogrudan";
+  track("sayfa_gorundu", ref);
+})();
+</script>

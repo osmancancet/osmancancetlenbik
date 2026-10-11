@@ -1,0 +1,40 @@
+/* Aracın renk ve yazı belirteçleri sitenin değişkenlerinden türetilir (globals.css).
+   Sitede karşılığı olmayan durum renkleri (düzelt/gözden geçir) burada tanımlıdır. */
+.tokens {
+  --paper: var(--bg-soft);
+  --surface: var(--bg-card);
+  --ink: var(--fg);
+  --muted: var(--fg-muted);
+  --line: var(--border-strong);
+  --accent-ink: var(--bg);
+  --bad: #ff6b5e;
+  --bad-soft: rgb(255 107 94 / 13%);
+  --warn: #ffb547;
+  --warn-soft: rgb(255 181 71 / 13%);
+  --ok: var(--accent);
+  --ok-soft: var(--accent-soft);
+  --tip: var(--fg-muted);
+  --tip-soft: rgb(128 128 128 / 14%);
+  --shadow: 0 10px 30px -14px rgb(0 0 0 / 70%);
+  --font-display: var(--font-geist-sans), system-ui, sans-serif;
+  --font-body: var(--font-geist-sans), system-ui, sans-serif;
+  --radius: 10px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+:global([data-theme="light"]) .tokens {
+  --bad: #b42318; --bad-soft: #fdecea; --warn: #9a5a06; --warn-soft: #fcf0dc;
+  --tip-soft: #edf0f5; --shadow: 0 10px 30px -14px rgb(0 0 0 / 20%);
+}
+.tokens :global(.mono) { font-family: var(--font-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.tokens :global(.eyebrow) { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.tokens h2, .tokens h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+.tokens p { margin: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .tokens :global(.bump) { animation: bump .45s var(--ease); }
+}
+@keyframes bump { 40% { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) {
+  .tokens *, .tokens *::before, .tokens *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
+}

@@ -24,7 +24,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
 
   useEffect(() => {
-    const stored = (localStorage.getItem("theme") as Theme | null) ?? null;
+    // Site verisi engellenmiş tarayıcılarda localStorage erişimi hata fırlatır;
+    // yakalanmazsa bütün sayfa çöküyor.
+    let stored: Theme | null = null;
+    try {
+      stored = localStorage.getItem("theme") as Theme | null;
+    } catch {}
     if (stored === "light" || stored === "dark") {
       setThemeState(stored);
       document.documentElement.setAttribute("data-theme", stored);

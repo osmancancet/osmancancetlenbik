@@ -12,9 +12,12 @@ import { EmbedMode } from "@/components/tools/EmbedMode";
 export function ToolShell({
   slug,
   children,
+  wide = false,
 }: {
   slug: string;
   children: ReactNode;
+  /** Yan panelli araçlar (ör. 2209-A Ön Kontrol) için geniş kap. */
+  wide?: boolean;
 }) {
   const tool = getTool(slug);
   if (!tool) return null;
@@ -25,7 +28,7 @@ export function ToolShell({
       <Suspense fallback={null}>
         <EmbedMode />
       </Suspense>
-      <div className="relative max-w-4xl mx-auto">
+      <div className={`relative mx-auto ${wide ? "max-w-6xl" : "max-w-4xl"}`}>
         <Link
           href="/araclar"
           data-arac-geri
