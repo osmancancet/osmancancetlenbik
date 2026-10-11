@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   alternates: canonicalOnly("/yazilarim"),
 };
 
-export const revalidate = 60;
+// İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
+// anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
+export const revalidate = 86400;
 
 export default async function YazilarimPage() {
   const posts = await prisma.post.findMany({

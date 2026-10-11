@@ -11,6 +11,7 @@ import {
   Radio,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { courseWeekParams } from "@/lib/staticParams";
 import { Reveal } from "@/components/ui/Reveal";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
@@ -25,7 +26,13 @@ function weekHasContent(w: WeekLike): boolean {
   return Boolean(w.notes || w.slides || w.resources || w.presentationSlug);
 }
 
-export const revalidate = 300;
+// İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
+// anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
+export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  return courseWeekParams();
+}
 
 export async function generateMetadata({
   params,

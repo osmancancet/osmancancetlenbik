@@ -13,7 +13,9 @@ export const metadata: Metadata = {
   alternates: canonicalOnly("/konferanslarim"),
 };
 
-export const revalidate = 300;
+// İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
+// anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
+export const revalidate = 86400;
 
 export default async function KonferanslarimPage() {
   const conferences = await prisma.conference.findMany({

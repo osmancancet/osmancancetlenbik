@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { refreshPublicPages } from "@/lib/revalidate";
 import { isAuthenticated } from "@/lib/auth";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -46,5 +47,6 @@ export async function POST(req: Request, { params }: Ctx) {
       presentationSlug: body.presentationSlug || null,
     },
   });
+  refreshPublicPages();
   return NextResponse.json({ week });
 }

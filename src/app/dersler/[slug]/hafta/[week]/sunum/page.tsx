@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { SlideDeck } from "@/components/SlideDeck";
-import { PresentationHost } from "@/components/PresentationHost";
+import { courseWeekParams } from "@/lib/staticParams";
+import { WeekSlides } from "@/components/WeekSlides";
 import type { Metadata } from "next";
 
 // Slayt görüntüleyici: hafta sayfasının içeriğini tekrar eder ve JavaScript
@@ -11,17 +12,20 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const revalidate = 300;
+// İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
+// anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
+export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  return courseWeekParams();
+}
 
 export default async function CourseWeekSlidesPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string; week: string }>;
-  searchParams: Promise<{ format?: string }>;
 }) {
   const { slug, week } = await params;
-  const { format } = await searchParams;
   const course = await prisma.course.findUnique({ where: { slug } });
   if (!course) notFound();
 
@@ -37,17 +41,16 @@ export default async function CourseWeekSlidesPage({
 
   const backHref = `/dersler/${course.slug}/hafta/${w.weekNumber}`;
 
-  // React component sunum varsa onu kullan, yoksa markdown SlideDeck.
-  // `?format=markdown` ikisi birden varken yazılı slaytları açar.
-  if (w.presentationSlug && format !== "markdown") {
-    return <PresentationHost slug={w.presentationSlug} backHref={backHref} />;
-  }
-
+  // `searchParams` burada okunmuyor: okunursa sayfa önbelleğe alınamaz ve
+  // her istekte yeniden render edilir. Görüntüleyici seçimi WeekSlides'ta.
   return (
-    <SlideDeck
-      content={w.slides ?? ""}
-      title={`${course.title} · ${w.weekNumber}. Hafta — ${w.topic}`}
-      backHref={backHref}
-    />
+    <Suspense fallback={null}>
+      <WeekSlides
+        presentationSlug={w.presentationSlug}
+        slides={w.slides ?? ""}
+        title={`${course.title} · ${w.weekNumber}. Hafta — ${w.topic}`}
+        backHref={backHref}
+      />
+    </Suspense>
   );
 }
