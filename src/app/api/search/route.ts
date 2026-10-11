@@ -35,6 +35,13 @@ const STATIC_PAGES: SearchResult[] = [
   { id: "p-projects", type: "page", title: "Projeler", href: "/projeler" },
   { id: "p-contact", type: "page", title: "İletişim", href: "/iletisim" },
   { id: "p-announce", type: "page", title: "Duyurular", href: "/duyurular" },
+  {
+    id: "p-events",
+    type: "page",
+    title: "Etkinlik Radarı",
+    description: "Başvurusu açık hackathon, datathon, game jam ve CTF'ler",
+    href: "/etkinlikler",
+  },
   { id: "p-en", type: "page", title: "English", href: "/en" },
   {
     id: "p-tools",
