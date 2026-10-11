@@ -18,7 +18,7 @@ export function Hazirlayan() {
         <div className={s.links}>
           <Link className={`${s.btn} ${s.primary}`} href="/araclar">Diğer akademik araçlar</Link>
           <Link className={s.btn} href="/hakkimda">Hakkımda</Link>
-          <a className={s.btn} href={profile.socials.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+          <a className={s.btn} href={profile.socials.linkedin} target="_blank" rel="noopener">LinkedIn profilim</a>
           <Link className={s.btn} href="/iletisim">Geri bildirim gönder</Link>
         </div>
         <PaylasBaglantilari />
