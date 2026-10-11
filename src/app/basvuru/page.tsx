@@ -15,7 +15,9 @@ import {
   Code2,
   CheckCircle2,
   CalendarClock,
+  Radar,
 } from "lucide-react";
+import Link from "next/link";
 
 const TITLE = "Yarışma Takımı Başvurusu";
 const DESCRIPTION =
@@ -115,6 +117,16 @@ export default function BasvuruPage() {
               ))}
             </ul>
           </div>
+
+          <Link
+            href="/etkinlikler"
+            className="card rounded-lg p-4 flex items-center gap-3 group"
+          >
+            <Radar className="w-4 h-4 text-[var(--accent)] shrink-0" />
+            <span className="text-sm text-[var(--fg-muted)] group-hover:text-[var(--accent)] transition-colors">
+              Başvurusu açık yarışmaları Etkinlik Radarı’nda görün
+            </span>
+          </Link>
 
           {APPLICATION_DEADLINE && open && (
             <div className="card rounded-lg p-4 flex items-center gap-3">

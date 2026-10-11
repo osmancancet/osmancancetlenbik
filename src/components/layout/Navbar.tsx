@@ -58,6 +58,7 @@ const secondary: Record<Locale, NavLink[]> = {
     { href: "/kitaplar", label: "Kitaplarım" },
     { href: "/cv", label: "Özgeçmiş" },
     { href: "/duyurular", label: "Duyurular" },
+    { href: "/etkinlikler", label: "Etkinlik Radarı" },
     { href: "/basin", label: "Basında" },
   ],
   en: [],
