@@ -1,8 +1,10 @@
 **In September 2026, rental cars used by the Norwegian armed forces quietly recorded who got into them, where they went and the access codes soldiers typed at gates. Weeks later, it emerged that Türkiye's leading defense companies, ASELSAN, ROKETSAN, HAVELSAN and TEI, no longer allow foreign electric cars on their campuses. This article explains the technology behind both stories through 11 vulnerability classes, 33 sources and a set of practical recommendations.**
 
+*Türkçe sürüm: [Otoparktaki Casus](/yazilarim/bagli-araclar-savunma-tesisleri-11-zafiyet)*
+
 > The largest connected device entering a secure site is no longer a phone. It is a car. We make visitors leave their phones at the gate, while cars drive in with cameras, a modem and someone else's software.
 
-### At a glance: 7 numbers that matter
+### At a glance: seven numbers
 
 - **200+** electronic sensors: what Norway's National Security Authority (NSM) says a modern car can carry.
 - **800,000** EVs had their data exposed by a single misconfigured cloud bucket (VW Group / Cariad, 2024).
@@ -20,7 +22,7 @@ A modern car, with its cameras, satellite positioning receiver, built-in SIM car
 
 **Keywords:** connected vehicles, telematics, OTA, TCU, data sovereignty, critical infrastructure, defense industry, UNECE R155
 
-**Method:** This work relies on public sources: news agencies, official statements, peer-reviewed conference papers and responsible-disclosure reports by security researchers. Every fact is checked against at least one source that was opened and read; inferences drawn from documented incidents are marked as "inference" or "author's assessment". No original testing was performed on any vehicle.
+**Method:** This work relies on public sources: news agencies, official statements, peer-reviewed conference papers and responsible-disclosure reports by security researchers. Every fact is verified against at least one source listed in the references; inferences drawn from documented incidents are marked as "inference" or "author's assessment". No original testing was performed on any vehicle.
 
 ## 1. Introduction: when soldiers were recorded by their own cars
 
@@ -173,7 +175,7 @@ Very different regimes reached the same conclusion: near sensitive sites, a conn
 
 **The limits of R155/R156.** These regulations check that manufacturers manage cyber risk and ship updates securely. They do not regulate which country stores the data, who holds the signing keys or which state can demand access (inference from their scope). A car can pass type approval and still be unsuitable for a defense site.
 
-**A striking symmetry.** The measure China took for its own military in 2021 and the measures taken today by the US, Israel, Poland and Turkish defense companies rest on the same logic: a connected car controlled by someone else does not enter a sensitive area.
+**A notable symmetry.** The measure China took for its own military in 2021 and the measures taken today by the US, Israel, Poland and Turkish defense companies rest on the same logic: a connected car controlled by someone else does not enter a sensitive area.
 
 ## 7. What does this mean for Türkiye?
 
@@ -283,11 +285,9 @@ Even if you don't work at a defense site, your location history, home address an
 
 **Osman Can Çetlenbik** is a lecturer in the Big Data Analytics Program at Manisa Celal Bayar University's Vocational School of Technical Sciences and deputy director of the university's Computer Application and Research Center. He holds a BSc in Computer Engineering from Süleyman Demirel University and an MSc from Isparta University of Applied Sciences. His research focuses on phishing detection, social engineering and IoT security, including the TurkPhish v2 corpus of Turkish phishing emails and work on detecting false data injection attacks in smart grids, both published in 2026. He is the author of "TIKLA(MA): The Art of Hacking the Human Mind" (in Turkish) and provides penetration testing and cybersecurity training to organizations. ([AVESİS](https://avesis.mcbu.edu.tr/osman.cetlenbik))
 
-*Turkish version of this article: [Otoparktaki Casus](/yazilarim/bagli-araclar-savunma-tesisleri-11-zafiyet)*
-
 ## Sources
 
-All sources were opened and read as of 12 October 2026. Dagens Næringsliv's original report is paywalled, so its content was verified through VG and Norway News.
+Accessed 12 October 2026. The content of Dagens Næringsliv's paywalled report was verified through VG and Norway News.
 
 1. TRT Haber / AA, [TUSAŞ Motor Sanayii Genel Müdürü Akşit: Yabancı elektrikli arabaları kampüsün içine sokmuyoruz](https://www.trthaber.com/haber/savunma/tusas-motor-sanayii-genel-muduru-aksit-yabanci-elektrikli-arabalari-kampusun-icine-sokmuyoruz-959795.html), 11 October 2026.
 2. TRT Haber / AA, [Norveç'teki askeri tatbikatta kiralık araçların hassas bilgileri kaydettiği ileri sürüldü](https://www.trthaber.com/haber/dunya/norvecteki-askeri-tatbikatta-kiralik-araclarin-hassas-bilgileri-kaydettigi-ileri-suruldu-959933.html), 12 October 2026.

@@ -1,15 +1,17 @@
 **Eylül 2026'da Norveç ordusunun kiraladığı araçlar, askerlerin kimin aracına bindiğini, nereye gittiğini ve kapı şifrelerini kendiliğinden kaydetti. Birkaç hafta sonra ASELSAN, ROKETSAN, HAVELSAN ve TEI'nin yabancı elektrikli araçları kampüslerine almadığı açıklandı. Bu yazı, iki haberin arkasındaki teknolojiyi 11 zafiyet sınıfı, 33 kaynak ve dikkate alınabilecek önerilerle ele alıyor.**
 
+*English version: [The Spy in the Parking Lot](/yazilarim/connected-cars-defense-sites-11-vulnerabilities)*
+
 > Bir tesise giren en büyük bağlı cihaz artık bir telefon değil, bir otomobildir. Telefonu kapıda bıraktırıyoruz; otomobil ise kameraları, modemi ve başkasının yazılımıyla içeri giriyor.
 
-### Bir bakışta: 7 çarpıcı rakam
+### Bir bakışta: yedi rakam
 
 - **200+** elektronik sensör: Norveç Ulusal Güvenlik Otoritesi'ne (NSM) göre modern bir araçta bulunabilecek sensör sayısı.
 - **800.000** elektrikli aracın verisi tek bir yanlış yapılandırılmış bulut deposundan açığa çıktı (VW/Cariad, 2024).
 - **30 saniye:** Araştırmacıların yalnızca plaka numarasıyla bir Kia'nın kilidini açıp konumunu izlemesine yetti (2024).
 - **3 saniyede bir:** FTC'ye göre GM, sürücülerin konumunu bu sıklıkla kaydedip satılan bir veriye dönüştürdü.
 - **%84:** Mozilla'nın incelediği 25 otomobil markasından kişisel veriyi üçüncü taraflarla paylaşabilenlerin oranı.
-- **100 dolar:** Lastik basınç sensörlerinden araçları kameradsız izlemeye yeten alıcının yaklaşık maliyeti (2026).
+- **100 dolar:** Lastik basınç sensörlerinden araçları kamerasız izlemeye yeten alıcının yaklaşık maliyeti (2026).
 - **2027:** ABD'nin Çin ve Rusya bağlantılı araç yazılımlarını yasakladığı model yılı.
 
 **Bu yazıda:** bağlı aracın veri yolu · araca kimlerin erişebildiği · belgelenmiş 11 zafiyet · bir savunma tesisi için altı senaryo · dünyadaki yasaklar · Türkiye'deki durum · kurumlar ve bireyler için öneriler · sık sorulan sorular.
@@ -20,7 +22,7 @@ Modern bir otomobil; kameraları, uydu konumlama alıcısı, kendi SIM kartı ve
 
 **Anahtar kelimeler:** bağlı araç, telematik, OTA, TCU, veri egemenliği, kritik altyapı, savunma sanayii, UNECE R155
 
-**Yöntem:** Çalışma kamuya açık kaynaklara dayanır: haber ajansları, resmi kurum açıklamaları, hakemli konferans bildirileri ve güvenlik araştırmacılarının sorumlu ifşa raporları. Her olgu en az bir açılmış kaynakla doğrulanmıştır; belgelenmiş olaylardan yapılan çıkarımlar metinde "çıkarım" ya da "yazarın değerlendirmesi" olarak işaretlenmiştir. Hiçbir araç üzerinde özgün test yapılmamıştır.
+**Yöntem:** Çalışma kamuya açık kaynaklara dayanır: haber ajansları, resmi kurum açıklamaları, hakemli konferans bildirileri ve güvenlik araştırmacılarının sorumlu ifşa raporları. Her olgu kaynakçada yer alan en az bir kaynakla doğrulanmıştır; belgelenmiş olaylardan yapılan çıkarımlar metinde "çıkarım" ya da "yazarın değerlendirmesi" olarak işaretlenmiştir. Hiçbir araç üzerinde özgün test yapılmamıştır.
 
 ## 1. Giriş: Askerler kendi araçlarında kayda alındığında
 
@@ -120,7 +122,7 @@ OTA, güvenlik yamalarını hızla dağıtmanın en iyi yoludur; ama aynı kanal
 ### Z7. Kısa menzilli kablosuz arayüzler
 
 - **Bluetooth:** PerfektBlue olarak adlandırılan dört açık, OpenSynergy BlueSDK yığını üzerinden Mercedes-Benz, Volkswagen ve Škoda araçlarının bilgi-eğlence sisteminde kod çalıştırmayı, konumu izlemeyi ve ses kaydetmeyi mümkün kıldı. Saldırı yakın mesafe ve eşleşme gerektiriyor; yamalar Eylül 2024'te dağıtıldı ([The Hacker News](https://thehackernews.com/2025/07/perfektblue-bluetooth-vulnerabilities.html)).
-- **Lastik basınç sensörleri (TPMS):** IMDEA Networks, tanesi yaklaşık 100 dolarlık alıcılarla 10 haftada 20.000'den fazla aracın TPMS sinyalini topladı. Sensörler benzersiz kimliklerini şifresiz yayınlıyor ve 50 metreden uzağa ulaşıyor; bu, bir aracın tesise kaç kez girdiğinin kameradsız izlenebilmesi demek ([IMDEA Networks](https://networks.imdea.org/your-cars-tire-sensors-could-be-used-to-track-you/)).
+- **Lastik basınç sensörleri (TPMS):** IMDEA Networks, tanesi yaklaşık 100 dolarlık alıcılarla 10 haftada 20.000'den fazla aracın TPMS sinyalini topladı. Sensörler benzersiz kimliklerini şifresiz yayınlıyor ve 50 metreden uzağa ulaşıyor; bu, bir aracın tesise kaç kez girdiğinin kamerasız izlenebilmesi demek ([IMDEA Networks](https://networks.imdea.org/your-cars-tire-sensors-could-be-used-to-track-you/)).
 
 ### Z8. Araç içi ağ (CAN)
 
@@ -283,11 +285,9 @@ Savunma tesisinde çalışmıyor olsanız bile konum geçmişiniz, ev adresiniz 
 
 **Osman Can Çetlenbik**, Manisa Celal Bayar Üniversitesi Teknik Bilimler Meslek Yüksekokulu Büyük Veri Analistliği Programı'nda öğretim görevlisi ve üniversitenin Bilgisayar Uygulama ve Araştırma Merkezi müdür yardımcısıdır. Bilgisayar mühendisliği lisansını Süleyman Demirel Üniversitesi'nde, yüksek lisansını Isparta Uygulamalı Bilimler Üniversitesi'nde tamamladı. Oltalama tespiti, sosyal mühendislik ve IoT güvenliği üzerine çalışıyor; Türkçe oltalama e-postaları için geliştirdiği TurkPhish v2 derlemi ve akıllı şebekelerde sahte veri enjeksiyonu saldırılarının tespiti üzerine 2026'da yayımlanmış makaleleri bulunuyor. "TIKLA(MA): İnsan Zihnini Hackleme Sanatı" kitabının yazarıdır ve kurumlara sızma testi ile siber güvenlik eğitimi vermektedir. ([AVESİS](https://avesis.mcbu.edu.tr/osman.cetlenbik))
 
-*Bu yazının İngilizce sürümü: [The Spy in the Parking Lot](/yazilarim/connected-cars-defense-sites-11-vulnerabilities)*
-
 ## Kaynaklar
 
-Tüm kaynaklar 12 Ekim 2026 itibarıyla açılıp okunmuştur. Dagens Næringsliv'in ilk haberi abonelikli olduğu için içeriği VG ve Norway News üzerinden doğrulandı.
+Erişim tarihi: 12 Ekim 2026. Dagens Næringsliv'in abonelikli haberinin içeriği VG ve Norway News üzerinden doğrulanmıştır.
 
 1. TRT Haber / AA, [TUSAŞ Motor Sanayii Genel Müdürü Akşit: Yabancı elektrikli arabaları kampüsün içine sokmuyoruz](https://www.trthaber.com/haber/savunma/tusas-motor-sanayii-genel-muduru-aksit-yabanci-elektrikli-arabalari-kampusun-icine-sokmuyoruz-959795.html), 11 Ekim 2026.
 2. TRT Haber / AA, [Norveç'teki askeri tatbikatta kiralık araçların hassas bilgileri kaydettiği ileri sürüldü](https://www.trthaber.com/haber/dunya/norvecteki-askeri-tatbikatta-kiralik-araclarin-hassas-bilgileri-kaydettigi-ileri-suruldu-959933.html), 12 Ekim 2026.
@@ -317,11 +317,8 @@ Tüm kaynaklar 12 Ekim 2026 itibarıyla açılıp okunmuştur. Dagens Næringsli
 26. Claims Journal, [Tesla Model 3 GPS spoofing test by Regulus Cyber](https://www.claimsjournal.com/news/national/2019/06/19/291550.htm), 19 Haziran 2019.
 27. Schneier on Security, [Adversarial machine learning against Tesla's Autopilot](https://www.schneier.com/blog/archives/2019/04/adversarial_mac.html), Nisan 2019.
 28. NDSS Symposium, [Brokenwire: Wireless disruption of CCS electric vehicle charging](https://www.ndss-symposium.org/ndss-paper/brokenwire-wireless-disruption-of-ccs-electric-vehicle-charging), 2023.
-
-**Yayın sürümünde eklenen kaynaklar**
-
-- Ptolemus, [eCall to be mandatory on new car models from 31 March 2018](https://www.ptolemus.com/insight/ecall-to-be-mandatory-on-new-car-models-from-31-march-2018/).
-- The Next Web, [Every new EU car now needs a camera that watches the driver](https://thenextweb.com/news/eu-vehicle-safety-rules-gsr-phase-two), 9 Temmuz 2026.
-- AA / Politikam, [TOGG 2025'e damgasını vurdu](https://www.politikam.com/togg-2025e-damgasini-vurdu-tesla-ve-bydyi-geride-birakti-toggun-en-cok-satilan-modelleri-hangileri-oldu), 6 Temmuz 2025.
-- Erdem & Erdem, [Kişisel Verilerin Korunması Kanunu'nda neler değişti?](https://www.erdem-erdem.av.tr/bilgi-bankasi/kisisel-verilerin-korunmasi-kanununda-neler-degisti)
-- Alomaliye, [7545 sayılı Siber Güvenlik Kanunu](https://www.alomaliye.com/2025/03/19/7545-sayili-siber-guvenlik-kanunu/), 19 Mart 2025.
+29. Ptolemus, [eCall to be mandatory on new car models from 31 March 2018](https://www.ptolemus.com/insight/ecall-to-be-mandatory-on-new-car-models-from-31-march-2018/).
+30. The Next Web, [Every new EU car now needs a camera that watches the driver](https://thenextweb.com/news/eu-vehicle-safety-rules-gsr-phase-two), 9 Temmuz 2026.
+31. AA / Politikam, [TOGG 2025'e damgasını vurdu](https://www.politikam.com/togg-2025e-damgasini-vurdu-tesla-ve-bydyi-geride-birakti-toggun-en-cok-satilan-modelleri-hangileri-oldu), 6 Temmuz 2025.
+32. Erdem & Erdem, [Kişisel Verilerin Korunması Kanunu'nda neler değişti?](https://www.erdem-erdem.av.tr/bilgi-bankasi/kisisel-verilerin-korunmasi-kanununda-neler-degisti)
+33. Alomaliye, [7545 sayılı Siber Güvenlik Kanunu](https://www.alomaliye.com/2025/03/19/7545-sayili-siber-guvenlik-kanunu/), 19 Mart 2025.
