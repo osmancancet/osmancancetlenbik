@@ -1,4 +1,569 @@
 {
-  "updatedAt": null,
-  "events": []
+  "updatedAt": "2026-10-13T00:18:53+03:00",
+  "events": [
+    {
+      "id": "neova-ideathon-2026",
+      "name": "Neova İdeathon 2026",
+      "type": "İdeathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "Neova Sigorta",
+      "location": "İstanbul (Pendik, Turgut Özal Etkinlik Merkezi)",
+      "online": false,
+      "prize": "",
+      "url": "https://www.youthall.com/tr/etkinlikler/neova-ideathon-3/",
+      "deadline": "2026-10-16",
+      "eventDate": "6-7 Kasım 2026",
+      "summary": "Sigortacılığın geleceği temalı fikir maratonu; üniversite öğrencileri ve yeni mezunlar bireysel ya da takım olarak başvurabiliyor, kodlama şartı olmadan YZ tabanlı fikir geliştirmek için uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "henkel-next-idea-2026",
+      "name": "Henkel Next Idea 2026",
+      "type": "İdeathon",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Henkel Türkiye",
+      "location": "İstanbul (JUSTWork Ümraniye)",
+      "online": false,
+      "prize": "1.: Apple Watch SE; 2.: AirPods 4; 3.: Stanley termos",
+      "url": "https://kariyerpusulan.com/programlar/henkel-next-idea-2026",
+      "deadline": "2026-10-18",
+      "eventDate": "7 Kasım 2026",
+      "summary": "Gerçek bir marka vakası üzerine veri analizi ve fikir geliştirmeye dayalı tek günlük ideathon; tüm bölümlerden 3. ve 4. sınıf öğrencilerine açık, veri odaklı düşünen öğrenciler için iyi bir deneyim.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "hkcert-ctf-2026",
+      "name": "HKCERT CTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "HKCERT",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Finalde takım başına 11.000-16.000 HKD",
+      "url": "https://ctf.hkcert.org/",
+      "deadline": "2026-10-20",
+      "eventDate": "Ön eleme 6-7 Kasım 2026 (çevrim içi); final 7 Ocak 2027, Hong Kong",
+      "summary": "Uluslararası kategorisi olan köklü bir jeopardy CTF; ön elemede ilk 5'e giren uluslararası takımlar Hong Kong'daki finale çağrılıyor. Kayıt için 20 Ekim'e kadar takım oluşturmak gerekiyor.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "open-agent-hackathon-2026",
+      "name": "Open Agent Hackathon 2026",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "GenAI.Works",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "20.000 $'a varan ödül havuzu",
+      "url": "https://hackathon.genai.works/event/open-agent-hackathon-2026",
+      "deadline": "2026-10-22",
+      "eventDate": "22-27 Ekim 2026",
+      "summary": "Altı günde açık kaynak YZ ajanları geliştirdiğiniz, dünyaya açık çevrim içi bir maraton; ajan tabanlı sistemlerle uğraşan ekipler için kısa sürede portföye proje ekleme fırsatı.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "amazon-developer-hackathon-2026",
+      "name": "Amazon Developer Hackathon 2026",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "Amazon (Devpost)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 138.000 USD",
+      "url": "https://amazonappdev2026.devpost.com/",
+      "deadline": "2026-10-23",
+      "eventDate": "Son teslim 23 Ekim 2026",
+      "summary": "Alexa+, Fire TV, Ring ve Bee için uygulama/ajan geliştirme yarışması; reşit olan herkese açık çevrim içi format, büyük ödül havuzuyla mezunlar ve deneyimli öğrenciler için cazip.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "opencv-ai-competition-2026",
+      "name": "OpenCV AI Competition 2026",
+      "type": "YZ Yarışması",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "OpenCV ve AWS (Devpost)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 20.250 USD",
+      "url": "https://opencv26.devpost.com/",
+      "deadline": "2026-10-26",
+      "eventDate": "Son teslim 26 Ekim 2026",
+      "summary": "OpenCV 5 ve AWS ile 'gören, akıl yürüten ve eyleme geçen' bilgisayarlı görü sistemleri geliştirme yarışması; görüntü işleme projesi olan öğrenciler için uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "nebius-nvidia-global-ai-hackathon-2026",
+      "name": "Nebius x NVIDIA Global AI Hackathon",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "Nebius ve NVIDIA (Devpost)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "50.000 USD üzeri",
+      "url": "https://nebiusglobalaihackathon.devpost.com/",
+      "deadline": "2026-10-30",
+      "eventDate": "Son teslim 30 Ekim 2026",
+      "summary": "Açık kaynak NVIDIA modelleriyle ajan, kodlama ve fiziksel YZ projeleri geliştirilen küresel çevrim içi hackathon; LLM/ajan çalışan öğrenciler ve mezunlar için uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "water-ai-hackathon-2026",
+      "name": "Water AI Hackathon 2026 (WAH)",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Wilo Türkiye (imece)",
+      "location": "İstanbul",
+      "online": false,
+      "prize": "1.: Almanya WiloPark gezisi; 2.: kişi başı 30.000 TL; 3.: kişi başı 15.000 TL",
+      "url": "https://wilo.com/tr/tr/Water-AI-Hackathon-2026.html",
+      "deadline": "2026-10-30",
+      "eventDate": "5 Aralık 2026 (öncesinde zorunlu çevrim içi eğitim kampı)",
+      "summary": "Su teknolojilerinde yapay zeka çözümleri üzerine tek günlük hackathon; lisans ve lisansüstü öğrencilerine açık, 3-4 kişilik takımlarla bölüm fark etmeksizin katılınabiliyor.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "aimo-interpretability-challenge-2026",
+      "name": "AIMO Interpretability Challenge (NeurIPS 2026)",
+      "type": "YZ Yarışması",
+      "audience": [
+        "Akademisyen",
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "AIMO / NeurIPS 2026 Yarışma Programı",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 12.500 USD",
+      "url": "https://aimo-interp.github.io",
+      "deadline": "2026-11-01",
+      "eventDate": "Son gönderim 1 Kasım 2026; teknik rapor 15 Kasım 2026; çalıştay 12 Aralık 2026",
+      "summary": "Bir modelin olimpiyat problemi cevabının sağlam mı yoksa sahte örüntüye mi dayandığını açıklanabilirlik yöntemleriyle tespit etme yarışması; XAI ilgi alanıyla doğrudan örtüşüyor ve NeurIPS çalıştayında sunum fırsatı var.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "arc-prize-2026",
+      "name": "ARC Prize 2026 (ARC-AGI-2 / ARC-AGI-3 / Makale Ödülü)",
+      "type": "YZ Yarışması",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "ARC Prize Foundation (Kaggle)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 2 milyon USD",
+      "url": "https://arcprize.org/competitions/2026",
+      "deadline": "2026-11-02",
+      "eventDate": "Son teslim 2 Kasım 2026; makaleler 8 Kasım 2026",
+      "summary": "Akıl yürütme ve genelleme ölçen ARC-AGI kıyaslamaları üzerine Kaggle yarışması; makale ödülü kategorisi sayesinde akademisyenler için de yayın fırsatı sunuyor.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "paypal-ai-hackathon-2026",
+      "name": "PayPal AI Hackathon",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "PayPal (Devpost)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "67.500 USD üzeri",
+      "url": "https://paypalaihackathon.devpost.com/",
+      "deadline": "2026-11-12",
+      "eventDate": "Son teslim 12 Kasım 2026",
+      "summary": "PayPal API'leri ile yapay zekayı birleştiren serbest temalı çevrim içi hackathon; ajan tabanlı ticaret ve fintech projeleri için uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "meta-vr-start-developer-competition-2026",
+      "name": "Meta VR Start Developer Competition 2026",
+      "type": "Kodlama Yarışması",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "Meta",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 1 milyon $ (20.000-100.000 $ arası ödüller)",
+      "url": "https://start-developer-competition-26.devpost.com/",
+      "deadline": "2026-11-18",
+      "eventDate": "24 Eylül - 18 Kasım 2026",
+      "summary": "El takibiyle çalışan VR uygulamaları geliştirenlere eğlence, oyun ve verimlilik kategorilerinde büyük ödüller sunan yarışma; 18 yaş üstü ve Meta Start programına katılım gerekiyor.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "xylem-global-student-innovation-challenge-2026",
+      "name": "Xylem Global Student Innovation Challenge 2026",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Xylem / BeMyApp",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 20.000 $",
+      "url": "https://xyleminnovationchallenge.bemyapp.com/",
+      "deadline": "2026-11-20",
+      "eventDate": "28 Eylül - 20 Kasım 2026 (sekiz haftalık sanal hackathon)",
+      "summary": "Su güvenliği sorunlarına teknoloji ve veriyle çözüm arayan, 25 yaş altı üniversite öğrencilerine açık sanal bir yarışma; en fazla 5 kişilik takımlarla mentor desteğiyle çalışılıyor.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "game-off-2026",
+      "name": "GitHub Game Off 2026",
+      "type": "Game Jam",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "GitHub (itch.io)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://itch.io/jam/game-off-2026",
+      "deadline": "2026-12-01",
+      "eventDate": "1 Kasım – 1 Aralık 2026 (tema 1 Kasım'da açıklanacak)",
+      "summary": "Bir ay süren, açık kaynak kodlu oyun geliştirme maratonu; herhangi bir dil veya motorla katılınabiliyor, oyun geliştirmeye ilgili öğrenciler için düşük eşikli ve portfolyo dostu.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "mitre-ectf-2027",
+      "name": "MITRE Embedded CTF (eCTF) 2027",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Akademisyen"
+      ],
+      "organizer": "MITRE",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Nakit ödül yalnızca ABD'li katılımcılara; seyahat desteği olabilir",
+      "url": "https://ectf.mitre.org/",
+      "deadline": "2027-01-31",
+      "eventDate": "20 Ocak – 14 Nisan 2027 (ödül töreni 23 Nisan)",
+      "summary": "Üniversite takımlarının gömülü sistem tasarlayıp birbirlerinin sistemlerine saldırdığı dönem boyu süren CTF; uluslararası öğrencilere açık, öğretim elemanı danışmanlığıyla ders/proje olarak yürütülebilir. Erken kayıt avantajları 4 Kasım ve 2 Aralık'ta.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "backdoorctf-2026",
+      "name": "BackdoorCTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "InfoSecIITR (IIT Roorkee)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://backdoor.infoseciitr.in/",
+      "deadline": "",
+      "eventDate": "19-20 Aralık 2026",
+      "summary": "Üniversite kulübü tarafından düzenlenen, iyi derecelendirilmiş 24 saatlik çevrim içi Jeopardy CTF; öğrenci takımları için yıl sonu antrenmanı.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "brackeys-game-jam-2027-1",
+      "name": "Brackeys Game Jam 2027.1",
+      "type": "Game Jam",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "Brackeys (itch.io)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://itch.io/jam/brackeys-17",
+      "deadline": "",
+      "eventDate": "14 Şubat 2027'den itibaren 7 gün",
+      "summary": "Dünyanın en popüler çevrim içi game jam'lerinden biri; bir haftalık formatıyla öğrenci oyun geliştirme kulüpleri için uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "crate-ctf-2026",
+      "name": "Crate-CTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "İsveç Savunma Araştırma Ajansı (FOI)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://foi.se/cratectf",
+      "deadline": "",
+      "eventDate": "21 Kasım 2026",
+      "summary": "İsveç savunma araştırma kurumunun düzenlediği sekiz saatlik çevrim içi CTF; uluslararası takımlara açık, iletişim İngilizce yürüyebiliyor.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "deadface-ctf-2026",
+      "name": "DEADFACE CTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "DEADFACE / Cyber Hacktics",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "300 $ / 200 $ / 100 $",
+      "url": "https://ctf.deadface.io/",
+      "deadline": "",
+      "eventDate": "17-19 Ekim 2026",
+      "summary": "Hikâye kurgusu üzerine kurulu, yeni başlayanlara da uygun çevrim içi jeopardy CTF; adli bilişim ve OSINT görevleriyle hafta sonunu dolu dolu geçirmek isteyen takımlar için ideal.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "gdevelop-big-game-jam-10",
+      "name": "GDevelop BIG Game Jam #10",
+      "type": "Game Jam",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "GDevelop (itch.io)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://itch.io/jam/gdevelop-big-game-jam-10",
+      "deadline": "",
+      "eventDate": "6 Kasım 2026'dan itibaren 9 gün",
+      "summary": "GDevelop motoruyla yapılan, kalabalık katılımlı çevrim içi game jam; kodlama deneyimi az olan öğrencilerin de oyun üretebileceği bir etkinlik.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "glacierctf-2026",
+      "name": "GlacierCTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "LosFuzzys",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://glacierctf.com/",
+      "deadline": "",
+      "eventDate": "20-21 Kasım 2026",
+      "summary": "24 saatlik çevrim içi Jeopardy CTF; orta-ileri seviye öğrenci takımları için erişilebilir ve iyi derecelendirilmiş bir yarışma.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "hack-lu-ctf-2026",
+      "name": "Hack.lu CTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "FluxFingers / Hack.lu",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://flu.xxx/",
+      "deadline": "",
+      "eventDate": "23-25 Ekim 2026",
+      "summary": "Köklü, yüksek ağırlıklı çevrim içi Jeopardy CTF; öğrenci siber güvenlik takımlarının CTFtime sıralamasında puan toplaması için uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "hitcon-ctf-2026",
+      "name": "HITCON CTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "HITCON",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "1.: 8.000 USD; 2.: 4.000 USD; 3.: 2.000 USD",
+      "url": "https://ctf2026.hitcon.org/",
+      "deadline": "",
+      "eventDate": "23-25 Ekim 2026",
+      "summary": "Dünyanın üst düzey Jeopardy CTF'lerinden biri; deneyimli siber güvenlik takımları için iddialı bir sınav ve öğrenci CTF ekibi için iyi bir antrenman.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "lakectf-quals-2026",
+      "name": "LakeCTF Quals 26-27",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Akademisyen"
+      ],
+      "organizer": "EPFL",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Akademik kategoride ilk 10 takım konaklaması karşılanarak finale davet",
+      "url": "https://lakectf.epfl.ch/",
+      "deadline": "",
+      "eventDate": "27-28 Kasım 2026",
+      "summary": "Akademik takımlar için ayrı sıralaması olan çevrim içi Jeopardy CTF; üniversite CTF takımları finale davet şansı yakalayabiliyor, öğretim elemanı danışmanlığındaki takımlar için ideal.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "meta-student-hackathon-ytu-2026",
+      "name": "AI Builders Türkiye – Meta Student Hackathon 2026",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Meta ve YTÜ Startup House",
+      "location": "İstanbul (YTÜ Startup House)",
+      "online": false,
+      "prize": "Toplam 6.000 USD + ön kuluçka programı",
+      "url": "https://ytustartuphouse.com.tr/blog/ytu-startup-house-ve-meta-dan-lisans-ogrencilerine-ucretsiz-yapay-zeka-egitimi-student-hackathon-egitim-serisi-basvurulari-acildi",
+      "deadline": "",
+      "eventDate": "4-6 Aralık 2026 (takım başvuruları daha sonra açılacak)",
+      "summary": "18-26 yaş ön lisans/lisans öğrencilerine yönelik LLM odaklı hackathon; eğitim serisi başvurusu kapandı ancak hackathon takım başvuruları ayrıca duyurulacak, YZ'ye ilgili öğrenciler için takip edilmeli.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "nasa-space-apps-2026",
+      "name": "NASA Space Apps Challenge 2026",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "NASA ve ortak uzay ajansları",
+      "location": "Çorlu (Tekirdağ) ve çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://www.spaceappschallenge.org/",
+      "deadline": "",
+      "eventDate": "14-15 Kasım 2026",
+      "summary": "Dünyanın en büyük açık uzay/veri hackathonu; kayıt ve takım kurma açık, Türkiye'de yerel etkinlik ya da çevrim içi katılım mümkün. Öğrenci takımlarına danışmanlık için de uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "nfl-big-data-bowl-2027",
+      "name": "NFL Big Data Bowl 2027",
+      "type": "Datathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "NFL / AWS / Kaggle",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 100.000 $",
+      "url": "https://www.kaggle.com/competitions/nfl-big-data-bowl-2027",
+      "deadline": "",
+      "eventDate": "Kayıtlar açık; teslim tarihi Kaggle sayfasında",
+      "summary": "Oyuncu takip verileriyle spor analitiği yapılan Kaggle yarışması; sadece öğrencilere ayrılmış üniversite kategorisi var ve finalistler NFL ekiplerine sunum yapıyor.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "nitectf-2026",
+      "name": "niteCTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "Cryptonite (MIT Manipal)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://nitectf.cryptonitemit.in/",
+      "deadline": "",
+      "eventDate": "11-13 Aralık 2026",
+      "summary": "Öğrenci kulübünün düzenlediği, CTFtime ağırlığı yüksek 48 saatlik çevrim içi CTF; dönem sonu öncesi takımın seviyesini ölçmek için güzel bir fırsat.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "platypwn-2026",
+      "name": "Platypwn 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "Platypwnies",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://platypwnies.de/events/platypwn/",
+      "deadline": "",
+      "eventDate": "13-14 Kasım 2026",
+      "summary": "Kolaydan zora uzanan görevleriyle hem yeni başlayanlara hem deneyimli oyunculara hitap eden çevrim içi jeopardy CTF; kulüp takımları için iyi bir antrenman.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "securinets-ctf-quals-2026",
+      "name": "Securinets CTF Quals 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "Securinets",
+      "location": "Çevrim içi (final: Tunus)",
+      "online": true,
+      "prize": "",
+      "url": "https://ctf.securinets.tn/",
+      "deadline": "",
+      "eventDate": "17-18 Ekim 2026",
+      "summary": "Yüksek ağırlıklı çevrim içi Jeopardy CTF elemesi; dünya genelinde ilk 10 takım Tunus'taki yüz yüze finale davet ediliyor, iddialı öğrenci takımları için uygun.",
+      "firstSeen": "2026-10-12"
+    },
+    {
+      "id": "semeval-2027",
+      "name": "SemEval-2027 Paylaşılan Görevleri",
+      "type": "YZ Yarışması",
+      "audience": [
+        "Akademisyen",
+        "Öğrenci"
+      ],
+      "organizer": "SemEval / ACL SIGLEX",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://semeval.github.io/SemEval2027/tasks",
+      "deadline": "",
+      "eventDate": "Değerlendirme dönemi Ocak 2027 (göreve göre değişiyor)",
+      "summary": "11 NLP paylaşılan görevi (ör. LGBTQIA+ nefret söylemi, haber çerçeveleme, ajan risk değerlendirmesi, araç çağırma); sistem makalesi yayını için akademisyen ve lisansüstü öğrencilere uygun.",
+      "firstSeen": "2026-10-12"
+    }
+  ]
 }
