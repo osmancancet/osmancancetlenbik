@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 528" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif" role="img" aria-label="Dört zafiyet hem olası hem yıkıcı: kayıt, konum, bulut, hukuki erişim">
+<rect width="760" height="528" rx="12" fill="#ffffff"/>
+<text x="24" y="30" font-size="15" font-weight="600" fill="#1f2328" text-anchor="start" >Dört zafiyet hem olası hem yıkıcı: kayıt, konum, bulut, hukuki erişim</text>
+<text x="24" y="50" font-size="11.5" font-weight="400" fill="#57606a" text-anchor="start" >Yazarın nitel değerlendirmesi; konumlar ölçüm değil sıralama gösterir</text>
+<rect x="396" y="80" width="300" height="200" fill="#0b6bcb" fill-opacity="0.06"/>
+<line x1="396" y1="80" x2="396" y2="480" stroke="#d0d7de" stroke-dasharray="4 4"/><line x1="96" y1="280" x2="696" y2="280" stroke="#d0d7de" stroke-dasharray="4 4"/>
+<rect x="96" y="80" width="600" height="400" fill="none" stroke="#d0d7de"/>
+<line x1="96" y1="480" x2="696" y2="480" stroke="#8c959f" stroke-width="1.25"/><line x1="96" y1="80" x2="96" y2="480" stroke="#8c959f" stroke-width="1.25"/>
+<text x="396" y="504" font-size="13" font-weight="400" fill="#1f2328" text-anchor="middle" >Olasılık (barış zamanı) →</text>
+<text x="60" y="280" font-size="13" font-weight="400" fill="#1f2328" text-anchor="middle" transform="rotate(-90 60 280)">Etki →</text>
+<text x="108" y="268" font-size="11.5" font-weight="600" fill="#57606a" text-anchor="start" >Kriz planı gerektirir</text>
+<text x="684" y="268" font-size="11.5" font-weight="600" fill="#1f2328" text-anchor="end" >Öncelikli: hemen önlem</text>
+<text x="108" y="468" font-size="11.5" font-weight="600" fill="#57606a" text-anchor="start" >İzle</text>
+<text x="684" y="468" font-size="11.5" font-weight="600" fill="#57606a" text-anchor="end" >Politikayla yönet</text>
+<circle cx="606" cy="160" r="6" fill="#0b6bcb"/>
+<text x="596" y="164" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="end" >Z1 Pasif sensör kaydı</text>
+<circle cx="636" cy="200" r="6" fill="#0b6bcb"/>
+<text x="626" y="204" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="end" >Z2 Konum ve rutin</text>
+<circle cx="456" cy="120" r="6" fill="#0b6bcb"/>
+<text x="466" y="124" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z5 Bulut ve API</text>
+<circle cx="426" cy="180" r="6" fill="#0b6bcb"/>
+<text x="436" y="184" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z11 Hukuki erişim</text>
+<circle cx="576" cy="330" r="6" fill="#8c959f"/>
+<text x="566" y="334" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="end" >Z3 Telefon eşleşmesi</text>
+<circle cx="420" cy="380" r="6" fill="#8c959f"/>
+<text x="430" y="384" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z7 Bluetooth ve TPMS</text>
+<circle cx="216" cy="120" r="6" fill="#8c959f"/>
+<text x="226" y="124" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z4 Hücresel modem</text>
+<circle cx="140" cy="96" r="6" fill="#8c959f"/>
+<text x="150" y="100" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z6 OTA ve uzaktan kontrol</text>
+<circle cx="216" cy="220" r="6" fill="#8c959f"/>
+<text x="226" y="224" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z9 Sensör aldatma</text>
+<circle cx="246" cy="360" r="6" fill="#8c959f"/>
+<text x="256" y="364" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z8 CAN veriyolu</text>
+<circle cx="186" cy="340" r="6" fill="#8c959f"/>
+<text x="196" y="344" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="start" >Z10 Şarj altyapısı</text>
+</svg>
