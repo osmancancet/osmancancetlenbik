@@ -10,8 +10,31 @@
  * Sürüm değiştiğinde eski önbellekler silinir.
  */
 
-const VERSION = "occ-araclar-v1";
+// v2: v1 hatalı yanıtları (ör. deploy sırasında 404 dönen CSS) önbelleğe yazıp
+// sonsuza kadar veriyordu; sürüm değişince activate eski önbelleği siler.
+const VERSION = "occ-araclar-v2";
 const OFFLINE_URL = "/araclar";
+
+/** Yalnızca başarılı, kendi kaynağımızdan gelen yanıtları sakla. */
+function sakla(request, res) {
+  if (!res || !res.ok || res.type !== "basic") return;
+  const copy = res.clone();
+  caches.open(VERSION).then((c) => c.put(request, copy));
+}
+
+/** Önce ağ; ağ yoksa önbellek (sayfa ise son çare çevrimdışı araç sayfası). */
+function onceAg(request, sayfa) {
+  return fetch(request)
+    .then((res) => {
+      sakla(request, res);
+      return res;
+    })
+    .catch(() =>
+      caches
+        .match(request)
+        .then((r) => r || (sayfa ? caches.match(OFFLINE_URL) : Response.error()))
+    );
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -41,32 +64,25 @@ self.addEventListener("fetch", (event) => {
   // Araç sayfaları ve statik varlıklar dışında önbelleğe alma; veritabanına
   // bağlı sayfalar (dersler, yazılar) her zaman taze gelmeli.
   const path = new URL(request.url).pathname;
-  const cacheable =
-    path.startsWith("/araclar") || path.startsWith("/_next/static");
-  if (!cacheable) return;
 
-  if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(VERSION).then((c) => c.put(request, copy));
-          return res;
-        })
-        .catch(() => caches.match(request).then((r) => r || caches.match(OFFLINE_URL)))
-    );
+  // Araç sayfaları ve RSC verileri (?_rsc=…) güncel kalsın: önce ağ.
+  if (path.startsWith("/araclar")) {
+    event.respondWith(onceAg(request, request.mode === "navigate"));
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request).then((res) => {
-          const copy = res.clone();
-          caches.open(VERSION).then((c) => c.put(request, copy));
-          return res;
-        })
-    )
-  );
+  // Hash'li statik dosyalar değişmez: önce önbellek. Hatalı kayıt varsa
+  // (eski sürümden kalmış olabilir) yok sayılıp ağdan tazelenir.
+  if (path.startsWith("/_next/static")) {
+    event.respondWith(
+      caches.match(request).then((cached) =>
+        cached && cached.ok
+          ? cached
+          : fetch(request).then((res) => {
+              sakla(request, res);
+              return res;
+            })
+      )
+    );
+  }
 });
