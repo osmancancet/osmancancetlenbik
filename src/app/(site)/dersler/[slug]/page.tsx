@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { seoMeta } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,7 +14,7 @@ import {
   Radio,
   Mail,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { databaseConfigured, prisma } from "@/lib/prisma";
 import { courseSlugParams } from "@/lib/staticParams";
 import { Reveal } from "@/components/ui/Reveal";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
@@ -21,6 +22,14 @@ import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 // İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
 // anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
 export const revalidate = 86400;
+
+const loadCourse = cache(async (slug: string) => {
+  if (!databaseConfigured()) return null;
+  return prisma.course.findUnique({
+    where: { slug },
+    include: { weeks: { orderBy: { weekNumber: "asc" } } },
+  });
+});
 
 export async function generateStaticParams() {
   return courseSlugParams();
@@ -32,8 +41,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const course = await prisma.course.findUnique({ where: { slug } });
-  if (!course) return { title: "Ders Bulunamadı" };
+  const course = await loadCourse(slug);
+  if (!course) notFound();
   return seoMeta({
     path: `/dersler/${slug}`,
     title: course.title,
@@ -47,10 +56,7 @@ export default async function CourseDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const course = await prisma.course.findUnique({
-    where: { slug },
-    include: { weeks: { orderBy: { weekNumber: "asc" } } },
-  });
+  const course = await loadCourse(slug);
   if (!course) notFound();
 
   return (

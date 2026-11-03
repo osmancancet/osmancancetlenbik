@@ -35,7 +35,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const r = getRoadmap(slug);
-  if (!r) return { title: "Yol Haritası Bulunamadı" };
+  if (!r) notFound();
   return seoMeta({
     path: `/yol-haritalari/${r.slug}`,
     title: `${r.title} Yol Haritası`,

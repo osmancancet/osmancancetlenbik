@@ -1,13 +1,28 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { databaseConfigured, prisma } from "@/lib/prisma";
 import { PollClient } from "./PollClient";
 import type { Metadata } from "next";
 
-// Etkinlik anketi — kalıcı içerik değil, dizine girmesin.
-export const metadata: Metadata = {
-  title: "Anket",
-  robots: { index: false, follow: false },
-};
+const loadPoll = cache(async (slug: string) => {
+  if (!databaseConfigured()) return null;
+  return prisma.poll.findUnique({ where: { slug } });
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const poll = await loadPoll(slug);
+  if (!poll) notFound();
+  // Etkinlik anketi — kalıcı içerik değil, dizine girmesin.
+  return {
+    title: "Anket",
+    robots: { index: false, follow: false },
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +34,7 @@ export default async function PollPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const poll = await prisma.poll.findUnique({ where: { slug } });
+  const poll = await loadPoll(slug);
   if (!poll) notFound();
 
   return (

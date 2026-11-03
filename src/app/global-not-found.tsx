@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { RootShell } from "@/components/layout/RootShell";
-import NotFound from "@/app/(site)/not-found";
+import NotFound from "@/components/layout/NotFoundView";
 import { rootMetadata, rootViewport } from "@/lib/seo/rootMetadata";
 
 /**

@@ -20,13 +20,24 @@ import { books, getBook } from "@/data/books";
  * sayfa düzeyinde noindex kullanılıyor — projedeki /mcbukaf/* sayfalarıyla
  * aynı desen.
  */
-export const metadata: Metadata = {
-  title: "Basın Kiti",
-  robots: { index: false, follow: false },
-};
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return books.filter((b) => b.pressKit).map((b) => ({ slug: b.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const book = getBook(slug);
+  if (!book?.pressKit) notFound();
+  return {
+    title: "Basın Kiti",
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function BasinKitiPage({

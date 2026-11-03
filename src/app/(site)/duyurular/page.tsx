@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { seoMeta } from "@/lib/seo/metadata";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDatabase } from "@/lib/prisma";
 import { Megaphone, Pin } from "lucide-react";
 
 export const metadata: Metadata = seoMeta({
@@ -24,12 +24,16 @@ const TYPE_LABEL: Record<string, string> = {
 
 export default async function DuyurularPage() {
   const now = new Date();
-  const announcements = await prisma.announcement.findMany({
-    where: {
-      OR: [{ expiresAt: null }, { expiresAt: { gte: now } }],
-    },
-    orderBy: [{ pinned: "desc" }, { createdAt: "desc" }],
-  });
+  const announcements = await withDatabase(
+    () =>
+      prisma.announcement.findMany({
+        where: {
+          OR: [{ expiresAt: null }, { expiresAt: { gte: now } }],
+        },
+        orderBy: [{ pinned: "desc" }, { createdAt: "desc" }],
+      }),
+    []
+  );
 
   return (
     <PageShell

@@ -4,6 +4,9 @@ generator client {
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
+// `url` generate sırasında prisma.config.ts tarafından doldurulur.
+// DATABASE_URL yokken generate, üretim veritabanına bağlanmayan bir yer
+// tutucu kullanır; migrate ve çalışma zamanı gerçek değeri ister.
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

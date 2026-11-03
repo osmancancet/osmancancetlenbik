@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDatabase } from "@/lib/prisma";
 import { ArrowUpRight, Clock } from "lucide-react";
 import { getReadingTime } from "@/lib/readingTime";
 
@@ -20,10 +20,14 @@ export const metadata: Metadata = seoMeta({
 export const revalidate = 86400;
 
 export default async function YazilarimPage() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const posts = await withDatabase(
+    () =>
+      prisma.post.findMany({
+        where: { published: true },
+        orderBy: { createdAt: "desc" },
+      }),
+    []
+  );
 
   return (
     <PageShell

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
 import { ShareButton } from "@/components/ShareButton";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDatabase } from "@/lib/prisma";
 import { Newspaper, ExternalLink, Calendar } from "lucide-react";
 
 export const metadata: Metadata = seoMeta({
@@ -27,9 +27,10 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 export default async function BasinPage() {
-  const items = await prisma.pressItem.findMany({
-    orderBy: { date: "desc" },
-  });
+  const items = await withDatabase(
+    () => prisma.pressItem.findMany({ orderBy: { date: "desc" } }),
+    []
+  );
 
   return (
     <PageShell

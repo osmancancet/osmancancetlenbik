@@ -3,7 +3,7 @@ import { seoMeta } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDatabase } from "@/lib/prisma";
 import { BookOpen, ArrowUpRight, Clock, CalendarDays } from "lucide-react";
 
 export const metadata: Metadata = seoMeta({
@@ -18,10 +18,14 @@ export const metadata: Metadata = seoMeta({
 export const revalidate = 86400;
 
 export default async function DerslerPage() {
-  const courses = await prisma.course.findMany({
-    orderBy: [{ semester: "desc" }, { title: "asc" }],
-    include: { _count: { select: { weeks: true } } },
-  });
+  const courses = await withDatabase(
+    () =>
+      prisma.course.findMany({
+        orderBy: [{ semester: "desc" }, { title: "asc" }],
+        include: { _count: { select: { weeks: true } } },
+      }),
+    []
+  );
 
   return (
     <PageShell

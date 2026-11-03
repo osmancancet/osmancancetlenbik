@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { seoMeta } from "@/lib/seo/metadata";
 import { PageShell } from "@/components/layout/PageShell";
 import { Reveal } from "@/components/ui/Reveal";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDatabase } from "@/lib/prisma";
 import Link from "next/link";
 import { MapPin, Calendar, ExternalLink, Mic, Presentation } from "lucide-react";
 
@@ -18,9 +18,10 @@ export const metadata: Metadata = seoMeta({
 export const revalidate = 86400;
 
 export default async function KonferanslarimPage() {
-  const conferences = await prisma.conference.findMany({
-    orderBy: { date: "desc" },
-  });
+  const conferences = await withDatabase(
+    () => prisma.conference.findMany({ orderBy: { date: "desc" } }),
+    []
+  );
 
   return (
     <PageShell

@@ -15,6 +15,7 @@ import { siteUrl } from "@/lib/site";
  */
 
 export const dynamic = "force-static";
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return [{ platform: "macos" }, { platform: "windows" }];
