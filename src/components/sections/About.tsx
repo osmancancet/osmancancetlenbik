@@ -14,8 +14,18 @@ const EXPERTISE_LABEL: Record<Locale, string> = {
   ar: "مجالات الخبرة",
 };
 
+/** Hakkımda bölümünün alt başlıkları (H2). Metin eklemez; mevcut içeriği
+ *  arama motorları ve AI özetleyicileri için bölümlere ayırır. */
+const SECTION_HEADINGS: Record<Locale, { bio: string; stats: string }> = {
+  tr: { bio: "Biyografi", stats: "Rakamlarla" },
+  en: { bio: "Biography", stats: "At a glance" },
+  de: { bio: "Biografie", stats: "Auf einen Blick" },
+  ar: { bio: "نبذة", stats: "بالأرقام" },
+};
+
 export function About({ locale = "tr" }: { locale?: Locale }) {
   const copy = profileI18n[locale];
+  const headings = SECTION_HEADINGS[locale];
 
   return (
     <div className="grid md:grid-cols-[1fr_1.5fr] gap-12 items-start">
@@ -35,7 +45,7 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
           />
           <div className="relative aspect-square overflow-hidden rounded-full bg-black border-2 border-[var(--accent)]/60 shadow-[0_0_60px_-15px_rgba(0,255,65,0.5)]">
             <Image
-              src="/profile.png"
+              src="/profile.webp"
               alt={profile.name}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -62,6 +72,7 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
 
       <div>
         <Reveal>
+          <h2 className="sr-only">{headings.bio}</h2>
           <div className="space-y-4 text-base md:text-lg leading-relaxed text-[var(--fg-muted)]">
             <p>{copy.bio}</p>
             <p>
@@ -78,9 +89,9 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
 
         <Reveal delay={0.1}>
           <div className="mt-8">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--fg-subtle)] font-mono mb-3">
+            <h2 className="text-xs font-normal uppercase tracking-[0.18em] text-[var(--fg-subtle)] font-mono mb-3">
               {EXPERTISE_LABEL[locale]}
-            </div>
+            </h2>
             <div className="flex flex-wrap gap-2">
               {copy.expertise.map((tag: string) => (
                 <span
@@ -94,6 +105,7 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
           </div>
         </Reveal>
 
+        <h2 className="sr-only">{headings.stats}</h2>
         <motion.div
           initial="hidden"
           whileInView="visible"

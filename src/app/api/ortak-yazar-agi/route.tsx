@@ -6,7 +6,7 @@ import {
   basHarfler,
   yerlesimHesapla,
   type YerlesikDugum,
-} from "@/app/araclar/ortak-yazar-agi/yerlesim";
+} from "@/app/(site)/araclar/ortak-yazar-agi/yerlesim";
 
 /**
  * Ortak yazar ağı PNG'si.

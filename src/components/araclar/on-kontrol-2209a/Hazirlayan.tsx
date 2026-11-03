@@ -8,7 +8,7 @@ import s from "./Hazirlayan.module.css";
 export function Hazirlayan() {
   return (
     <section className={s.card} id="hazirlayan" aria-labelledby="hazirlayan-h">
-      <Image src="/profile.png" alt={profile.name} width={112} height={112} className={s.photo} />
+      <Image src="/profile.webp" alt={profile.name} width={112} height={112} className={s.photo} />
       <div className={s.body}>
         <span className="eyebrow">Hazırlayan</span>
         <h2 id="hazirlayan-h">Öğr. Gör. {profile.name}</h2>

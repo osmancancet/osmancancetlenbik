@@ -14,13 +14,50 @@ export function personJsonLd() {
     description: profile.tagline,
     email: profile.email,
     url: siteUrl,
-    image: `${siteUrl}/profile.png`,
-    sameAs: [profile.socials.github, profile.socials.linkedin],
+    image: `${siteUrl}/profile.webp`,
+    sameAs: [
+      profile.socials.orcid,
+      profile.socials.avesis,
+      profile.socials.linkedin,
+      profile.socials.github,
+    ],
     worksFor: {
       "@type": "CollegeOrUniversity",
       name: profile.institution,
       department: profile.department,
     },
+    // Kaynak: data/cv.ts (deneyim) — /cv sayfasında da yayımlanan bilgi.
+    hasOccupation: [
+      {
+        "@type": "Occupation",
+        name: "Öğretim Görevlisi",
+        occupationLocation: { "@type": "City", name: "Manisa" },
+      },
+      {
+        "@type": "Occupation",
+        name: "Bilgisayar Uygulama ve Araştırma Merkezi (BUAM) Müdür Yardımcısı",
+        occupationLocation: { "@type": "City", name: "Manisa" },
+      },
+    ],
+    affiliation: {
+      "@type": "ResearchOrganization",
+      name: "Manisa Celal Bayar Üniversitesi Bilgisayar Uygulama ve Araştırma Merkezi (BUAM)",
+      parentOrganization: {
+        "@type": "CollegeOrUniversity",
+        name: "Manisa Celal Bayar Üniversitesi",
+      },
+    },
+    // Kaynak: data/cv.ts (eğitim).
+    alumniOf: [
+      {
+        "@type": "CollegeOrUniversity",
+        name: "Isparta Uygulamalı Bilimler Üniversitesi",
+      },
+      {
+        "@type": "CollegeOrUniversity",
+        name: "Süleyman Demirel Üniversitesi",
+      },
+    ],
     knowsAbout: profile.expertise,
     address: {
       "@type": "PostalAddress",
@@ -231,7 +268,7 @@ export function professionalServiceJsonLd(locale: Locale = "tr") {
     name: entity.name,
     description: entity.description,
     url: `${siteUrl}${servicesPath[locale]}`,
-    image: `${siteUrl}/profile.png`,
+    image: `${siteUrl}/profile.webp`,
     email: profile.email,
     founder: { "@id": `${siteUrl}/#person` },
     provider: { "@id": `${siteUrl}/#person` },

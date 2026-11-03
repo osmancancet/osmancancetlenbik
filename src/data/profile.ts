@@ -15,6 +15,10 @@ export const profile = {
   socials: {
     github: "https://github.com/osmancancet",
     linkedin: "https://linkedin.com/in/osmancancetlenbik",
+    /** Akademik kimlik profilleri — JSON-LD `sameAs` ile arama motorları ve
+     *  AI asistanları bu sayfaları aynı kişiye bağlar. */
+    orcid: "https://orcid.org/0009-0000-6561-1943",
+    avesis: "https://avesis.mcbu.edu.tr/osman.cetlenbik",
     /** Tarayıcıda açılan Gmail yazma ekranı. Düz `mailto:` bağlantısı,
      *  e-posta istemcisi tanımlı olmayan cihazlarda hiçbir şey yapmadığı için
      *  arayüzde `<MailAction>` kullanılıyor; bu alan yalnızca dışa verilen

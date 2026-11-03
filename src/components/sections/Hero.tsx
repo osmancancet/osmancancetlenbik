@@ -235,7 +235,7 @@ export function Hero({ locale = "tr" }: { locale?: Locale }) {
             <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-[var(--accent)]/70 shadow-[0_0_80px_-10px_rgba(0,255,65,0.5)]">
               <div className="absolute inset-0 bg-black" aria-hidden />
               <Image
-                src="/profile.png"
+                src="/profile.webp"
                 alt={profile.name}
                 fill
                 className="object-cover"
