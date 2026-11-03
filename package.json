@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "prisma generate && node scripts/sync-posts.mjs && next build",
     "start": "next start",
-    "postinstall": "prisma generate",
+    "postinstall": "node scripts/patch-react-boundary-literals.mjs && prisma generate",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
