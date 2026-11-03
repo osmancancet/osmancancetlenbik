@@ -241,7 +241,7 @@ export function PressKit({ book }: { book: Book }) {
             src="/profile.png"
             alt={`${profile.name} portre fotoğrafı`}
             title="Yazar portresi"
-            meta="PNG · 1024 × 1024 px · 1,3 MB"
+            meta="PNG · 1024 × 1024 px · 1,1 MB"
             wide
           />
         </div>

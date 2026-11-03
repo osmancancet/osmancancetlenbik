@@ -25,8 +25,21 @@ function altsFor(path: string) {
   return { languages };
 }
 
+/** En yeni tarih; liste boşsa `undefined` (lastmod hiç basılmaz). */
+function latest(dates: Array<Date | undefined>): Date | undefined {
+  let max: Date | undefined;
+  for (const d of dates) if (d && (!max || d > max)) max = d;
+  return max;
+}
+
+/**
+ * lastmod politikası: her istekte `new Date()` basmak tüm adresleri "az önce
+ * değişti" gösteriyordu; Google tutarsız lastmod'u tamamen yok sayar. Artık
+ * yalnızca gerçek bir değişiklik tarihi bilinen adresler lastmod taşır
+ * (veritabanındaki `updatedAt`), liste sayfaları içeriklerinin en yenisini
+ * alır; tarihi bilinmeyen statik sayfalarda alan bilerek boş bırakılır.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
 
   const trPages: Array<[string, number]> = [
     ["", 1],
@@ -73,21 +86,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ["/ar/contact", 0.6],
   ];
 
-  const staticPages: MetadataRoute.Sitemap = [
-    ...trPages,
-    ...enPages,
-    ...dePages,
-    ...arPages,
-  ].map(
-    ([p, priority]) => ({
-      url: `${siteUrl}${p}`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority,
-      alternates: altsFor(p === "" ? "/" : p),
-    })
-  );
-
   const [posts, courses, weeks] = await Promise.all([
     prisma.post
       .findMany({
@@ -116,6 +114,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
   ]);
 
+  const postsUpdated = latest(posts.map((p) => p.updatedAt));
+  const coursesUpdated = latest([
+    ...courses.map((c) => c.updatedAt),
+    ...weeks.map((w) => w.updatedAt),
+  ]);
+  const sectionUpdated: Record<string, Date | undefined> = {
+    "": latest([postsUpdated, coursesUpdated]),
+    "/yazilarim": postsUpdated,
+    "/dersler": coursesUpdated,
+  };
+
+  const staticPages: MetadataRoute.Sitemap = [
+    ...trPages,
+    ...enPages,
+    ...dePages,
+    ...arPages,
+  ].map(
+    ([p, priority]) => ({
+      url: `${siteUrl}${p}`,
+      lastModified: sectionUpdated[p],
+      changeFrequency: "weekly" as const,
+      priority,
+      alternates: altsFor(p === "" ? "/" : p),
+    })
+  );
+
   const postPages: MetadataRoute.Sitemap = posts.map((p) => ({
     url: `${siteUrl}/yazilarim/${p.slug}`,
     lastModified: p.updatedAt,
@@ -139,28 +163,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const toolPages: MetadataRoute.Sitemap = tools.map((t) => ({
     url: `${siteUrl}/araclar/${t.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
   const roadmapPages: MetadataRoute.Sitemap = roadmaps.map((r) => ({
     url: `${siteUrl}/yol-haritalari/${r.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
 
   const talkPages: MetadataRoute.Sitemap = publicTalks.map((t) => ({
     url: `${siteUrl}/sunumlar/${t.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
   const bookPages: MetadataRoute.Sitemap = books.map((b) => ({
     url: `${siteUrl}/kitaplar/${b.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.9,
   }));

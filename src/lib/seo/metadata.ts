@@ -21,7 +21,7 @@ type SeoArgs = {
    * Latin bir karşılık kullanılır.
    */
   ogTitle?: string;
-  type?: "website" | "article" | "profile";
+  type?: "website" | "article" | "profile" | "book";
   noindex?: boolean;
 };
 
@@ -81,7 +81,13 @@ export function seoMeta({
       url: absoluteUrl(canonical),
       locale: ogLocale[locale],
       siteName: "Osman Can Çetlenbik",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: cardTitle }],
+      // Boyutlar yalnızca 1200×630 üretilen /api/og kartı için doğru; dışarıdan
+      // verilen görselde (kitap kapağı, yazı kapağı) boyut belirtilmez.
+      images: [
+        image
+          ? { url: ogImage, alt: cardTitle }
+          : { url: ogImage, width: 1200, height: 630, alt: cardTitle },
+      ],
     },
     twitter: {
       card: "summary_large_image",

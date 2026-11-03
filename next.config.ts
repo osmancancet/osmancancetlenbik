@@ -55,6 +55,12 @@ const onKontrolCsp = {
 const nextConfig: NextConfig = {
   poweredByHeader: false,
 
+  // Her dilin kendi kök layout'u var (<html lang/dir> sunucuda doğru basılsın
+  // diye); eşleşmeyen adreslerin 404'ü app/global-not-found.tsx'ten gelir.
+  experimental: {
+    globalNotFound: true,
+  },
+
   async redirects() {
     return [...legacyRedirects, ...aliasRedirects].map((r) => ({
       ...r,
