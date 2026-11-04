@@ -45,6 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ["", 1],
     ["/hizmetler", 0.95],
     ["/araclar", 0.9],
+    ["/harita", 0.85],
     ["/hakkimda", 0.8],
     ["/dersler", 0.7],
     ["/yol-haritalari", 0.85],

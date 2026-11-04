@@ -265,3 +265,20 @@ model CompetitionApplication {
 
   @@index([status, createdAt])
 }
+
+/// ─── Dolandırıcılık Haritası (/harita) ─────────────────────────────
+/// Anonim bildirim: il + yöntem. Kişisel veri tutulmaz; reporterKey,
+/// gün tuzlu SHA-256 özetidir (IP saklanmaz, günler arasında bağlanamaz).
+model ScamReport {
+  id          String   @id @default(cuid())
+  plate       Int
+  kind        String
+  lost        Boolean  @default(false)
+  day         String
+  reporterKey String
+  createdAt   DateTime @default(now())
+
+  @@unique([reporterKey, day])
+  @@index([plate])
+  @@index([createdAt])
+}
