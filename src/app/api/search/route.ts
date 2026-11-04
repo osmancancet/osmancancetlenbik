@@ -72,6 +72,13 @@ const STATIC_PAGES: SearchResult[] = [
     description: "Siber güvenlik, büyük veri, yapay zekâ, web, mobil ve DevOps için adım adım öğrenme yolları",
     href: "/yol-haritalari",
   },
+  {
+    id: "p-study-notes",
+    type: "page",
+    title: "Çalışma Notları",
+    description: "Derslere göre 200 soruluk, cevap anahtarlı ve açıklamalı PDF çalışma kağıtları",
+    href: "/calisma-notlari",
+  },
   ...roadmaps.map<SearchResult>((r) => ({
     id: `roadmap-${r.slug}`,
     type: "page",
