@@ -19,7 +19,7 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const veri = await kartVerisiGetir(id);
-  if (!veri) return { title: "Kart bulunamadı" };
+  if (!veri) notFound();
   const sayi = (n: number) => n.toLocaleString("tr-TR");
   return seoMeta({
     path: paylasimYolu(veri.id),

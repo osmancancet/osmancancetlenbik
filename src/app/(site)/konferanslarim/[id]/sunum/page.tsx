@@ -1,14 +1,31 @@
+import { Suspense, cache } from "react";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { databaseConfigured, prisma } from "@/lib/prisma";
 import { SlideDeck } from "@/components/SlideDeck";
 import { PresentationHost } from "@/components/PresentationHost";
 import type { Metadata } from "next";
 
 // Konferans slaytları — etkileşimli deck, arama sonucunda değeri yok.
-export const metadata: Metadata = {
+const NOINDEX: Metadata = {
   title: "Sunum",
   robots: { index: false, follow: false },
 };
+
+const loadConference = cache(async (id: string) => {
+  if (!databaseConfigured()) return null;
+  return prisma.conference.findUnique({ where: { id } });
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const conference = await loadConference(id);
+  if (!conference) notFound();
+  return NOINDEX;
+}
 
 // İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
 // anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
@@ -26,15 +43,17 @@ export default async function ConferenceSlidesPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const conference = await prisma.conference.findUnique({ where: { id } });
+  const conference = await loadConference(id);
   if (!conference) notFound();
 
   if (conference.presentationSlug) {
     return (
-      <PresentationHost
-        slug={conference.presentationSlug}
-        backHref="/konferanslarim"
-      />
+      <Suspense fallback={null}>
+        <PresentationHost
+          slug={conference.presentationSlug}
+          backHref="/konferanslarim"
+        />
+      </Suspense>
     );
   }
 

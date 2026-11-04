@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import {
   publicTalks,
@@ -31,10 +32,8 @@ export async function generateMetadata({
   const meta = getPublicTalk(slug);
   if (!meta) {
     const gizli = getUnlistedTalk(slug);
-    if (gizli) {
-      return { title: gizli.title, robots: { index: false, follow: false } };
-    }
-    return { title: "Sunum bulunamadı", robots: { index: false } };
+    if (!gizli) notFound();
+    return { title: gizli.title, robots: { index: false, follow: false } };
   }
 
   return seoMeta({
@@ -52,11 +51,19 @@ export default async function PublicPresentationPage({
 }) {
   const { slug } = await params;
   if (getPublicTalk(slug)) {
-    return <PresentationHost slug={slug} backHref="/" />;
+    return (
+      <Suspense fallback={null}>
+        <PresentationHost slug={slug} backHref="/" />
+      </Suspense>
+    );
   }
 
   const gizli = getUnlistedTalk(slug);
   if (!gizli) notFound();
 
-  return <PresentationHost slug={gizli.slug} backHref="/" />;
+  return (
+    <Suspense fallback={null}>
+      <PresentationHost slug={gizli.slug} backHref="/" />
+    </Suspense>
+  );
 }

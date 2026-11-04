@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { seoMeta } from "@/lib/seo/metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,7 +12,7 @@ import {
   FileText,
   Radio,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { databaseConfigured, prisma } from "@/lib/prisma";
 import { courseWeekParams } from "@/lib/staticParams";
 import { Reveal } from "@/components/ui/Reveal";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
@@ -31,6 +32,20 @@ function weekHasContent(w: WeekLike): boolean {
 // anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
 export const revalidate = 86400;
 
+function parseWeek(week: string): number | null {
+  if (!/^\d+$/.test(week)) return null;
+  const n = Number(week);
+  return Number.isInteger(n) ? n : null;
+}
+
+const loadCourse = cache(async (slug: string) => {
+  if (!databaseConfigured()) return null;
+  return prisma.course.findUnique({
+    where: { slug },
+    include: { weeks: { orderBy: { weekNumber: "asc" } } },
+  });
+});
+
 export async function generateStaticParams() {
   return courseWeekParams();
 }
@@ -41,22 +56,16 @@ export async function generateMetadata({
   params: Promise<{ slug: string; week: string }>;
 }): Promise<Metadata> {
   const { slug, week } = await params;
-  const course = await prisma.course.findUnique({ where: { slug } });
-  if (!course) return { title: "Hafta Bulunamadı" };
-  const w = await prisma.courseWeek.findUnique({
-    where: { courseId_weekNumber: { courseId: course.id, weekNumber: Number(week) } },
-  });
+  const weekNumber = parseWeek(week);
+  const course = weekNumber == null ? null : await loadCourse(slug);
+  const w = course?.weeks.find((item) => item.weekNumber === weekNumber);
+  if (!course || !w) notFound();
   // Başlıkta ders adı da var: "8. Hafta · Ara Sınav" gibi başlıklar birçok
   // derste tekrarlandığı için arama sonuçlarında birbirinden ayrılamıyordu.
-  const title = w
-    ? `${course.title} – ${w.weekNumber}. Hafta: ${w.topic}`
-    : course.title;
   return seoMeta({
-    path: `/dersler/${slug}/hafta/${Number(week)}`,
-    title,
-    description: w
-      ? `${course.title} dersi ${w.weekNumber}. hafta: ${w.topic}. ${course.program}.`
-      : course.description ?? `${course.title} — ${course.program}`,
+    path: `/dersler/${slug}/hafta/${w.weekNumber}`,
+    title: `${course.title} – ${w.weekNumber}. Hafta: ${w.topic}`,
+    description: `${course.title} dersi ${w.weekNumber}. hafta: ${w.topic}. ${course.program}.`,
   });
 }
 
@@ -66,13 +75,10 @@ export default async function WeekDetailPage({
   params: Promise<{ slug: string; week: string }>;
 }) {
   const { slug, week } = await params;
-  const course = await prisma.course.findUnique({
-    where: { slug },
-    include: { weeks: { orderBy: { weekNumber: "asc" } } },
-  });
+  const weekNumber = parseWeek(week);
+  const course = weekNumber == null ? null : await loadCourse(slug);
   if (!course) notFound();
 
-  const weekNumber = Number(week);
   const current = course.weeks.find((w) => w.weekNumber === weekNumber);
   if (!current) notFound();
 

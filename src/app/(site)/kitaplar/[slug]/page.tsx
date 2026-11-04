@@ -9,6 +9,8 @@ import { books, getBook } from "@/data/books";
 import { absoluteUrl } from "@/lib/site";
 import { bookJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return books.map((b) => ({ slug: b.slug }));
 }
@@ -20,7 +22,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const book = getBook(slug);
-  if (!book) return { title: "Kitap Bulunamadı" };
+  if (!book) notFound();
 
   const title = `${book.title} — ${book.subtitle}`;
   const image = absoluteUrl(book.cover);

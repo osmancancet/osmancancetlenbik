@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { PageShell } from "@/components/layout/PageShell";
 import { About } from "@/components/sections/About";
+import { aboutExtra } from "@/data/aboutPage";
 import { seoMeta } from "@/lib/seo/metadata";
-import { breadcrumbJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
+import { breadcrumbJsonLd, faqJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = seoMeta({
   path: "/en/about",
@@ -13,6 +14,7 @@ export const metadata: Metadata = seoMeta({
 });
 
 export default function AboutPage() {
+  const extra = aboutExtra("en");
   return (
     <>
       <script
@@ -24,12 +26,18 @@ export default function AboutPage() {
           ])
         )}
       />
+      {extra && extra.faq.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={jsonLdScript(faqJsonLd(extra.faq))}
+        />
+      )}
       <PageShell
         eyebrow="About"
         title="Teaching and building."
         subtitle="I work where education and engineering meet."
       >
-        <About locale="en" />
+        <About locale="en" extra={extra} />
       </PageShell>
     </>
   );

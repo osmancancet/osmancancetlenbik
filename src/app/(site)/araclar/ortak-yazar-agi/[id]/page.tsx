@@ -18,7 +18,7 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const veri = await agVerisiGetir(id);
-  if (!veri) return { title: "Ağ bulunamadı" };
+  if (!veri) notFound();
   const sayi = (n: number) => n.toLocaleString("tr-TR");
   return seoMeta({
     path: agPaylasimYolu(veri.id),

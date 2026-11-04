@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { seoMeta } from "@/lib/seo/metadata";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { databaseConfigured, prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/ui/Reveal";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { TableOfContents } from "@/components/blog/TableOfContents";
@@ -16,6 +17,11 @@ import { articleJsonLd, jsonLdScript } from "@/lib/seo/jsonLd";
 // İçerik yalnızca admin panelden değişiyor ve her değişiklik önbelleği
 // anında tazeliyor (bkz. lib/revalidate.ts). Bu süre sadece güvenlik ağı.
 export const revalidate = 86400;
+
+const loadPost = cache(async (slug: string) => {
+  if (!databaseConfigured()) return null;
+  return prisma.post.findUnique({ where: { slug } });
+});
 
 // Boş liste: sayfalar build'de değil, ilk ziyarette üretilip önbelleğe
 // alınır (ISR). Bu satır olmadan Next.js her isteği yeniden render eder.
@@ -29,8 +35,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await prisma.post.findUnique({ where: { slug } });
-  if (!post) return { title: "Yazı Bulunamadı" };
+  const post = await loadPost(slug);
+  if (!post || !post.published) notFound();
   const base = seoMeta({
     path: `/yazilarim/${slug}`,
     title: post.title,
@@ -60,7 +66,7 @@ export default async function YaziDetayPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = await prisma.post.findUnique({ where: { slug } });
+  const post = await loadPost(slug);
   if (!post || !post.published) notFound();
 
   const reading = getReadingTime(post.content);

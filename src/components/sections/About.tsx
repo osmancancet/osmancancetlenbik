@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import type { AboutExtra } from "@/data/aboutPage";
 import { profile, profileI18n } from "@/data/profile";
 import { Reveal } from "@/components/ui/Reveal";
 import { Counter } from "@/components/ui/Counter";
@@ -14,8 +15,7 @@ const EXPERTISE_LABEL: Record<Locale, string> = {
   ar: "مجالات الخبرة",
 };
 
-/** Hakkımda bölümünün alt başlıkları (H2). Metin eklemez; mevcut içeriği
- *  arama motorları ve AI özetleyicileri için bölümlere ayırır. */
+/** Hakkımda bölümünün alt başlıkları (H2). */
 const SECTION_HEADINGS: Record<Locale, { bio: string; stats: string }> = {
   tr: { bio: "Biyografi", stats: "Rakamlarla" },
   en: { bio: "Biography", stats: "At a glance" },
@@ -23,11 +23,21 @@ const SECTION_HEADINGS: Record<Locale, { bio: string; stats: string }> = {
   ar: { bio: "نبذة", stats: "بالأرقام" },
 };
 
-export function About({ locale = "tr" }: { locale?: Locale }) {
+const HEADING_CLASS =
+  "text-xs font-normal uppercase tracking-[0.18em] text-[var(--fg-subtle)] font-mono mb-3";
+
+export function About({
+  locale = "tr",
+  extra = null,
+}: {
+  locale?: Locale;
+  extra?: AboutExtra | null;
+}) {
   const copy = profileI18n[locale];
   const headings = SECTION_HEADINGS[locale];
 
   return (
+    <div>
     <div className="grid md:grid-cols-[1fr_1.5fr] gap-12 items-start">
       <Reveal>
         <motion.div
@@ -72,9 +82,12 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
 
       <div>
         <Reveal>
-          <h2 className="sr-only">{headings.bio}</h2>
+          <h2 className={HEADING_CLASS}>{headings.bio}</h2>
           <div className="space-y-4 text-base md:text-lg leading-relaxed text-[var(--fg-muted)]">
             <p>{copy.bio}</p>
+            {extra?.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+            ))}
             <p>
               <span className="text-[var(--fg)] font-medium">
                 {copy.institution}
@@ -84,14 +97,50 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
                 {copy.department}
               </span>
             </p>
+            {extra && (
+              <>
+                <div>
+                  <h3 className="text-sm font-medium text-[var(--fg)] mb-2">
+                    {extra.researchTitle}
+                  </h3>
+                  <ul className="list-disc ps-5 space-y-1">
+                    {extra.research.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-[var(--fg)] mb-2">
+                    {extra.publicationsTitle}
+                  </h3>
+                  <ul className="space-y-3">
+                    {extra.publications.map((item) => (
+                      <li key={item.title}>
+                        <span className="text-[var(--fg)]">{item.title}</span>
+                        <span className="block text-sm text-[var(--fg-subtle)]">
+                          {item.detail}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {extra.book && <p>{extra.book}</p>}
+                <p>{extra.languages}</p>
+              </>
+            )}
           </div>
         </Reveal>
 
         <Reveal delay={0.1}>
           <div className="mt-8">
-            <h2 className="text-xs font-normal uppercase tracking-[0.18em] text-[var(--fg-subtle)] font-mono mb-3">
+            <h2 className={HEADING_CLASS}>
               {EXPERTISE_LABEL[locale]}
             </h2>
+            {extra && (
+              <p className="text-base leading-relaxed text-[var(--fg-muted)] mb-4">
+                {extra.expertise}
+              </p>
+            )}
             <div className="flex flex-wrap gap-2">
               {copy.expertise.map((tag: string) => (
                 <span
@@ -102,10 +151,24 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
                 </span>
               ))}
             </div>
+            {extra && (
+              <dl className="mt-6 space-y-3">
+                {extra.skillGroups.map((group) => (
+                  <div key={group.category}>
+                    <dt className="text-xs font-mono uppercase tracking-wider text-[var(--fg-subtle)]">
+                      {group.category}
+                    </dt>
+                    <dd className="text-sm text-[var(--fg-muted)] mt-1">
+                      {group.items}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
           </div>
         </Reveal>
 
-        <h2 className="sr-only">{headings.stats}</h2>
+        <h2 className={`${HEADING_CLASS} mt-12`}>{headings.stats}</h2>
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -114,7 +177,7 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
             hidden: {},
             visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
           }}
-          className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3"
         >
           {profile.stats.map((stat, i) => (
             <motion.div
@@ -136,7 +199,31 @@ export function About({ locale = "tr" }: { locale?: Locale }) {
             </motion.div>
           ))}
         </motion.div>
+        {extra && (
+          <p className="mt-4 text-sm leading-relaxed text-[var(--fg-muted)]">
+            {extra.stats}
+          </p>
+        )}
       </div>
+    </div>
+
+    {extra && extra.faq.length > 0 && (
+      <section className="mt-16" aria-labelledby="hakkimda-sss">
+        <h2 id="hakkimda-sss" className={HEADING_CLASS}>
+          {extra.faqTitle}
+        </h2>
+        <div className="grid gap-3">
+          {extra.faq.map((item) => (
+            <article key={item.q} className="card rounded-lg p-5">
+              <h3 className="text-base font-medium text-[var(--fg)]">{item.q}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--fg-muted)]">
+                {item.a}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
     </div>
   );
 }

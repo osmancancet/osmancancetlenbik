@@ -8,7 +8,7 @@ import { HomeRecent } from "@/components/sections/HomeRecent";
 import { CurrentSemesterCourses } from "@/components/sections/CurrentSemesterCourses";
 import { FeaturedBook } from "@/components/sections/FeaturedBook";
 import { Reveal } from "@/components/ui/Reveal";
-import { prisma } from "@/lib/prisma";
+import { databaseConfigured, prisma } from "@/lib/prisma";
 import { publications } from "@/data/publications";
 import { getReadingTime } from "@/lib/readingTime";
 import Link from "next/link";
@@ -49,7 +49,8 @@ export default async function Home() {
     recentCourses,
     recentConferences,
     currentSemesterCourses,
-  ] = await Promise.all([
+  ] = databaseConfigured()
+    ? await Promise.all([
     prisma.announcement.findFirst({
       where: {
         pinned: true,
@@ -80,7 +81,8 @@ export default async function Home() {
       orderBy: [{ type: "asc" }, { title: "asc" }],
       include: { _count: { select: { weeks: true } } },
     }),
-  ]);
+  ])
+    : [null, 0, 0, 0, [], [], [], []];
 
   const hasContent =
     recentPosts.length > 0 ||

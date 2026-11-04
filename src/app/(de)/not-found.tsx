@@ -1,1 +1,1 @@
-export { default } from "@/app/(site)/not-found";
+export { default } from "@/components/layout/NotFoundView";
