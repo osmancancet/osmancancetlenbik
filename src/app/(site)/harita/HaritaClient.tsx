@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ShieldCheck, MapPin, Share2 } from "lucide-react";
 import TR from "@/data/turkiye-iller.json";
 import { SCAM_KINDS, type ScamKindId } from "@/data/dolandiricilik";
@@ -34,6 +34,14 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Ana sayfa saatlik önbellekte; sayılar açılışta tazelenir.
+  useEffect(() => {
+    fetch("/api/harita")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j: HaritaSummary | null) => j && setSummary(j))
+      .catch(() => {});
+  }, []);
 
   function pick(n: number) {
     setPlate(n);

@@ -8,6 +8,8 @@ import { HomeRecent } from "@/components/sections/HomeRecent";
 import { CurrentSemesterCourses } from "@/components/sections/CurrentSemesterCourses";
 import { FeaturedBook } from "@/components/sections/FeaturedBook";
 import { SesuTeaser } from "@/components/sections/SesuTeaser";
+import { HaritaTeaser } from "@/components/sections/HaritaTeaser";
+import { getHaritaSummary } from "@/lib/harita";
 import { Reveal } from "@/components/ui/Reveal";
 import { databaseConfigured, prisma } from "@/lib/prisma";
 import { publications } from "@/data/publications";
@@ -97,6 +99,10 @@ export default async function Home() {
         dangerouslySetInnerHTML={jsonLdScript(professionalServiceJsonLd("tr"))}
       />
       <AnnouncementBar announcement={announcement} />
+
+      {/* Dolandırıcılık Haritası — LinkedIn kampanyası, en üstte */}
+      <HaritaTeaser initial={await getHaritaSummary().catch(() => null)} />
+
       <Hero />
 
       {/* Sunum ve araçlar — LinkedIn'den gelen ziyaretçi bunları arıyor */}
