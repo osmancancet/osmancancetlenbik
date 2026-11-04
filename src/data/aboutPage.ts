@@ -54,17 +54,56 @@ const MONTH_EN: Record<string, string> = {
   Eki: "Oct",
   Kas: "Nov",
   Ara: "Dec",
-  Devam: "present",
-  ediyor: "",
 };
 
-function enWhen(value: string) {
+const MONTH_TR: Record<string, string> = {
+  Oca: "Ocak",
+  Şub: "Şubat",
+  Mar: "Mart",
+  Nis: "Nisan",
+  May: "Mayıs",
+  Haz: "Haziran",
+  Tem: "Temmuz",
+  Ağu: "Ağustos",
+  Eyl: "Eylül",
+  Eki: "Ekim",
+  Kas: "Kasım",
+  Ara: "Aralık",
+};
+
+function expandMonths(value: string, months: Record<string, string>) {
   return value
     .split(/\s+/)
-    .map((part) => MONTH_EN[part] ?? part)
+    .map((part) => months[part] ?? part)
     .filter(Boolean)
-    .join(" ")
-    .replace(/\s+–\s+/g, " – ");
+    .join(" ");
+}
+
+function ongoing(end: string) {
+  return end.trim().toLocaleLowerCase("tr") === "devam ediyor";
+}
+
+/** "Nis 2026" → "Nisan 2026'dan beri"; ay yoksa "2026'dan beri". */
+function trSince(start: string) {
+  return `${expandMonths(start, MONTH_TR)}'dan beri`;
+}
+
+/** Biten aralık: "Eyl 2025 – Kas 2025" → "Eylül 2025 – Kasım 2025 arasında". */
+function trDuring(start: string, end: string) {
+  const from = expandMonths(start, MONTH_TR);
+  const to = expandMonths(end, MONTH_TR);
+  const dash = /^\d{4}$/.test(from) && /^\d{4}$/.test(to) ? "–" : " – ";
+  return `${from}${dash}${to} arasında`;
+}
+
+function enWhen(value: string) {
+  return expandMonths(value, MONTH_EN);
+}
+
+/** "from Sep 2025 to Nov 2025" veya "since Apr 2026". */
+function enSpan(start: string, end: string) {
+  const from = enWhen(start);
+  return ongoing(end) ? `since ${from}` : `from ${from} to ${enWhen(end)}`;
 }
 
 function enDetail(description?: string) {
@@ -120,6 +159,54 @@ function findExp(match: (org: string, title: string) => boolean) {
   return cv.experience.find((e) => match(e.org, e.title));
 }
 
+/** Katalog ayıracını cümle içine uygun virgüle çevirir. */
+function proseName(value: string) {
+  return value.replace(/\s*·\s*/g, ", ").replace(/\s+,/g, ",").trim();
+}
+
+const MODE_TR: Record<string, string> = {
+  "Tam zamanlı": "tam zamanlı",
+  Uzaktan: "uzaktan",
+};
+
+/**
+ * CV açıklamasındaki sondaki nokta ve " · " / ". " birleşimleri
+ * parantez içinde "(Tam zamanlı. · İstanbul)" gibi okunuyordu.
+ * Noktayı atar, ayraçları virgüle indirger; yeni bilgi eklemez.
+ */
+function parenthetical(
+  description: string | undefined,
+  location: string | undefined,
+  locale: "tr" | "en"
+) {
+  const parts: string[] = [];
+  if (description) {
+    const translated = locale === "en" ? enDetail(description) : description;
+    const sentences = translated.split(/\.\s+/);
+    sentences.forEach((sentence, sentenceIndex) => {
+      sentence
+        .replace(/\.$/, "")
+        .split(/\s*·\s*/)
+        .map((bit) => bit.trim())
+        .filter(Boolean)
+        .forEach((bit, bitIndex) => {
+          let text = MODE_TR[bit] ?? bit;
+          if (
+            locale === "tr" &&
+            sentenceIndex > 0 &&
+            bitIndex === 0 &&
+            !/^(GPA|ISBN|Python|İstatistik|Büyük|Bilgisayar)/.test(text)
+          ) {
+            text = text.charAt(0).toLocaleLowerCase("tr") + text.slice(1);
+          }
+          parts.push(text);
+        });
+    });
+  }
+  if (location) parts.push(proseName(location));
+  return parts.length ? ` (${parts.join(", ")})` : "";
+}
+
 const book = books.find((b) => b.slug === "tikla-ma");
 const articleCount = publications.filter((p) => p.type === "Makale").length;
 const paperCount = publications.filter((p) => p.type === "Bildiri").length;
@@ -143,7 +230,7 @@ function officeTr() {
   return officeHours
     .map((h) => {
       const hours = h.end ? `${h.start}–${h.end}` : h.start;
-      return `${h.day}: ${hours}, ${h.location}`;
+      return `${h.day}: ${hours}, ${proseName(h.location)}`;
     })
     .join("; ");
 }
@@ -157,7 +244,7 @@ function officeEn() {
       const where =
         h.day === "Çevrim içi"
           ? "contact by email"
-          : "Vocational School of Technical Sciences · Akademisyen Odası";
+          : "Vocational School of Technical Sciences, Akademisyen Odası";
       return `${day}: ${hours}, ${where}`;
     })
     .join("; ");
@@ -189,31 +276,21 @@ function build(locale: "tr" | "en"): AboutExtra {
   if (locale === "en") {
     const education =
       lisans && yl
-        ? `I completed a ${enTitle(lisans.title)} at ${lisans.org} between ${enWhen(lisans.start)} and ${enWhen(lisans.end)} (${enDetail(lisans.description)}${lisans.location ? `, ${lisans.location}` : ""}). I completed a ${enTitle(yl.title)} at ${yl.org} between ${enWhen(yl.start)} and ${enWhen(yl.end)} (${enDetail(yl.description)}${yl.location ? `, ${yl.location}` : ""}).`
+        ? `I completed a ${enTitle(lisans.title)} at ${proseName(lisans.org)} between ${enWhen(lisans.start)} and ${enWhen(lisans.end)}${parenthetical(lisans.description, lisans.location, "en")}. I completed a ${enTitle(yl.title)} at ${proseName(yl.org)} between ${enWhen(yl.start)} and ${enWhen(yl.end)}${parenthetical(yl.description, yl.location, "en")}.`
         : "";
 
-    const academic = [
-      dogus &&
-        `${enTitle(dogus.title)} at ${dogus.org}, ${enWhen(dogus.start)} – ${enWhen(dogus.end)} (${[enDetail(dogus.description), dogus.location].filter(Boolean).join(" · ")}).`,
-      simav &&
-        `${enTitle(simav.title)} at ${simav.org}, ${enWhen(simav.start)} – ${enWhen(simav.end)}${simav.location ? `, ${simav.location}` : ""}.`,
-      mcbu &&
-        `${enTitle(mcbu.title)} at ${mcbu.org} since ${enWhen(mcbu.start)} (${[enDetail(mcbu.description), mcbu.location].filter(Boolean).join(" · ")}).`,
-      buam &&
-        `${enTitle(buam.title)} of ${buam.org} since ${enWhen(buam.start)}${buam.location ? `, ${buam.location}` : ""}.`,
-    ]
+    const at = (entry: NonNullable<typeof dogus>, title = enTitle(entry.title)) =>
+      `${title} at ${proseName(entry.org)} ${enSpan(entry.start, entry.end)}${parenthetical(entry.description, entry.location, "en")}.`;
+
+    const academic = [dogus && at(dogus), simav && at(simav), mcbu && at(mcbu), buam && at(buam)]
       .filter(Boolean)
       .join(" ");
 
     const industry = [
-      verkosis &&
-        `${enTitle(verkosis.title)} at ${verkosis.org}, ${enWhen(verkosis.start)} – ${enWhen(verkosis.end)} (${[enDetail(verkosis.description), verkosis.location].filter(Boolean).join(" · ")}).`,
-      dataVekili &&
-        `${enTitle(dataVekili.title)} at ${dataVekili.org}, ${enWhen(dataVekili.start)} – ${enWhen(dataVekili.end)} (${enDetail(dataVekili.description)}).`,
-      staj &&
-        `${enTitle(staj.title)} at ${staj.org}, ${enWhen(staj.start)} – ${enWhen(staj.end)}${staj.location ? `, ${staj.location}` : ""}.`,
-      destek &&
-        `${enTitle(destek.title)} at ${destek.org}, ${enWhen(destek.start)} – ${enWhen(destek.end)}${destek.location ? `, ${destek.location}` : ""}.`,
+      verkosis && at(verkosis),
+      dataVekili && at(dataVekili),
+      staj && at(staj),
+      destek && at(destek),
     ]
       .filter(Boolean)
       .join(" ");
@@ -224,16 +301,16 @@ function build(locale: "tr" | "en"): AboutExtra {
         q: "Where do you work?",
         a: [
           mcbu &&
-            `${enTitle(mcbu.title)} at ${mcbu.org} (${enWhen(mcbu.start)} – ${enWhen(mcbu.end)}; ${[enDetail(mcbu.description), mcbu.location].filter(Boolean).join(" · ")}).`,
+            `${enTitle(mcbu.title)} at ${proseName(mcbu.org)} ${enSpan(mcbu.start, mcbu.end)}${parenthetical(mcbu.description, mcbu.location, "en")}.`,
           buam &&
-            `${enTitle(buam.title)} of ${buam.org} (${enWhen(buam.start)} – ${enWhen(buam.end)}${buam.location ? `, ${buam.location}` : ""}).`,
-          `Based in ${profile.location}. Email: ${profile.email}.`,
+            `${enTitle(buam.title)} at ${proseName(buam.org)} ${enSpan(buam.start, buam.end)}${parenthetical(buam.description, buam.location, "en")}.`,
+          `Based in ${proseName(profile.location)}. Email: ${profile.email}.`,
         ]
           .filter(Boolean)
           .join(" "),
       },
       { q: "What is your education?", a: education },
-      { q: "What do you research?", a: RESEARCH_EN.join(" ") },
+      { q: "What do you research?", a: RESEARCH_EN.join("; ") },
       { q: "Have you published a book?", a: bookEn ?? "" },
       {
         q: "Which languages do you speak, and when are office hours?",
@@ -263,31 +340,39 @@ function build(locale: "tr" | "en"): AboutExtra {
 
   const education =
     lisans && yl
-      ? `Bilgisayar mühendisliği lisansını ${lisans.org} bünyesinde ${lisans.start}–${lisans.end} arasında tamamladım (${lisans.description}${lisans.location ? `, ${lisans.location}` : ""}). Yüksek lisansımı ${yl.org} bünyesinde ${yl.start} – ${yl.end} arasında yaptım (${yl.description}${yl.location ? `, ${yl.location}` : ""}).`
+      ? `Bilgisayar mühendisliği lisansını ${proseName(lisans.org)} bünyesinde ${trDuring(lisans.start, lisans.end)} tamamladım${parenthetical(lisans.description, lisans.location, "tr")}. Yüksek lisansımı ${proseName(yl.org)} bünyesinde ${trDuring(yl.start, yl.end)} yaptım${parenthetical(yl.description, yl.location, "tr")}.`
       : "";
 
+  const post = (
+    entry: NonNullable<typeof dogus>,
+    present: string,
+    past: string
+  ) => {
+    const when = ongoing(entry.end) ? trSince(entry.start) : trDuring(entry.start, entry.end);
+    const verb = ongoing(entry.end) ? present : past;
+    return `${when} ${proseName(entry.org)} bünyesinde ${verb}${parenthetical(entry.description, entry.location, "tr")}.`;
+  };
+
   const academic = [
-    dogus &&
-      `${dogus.start} – ${dogus.end} arasında ${dogus.org} bünyesinde ${dogus.title.toLocaleLowerCase("tr")} olarak çalıştım (${[dogus.description, dogus.location].filter(Boolean).join(" · ")}).`,
-    simav &&
-      `${simav.start} – ${simav.end} arasında ${simav.org} bünyesinde ${simav.title.toLocaleLowerCase("tr")} olarak görev yaptım${simav.location ? ` (${simav.location})` : ""}.`,
-    mcbu &&
-      `${mcbu.start} tarihinden beri ${mcbu.org} bünyesinde öğretim görevlisiyim (${[mcbu.description, mcbu.location].filter(Boolean).join(" · ")}).`,
-    buam &&
-      `${buam.start} tarihinden beri ${buam.org} bünyesinde merkez müdür yardımcısıyım${buam.location ? ` (${buam.location})` : ""}.`,
+    dogus && post(dogus, "öğretim görevlisiyim", "öğretim görevlisi olarak çalıştım"),
+    simav && post(simav, "öğretim görevlisiyim", "öğretim görevlisi olarak çalıştım"),
+    mcbu && post(mcbu, "öğretim görevlisiyim", "öğretim görevlisi olarak çalıştım"),
+    buam && post(buam, "merkez müdür yardımcısıyım", "merkez müdür yardımcısı olarak çalıştım"),
   ]
     .filter(Boolean)
     .join(" ");
 
   const industry = [
-    verkosis &&
-      `${verkosis.start} – ${verkosis.end} arasında ${verkosis.org} bünyesinde ${verkosis.title} olarak çalıştım (${[verkosis.description, verkosis.location].filter(Boolean).join(" · ")}).`,
+    verkosis && post(verkosis, verkosis.title, `${verkosis.title} olarak çalıştım`),
     dataVekili &&
-      `${dataVekili.start} – ${dataVekili.end} arasında ${dataVekili.org} bünyesinde ${dataVekili.title.toLocaleLowerCase("tr")} olarak çalıştım (${dataVekili.description}).`,
-    staj &&
-      `${staj.start} – ${staj.end} arasında ${staj.org} bünyesinde stajyer olarak bulundum${staj.location ? ` (${staj.location})` : ""}.`,
+      post(
+        dataVekili,
+        dataVekili.title.toLocaleLowerCase("tr"),
+        `${dataVekili.title.toLocaleLowerCase("tr")} olarak çalıştım`
+      ),
+    staj && post(staj, "stajyerim", "stajyer olarak bulundum"),
     destek &&
-      `${destek.start} – ${destek.end} arasında aynı birimde ${destek.title.toLocaleLowerCase("tr")} olarak çalıştım${destek.location ? ` (${destek.location})` : ""}.`,
+      `${trDuring(destek.start, destek.end)} aynı birimde ${destek.title.toLocaleLowerCase("tr")} olarak çalıştım${parenthetical(destek.description, destek.location, "tr")}.`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -298,16 +383,16 @@ function build(locale: "tr" | "en"): AboutExtra {
       q: "Nerede görev yapıyorsunuz?",
       a: [
         mcbu &&
-          `${mcbu.org} bünyesinde öğretim görevlisi (${mcbu.start} – ${mcbu.end}; ${[mcbu.description, mcbu.location].filter(Boolean).join(" · ")}).`,
+          `${proseName(mcbu.org)} bünyesinde öğretim görevlisi (${trSince(mcbu.start)}; ${parenthetical(mcbu.description, mcbu.location, "tr").replace(/^\s\(|\)$/g, "")}).`,
         buam &&
-          `${buam.org} bünyesinde merkez müdür yardımcısı (${buam.start} – ${buam.end}${buam.location ? `, ${buam.location}` : ""}).`,
-        `Çalışma yeri: ${profile.location}. E-posta: ${profile.email}.`,
+          `${proseName(buam.org)} bünyesinde merkez müdür yardımcısı (${trSince(buam.start)}${buam.location ? `, ${proseName(buam.location)}` : ""}).`,
+        `Çalışma yeri: ${proseName(profile.location)}. E-posta: ${profile.email}.`,
       ]
         .filter(Boolean)
         .join(" "),
     },
     { q: "Eğitiminiz nedir?", a: education },
-    { q: "Hangi konularda araştırma yapıyorsunuz?", a: cv.research.join(" ") },
+    { q: "Hangi konularda araştırma yapıyorsunuz?", a: cv.research.join("; ") },
     { q: "Yayımlanmış bir kitabınız var mı?", a: bookTr ?? "" },
     {
       q: "Hangi dilleri biliyorsunuz ve ofis saatleri nedir?",
