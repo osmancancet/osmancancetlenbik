@@ -10,7 +10,7 @@ type Province = { name: string; plate: number; d: string; cx: number; cy: number
 const PROVINCES = (TR as { provinces: Province[] }).provinces;
 const BY_PLATE = new Map(PROVINCES.map((p) => [p.plate, p]));
 const SORTED = [...PROVINCES].sort((a, b) => a.name.localeCompare(b.name, "tr"));
-const KIND_LABEL = new Map<string, string>(SCAM_KINDS.map((k) => [k.id, k.label]));
+const KIND_LABEL = new Map<string, string>(SCAM_KINDS.map((k) => [k.id, k.short]));
 const SCALE = ["#fde2e4", "#fbb4bd", "#f6808f", "#e94b62", "#c51f3d", "#8a0f28"];
 const PAGE_URL = "https://osmancancetlenbik.com/#harita";
 
@@ -50,7 +50,7 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
 
   const max = useMemo(() => Math.max(1, ...Object.values(summary.byPlate)), [summary]);
   const topPlates = useMemo(
-    () => Object.entries(summary.byPlate).map(([p, n]) => [Number(p), n] as const).sort((a, b) => b[1] - a[1]).slice(0, 5),
+    () => Object.entries(summary.byPlate).map(([p, n]) => [Number(p), n] as const).sort((a, b) => b[1] - a[1]).slice(0, 3),
     [summary],
   );
   const kinds = useMemo(
@@ -96,9 +96,9 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
   ];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-      <div className="card rounded-lg p-4 sm:p-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+    <div className="grid gap-5 lg:grid-cols-[1fr_400px]">
+      <div className="card rounded-lg p-4 sm:p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-2">
           <div>
             <div className="text-3xl font-semibold text-[var(--fg)] tabular-nums">{summary.total.toLocaleString("tr-TR")}</div>
             <div className="text-xs text-[var(--fg-muted)]">bildirim · {Object.keys(summary.byPlate).length} il</div>
@@ -143,17 +143,17 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
             </div>
           )}
         </div>
-        <div className="mt-3 flex items-center gap-2 text-[11px] text-[var(--fg-subtle)]">
+        <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--fg-subtle)]">
           <span>az</span>
           {SCALE.map((c) => <span key={c} className="h-2.5 w-6 rounded-sm" style={{ background: c }} />)}
           <span>çok</span>
           <span className="ml-auto">Haritada iline dokun → formda seçilir</span>
         </div>
 
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+        <div className="mt-4 grid gap-5 sm:grid-cols-2">
           <div>
             <h2 className="text-sm font-semibold text-[var(--fg)] mb-2">En çok bildirim gelen iller</h2>
-            <ol className="space-y-1.5 text-sm">
+            <ol className="space-y-1 text-sm">
               {topPlates.map(([p, n], i) => (
                 <li key={p} className="flex justify-between gap-2">
                   <span className="text-[var(--fg-muted)]">{i + 1}. {BY_PLATE.get(p)?.name}</span>
@@ -165,8 +165,8 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
           </div>
           <div>
             <h2 className="text-sm font-semibold text-[var(--fg)] mb-2">Yöntemler</h2>
-            <ul className="space-y-1.5">
-              {kinds.filter(([, n]) => n > 0).slice(0, 6).map(([id, n]) => (
+            <ul className="space-y-1">
+              {kinds.filter(([, n]) => n > 0).slice(0, 3).map(([id, n]) => (
                 <li key={id} className="text-xs">
                   <div className="flex justify-between gap-2 text-[var(--fg-muted)]">
                     <span>{KIND_LABEL.get(id)}</span>
@@ -182,8 +182,8 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
         </div>
       </div>
 
-      <form ref={formRef} onSubmit={submit} className="scroll-mt-24 card rounded-lg p-5 h-fit lg:sticky lg:top-24 space-y-4">
-        <h2 className="text-lg font-semibold text-[var(--fg)] flex items-center gap-2">
+      <form ref={formRef} onSubmit={submit} className="scroll-mt-24 card rounded-lg p-4 sm:p-5 h-fit space-y-3">
+        <h2 className="text-base font-semibold text-[var(--fg)] flex items-center gap-2">
           <MapPin className="w-4 h-4 text-[var(--accent)]" /> İşaretini koy
         </h2>
         <label className="block text-sm">
@@ -201,11 +201,11 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
         </label>
         <fieldset className="text-sm">
           <legend className="text-[var(--fg-muted)] mb-1">Sana / yakınına denenen yöntem</legend>
-          <div className="grid gap-1.5">
+          <div className="grid grid-cols-2 gap-1.5">
             {SCAM_KINDS.map((k) => (
-              <label key={k.id} className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer transition-colors ${kind === k.id ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] hover:border-[var(--border-strong)]"}`}>
-                <input type="radio" name="kind" value={k.id} checked={kind === k.id} onChange={() => setKind(k.id)} disabled={state === "done"} className="accent-[var(--accent)]" />
-                <span className="text-[var(--fg)]">{k.label}</span>
+              <label key={k.id} className={`flex items-center rounded-md border px-2.5 py-2 text-[13px] leading-tight cursor-pointer transition-colors ${kind === k.id ? "border-[var(--accent)] bg-[var(--accent-soft)]" : "border-[var(--border)] hover:border-[var(--border-strong)]"}`}>
+                <input type="radio" name="kind" value={k.id} checked={kind === k.id} onChange={() => setKind(k.id)} disabled={state === "done"} className="sr-only" />
+                <span className="text-[var(--fg)]">{k.short}</span>
               </label>
             ))}
           </div>
@@ -237,7 +237,7 @@ export function HaritaClient({ initial }: { initial: HaritaSummary }) {
 
         <p className="flex gap-2 text-[11px] leading-relaxed text-[var(--fg-subtle)]">
           <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-[var(--accent)]" />
-          Yalnızca il, yöntem ve kayıp olup olmadığı saklanır. IP adresin kaydedilmez; günde bir bildirim sınırı için gün değiştikçe yenilenen tek yönlü bir özet kullanılır. Kimliğini belirleyen hiçbir veri istenmez (KVKK).
+          Anonim: yalnızca il, yöntem ve kayıp bilgisi saklanır; IP adresin kaydedilmez (KVKK).
         </p>
       </form>
     </div>
