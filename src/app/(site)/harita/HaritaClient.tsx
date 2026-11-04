@@ -12,7 +12,7 @@ const BY_PLATE = new Map(PROVINCES.map((p) => [p.plate, p]));
 const SORTED = [...PROVINCES].sort((a, b) => a.name.localeCompare(b.name, "tr"));
 const KIND_LABEL = new Map<string, string>(SCAM_KINDS.map((k) => [k.id, k.label]));
 const SCALE = ["#fde2e4", "#fbb4bd", "#f6808f", "#e94b62", "#c51f3d", "#8a0f28"];
-const PAGE_URL = "https://osmancancetlenbik.com/harita";
+const PAGE_URL = "https://osmancancetlenbik.com/#harita";
 
 function fill(n: number, max: number) {
   if (!n) return "var(--surface-2, rgba(127,127,127,0.12))";

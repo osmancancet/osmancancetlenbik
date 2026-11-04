@@ -100,10 +100,10 @@ export default async function Home() {
       />
       <AnnouncementBar announcement={announcement} />
 
-      {/* Dolandırıcılık Haritası — LinkedIn kampanyası, en üstte */}
-      <HaritaTeaser initial={await getHaritaSummary().catch(() => null)} />
-
       <Hero />
+
+      {/* Dolandırıcılık Haritası — tanıtımın hemen ardından */}
+      <HaritaTeaser initial={await getHaritaSummary().catch(() => null)} />
 
       {/* Sunum ve araçlar — LinkedIn'den gelen ziyaretçi bunları arıyor */}
       <FeaturedTalk />
