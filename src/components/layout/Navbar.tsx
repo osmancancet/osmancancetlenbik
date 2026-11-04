@@ -141,13 +141,9 @@ export function Navbar() {
 
   const secondaryActive = secondary[locale].some((l) => l.href === pathname);
 
-  const productLink: NavLink[] =
-    locale === "tr" ? [{ href: "/sesu", label: "Sesu" }] : [];
-
   const allLinks = [
     { href: home, label: t.home },
     ...primary[locale],
-    ...productLink,
     ...secondary[locale],
   ];
 
@@ -268,27 +264,6 @@ export function Navbar() {
               </AnimatePresence>
             </div>
             )}
-
-            {productLink.map((l) => {
-              const active = pathname === l.href;
-              return (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`relative px-2.5 py-2 text-sm transition-colors ${
-                    active
-                      ? "text-[var(--fg)]"
-                      : "text-[var(--fg-muted)] hover:text-[var(--fg)]"
-                  }`}
-                >
-                  {l.label}
-                  {active && (
-                    <span className="absolute left-2.5 right-2.5 -bottom-0.5 h-px bg-[var(--accent)]" />
-                  )}
-                </Link>
-              );
-            })}
           </nav>
 
           <div className="flex items-center gap-1">
