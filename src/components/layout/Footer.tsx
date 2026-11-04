@@ -71,6 +71,7 @@ const COLUMNS: Record<
         { href: "/hakkimda", label: "Hakkımda" },
         { href: "/yazilarim", label: "Yazılarım" },
         { href: "/projeler", label: "Projeler" },
+        { href: "/sesu", label: "Sesu" },
         { href: "/basin", label: "Basında" },
         { href: "/duyurular", label: "Duyurular" },
         { href: "/etkinlikler", label: "Etkinlik Radarı" },

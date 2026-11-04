@@ -33,6 +33,14 @@ const STATIC_PAGES: SearchResult[] = [
   { id: "p-confs", type: "page", title: "Konferanslarım", href: "/konferanslarim" },
   { id: "p-press", type: "page", title: "Basında", href: "/basin" },
   { id: "p-projects", type: "page", title: "Projeler", href: "/projeler" },
+  {
+    id: "p-sesu",
+    type: "page",
+    title: "Sesu",
+    description:
+      "Ücretsiz dil ve konuşma terapisi uygulaması. Artikülasyon, kekemelik, afazi.",
+    href: "/sesu",
+  },
   { id: "p-contact", type: "page", title: "İletişim", href: "/iletisim" },
   { id: "p-announce", type: "page", title: "Duyurular", href: "/duyurular" },
   {

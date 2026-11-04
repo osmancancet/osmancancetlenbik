@@ -113,6 +113,7 @@ ${faqLinesEn}
 - Akademik yayınlar: ${siteUrl}/yayinlar
 - Konferanslar: ${siteUrl}/konferanslarim
 - Projeler: ${siteUrl}/projeler
+- Sesu (ücretsiz dil ve konuşma terapisi uygulaması, iOS ve Android): ${siteUrl}/sesu
 - Basında: ${siteUrl}/basin
 - Özgeçmiş: ${siteUrl}/cv
 - İletişim: ${siteUrl}/iletisim

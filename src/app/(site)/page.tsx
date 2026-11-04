@@ -7,6 +7,7 @@ import { HomeStats } from "@/components/sections/HomeStats";
 import { HomeRecent } from "@/components/sections/HomeRecent";
 import { CurrentSemesterCourses } from "@/components/sections/CurrentSemesterCourses";
 import { FeaturedBook } from "@/components/sections/FeaturedBook";
+import { SesuTeaser } from "@/components/sections/SesuTeaser";
 import { Reveal } from "@/components/ui/Reveal";
 import { prisma } from "@/lib/prisma";
 import { publications } from "@/data/publications";
@@ -104,6 +105,9 @@ export default async function Home() {
 
       {/* Yeni kitap */}
       <FeaturedBook />
+
+      {/* Sesu — dil ve konuşma terapisi uygulaması */}
+      <SesuTeaser />
 
       {/* Current semester courses */}
       <CurrentSemesterCourses

@@ -194,6 +194,42 @@ export function jsonLdScript(data: object) {
   };
 }
 
+/** Sesu gibi mağaza uygulamaları. Fiyat 0 ve para birimi şemada metin olarak durur. */
+export function mobileApplicationJsonLd(args: {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  operatingSystem: string;
+  applicationCategory: string;
+  inLanguage: string;
+  downloadUrl: readonly string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    name: args.name,
+    description: args.description,
+    url: args.url,
+    image: args.image,
+    operatingSystem: args.operatingSystem,
+    applicationCategory: args.applicationCategory,
+    inLanguage: args.inLanguage,
+    downloadUrl: [...args.downloadUrl],
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "TRY",
+    },
+    author: {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
+      name: profile.name,
+      url: siteUrl,
+    },
+  };
+}
+
 /* ─── Kurumsal / hizmet yapısal verisi ────────────────────────────────
    Google zengin sonuçları ve üretken arama motorları (GEO) için: kim,
    ne yapıyor, nerede, hangi hizmetlerle — makine okunur biçimde. */
