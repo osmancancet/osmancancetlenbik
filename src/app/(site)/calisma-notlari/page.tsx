@@ -11,7 +11,7 @@ export const metadata: Metadata = seoMeta({
   path: "/calisma-notlari",
   title: "Çalışma Notları",
   description:
-    "Büyük Veri Analistliği dersleri için hikâyeli, 5 şıklı, 200'er soruluk çalışma kağıtları; cevap anahtarı ve açıklamalarıyla ücretsiz PDF.",
+    "Büyük Veri Analistliği dersleri için hikâyeli, 5 şıklı, 200'er soruluk çalışma kağıtları; ücretsiz PDF.",
 });
 
 function fileSize(slug: string): string | null {
@@ -40,7 +40,7 @@ export default function CalismaNotlariPage() {
     <PageShell
       eyebrow="Akademik"
       title="Çalışma Notları"
-      subtitle="Her ders için 200 soruluk, hikâyeli ve öğretici çalışma kağıtları. Sorular kısa bir olayla başlar, 5 şıklıdır; kitapçığın sonunda cevap anahtarı ve her sorunun açıklaması yer alır."
+      subtitle="Her ders için 200 soruluk, hikâyeli ve öğretici çalışma kağıtları. Her soru kısa bir olayla başlar ve 5 şıklıdır."
     >
       {available.length === 0 ? (
         <Reveal>
@@ -75,8 +75,7 @@ export default function CalismaNotlariPage() {
                     {n.course}
                   </h2>
                   <p className="font-mono text-xs text-[var(--fg-subtle)] mt-1">
-                    {n.questions} soru · {n.scope} · cevap anahtarı +
-                    açıklamalar
+                    {n.questions} soru · {n.scope}
                   </p>
                   <p className="text-sm text-[var(--fg-muted)] mt-3 leading-relaxed flex-1">
                     {n.summary}
