@@ -4,6 +4,11 @@ export type Project = {
   name: string;
   description: string;
   url: string;
+  /**
+   * `url` site içi bir sayfaysa true. Kart yeni sekmede açılmaz ve GitHub
+   * simgesi çizilmez.
+   */
+  internal?: boolean;
   live?: string;
   /** Tanıtım videosu (ör. Instagram Reels). */
   video?: string;
@@ -71,6 +76,15 @@ export const projects: Project[] = [
   },
 
   // ─── Mobil ──────────────────────────────────────────────────────
+  {
+    name: "Sesu",
+    description:
+      "Dil ve konuşma terapistleri için ücretsiz, reklamsız ve çevrimdışı Türkçe uygulama. Artikülasyon, kekemelik, afazi ve sosyal iletişim; PDF ilerleme raporu.",
+    url: "/sesu",
+    internal: true,
+    tags: ["iOS", "Android", "Çevrimdışı"],
+    category: "mobil",
+  },
   {
     name: "Sweeply",
     description:

@@ -10,7 +10,8 @@ import {
   type Project,
   type ProjectCategory,
 } from "@/data/projects";
-import { ArrowUpRight, ExternalLink, Play } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, ExternalLink, Play } from "lucide-react";
 import { GithubIcon } from "@/components/ui/BrandIcons";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -28,23 +29,38 @@ function ProjectCard({ p, large = false }: { p: Project; large?: boolean }) {
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 min-w-0">
-          <GithubIcon className="w-4 h-4 shrink-0 text-[var(--fg-subtle)] group-hover:text-[var(--accent)] transition-colors" />
+          {p.internal ? null : (
+            <GithubIcon className="w-4 h-4 shrink-0 text-[var(--fg-subtle)] group-hover:text-[var(--accent)] transition-colors" />
+          )}
           <h3
             className={`font-medium font-mono text-[var(--fg)] truncate ${
               large ? "text-lg" : "text-base"
             }`}
           >
-            <a
-              href={p.url}
-              target="_blank"
-              rel="noreferrer"
-              className="after:absolute after:inset-0 after:content-['']"
-            >
-              {p.name}
-            </a>
+            {p.internal ? (
+              <Link
+                href={p.url}
+                className="after:absolute after:inset-0 after:content-['']"
+              >
+                {p.name}
+              </Link>
+            ) : (
+              <a
+                href={p.url}
+                target="_blank"
+                rel="noreferrer"
+                className="after:absolute after:inset-0 after:content-['']"
+              >
+                {p.name}
+              </a>
+            )}
           </h3>
         </div>
-        <ArrowUpRight className="w-4 h-4 shrink-0 text-[var(--fg-subtle)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+        {p.internal ? (
+          <ArrowRight className="w-4 h-4 shrink-0 text-[var(--fg-subtle)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all" />
+        ) : (
+          <ArrowUpRight className="w-4 h-4 shrink-0 text-[var(--fg-subtle)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+        )}
       </div>
 
       <p
