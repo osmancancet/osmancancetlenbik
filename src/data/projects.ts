@@ -28,6 +28,16 @@ export const categoryLabels: Record<ProjectCategory, string> = {
 export const projects: Project[] = [
   // ─── Öne çıkanlar ───────────────────────────────────────────────
   {
+    name: "Sesu",
+    description:
+      "Dil ve konuşma terapistleri için ücretsiz, reklamsız ve çevrimdışı Türkçe uygulama. Artikülasyon, kekemelik, afazi ve sosyal iletişim; PDF ilerleme raporu.",
+    url: "/sesu",
+    internal: true,
+    tags: ["iOS", "Android", "Çevrimdışı"],
+    category: "mobil",
+    featured: true,
+  },
+  {
     name: "ArGör",
     description:
       "Akademisyenler için sesle çalışan yapay zekâ araştırma görevlisi. \"Hey ArGör\" dersin; mailleri özetler, ders sunumu ve sınav hazırlar, ödevleri rubriğe göre puanlar, OpenAlex'ten DOI'si doğrulanmış kaynakça verir, antetli resmi yazı yazar. Uyanma kelimesi cihazda algılanır; mail göndermek gibi geri alınamaz işlerden önce onay ister, mail ve web içeriğindeki talimatlara (prompt injection) uymaz.",
@@ -76,15 +86,6 @@ export const projects: Project[] = [
   },
 
   // ─── Mobil ──────────────────────────────────────────────────────
-  {
-    name: "Sesu",
-    description:
-      "Dil ve konuşma terapistleri için ücretsiz, reklamsız ve çevrimdışı Türkçe uygulama. Artikülasyon, kekemelik, afazi ve sosyal iletişim; PDF ilerleme raporu.",
-    url: "/sesu",
-    internal: true,
-    tags: ["iOS", "Android", "Çevrimdışı"],
-    category: "mobil",
-  },
   {
     name: "Sweeply",
     description:
