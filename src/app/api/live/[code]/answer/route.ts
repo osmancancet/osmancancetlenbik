@@ -19,17 +19,22 @@ export async function POST(req: Request, { params }: Ctx) {
   const { code: raw } = await params;
   const ip = getClientIp(req);
 
-  const rl = checkRateLimit(`live-answer:${ip}`, { max: 60, windowMs: 60_000 });
-  if (!rl.ok) {
-    return NextResponse.json(
-      { error: "Çok hızlı gönderiyorsunuz." },
-      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
-    );
-  }
-
   const parsed = AnswerSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
+  }
+
+  // Sınıftaki herkes aynı Wi-Fi'dan (tek IP) yanıt veriyor: IP başına sınır
+  // 40 kişilik bir sınıfı ikinci soruda kilitlerdi. Sınır katılımcı başına,
+  // IP sınırı yalnız toplu saldırıya karşı geniş tutuldu.
+  const rl = checkRateLimit(`live-answer:${parsed.data.key}`, { max: 30, windowMs: 60_000 });
+  const rlIp = checkRateLimit(`live-answer-ip:${ip}`, { max: 1200, windowMs: 60_000 });
+  if (!rl.ok || !rlIp.ok) {
+    const retry = Math.max(rl.retryAfterSeconds, rlIp.retryAfterSeconds);
+    return NextResponse.json(
+      { error: "Çok hızlı gönderiyorsunuz." },
+      { status: 429, headers: { "Retry-After": String(retry) } }
+    );
   }
 
   const session = await prisma.liveSession.findUnique({

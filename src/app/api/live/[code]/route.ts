@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   normalizeCode,
+  scoreFor,
   tallyWords,
   type ActivityOption,
   type ActivityState,
@@ -51,6 +52,26 @@ export async function GET(req: Request, { params }: Ctx) {
     });
   }
 
+  // Kahoot'taki "3. sıradasın, Ayşe'nin 120 puan gerisinde" satırı için.
+  let standing: { rank: number; ahead: { nickname: string; gap: number } | null } | null =
+    null;
+  if (me) {
+    const [higher, ahead] = await Promise.all([
+      prisma.liveParticipant.count({
+        where: { sessionId: session.id, score: { gt: me.score } },
+      }),
+      prisma.liveParticipant.findFirst({
+        where: { sessionId: session.id, score: { gt: me.score } },
+        orderBy: [{ score: "asc" }, { joinedAt: "asc" }],
+        select: { nickname: true, score: true },
+      }),
+    ]);
+    standing = {
+      rank: higher + 1,
+      ahead: ahead ? { nickname: ahead.nickname, gap: ahead.score - me.score } : null,
+    };
+  }
+
   const base = {
     code: session.code,
     title: session.title,
@@ -59,7 +80,7 @@ export async function GET(req: Request, { params }: Ctx) {
     participants: session._count.participants,
     activityCount: session.activities.length,
     me: me
-      ? { nickname: me.nickname, score: me.score }
+      ? { nickname: me.nickname, score: me.score, ...standing }
       : null,
   };
 
@@ -81,6 +102,23 @@ export async function GET(req: Request, { params }: Ctx) {
         },
       })
     : null;
+
+  // Cevap serisi: sonucu açılmış yarışma sorularında arka arkaya doğru sayısı.
+  let streak = 0;
+  if (me && revealed && current.type === "QUIZ") {
+    const quizIds = session.activities
+      .filter((a) => a.type === "QUIZ" && a.order <= current.order)
+      .map((a) => a.id);
+    const mine = await prisma.liveResponse.findMany({
+      where: { participantId: me.id, activityId: { in: quizIds } },
+      select: { activityId: true, correct: true },
+    });
+    const byId = new Map(mine.map((r) => [r.activityId, r.correct]));
+    for (let i = quizIds.length - 1; i >= 0; i--) {
+      if (byId.get(quizIds[i]) !== true) break;
+      streak++;
+    }
+  }
 
   let results: unknown = null;
   if (revealed) {
@@ -117,6 +155,8 @@ export async function GET(req: Request, { params }: Ctx) {
     ...base,
     activity: {
       id: current.id,
+      /** 1'den başlayan soru numarası ("Soru 3 / 25"). */
+      index: current.order + 1,
       type: current.type,
       prompt: current.prompt,
       seconds: current.seconds,
@@ -135,7 +175,16 @@ export async function GET(req: Request, { params }: Ctx) {
           optionId: myResponse.optionId,
           text: myResponse.text,
           correct: revealed ? myResponse.correct : null,
+          points:
+            revealed && current.type === "QUIZ"
+              ? scoreFor({
+                  correct: !!myResponse.correct,
+                  elapsedMs: myResponse.elapsedMs,
+                  seconds: current.seconds,
+                })
+              : null,
         }
       : null,
+    streak,
   });
 }

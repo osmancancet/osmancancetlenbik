@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { ACTIVITY_LABELS, type ActivityType } from "@/lib/live";
+import { optionColor } from "@/lib/liveColors";
 import { readKey } from "../storage";
 
 type Option = { id: string; label: string; correct?: boolean };
@@ -23,9 +24,15 @@ type State = {
   status: "LOBBY" | "LIVE" | "ENDED";
   participants: number;
   activityCount: number;
-  me: { nickname: string; score: number } | null;
+  me: {
+    nickname: string;
+    score: number;
+    rank?: number;
+    ahead?: { nickname: string; gap: number } | null;
+  } | null;
   activity: {
     id: string;
+    index: number;
     type: ActivityType;
     prompt: string;
     seconds: number;
@@ -38,12 +45,19 @@ type State = {
       | { texts: string[] }
       | null;
   } | null;
-  myAnswer: { optionId: string | null; text: string | null; correct: boolean | null } | null;
+  myAnswer: {
+    optionId: string | null;
+    text: string | null;
+    correct: boolean | null;
+    points?: number | null;
+  } | null;
+  streak?: number;
 };
 
-/** Yoklamayı ders temposunda tutmak için 2 saniye; sunucuya yük bindirmeden
- *  öğrenci soruyu tahtayla neredeyse aynı anda görüyor. */
+/** Bekleme anlarında 2 saniye yeter; yarışma sürerken 1 saniye — 10 saniyelik
+ *  soruda şıkları geç gören öğrenci haksız yere puan kaybetmesin. */
 const POLL_MS = 2000;
+const LIVE_POLL_MS = 1000;
 
 export function LiveStudentClient({ code }: { code: string }) {
   const [state, setState] = useState<State | null>(null);
@@ -71,9 +85,10 @@ export function LiveStudentClient({ code }: { code: string }) {
     setState(await res.json());
   }, [code]);
 
+  const live = state?.status === "LIVE";
   useEffect(() => {
     load();
-    const id = setInterval(load, POLL_MS);
+    const id = setInterval(load, live ? LIVE_POLL_MS : POLL_MS);
     // Sekme arkadayken yoklamayı durdurmak telefon pilini koruyor.
     const onVis = () => {
       if (document.visibilityState === "visible") load();
@@ -83,7 +98,7 @@ export function LiveStudentClient({ code }: { code: string }) {
       clearInterval(id);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [load]);
+  }, [load, live]);
 
   async function answer(payload: { optionId?: string; text?: string }) {
     const key = keyRef.current;
@@ -177,13 +192,34 @@ export function LiveStudentClient({ code }: { code: string }) {
       <main className="flex-1 px-5 py-8">
         <div className="max-w-lg mx-auto">
           {state.status === "ENDED" ? (
-            <Waiting
-              title="Ders bitti"
-              body={
-                state.me
-                  ? `Toplam puanınız: ${state.me.score}. Katıldığınız için teşekkürler.`
-                  : "Katıldığınız için teşekkürler."
-              }
+            state.me?.rank && state.me.score > 0 ? (
+              <FinalRank me={state.me} players={state.participants} />
+            ) : (
+              <Waiting
+                title="Ders bitti"
+                body={
+                  state.me
+                    ? `Toplam puanınız: ${state.me.score}. Katıldığınız için teşekkürler.`
+                    : "Katıldığınız için teşekkürler."
+                }
+              />
+            )
+          ) : !a && state.me ? (
+            <div className="text-center py-16">
+              <p className="text-3xl font-bold text-[var(--fg)] mb-3">{state.me.nickname}</p>
+              <p className="text-[var(--fg-muted)]">
+                Katıldın! Adını tahtada görüyor musun?
+              </p>
+            </div>
+          ) : a && a.type === "QUIZ" ? (
+            <QuizPlayer
+              activity={a}
+              total={state.activityCount}
+              myAnswer={state.myAnswer}
+              streak={state.streak ?? 0}
+              me={state.me}
+              sending={sending}
+              onAnswer={(optionId) => answer({ optionId })}
             />
           ) : !a || a.state === "IDLE" ? (
             <Waiting
@@ -399,6 +435,139 @@ function ActivityView({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Yarışma sorusu — Kahoot akışındaki oyuncu ekranları:
+ * hazır ol → renkli şıklar → yanıt alındı → doğru/yanlış + puan + sıra.
+ */
+function QuizPlayer({
+  activity,
+  total,
+  myAnswer,
+  streak,
+  me,
+  sending,
+  onAnswer,
+}: {
+  activity: NonNullable<State["activity"]>;
+  total: number;
+  myAnswer: State["myAnswer"];
+  streak: number;
+  me: State["me"];
+  sending: boolean;
+  onAnswer: (optionId: string) => void;
+}) {
+  if (activity.state === "IDLE") {
+    return (
+      <div className="text-center py-16">
+        <p className="text-sm uppercase tracking-[0.25em] text-[var(--fg-subtle)] mb-4">
+          Soru {activity.index} / {total}
+        </p>
+        <h2 className="text-3xl font-bold text-[var(--fg)] mb-6">Hazır ol!</h2>
+        <LoaderCircle className="w-8 h-8 animate-spin text-[var(--accent)] mx-auto" />
+        <p className="mt-6 text-[var(--fg-muted)]">Soruyu tahtadan oku.</p>
+      </div>
+    );
+  }
+
+  if (activity.state === "OPEN" || activity.state === "LOCKED") {
+    if (myAnswer || activity.state === "LOCKED") {
+      return (
+        <div className="text-center py-16">
+          <LoaderCircle className="w-8 h-8 animate-spin text-[var(--accent)] mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-[var(--fg)] mb-2">
+            {myAnswer ? "Yanıtın alındı" : "Süre doldu"}
+          </h2>
+          <p className="text-[var(--fg-muted)]">Diğerleri bekleniyor…</p>
+        </div>
+      );
+    }
+    return (
+      <div>
+        <p className="text-xs text-center text-[var(--fg-subtle)] mb-3">
+          Soru {activity.index} / {total}
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {activity.options.map((o, i) => {
+            const c = optionColor(i);
+            return (
+              <button
+                key={o.id}
+                type="button"
+                disabled={sending}
+                onClick={() => onAnswer(o.id)}
+                className="min-h-[38vh] rounded-xl p-4 flex flex-col items-center justify-center gap-3 text-white active:scale-[0.97] transition-transform disabled:opacity-60"
+                style={{ background: c.bg }}
+              >
+                <span className="text-4xl font-black">{c.letter}</span>
+                <span className="text-base font-semibold leading-snug text-center">
+                  {o.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // REVEALED
+  const correct = myAnswer?.correct === true;
+  const title = !myAnswer ? "Süre doldu" : correct ? "Doğru" : "Yanlış";
+  return (
+    <div
+      className={`-mx-5 -my-8 min-h-[calc(100dvh-57px)] flex flex-col items-center justify-center text-center px-6 text-white ${
+        correct ? "bg-emerald-700" : "bg-rose-800"
+      }`}
+    >
+      <div className="w-20 h-20 rounded-full bg-white/20 grid place-items-center mb-5">
+        {correct ? (
+          <Check className="w-12 h-12" strokeWidth={3} />
+        ) : (
+          <X className="w-12 h-12" strokeWidth={3} />
+        )}
+      </div>
+      <h2 className="text-4xl font-black mb-4">{title}</h2>
+      {correct && streak > 1 && (
+        <p className="mb-3 text-white/90">Cevap serisi: {streak}</p>
+      )}
+      <p className="text-3xl font-bold bg-black/25 rounded-lg px-6 py-2 mb-6 tabular-nums">
+        +{myAnswer?.points ?? 0}
+      </p>
+      {me?.rank && <p className="text-lg">{rankLine(me)}</p>}
+    </div>
+  );
+}
+
+function rankLine(me: NonNullable<State["me"]>): string {
+  if (!me.rank) return "";
+  if (me.rank <= 3) return `Podyumdasın — ${me.rank}. sıradasın!`;
+  return me.ahead
+    ? `${me.rank}. sıradasın · ${me.ahead.nickname} ${me.ahead.gap} puan önde`
+    : `${me.rank}. sıradasın`;
+}
+
+function FinalRank({
+  me,
+  players,
+}: {
+  me: NonNullable<State["me"]>;
+  players: number;
+}) {
+  const medal = me.rank === 1 ? "🥇" : me.rank === 2 ? "🥈" : me.rank === 3 ? "🥉" : null;
+  return (
+    <div className="text-center py-16">
+      {medal && <div className="text-7xl mb-4">{medal}</div>}
+      <Trophy className={`w-10 h-10 mx-auto mb-4 text-[var(--accent)] ${medal ? "hidden" : ""}`} />
+      <h2 className="text-3xl font-black text-[var(--fg)] mb-2">
+        {me.rank}. oldun
+      </h2>
+      <p className="text-[var(--fg-muted)] mb-6">{players} kişi arasında</p>
+      <p className="text-2xl font-bold font-mono text-[var(--accent)]">{me.score} puan</p>
+      <p className="mt-8 text-sm text-[var(--fg-subtle)]">Katıldığın için teşekkürler!</p>
     </div>
   );
 }

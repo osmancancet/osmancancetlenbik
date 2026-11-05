@@ -72,9 +72,10 @@ export const SCALE_OPTIONS: ActivityOption[] = [
 ];
 
 /**
- * Yarışma puanı. Doğru cevap taban 600 puan; süre sınırı varsa erken yanıt
- * 400 puana kadar ek alır. Amaç hızlı olanı ödüllendirmek ama yavaş doğru
- * cevabı da anlamlı bırakmak — yoksa geç katılan öğrenci oyunu bırakıyor.
+ * Yarışma puanı — Kahoot'taki gibi: doğru cevap 500–1000 arası puan alır.
+ * Soru açılır açılmaz verilen doğru cevap 1000'e yakın, son saniyede
+ * verilen 500 alır: puan = 1000 × (1 − (geçen süre / süre) / 2).
+ * Yanlış ya da boş cevap 0. Süresiz soruda doğru cevap 1000.
  */
 export function scoreFor(args: {
   correct: boolean;
@@ -82,12 +83,9 @@ export function scoreFor(args: {
   seconds: number;
 }): number {
   if (!args.correct) return 0;
-  const BASE = 600;
-  const BONUS = 400;
-  if (!args.seconds || args.elapsedMs == null) return BASE + BONUS;
-  const limitMs = args.seconds * 1000;
-  const ratio = Math.min(1, Math.max(0, args.elapsedMs / limitMs));
-  return BASE + Math.round(BONUS * (1 - ratio));
+  if (!args.seconds || args.elapsedMs == null) return 1000;
+  const ratio = Math.min(1, Math.max(0, args.elapsedMs / (args.seconds * 1000)));
+  return Math.round(1000 * (1 - ratio / 2));
 }
 
 /** Kelime bulutu için yanıtları normalleştirip sayar. */

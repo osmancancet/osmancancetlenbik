@@ -17,7 +17,9 @@ const JoinSchema = z.object({
 
 export async function POST(req: Request) {
   const ip = getClientIp(req);
-  const rl = checkRateLimit(`live-join:${ip}`, { max: 20, windowMs: 60_000 });
+  // Bir sınıf genelde tek bir Wi-Fi (tek IP) arkasından giriyor; sınır sınıfı
+  // değil, toplu kötüye kullanımı durdurmak için.
+  const rl = checkRateLimit(`live-join:${ip}`, { max: 300, windowMs: 60_000 });
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Çok fazla deneme. Biraz bekleyin." },

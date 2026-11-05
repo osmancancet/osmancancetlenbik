@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Check,
   Eye,
+  Gamepad2,
   Lock,
   Monitor,
   Play,
@@ -17,9 +18,10 @@ import {
 } from "lucide-react";
 import { ACTIVITY_LABELS, type ActivityType } from "@/lib/live";
 import { useQrDataUrl } from "@/components/useQrDataUrl";
+import { GameScreen } from "./GameScreen";
 
 type Option = { id: string; label: string; correct?: boolean };
-type Activity = {
+export type Activity = {
   id: string;
   order: number;
   type: ActivityType;
@@ -28,7 +30,7 @@ type Activity = {
   state: "IDLE" | "OPEN" | "LOCKED" | "REVEALED";
   options: Option[];
 };
-type Data = {
+export type Data = {
   session: {
     id: string;
     code: string;
@@ -49,6 +51,8 @@ type Data = {
 };
 
 const POLL_MS = 2000;
+/** Oyun ekranı açıkken durum daha sık tazelenir: "herkes yanıtladı" hemen görülsün. */
+const GAME_POLL_MS = 1000;
 
 export function LiveConsoleClient({ id }: { id: string }) {
   const [data, setData] = useState<Data | null>(null);
@@ -59,12 +63,6 @@ export function LiveConsoleClient({ id }: { id: string }) {
     if (res.ok) setData(await res.json());
   }, [id]);
 
-  useEffect(() => {
-    load();
-    const t = setInterval(load, POLL_MS);
-    return () => clearInterval(t);
-  }, [load]);
-
   const act = useCallback(
     async (action: string, activityId?: string) => {
       await fetch(`/api/admin/live/${id}`, {
@@ -72,15 +70,27 @@ export function LiveConsoleClient({ id }: { id: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, activityId }),
       });
-      load();
+      await load();
     },
     [id, load]
   );
+
+  const [game, setGame] = useState(false);
+
+  useEffect(() => {
+    load();
+    const t = setInterval(load, game ? GAME_POLL_MS : POLL_MS);
+    return () => clearInterval(t);
+  }, [load, game]);
 
   if (!data) return <p className="text-sm text-[var(--fg-subtle)]">Yükleniyor…</p>;
 
   const s = data.session;
   const current = data.activities.find((a) => a.id === s.currentActivityId);
+
+  if (game) {
+    return <GameScreen data={data} act={act} onClose={() => setGame(false)} />;
+  }
 
   if (board) {
     return (
@@ -113,9 +123,19 @@ export function LiveConsoleClient({ id }: { id: string }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {data.activities.some((a) => a.type === "QUIZ") && (
+            <button
+              onClick={() => setGame(true)}
+              title="Kahoot gibi: lobi → soru → sonuç → sıralama → podyum, kendiliğinden akar"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold rounded-md hover:opacity-90"
+            >
+              <Gamepad2 className="w-4 h-4" />
+              Oyunu başlat
+            </button>
+          )}
           <button
             onClick={() => setBoard(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold rounded-md hover:opacity-90"
+            className="inline-flex items-center gap-2 px-4 py-2.5 border border-[var(--border-strong)] text-sm rounded-md text-[var(--fg-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             <Monitor className="w-4 h-4" />
             Tahta görünümü
@@ -466,7 +486,18 @@ function BoardView({
             </h2>
 
             <div className="text-2xl [&_*]:!text-white">
-              <Results activity={current} results={data.results} />
+              {current.type === "QUIZ" && current.state !== "REVEALED" ? (
+                // Yanıtlar açıkken tahtada doğru şık ve dağılım görünmemeli.
+                <ul className="space-y-2">
+                  {current.options.map((o) => (
+                    <li key={o.id} className="px-3 py-2 rounded border border-white/15">
+                      {o.label}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <Results activity={current} results={data.results} />
+              )}
             </div>
 
             <div className="mt-10 flex gap-3 justify-center">
