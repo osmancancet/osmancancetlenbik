@@ -76,7 +76,7 @@ const STATIC_PAGES: SearchResult[] = [
     id: "p-study-notes",
     type: "page",
     title: "Çalışma Notları",
-    description: "Derslere göre 200 soruluk, hikâyeli ve 5 şıklı PDF çalışma kağıtları",
+    description: "Derslere göre hikâyeli ve 5 şıklı PDF çalışma kağıtları",
     href: "/calisma-notlari",
   },
   ...roadmaps.map<SearchResult>((r) => ({

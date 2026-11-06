@@ -33,6 +33,15 @@ export const studyNotes: StudyNote[] = [
     questions: 200,
   },
   {
+    slug: "is-sagligi-ve-guvenligi",
+    code: "BVA 1109",
+    course: "İş Sağlığı ve Güvenliği",
+    scope: "1–7. hafta",
+    summary:
+      "İlk yardımın temel ilkeleri, olay yeri değerlendirmesi, ilk yardım malzemeleri, kişisel emniyet, risk kontrol hiyerarşisi ve kişisel koruyucu donanımlar.",
+    questions: 100,
+  },
+  {
     slug: "buyuk-veri-icin-bulut-bilisim",
     code: "BVA 2103",
     course: "Büyük Veri için Bulut Bilişim",
@@ -66,6 +75,15 @@ export const studyNotes: StudyNote[] = [
     scope: "1–7. hafta",
     summary:
       "CIA üçlüsü, Wireshark ve Nmap ile ağ analizi, kriptografi, OWASP Top 10, kimlik ve erişim yönetimi, uç nokta güvenliği ve zararlı yazılım.",
+    questions: 200,
+  },
+  {
+    slug: "kullanici-arayuzu-tasarimi",
+    code: "BVA 2245",
+    course: "Kullanıcı Arayüzü Tasarımı",
+    scope: "1–7. hafta",
+    summary:
+      "UI/UX temelleri, kullanıcı araştırması, persona ve kullanıcı yolculuğu, bilgi mimarisi, Gestalt ve bilişsel yük, tipografi ve ızgara, renk ve erişilebilirlik.",
     questions: 200,
   },
 ];
