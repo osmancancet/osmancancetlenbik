@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-13T08:40:22+03:00",
+  "updatedAt": "2026-11-13T08:47:32+03:00",
   "events": [
     {
       "id": "nebius-nvidia-global-ai-hackathon-2026",
@@ -412,8 +412,8 @@
       "online": true,
       "prize": "Büyük ödül 1 milyon TL",
       "url": "https://promptarena.com.tr/",
-      "deadline": "",
-      "eventDate": "Başvurular sürüyor (son gün resmi sayfada yazmıyor; basında 15 Kasım 2026 olarak geçiyor). Yarı final 29 Kasım, final 17-18 Aralık 2026",
+      "deadline": "2026-11-15",
+      "eventDate": "Başvuru 14 Ekim – 15 Kasım 2026; yarı final 29 Kasım, final 17-18 Aralık 2026 (İstanbul)",
       "summary": "Türkiye'de ön lisans, lisans veya yüksek lisans okuyan 18 yaş üstü öğrencilere açık, bireysel katılımlı yapay zekâ (prompt) yarışması; çevrim içi elemelerden sonra İstanbul'daki yarı final ve final için ulaşım ve konaklama karşılanıyor.",
       "firstSeen": "2026-11-13"
     },
@@ -543,6 +543,42 @@
       "deadline": "2027-01-11",
       "eventDate": "11 Kasım 2026 – 11 Ocak 2027 (son teslim TSİ 11 Ocak 19.00)",
       "summary": "Standart web teknolojileriyle bir ajan ağı barındıran açık kaynak web sitesi geliştirilen çevrim içi yarışma; reşit olan herkese açık, iki aylık süresiyle dönem içinde yürütülebilecek bir takım projesi.",
+      "firstSeen": "2026-11-13"
+    },
+    {
+      "id": "nestup-4-up-your-ideas-2026",
+      "name": "NestUP 4: UP Your Ideas!",
+      "type": "İdeathon",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Nestlé Türkiye (Purina PetCare)",
+      "location": "İstanbul (Nestlé Türkiye Hilltown Ofis)",
+      "online": false,
+      "prize": "1.: 60.000 TL; 2.: 50.000 TL; 3.: 40.000 TL (hediye çeki)",
+      "url": "https://anbeankampus.co/nestup-4-up-your-ideas/",
+      "deadline": "2026-11-29",
+      "eventDate": "5 Aralık 2026, 09.30-15.45",
+      "summary": "Nestlé Türkiye'nin tek günlük fikir yarışması; her bölüm ve sınıftan lisans öğrencileri bireysel başvuruyor, seçilen adaylar etkinliğe davet ediliyor. Kodlama gerektirmeyen, vaka ve fikir geliştirme deneyimi isteyen öğrenciler için uygun.",
+      "firstSeen": "2026-11-13"
+    },
+    {
+      "id": "global-game-jam-2027",
+      "name": "Global Game Jam 2027",
+      "type": "Game Jam",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "Global Game Jam",
+      "location": "Yerel jam alanları (globalgamejam.org üzerinden)",
+      "online": false,
+      "prize": "",
+      "url": "https://globalgamejam.org/",
+      "deadline": "2027-01-31",
+      "eventDate": "25-31 Ocak 2027",
+      "summary": "Dünyanın en büyük oyun geliştirme maratonu; katılımcılar yerel jam alanlarında aynı tema üzerine kısa sürede oyun üretiyor. Oyun geliştirmeye ilgili öğrenciler ve kulüpler için ödülsüz ama çok öğretici bir deneyim.",
       "firstSeen": "2026-11-13"
     }
   ]
