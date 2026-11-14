@@ -1,41 +1,6 @@
 {
-  "updatedAt": "2026-11-13T08:53:28+03:00",
+  "updatedAt": "2026-11-14T06:59:48+03:00",
   "events": [
-    {
-      "id": "nebius-nvidia-global-ai-hackathon-2026",
-      "name": "Nebius x NVIDIA Global AI Hackathon",
-      "type": "Hackathon",
-      "audience": [
-        "Öğrenci",
-        "Mezun"
-      ],
-      "organizer": "Nebius ve NVIDIA (Devpost)",
-      "location": "Çevrim içi",
-      "online": true,
-      "prize": "50.000 USD üzeri",
-      "url": "https://nebiusglobalaihackathon.devpost.com/",
-      "deadline": "2026-10-30",
-      "eventDate": "Son teslim 30 Ekim 2026",
-      "summary": "Açık kaynak NVIDIA modelleriyle ajan, kodlama ve fiziksel YZ projeleri geliştirilen küresel çevrim içi hackathon; LLM/ajan çalışan öğrenciler ve mezunlar için uygun.",
-      "firstSeen": "2026-10-12"
-    },
-    {
-      "id": "water-ai-hackathon-2026",
-      "name": "Water AI Hackathon 2026 (WAH)",
-      "type": "Hackathon",
-      "audience": [
-        "Öğrenci"
-      ],
-      "organizer": "Wilo Türkiye (imece)",
-      "location": "İstanbul",
-      "online": false,
-      "prize": "1.: Almanya WiloPark gezisi; 2.: kişi başı 30.000 TL; 3.: kişi başı 15.000 TL",
-      "url": "https://wilo.com/tr/tr/Water-AI-Hackathon-2026.html",
-      "deadline": "2026-10-30",
-      "eventDate": "5 Aralık 2026 (öncesinde zorunlu çevrim içi eğitim kampı)",
-      "summary": "Su teknolojilerinde yapay zeka çözümleri üzerine tek günlük hackathon; lisans ve lisansüstü öğrencilerine açık, 3-4 kişilik takımlarla bölüm fark etmeksizin katılınabiliyor.",
-      "firstSeen": "2026-10-12"
-    },
     {
       "id": "aimo-interpretability-challenge-2026",
       "name": "AIMO Interpretability Challenge (NeurIPS 2026)",
@@ -580,6 +545,80 @@
       "eventDate": "25-31 Ocak 2027",
       "summary": "Dünyanın en büyük oyun geliştirme maratonu; katılımcılar yerel jam alanlarında aynı tema üzerine kısa sürede oyun üretiyor. Oyun geliştirmeye ilgili öğrenciler ve kulüpler için ödülsüz ama çok öğretici bir deneyim.",
       "firstSeen": "2026-11-13"
+    },
+    {
+      "id": "wolvctf-2026",
+      "name": "WolvCTF 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "WolvSec (University of Michigan)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://wolvctf.io/",
+      "deadline": "2026-11-22",
+      "eventDate": "21-23 Kasım 2026 (TSİ 21 Kasım 02.00 – 23 Kasım 02.00; 13-15 Kasım'dan ertelendi)",
+      "summary": "Başlangıç seviyesinden zora uzanan sorularıyla 48 saatlik Jeopardy tarzı CTF; Açık kategoriye herkes takım boyutu sınırı olmadan katılabiliyor. Web, kripto, adli bilişim ve OSINT gibi kategorileriyle ilk CTF deneyimi için uygun.",
+      "firstSeen": "2026-11-14"
+    },
+    {
+      "id": "qnx-global-hackathon-2026",
+      "name": "QNX Global Hackathon",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "QNX (BlackBerry)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Toplam 50.000 $ (büyük ödül 10.000 $)",
+      "url": "https://qnx.devpost.com/",
+      "deadline": "2026-12-15",
+      "eventDate": "2 Kasım – 15 Aralık 2026 (son teslim TSİ 15 Aralık 22.00)",
+      "summary": "QNX 8.0 gerçek zamanlı işletim sistemi üzerinde çalışan yazılım projeleri geliştirilen çevrim içi hackathon; robotik, otomotiv, düşük seviye yazılım, geliştirici araçları ve açık kaynak katkı kategorileri var. 18 yaş üstü herkes bireysel veya takım olarak ücretsiz katılabiliyor.",
+      "firstSeen": "2026-11-14"
+    },
+    {
+      "id": "relate-by-neo4j-hackathon-2026",
+      "name": "Relate by Neo4j Hackathon",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "Neo4j",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Mac Studio ve Mac mini (ilk üç projeye)",
+      "url": "https://relate.devpost.com/",
+      "deadline": "2026-12-12",
+      "eventDate": "Son teslim 11 Aralık 2026 (TSİ 12 Aralık 05.00)",
+      "summary": "Neo4j'nin yapay zekâ ajanları için açık kaynak gömülü veritabanı Relate ile bağlantılı veriyi kullanan projeler geliştirilen bir aylık çevrim içi hackathon. Çizge veritabanı ve YZ ajanlarıyla uğraşmak isteyen veri öğrencileri için iyi bir pratik; reşit olan herkes katılabiliyor.",
+      "firstSeen": "2026-11-14"
+    },
+    {
+      "id": "gazi-ai-tech-2026",
+      "name": "GAZİ AI TECH 2026 Yapay Zekâ Festivali ve Fikir Yarışması",
+      "type": "YZ Yarışması",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Gazi Üniversitesi Yapay Zekâ Merkezi",
+      "location": "Ankara, Gazi Üniversitesi",
+      "online": false,
+      "prize": "",
+      "url": "https://ai.gazi.edu.tr/",
+      "deadline": "",
+      "eventDate": "Son başvuru ve final tarihleri resmî yarışma kılavuzunda (ai.gazi.edu.tr); bu taramada doğrulanamadı",
+      "summary": "Gazi Üniversitesi'nin 100. yıl etkinlikleri kapsamında düzenlenen yapay zekâ festivali ve fikir yarışması; sağlık, eğitim, mühendislik, sanat, akıllı şehirler ve sürdürülebilirlik alanlarında YZ uygulama fikirleri bekleniyor. Katılım koşulları ve başvuru adımları için resmî kılavuza bakın.",
+      "firstSeen": "2026-11-14"
     }
   ]
 }
