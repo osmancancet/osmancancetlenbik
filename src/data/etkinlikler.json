@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-14T06:59:48+03:00",
+  "updatedAt": "2026-11-15T06:43:01+03:00",
   "events": [
     {
       "id": "aimo-interpretability-challenge-2026",
@@ -611,14 +611,33 @@
         "Öğrenci"
       ],
       "organizer": "Gazi Üniversitesi Yapay Zekâ Merkezi",
-      "location": "Ankara, Gazi Üniversitesi",
+      "location": "Ankara, Gazi Üniversitesi Rektörlüğü Mimar Kemaleddin Salonu",
       "online": false,
-      "prize": "",
-      "url": "https://ai.gazi.edu.tr/",
-      "deadline": "",
-      "eventDate": "Son başvuru ve final tarihleri resmî yarışma kılavuzunda (ai.gazi.edu.tr); bu taramada doğrulanamadı",
-      "summary": "Gazi Üniversitesi'nin 100. yıl etkinlikleri kapsamında düzenlenen yapay zekâ festivali ve fikir yarışması; sağlık, eğitim, mühendislik, sanat, akıllı şehirler ve sürdürülebilirlik alanlarında YZ uygulama fikirleri bekleniyor. Katılım koşulları ve başvuru adımları için resmî kılavuza bakın.",
+      "prize": "1.: 50.000 TL; 2.: 30.000 TL; 3.: 20.000 TL",
+      "url": "https://ai.gazi.edu.tr/GAZI_AI_TECH_2026.html",
+      "deadline": "2026-11-25",
+      "eventDate": "Son başvuru 25 Kasım 2026 23.59; finalistler 27 Kasım'da açıklanacak; sergi, final sunumları ve ödül töreni 4 Aralık 2026",
+      "summary": "Gazi Üniversitesi'nin 100. yıl etkinlikleri kapsamındaki yapay zekâ fikir yarışması; Türkiye'deki tüm üniversitelerin ön lisans ve lisans öğrencileri en fazla 5 kişilik takımlarla ücretsiz başvurabiliyor. Sağlık, eğitim, akıllı şehirler, sürdürülebilirlik gibi her alandan YZ proje fikri kabul edildiği için ön lisans takımlarına çok uygun.",
       "firstSeen": "2026-11-14"
+    },
+    {
+      "id": "uoftctf-2027",
+      "name": "UofTCTF 2027",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "UofTCTF (University of Toronto)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://ctftime.org/event/3508/",
+      "deadline": "2027-01-11",
+      "eventDate": "9-11 Ocak 2027 (TSİ 9 Ocak 03.00 – 11 Ocak 03.00)",
+      "summary": "Toronto Üniversitesi CTF takımının düzenlediği 48 saatlik çevrim içi Jeopardy CTF (CTFtime ağırlığı 50); kayıt yarışma boyunca açık ve ücretsiz. Yarıyıl tatiline denk geldiği için öğrenci takımlarının pratik yapması için uygun.",
+      "firstSeen": "2026-11-15"
     }
   ]
 }
