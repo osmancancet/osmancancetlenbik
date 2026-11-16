@@ -1,25 +1,6 @@
 {
-  "updatedAt": "2026-11-15T06:43:01+03:00",
+  "updatedAt": "2026-11-16T06:55:26+03:00",
   "events": [
-    {
-      "id": "aimo-interpretability-challenge-2026",
-      "name": "AIMO Interpretability Challenge (NeurIPS 2026)",
-      "type": "YZ Yarışması",
-      "audience": [
-        "Akademisyen",
-        "Öğrenci",
-        "Mezun"
-      ],
-      "organizer": "AIMO / NeurIPS 2026 Yarışma Programı",
-      "location": "Çevrim içi",
-      "online": true,
-      "prize": "Toplam 12.500 USD",
-      "url": "https://aimo-interp.github.io",
-      "deadline": "2026-11-01",
-      "eventDate": "Son gönderim 1 Kasım 2026; teknik rapor 15 Kasım 2026; çalıştay 12 Aralık 2026",
-      "summary": "Bir modelin olimpiyat problemi cevabının sağlam mı yoksa sahte örüntüye mi dayandığını açıklanabilirlik yöntemleriyle tespit etme yarışması; XAI ilgi alanıyla doğrudan örtüşüyor ve NeurIPS çalıştayında sunum fırsatı var.",
-      "firstSeen": "2026-10-12"
-    },
     {
       "id": "arc-prize-2026",
       "name": "ARC Prize 2026 (ARC-AGI-2 / ARC-AGI-3 / Makale Ödülü)",
@@ -560,7 +541,7 @@
       "online": true,
       "prize": "",
       "url": "https://wolvctf.io/",
-      "deadline": "2026-11-22",
+      "deadline": "2026-11-23",
       "eventDate": "21-23 Kasım 2026 (TSİ 21 Kasım 02.00 – 23 Kasım 02.00; 13-15 Kasım'dan ertelendi)",
       "summary": "Başlangıç seviyesinden zora uzanan sorularıyla 48 saatlik Jeopardy tarzı CTF; Açık kategoriye herkes takım boyutu sınırı olmadan katılabiliyor. Web, kripto, adli bilişim ve OSINT gibi kategorileriyle ilk CTF deneyimi için uygun.",
       "firstSeen": "2026-11-14"
