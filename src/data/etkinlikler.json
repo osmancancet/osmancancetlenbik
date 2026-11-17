@@ -1,25 +1,6 @@
 {
-  "updatedAt": "2026-11-16T06:55:26+03:00",
+  "updatedAt": "2026-11-17T07:05:01+03:00",
   "events": [
-    {
-      "id": "arc-prize-2026",
-      "name": "ARC Prize 2026 (ARC-AGI-2 / ARC-AGI-3 / Makale Ödülü)",
-      "type": "YZ Yarışması",
-      "audience": [
-        "Öğrenci",
-        "Mezun",
-        "Akademisyen"
-      ],
-      "organizer": "ARC Prize Foundation (Kaggle)",
-      "location": "Çevrim içi",
-      "online": true,
-      "prize": "Toplam 2 milyon USD",
-      "url": "https://arcprize.org/competitions/2026",
-      "deadline": "2026-11-02",
-      "eventDate": "Son teslim 2 Kasım 2026; makaleler 8 Kasım 2026",
-      "summary": "Akıl yürütme ve genelleme ölçen ARC-AGI kıyaslamaları üzerine Kaggle yarışması; makale ödülü kategorisi sayesinde akademisyenler için de yayın fırsatı sunuyor.",
-      "firstSeen": "2026-10-12"
-    },
     {
       "id": "paypal-ai-hackathon-2026",
       "name": "PayPal AI Hackathon",
@@ -324,8 +305,8 @@
       "online": true,
       "prize": "",
       "url": "https://semeval.github.io/SemEval2027/tasks",
-      "deadline": "",
-      "eventDate": "Değerlendirme dönemi Ocak 2027 (göreve göre değişiyor)",
+      "deadline": "2027-01-31",
+      "eventDate": "Değerlendirme dönemi 10-31 Ocak 2027 (bazı görevlerde daha erken bitebilir); makale teslimi Şubat 2027 (taslak takvim)",
       "summary": "11 NLP paylaşılan görevi (ör. LGBTQIA+ nefret söylemi, haber çerçeveleme, ajan risk değerlendirmesi, araç çağırma); sistem makalesi yayını için akademisyen ve lisansüstü öğrencilere uygun.",
       "firstSeen": "2026-10-12"
     },
@@ -619,6 +600,23 @@
       "eventDate": "9-11 Ocak 2027 (TSİ 9 Ocak 03.00 – 11 Ocak 03.00)",
       "summary": "Toronto Üniversitesi CTF takımının düzenlediği 48 saatlik çevrim içi Jeopardy CTF (CTFtime ağırlığı 50); kayıt yarışma boyunca açık ve ücretsiz. Yarıyıl tatiline denk geldiği için öğrenci takımlarının pratik yapması için uygun.",
       "firstSeen": "2026-11-15"
+    },
+    {
+      "id": "turkcell-yarinin-teknoloji-liderleri-2027",
+      "name": "Turkcell Yarının Teknoloji Liderleri 2026-2027",
+      "type": "Diğer",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Turkcell",
+      "location": "Türkiye geneli (başvuru çevrim içi)",
+      "online": true,
+      "prize": "Toplam 3.500.000 TL (6 projeye 300.000 – 1.500.000 TL)",
+      "url": "https://www.turkcell.com.tr/yarininteknolojiliderleri",
+      "deadline": "2027-01-15",
+      "eventDate": "Başvuru 8 Ekim 2026 – 15 Ocak 2027; final 3-7 Mayıs 2027, ödül töreni 7 Mayıs 2027",
+      "summary": "Turkcell'in üniversite öğrencilerine yönelik teknoloji projesi yarışması; Türkiye ve KKTC'de örgün öğretimdeki lisans öğrencileri bireysel veya en fazla 3 kişilik ekiplerle ücretsiz başvurabiliyor. Ön lisans ve açık öğretim öğrencileri katılamıyor; lisans tamamlayan veya lisans okuyan ekipler için yüksek ödüllü bir fırsat.",
+      "firstSeen": "2026-11-17"
     }
   ]
 }
