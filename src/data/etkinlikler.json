@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-17T07:05:01+03:00",
+  "updatedAt": "2026-11-18T06:48:36+03:00",
   "events": [
     {
       "id": "paypal-ai-hackathon-2026",
@@ -50,7 +50,7 @@
       "prize": "Toplam 20.000 $",
       "url": "https://xyleminnovationchallenge.bemyapp.com/",
       "deadline": "2026-11-20",
-      "eventDate": "28 Eylül - 20 Kasım 2026 (sekiz haftalık sanal hackathon)",
+      "eventDate": "28 Eylül - 20 Kasım 2026 (sekiz haftalık sanal hackathon; son teslim 20 Kasım 24.00 TSİ)",
       "summary": "Su güvenliği sorunlarına teknoloji ve veriyle çözüm arayan, 25 yaş altı üniversite öğrencilerine açık sanal bir yarışma; en fazla 5 kişilik takımlarla mentor desteğiyle çalışılıyor.",
       "firstSeen": "2026-10-12"
     },
@@ -617,6 +617,25 @@
       "eventDate": "Başvuru 8 Ekim 2026 – 15 Ocak 2027; final 3-7 Mayıs 2027, ödül töreni 7 Mayıs 2027",
       "summary": "Turkcell'in üniversite öğrencilerine yönelik teknoloji projesi yarışması; Türkiye ve KKTC'de örgün öğretimdeki lisans öğrencileri bireysel veya en fazla 3 kişilik ekiplerle ücretsiz başvurabiliyor. Ön lisans ve açık öğretim öğrencileri katılamıyor; lisans tamamlayan veya lisans okuyan ekipler için yüksek ödüllü bir fırsat.",
       "firstSeen": "2026-11-17"
+    },
+    {
+      "id": "sans-holiday-hack-challenge-2026",
+      "name": "SANS Holiday Hack Challenge 2026",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "SANS Institute",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Büyük ödül: ücretsiz SANS OnDemand kursu; ayrıca SANS Summit bileti ve abonelikler",
+      "url": "https://www.sans.org/mlp/holiday-hack-challenge",
+      "deadline": "2027-01-05",
+      "eventDate": "Oyunun açılış tarihi henüz duyurulmadı (ön etkinlik oynanabiliyor); rapor teslimi 5 Ocak 2027'ye kadar, kazananlar 20 Ocak 2027'de açıklanacak",
+      "summary": "SANS'ın her yıl düzenlediği ücretsiz, oyunlaştırılmış siber güvenlik yarışması; yeni başlayandan uzmana her seviyeye uygun görevler içeriyor ve herkes katılabiliyor. Yarıyıl tatiline uzanan süresiyle siber güvenliğe yeni başlayan öğrenciler için iyi bir uygulama fırsatı.",
+      "firstSeen": "2026-11-18"
     }
   ]
 }
