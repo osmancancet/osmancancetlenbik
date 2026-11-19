@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-18T06:48:36+03:00",
+  "updatedAt": "2026-11-19T06:41:45+03:00",
   "events": [
     {
       "id": "paypal-ai-hackathon-2026",
@@ -51,7 +51,7 @@
       "url": "https://xyleminnovationchallenge.bemyapp.com/",
       "deadline": "2026-11-20",
       "eventDate": "28 Eylül - 20 Kasım 2026 (sekiz haftalık sanal hackathon; son teslim 20 Kasım 24.00 TSİ)",
-      "summary": "Su güvenliği sorunlarına teknoloji ve veriyle çözüm arayan, 25 yaş altı üniversite öğrencilerine açık sanal bir yarışma; en fazla 5 kişilik takımlarla mentor desteğiyle çalışılıyor.",
+      "summary": "Su güvenliği sorunlarına teknoloji ve veriyle çözüm arayan, 13-25 yaş arası öğrencilere (üniversite kategorisi var) açık sanal bir yarışma; en fazla 5 kişilik takımlarla mentor desteğiyle çalışılıyor.",
       "firstSeen": "2026-10-12"
     },
     {
@@ -67,8 +67,8 @@
       "online": true,
       "prize": "",
       "url": "https://itch.io/jam/game-off-2026",
-      "deadline": "2026-12-01",
-      "eventDate": "1 Kasım – 1 Aralık 2026 (tema 1 Kasım'da açıklanacak)",
+      "deadline": "2026-12-02",
+      "eventDate": "1 Kasım – 1 Aralık 2026 (son teslim 1 Aralık 13.37 PST = TSİ 2 Aralık 00.37)",
       "summary": "Bir ay süren, açık kaynak kodlu oyun geliştirme maratonu; herhangi bir dil veya motorla katılınabiliyor, oyun geliştirmeye ilgili öğrenciler için düşük eşikli ve portfolyo dostu.",
       "firstSeen": "2026-10-12"
     },
@@ -633,9 +633,46 @@
       "prize": "Büyük ödül: ücretsiz SANS OnDemand kursu; ayrıca SANS Summit bileti ve abonelikler",
       "url": "https://www.sans.org/mlp/holiday-hack-challenge",
       "deadline": "2027-01-05",
-      "eventDate": "Oyunun açılış tarihi henüz duyurulmadı (ön etkinlik oynanabiliyor); rapor teslimi 5 Ocak 2027'ye kadar, kazananlar 20 Ocak 2027'de açıklanacak",
+      "eventDate": "Oyun açıldı, tüm görevler yayında; rapor teslimi 5 Ocak 2027'ye kadar, kazananlar 20 Ocak 2027'de açıklanacak",
       "summary": "SANS'ın her yıl düzenlediği ücretsiz, oyunlaştırılmış siber güvenlik yarışması; yeni başlayandan uzmana her seviyeye uygun görevler içeriyor ve herkes katılabiliyor. Yarıyıl tatiline uzanan süresiyle siber güvenliğe yeni başlayan öğrenciler için iyi bir uygulama fırsatı.",
       "firstSeen": "2026-11-18"
+    },
+    {
+      "id": "advent-of-code-2026",
+      "name": "Advent of Code 2026",
+      "type": "Kodlama Yarışması",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "Eric Wastl / Advent of Code",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://adventofcode.com/",
+      "deadline": "",
+      "eventDate": "İlk bulmacalar 1 Aralık 2026'da açılıyor (TSİ 08.00); her gün yeni bulmaca, bitiş günü henüz açıklanmadı (Aralık ortası)",
+      "summary": "Her gün yayımlanan, istenen programlama diliyle çözülebilen ücretsiz kodlama bulmacaları; bilgisayar bilimi altyapısı gerektirmiyor ve farklı seviyelere hitap ediyor. Yeni başlayan öğrencilerin düzenli kodlama pratiği yapması için ideal.",
+      "firstSeen": "2026-11-19"
+    },
+    {
+      "id": "pirate-software-game-jam-2027-1",
+      "name": "Pirate Software Game Jam (Ocak 2027)",
+      "type": "Game Jam",
+      "audience": [
+        "Öğrenci",
+        "Mezun"
+      ],
+      "organizer": "Pirate Software (itch.io)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://itch.io/jam/pirate",
+      "deadline": "2027-02-01",
+      "eventDate": "17-31 Ocak 2027 (itch.io'ya göre teslim 31 Ocak 23.48 UTC = TSİ 1 Şubat 02.48; saatler değişebilir)",
+      "summary": "İki hafta süren, kalabalık katılımlı çevrim içi game jam; tek başına veya en fazla 5 kişilik takımlarla katılınıyor, oyunla birlikte oyun tasarım belgesi de isteniyor ve yapay zekâ üretimi içerik yasak. Yarıyıl tatiline denk geldiği için öğrenci takımlarına uygun.",
+      "firstSeen": "2026-11-19"
     }
   ]
 }
