@@ -9,29 +9,18 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FileText,
-  Type,
-  Hash,
-  Scissors,
-  Search,
-  Replace,
-  Quote,
-  ArrowLeftRight,
-  Ruler,
-  Braces,
-  ListChecks,
-  CheckCircle2,
-  AlertTriangle,
-  Lightbulb,
-  Layers,
-  Zap,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
-  Calendar,
-  Target,
+  Check,
+  MousePointerClick,
+  RotateCcw,
+  Hand,
+  Quote,
+  Scissors,
+  WandSparkles,
   type LucideIcon,
 } from "lucide-react";
 import { CodeEditor } from "../_shared/code/CodeEditor";
@@ -64,7 +53,7 @@ function Eyebrow({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="inline-flex items-center gap-3 mb-6 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
+      className="inline-flex items-center gap-3 mb-4 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
     >
       <span className="w-8 h-px bg-[#5fa8e0]" />
       {children}
@@ -91,7 +80,7 @@ function H2({ children, className = "" }: { children: ReactNode; className?: str
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className={`text-3xl md:text-5xl font-semibold tracking-tight text-white ${className}`}
+      className={`text-3xl md:text-4xl font-semibold tracking-tight text-white ${className}`}
     >
       {children}
     </motion.h2>
@@ -140,106 +129,681 @@ function FeatureCard({
       >
         <Icon className="w-6 h-6" style={{ color: accent }} />
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+      <p className="text-base text-gray-400 leading-relaxed">{desc}</p>
     </motion.div>
   );
 }
 
-/* ---- Code Editor Mockup (VS Code style) ---------------------- */
+/* ---- Anlatım yardımcıları ------------------------------------ */
 
-type CodeLine = ReactNode;
-
-// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
-// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
-// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
-
-
-/* ---- String indeksleme şeridi -------------------------------- */
-
-function IndexStrip({ word, delay = 0 }: { word: string; delay?: number }) {
-  const chars = word.split("");
+/** Hocanın sınıfa yönelteceği tek soru (slaydın altında, soluk). */
+function Ask({ children }: { children: ReactNode }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay }}
-      className="prog-flow-bg p-6 w-full overflow-x-auto"
-    >
-      <div className="flex flex-col items-center gap-2 min-w-max mx-auto">
-        {/* Pozitif indeksler */}
-        <div className="flex gap-1.5">
-          {chars.map((_, i) => (
-            <div key={i} className="w-12 text-center text-[11px] font-mono prog-idx-pos">
-              {i}
-            </div>
-          ))}
-        </div>
-        {/* Karakter kutuları */}
-        <div className="flex gap-1.5">
-          {chars.map((ch, i) => (
-            <div
-              key={i}
-              className={`w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold ${
-                ch === " " ? "prog-char-cell-space" : "prog-char-cell"
-              }`}
-            >
-              {ch === " " ? "␣" : ch}
-            </div>
-          ))}
-        </div>
-        {/* Negatif indeksler */}
-        <div className="flex gap-1.5">
-          {chars.map((_, i) => (
-            <div key={i} className="w-12 text-center text-[11px] font-mono prog-idx-neg">
-              {i - chars.length}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="mt-5 flex items-center justify-center gap-6 text-[11px] font-mono">
-        <span className="prog-idx-pos">↑ pozitif indeks (baştan, 0&apos;dan başlar)</span>
-        <span className="prog-idx-neg">↓ negatif indeks (sondan, -1&apos;den)</span>
-      </div>
-    </motion.div>
+    <div className="mt-5 text-sm text-gray-500">
+      <span className="font-mono uppercase tracking-widest text-[11px] text-[#5fa8e0]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </div>
   );
 }
 
-/* ---- Section divider ----------------------------------------- */
-
-function SectionDivider({
-  num,
-  total,
+/** Standart içerik slaydı: üst etiket + cümle başlık + içerik + "Sınıfa sor". */
+function Frame({
+  eyebrow,
   title,
-  subtitle,
-  glowClass,
-  icon,
+  ask,
+  children,
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  glowClass: string;
-  icon: ReactNode;
+  eyebrow: string;
+  title: ReactNode;
+  ask: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
+    <SlideShell>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <H2>{title}</H2>
+      {/* Dar orta sütun: tıklanabilir öğeler kenar geçiş alanlarının (%12) dışında kalır. */}
+      <div className="mt-6 max-w-4xl mx-auto">{children}</div>
+      <Ask>{ask}</Ask>
+    </SlideShell>
+  );
+}
+
+/** Büyük, belirgin düğme. Tıklamadan sonra odağı bırakır; böylece boşluk
+ *  tuşu düğmeyi yeniden tetiklemez, yalnızca slaydı ilerletir. */
+function Btn({
+  onClick,
+  children,
+  active = false,
+  disabled = false,
+  mono = false,
+}: {
+  onClick: () => void;
+  children: ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+  mono?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={(e) => {
+        onClick();
+        e.currentTarget.blur();
+      }}
+      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-base border transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+        mono ? "font-mono" : "font-semibold"
+      }`}
+      style={
+        active
+          ? { background: "rgba(255,212,59,0.18)", borderColor: "#ffd43b", color: "#ffe169" }
+          : { background: "rgba(55,118,171,0.14)", borderColor: "rgba(95,168,224,0.5)", color: "#e5e7eb" }
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Tahmin et → tıkla göster. */
+function Reveal({
+  label = "Cevabı görmek için tıkla",
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        setOpen((o) => !o);
+        e.currentTarget.blur();
+      }}
+      className="w-full text-left rounded-xl p-5 prog-card prog-card-hover transition-all"
+      style={open ? { borderColor: "rgba(134,239,172,0.55)" } : { borderStyle: "dashed" }}
+    >
+      {open ? (
+        <div className="text-lg text-gray-200 leading-relaxed">{children}</div>
+      ) : (
+        <div className="flex items-center gap-3 text-[#ffd43b]">
+          <MousePointerClick className="w-5 h-5 shrink-0" />
+          <span className="text-lg font-semibold">{label}</span>
+        </div>
+      )}
+    </button>
+  );
+}
+
+/** Mini sınav: şıkka tıkla; doğru yeşil, yanlış kırmızı, altında açıklama. */
+function Quiz({
+  q,
+  code,
+  options,
+  correct,
+  why,
+}: {
+  q: string;
+  code?: string;
+  options: string[];
+  correct: number;
+  why: string;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div className="prog-card rounded-xl p-5">
+      <div className="text-lg text-white font-semibold">{q}</div>
+      {code && (
+        <pre className="prog-editor rounded-lg px-4 py-2 mt-3 text-[15px] whitespace-pre-wrap">
+          {code}
+        </pre>
+      )}
+      <div className="grid grid-cols-2 gap-2 mt-4">
+        {options.map((o, i) => {
+          const shown = picked !== null && (i === picked || i === correct);
+          const ok = i === correct;
+          return (
+            <button
+              key={o}
+              type="button"
+              onClick={(e) => {
+                setPicked(i);
+                e.currentTarget.blur();
+              }}
+              className="text-left rounded-lg px-4 py-3 text-base font-mono border transition-colors"
+              style={
+                shown
+                  ? {
+                      background: ok ? "rgba(134,239,172,0.14)" : "rgba(252,165,165,0.14)",
+                      borderColor: ok ? "#86efac" : "#fca5a5",
+                      color: ok ? "#86efac" : "#fca5a5",
+                    }
+                  : { borderColor: "rgba(95,168,224,0.4)", color: "#e5e7eb" }
+              }
+            >
+              <span className="text-gray-500 mr-3">{"ABCD"[i]}</span>
+              {o}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 text-base min-h-[3rem] text-gray-300">
+        {picked === null ? (
+          <span className="text-gray-600">Bir şıkka tıkla.</span>
+        ) : (
+          <>
+            <span className={picked === correct ? "text-[#86efac]" : "text-[#fca5a5]"}>
+              {picked === correct ? "Doğru. " : "Olmadı. "}
+            </span>
+            {why}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Adım adım kod izleme: İleri/Geri ile satır satır, değişkenler yanında. */
+type TraceStep = { line: number; vars: string; note: string; hi?: number };
+
+function Trace({
+  code,
+  steps,
+  render,
+}: {
+  code: string[];
+  steps: TraceStep[];
+  render?: (hi: number | undefined) => ReactNode;
+}) {
+  const [i, setI] = useState(0);
+  const s = steps[i];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+      <div className="prog-editor rounded-xl p-4 text-[16px]">
+        {code.map((l, n) => (
+          <div
+            key={n}
+            className="px-2 rounded whitespace-pre"
+            style={
+              n === s.line
+                ? { background: "rgba(255,212,59,0.16)", color: "#ffe169" }
+                : undefined
+            }
+          >
+            {l || " "}
+          </div>
+        ))}
+      </div>
+      <div className="prog-card rounded-xl p-5 flex flex-col">
+        {render && <div className="mb-4">{render(s.hi)}</div>}
+        <div className="font-mono text-lg text-[#9cdcfe]">{s.vars}</div>
+        <div className="text-base text-gray-300 mt-2 flex-1">{s.note}</div>
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+          <Btn onClick={() => setI((v) => Math.max(v - 1, 0))} disabled={i === 0}>
+            Geri
+          </Btn>
+          <Btn
+            onClick={() => setI((v) => Math.min(v + 1, steps.length - 1))}
+            disabled={i === steps.length - 1}
+            active={i < steps.length - 1}
+          >
+            İleri
+          </Btn>
+          <Btn onClick={() => setI(0)} disabled={i === 0}>
+            <RotateCcw className="w-4 h-4" />
+            Baştan
+          </Btn>
+          <span className="ml-auto font-mono text-sm text-gray-500">
+            Adım {i + 1} / {steps.length}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Önce tahmin et, sonra çalıştır: solda gerçek Python çalıştırıcısı. */
+function PredictRun({
+  file,
+  code,
+  question,
+  answer,
+  note,
+}: {
+  file: string;
+  code: string;
+  question: string;
+  answer: string[];
+  note: string;
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-start">
+      <div className="md:col-span-3">
+        <CodeEditor
+          title={`${file} — Visual Studio Code`}
+          tabs={[file]}
+          activeTab={file}
+          code={code}
+        />
+      </div>
+      <div className="md:col-span-2 space-y-3">
+        <div className="prog-card-yellow rounded-xl p-4">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#ffd43b] mb-1">
+            1 · Önce tahmin et
+          </div>
+          <div className="text-lg text-white">{question}</div>
+        </div>
+        <Reveal label="2 · Tahminler tamam mı? Çıktıyı göster">
+          <div className="font-mono text-[#86efac]">
+            {answer.map((l, n) => (
+              <div key={n}>{l}</div>
+            ))}
+          </div>
+          <div className="text-base text-gray-400 mt-2">{note}</div>
+        </Reveal>
+        <div className="text-base text-gray-400 px-1">
+          3 · Şimdi <span className="text-white font-semibold">Çalıştır</span>&apos;a bas,
+          tahminle karşılaştır.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Sınıfta deneyelim: solda tıklayıp işaretlenen adımlar, sağda çalıştırıcı. */
+function Activity({
+  file,
+  code,
+  steps,
+}: {
+  file: string;
+  code: string;
+  steps: string[];
+}) {
+  const [done, setDone] = useState<number[]>([]);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-start">
+      <div className="md:col-span-2 space-y-2">
+        {steps.map((t, i) => {
+          const ok = done.includes(i);
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={(e) => {
+                setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
+                e.currentTarget.blur();
+              }}
+              className="w-full flex items-center gap-3 text-left rounded-lg px-4 py-3 border transition-colors"
+              style={
+                ok
+                  ? { background: "rgba(134,239,172,0.12)", borderColor: "#86efac", color: "#86efac" }
+                  : { background: "rgba(55,118,171,0.08)", borderColor: "rgba(95,168,224,0.4)", color: "#e5e7eb" }
+              }
+            >
+              <span className="w-7 h-7 shrink-0 rounded-full border border-current flex items-center justify-center font-mono text-sm">
+                {ok ? <Check className="w-4 h-4" /> : i + 1}
+              </span>
+              <span className="text-base">{t}</span>
+            </button>
+          );
+        })}
+        <div className="text-xs text-gray-600 px-1">Biten adıma tıkla, işaretlensin.</div>
+      </div>
+      <div className="md:col-span-3">
+        <CodeEditor
+          title={`${file} — Visual Studio Code`}
+          tabs={[file]}
+          activeTab={file}
+          code={code}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Kapak slaydı. */
+function Cover({
+  week,
+  title,
+  second,
+  sub,
+  tags,
+}: {
+  week: string;
+  title: string;
+  second: string;
+  sub: string;
+  tags: { tag: string; name: string; desc: string; color: string }[];
+}) {
+  return (
+    <SlideShell>
       <div className="text-center">
+        <Eyebrow>BVA 1101 · {week}</Eyebrow>
+        <H1>
+          <span className="prog-shimmer">{title}</span>
+          <br />
+          <span className="text-white/90">{second}</span>
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{sub}</Sub>
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className={`inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 prog-pulse ${glowClass}`}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="grid grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto"
         >
-          {icon}
+          {tags.map((l) => (
+            <div
+              key={l.name}
+              className="prog-card rounded-xl p-5"
+              style={{ borderColor: `${l.color}55` }}
+            >
+              <div
+                className="h-10 px-3 rounded-lg mx-auto mb-3 inline-flex items-center justify-center text-sm font-mono font-bold"
+                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
+              >
+                {l.tag}
+              </div>
+              <div className="text-white font-semibold">{l.name}</div>
+              <div className="text-sm text-gray-500 mt-1">{l.desc}</div>
+            </div>
+          ))}
         </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+        <div className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]">
+          Programlama Temelleri · MCBÜ Manisa Teknik Bilimler MYO
+        </div>
       </div>
     </SlideShell>
+  );
+}
+
+/** Kapanış: "Aklında kalsın: 3 şey" + gelecek haftaya köprü. */
+function Closing({
+  items,
+  bridge,
+}: {
+  items: { icon: LucideIcon; title: string; desc: string; accent: string }[];
+  bridge: string;
+}) {
+  return (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2>Aklında kalsın: 3 şey</H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        {items.map((it, i) => (
+          <FeatureCard
+            key={it.title}
+            icon={it.icon}
+            title={it.title}
+            desc={it.desc}
+            accent={it.accent}
+            delay={0.1 + i * 0.1}
+          />
+        ))}
+      </div>
+      <div className="prog-card-yellow rounded-xl px-6 py-4 mt-6 text-lg text-gray-200">
+        <span className="font-mono uppercase tracking-widest text-xs text-[#ffd43b] mr-3">
+          Gelecek hafta
+        </span>
+        {bridge}
+      </div>
+    </SlideShell>
+  );
+}
+
+/** Numaralı kutu sırası: her kutunun altında indeksi yazar. */
+function Cells({
+  items,
+  hi = [],
+  dim = [],
+  onPick,
+  size = "w-16 h-16 text-lg",
+}: {
+  items: string[];
+  hi?: number[];
+  dim?: number[];
+  onPick?: (i: number) => void;
+  size?: string;
+}) {
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      {items.map((v, i) => {
+        const box = `${size} rounded-lg font-mono font-semibold flex items-center justify-center border transition-all`;
+        const style = hi.includes(i)
+          ? {
+              background: "linear-gradient(180deg, #3776ab, #2c5d88)",
+              borderColor: "#5fa8e0",
+              color: "#ffffff",
+              boxShadow: "0 0 18px -2px rgba(95,168,224,0.6)",
+            }
+          : {
+              background: "#111827",
+              borderColor: "rgba(55,118,171,0.45)",
+              color: dim.includes(i) ? "#4b5563" : "#ffffff",
+            };
+        return (
+          <div key={i} className="flex flex-col items-center gap-1">
+            {onPick ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  onPick(i);
+                  e.currentTarget.blur();
+                }}
+                className={`${box} cursor-pointer hover:border-[#ffd43b]`}
+                style={style}
+              >
+                {v}
+              </button>
+            ) : (
+              <div className={box} style={style}>
+                {v}
+              </div>
+            )}
+            <div className="font-mono text-xs text-[#5fa8e0]">[{i}]</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ============================================================
+   H12 ETKİLEŞİMLİ BİLEŞENLER
+   ============================================================ */
+
+/** Harf kutuları: harfe tıkla, baştan ve sondan numarasını gör. */
+function CharStrip() {
+  const metin = "Spil Dağı";
+  const harfler = metin.split("");
+  const [i, setI] = useState<number | null>(null);
+  return (
+    <div className="prog-flow-bg p-6">
+      <div className="font-mono text-base text-[#9cdcfe] mb-4 text-center">
+        metin = &quot;{metin}&quot;
+      </div>
+      <Cells
+        items={harfler.map((h) => (h === " " ? "␣" : h))}
+        hi={i === null ? [] : [i]}
+        onPick={setI}
+        size="w-14 h-14 text-xl"
+      />
+      <div className="mt-5 text-center min-h-[4rem]">
+        {i === null ? (
+          <span className="text-lg text-[#ffd43b]">Bir harfe tıkla.</span>
+        ) : (
+          <>
+            <div className="font-mono text-xl">
+              <span className="text-[#9cdcfe]">metin[{i}]</span>
+              <span className="text-gray-500"> → </span>
+              <span className="text-[#ce9178]">&quot;{harfler[i]}&quot;</span>
+              {harfler[i] === " " && (
+                <span className="text-gray-400 font-sans text-base"> · boşluk da bir karakterdir</span>
+              )}
+            </div>
+            <div className="text-base text-gray-400 mt-1">
+              Sondan sayarsan aynı harf:{" "}
+              <span className="font-mono text-[#ffe169]">metin[{i - harfler.length}]</span>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Dilimleme: başlangıç ve bitişi kaydır; kesilen parça anında görünür. */
+function SliceLab() {
+  const kelime = "programlama";
+  const harfler = kelime.split("");
+  const [bas, setBas] = useState(0);
+  const [bit, setBit] = useState(3);
+  const secili = harfler.map((_, i) => i).filter((i) => i >= bas && i < bit);
+  return (
+    <div className="prog-flow-bg p-6">
+      <Cells
+        items={harfler}
+        hi={secili}
+        dim={harfler.map((_, i) => i).filter((i) => !secili.includes(i))}
+        size="w-12 h-12 text-lg"
+      />
+      <div className="mt-5 grid grid-cols-2 gap-6 max-w-2xl mx-auto">
+        {[
+          { ad: "Başlangıç", deger: bas, ayarla: setBas },
+          { ad: "Bitiş", deger: bit, ayarla: setBit },
+        ].map((k) => (
+          <label key={k.ad} className="flex items-center gap-3 text-lg text-gray-300">
+            <span className="w-24">{k.ad}</span>
+            <input
+              type="range"
+              min={0}
+              max={harfler.length}
+              value={k.deger}
+              onChange={(e) => k.ayarla(Number(e.target.value))}
+              onPointerUp={(e) => e.currentTarget.blur()}
+              className="flex-1 h-3 accent-[#ffd43b] cursor-pointer"
+            />
+            <span className="font-mono text-2xl text-[#ffe169] w-8">{k.deger}</span>
+          </label>
+        ))}
+      </div>
+      <div className="mt-4 text-center font-mono text-xl">
+        <span className="text-[#9cdcfe]">
+          kelime[{bas}:{bit}]
+        </span>
+        <span className="text-gray-500"> → </span>
+        <span className="text-[#86efac]">&quot;{kelime.slice(bas, bit)}&quot;</span>
+      </div>
+      <div className="mt-1 text-center text-base text-gray-400">
+        {bit > bas
+          ? `${bit - bas} harf alındı. ${bit} numaralı harf dahil değil.`
+          : "Bitiş başlangıçtan büyük değilse boş metin gelir."}
+      </div>
+    </div>
+  );
+}
+
+/** Metot dene: düğmeye bas, aynı metnin yeni hâlini gör. */
+function MethodLab() {
+  const araclar = [
+    { kod: ".upper()", sonuc: "  MERHABA DÜNYA  ", ne: "Hepsini büyük harf yapar." },
+    { kod: ".lower()", sonuc: "  merhaba dünya  ", ne: "Hepsini küçük harf yapar." },
+    { kod: ".title()", sonuc: "  Merhaba Dünya  ", ne: "Her kelimenin ilk harfini büyütür." },
+    { kod: ".strip()", sonuc: "merhaba Dünya", ne: "Baştaki ve sondaki boşlukları atar." },
+    {
+      kod: '.replace("Dünya", "Manisa")',
+      sonuc: "  merhaba Manisa  ",
+      ne: "Bir parçayı başka bir parçayla değiştirir.",
+    },
+  ];
+  const [sec, setSec] = useState<number | null>(null);
+  const kutu = "prog-editor rounded-lg px-4 py-2 text-[20px] whitespace-pre";
+  return (
+    <div className="prog-flow-bg p-6">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {araclar.map((a, i) => (
+          <Btn key={a.kod} mono active={sec === i} onClick={() => setSec(i)}>
+            {a.kod}
+          </Btn>
+        ))}
+        <Btn onClick={() => setSec(null)} disabled={sec === null}>
+          <RotateCcw className="w-4 h-4" />
+          Sıfırla
+        </Btn>
+      </div>
+      <div className="mt-5 grid grid-cols-[7rem_1fr] gap-x-4 gap-y-3 items-center max-w-2xl mx-auto">
+        <div className="text-base text-gray-400 text-right">mesaj</div>
+        <div className={kutu}>
+          <span className="text-[#ce9178]">&quot;{"  merhaba Dünya  "}&quot;</span>
+        </div>
+        <div className="text-base text-gray-400 text-right">sonuç</div>
+        <div className={kutu}>
+          {sec === null ? (
+            <span className="text-[#ffd43b] font-sans text-lg">Bir araç seç.</span>
+          ) : (
+            <span className="text-[#86efac]">&quot;{araclar[sec].sonuc}&quot;</span>
+          )}
+        </div>
+      </div>
+      <div className="mt-3 text-center text-base text-gray-300 min-h-[1.5rem]">
+        {sec !== null && araclar[sec].ne}
+      </div>
+    </div>
+  );
+}
+
+/** f-string: ad ve notu seç, cümle anında dolar; f'yi kaldırınca ne olduğunu gör. */
+function FStringLab() {
+  const adlar = ["Ayşe", "Mehmet", "Zeynep"];
+  const puanlar = [45, 70, 95];
+  const [ad, setAd] = useState(adlar[0]);
+  const [puan, setPuan] = useState(puanlar[1]);
+  const [fVar, setFVar] = useState(true);
+  return (
+    <div className="prog-flow-bg p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="w-12 text-base text-gray-400">ad</span>
+          {adlar.map((a) => (
+            <Btn key={a} active={ad === a} onClick={() => setAd(a)}>
+              {a}
+            </Btn>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="w-12 text-base text-gray-400">puan</span>
+          {puanlar.map((p) => (
+            <Btn key={p} mono active={puan === p} onClick={() => setPuan(p)}>
+              {p}
+            </Btn>
+          ))}
+        </div>
+        <Btn active={!fVar} onClick={() => setFVar((v) => !v)}>
+          {fVar ? "Baştaki f harfini sil" : "f harfini geri koy"}
+        </Btn>
+      </div>
+      <div>
+        <pre className="prog-editor rounded-lg px-4 py-3 text-[16px] whitespace-pre-wrap">
+          {`ad = "${ad}"\npuan = ${puan}\nprint(${fVar ? "f" : ""}"Merhaba {ad}, notun {puan}.")`}
+        </pre>
+        <div className="text-[11px] font-mono uppercase tracking-widest text-gray-500 mt-4 mb-1">
+          Ekran çıktısı
+        </div>
+        <div className="prog-editor rounded-lg px-4 py-3 text-[18px]">
+          <span className={fVar ? "text-[#86efac]" : "text-[#fca5a5]"}>
+            {fVar ? `Merhaba ${ad}, notun ${puan}.` : "Merhaba {ad}, notun {puan}."}
+          </span>
+        </div>
+        <div className="mt-2 text-base text-gray-400 min-h-[1.5rem]">
+          {!fVar && "f olmayınca süslü parantezler düz yazı sayılır."}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -248,784 +812,309 @@ function SectionDivider({
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
-  /* ─────────────────  1 · KAPAK  ───────────────── */
+  /* 1 · KAPAK */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 1101 · 12. Hafta · Bahar Dönemi</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Metin İşlemleri</span>
-        </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Karakter katarı (string) nedir, nasıl dilimlenir, aranır ve dönüştürülür —
-          Python ile metni programlamak.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="grid grid-cols-3 gap-4 mt-14 max-w-3xl mx-auto"
-        >
-          {[
-            { icon: Hash, name: "İndeksleme", desc: "s[0], s[-1] ile karaktere eriş", color: "#3776ab" },
-            { icon: Scissors, name: "Dilimleme", desc: "s[2:5] ile parça al", color: "#5fa8e0" },
-            { icon: Replace, name: "Metotlar", desc: ".upper(), .replace() ...", color: "#ffd43b" },
-          ].map((l, i) => (
-            <motion.div
-              key={l.name}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.1 }}
-              className="prog-card rounded-xl p-5"
-              style={{ borderColor: `${l.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg mx-auto mb-3 flex items-center justify-center"
-                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
-              >
-                <l.icon className="w-5 h-5" />
-              </div>
-              <div className="text-white font-semibold text-sm">{l.name}</div>
-              <div className="text-[11px] text-gray-500 mt-1">{l.desc}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
-        >
-          Öğr. Gör. · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 11. haftadan 12. haftaya</Eyebrow>
-      <H2>Sayılarla çalıştık; şimdi sıra metinlerde</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Geçen haftaya kadar değişkenleri, sayısal tipleri ve listeleri gördük.
-        Programların büyük kısmı ise sayılarla değil, metinle uğraşır: kullanıcı adı,
-        e-posta, dosya yolu, form verisi. Bu hafta metni işlemenin temellerini kuruyoruz.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5fa8e0]">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Önceden bildiğimiz</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />Değişken ve veri tipleri (int, float, bool)</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />Koşullar, döngüler, listeler</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />input() her zaman bir metin döndürür</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#ffd43b]">
-            <Target className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bu haftanın hedefi</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#ffd43b] flex-shrink-0" />Karaktere indeks ve dilimle (slicing) erişmek</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#ffd43b] flex-shrink-0" />String metotlarıyla arama, değiştirme, biçimleme</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#ffd43b] flex-shrink-0" />Metnin değişmez (immutable) olduğunu kavramak</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3 · STRING NEDİR  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Temel kavram</Eyebrow>
-      <H2>Karakter katarı (string) nedir?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        String, <span className="text-white font-semibold">sıralı karakterlerden oluşan</span> bir
-        veri tipidir (<span className="font-mono text-[#9cdcfe]">str</span>). Python&apos;da tek
-        tırnak, çift tırnak veya çok satır için üç tırnakla yazılır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        <FeatureCard
-          icon={Quote}
-          title="Tek &amp; çift tırnak"
-          desc="'merhaba' ve &quot;merhaba&quot; aynıdır. Metin içinde kesme işareti varsa diğerini kullan."
-          delay={0.0}
-          accent="#3776ab"
-        />
-        <FeatureCard
-          icon={FileText}
-          title="Üç tırnak"
-          desc="'''...''' ile birden çok satır tek bir string olur — uzun metinler için."
-          delay={0.1}
-          accent="#5fa8e0"
-        />
-        <FeatureCard
-          icon={Layers}
-          title="Sıralı &amp; indeksli"
-          desc="Her karakterin bir konumu vardır; bu yüzden listeler gibi indekslenebilir."
-          delay={0.2}
-          accent="#ffd43b"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="mt-6 prog-card rounded-xl p-5 flex items-start gap-4"
-      >
-        <Lightbulb className="w-6 h-6 text-[#ffd43b] flex-shrink-0 mt-0.5" />
-        <div className="text-sm text-gray-300">
-          <span className="text-white font-semibold">Kaçış karakterleri:</span>{" "}
-          <span className="font-mono text-[#ce9178]">\n</span> satır sonu,{" "}
-          <span className="font-mono text-[#ce9178]">\t</span> sekme,{" "}
-          <span className="font-mono text-[#ce9178]">\\</span> ters eğik çizgi,{" "}
-          <span className="font-mono text-[#ce9178]">\&quot;</span> ise tırnak demektir.
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  4 · BÖLÜM 1/3 · İNDEKSLEME  ───────────────── */
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="İndeksleme &amp; Dilimleme"
-      subtitle="Bir metnin tek bir karakterine veya bir parçasına konumuna göre erişmek."
-      glowClass="prog-glow-blue"
-      icon={<Hash className="w-14 h-14 text-white" />}
+    <Cover
+      week="12. Hafta"
+      title="Metinler"
+      second="Harf harf çalışmak"
+      sub="İsim, mesaj, kullanıcı adı: tırnak içindeki her şey metindir (string). Bugün metni kesiyor, düzenliyor, cümleye yerleştiriyoruz."
+      tags={[
+        { tag: '"..."', name: "Harflere ulaş", desc: "Numara ve dilim", color: "#3776ab" },
+        { tag: ".upper()", name: "Düzenle", desc: "Hazır araçlar", color: "#5fa8e0" },
+        { tag: 'f"..."', name: "Cümle kur", desc: "Boşluk doldur", color: "#ffd43b" },
+      ]}
     />
   ),
 
-  /* ─────────────────  5 · İNDEKSLEME ŞERİDİ  ───────────────── */
+  /* 2 · SORUN */
   () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · İndeksleme</Eyebrow>
-      <H2 className="mb-2">Her karakterin bir numarası var</H2>
-      <Sub className="max-w-3xl mb-6">
-        Python&apos;da indeksleme <span className="text-white font-semibold">0&apos;dan</span>{" "}
-        başlar. <span className="font-mono text-[#9cdcfe]">s[0]</span> ilk karakter,{" "}
-        <span className="font-mono text-[#9cdcfe]">s[-1]</span> ise sondan birincidir.
-      </Sub>
-
-      <div className="max-w-4xl mx-auto">
-        <IndexStrip word="PROGRAM" />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3 max-w-4xl mx-auto text-sm"
-      >
-        <div className="prog-card rounded-lg px-4 py-3 font-mono">
-          <span className="text-[#9cdcfe]">s[0]</span>{" "}
-          <span className="text-gray-500">→</span>{" "}
-          <span className="text-[#ce9178]">&apos;P&apos;</span>
+    <Frame
+      eyebrow="Sorun · el kaldır"
+      title="&quot;5&quot; + &quot;5&quot; kaç eder?"
+      ask="input() ile aldığımız yaş neden toplanmıyordu, hatırlayan var mı?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="space-y-4">
+          <pre className="prog-editor rounded-xl px-5 py-4 text-[20px]">{`print(5 + 5)
+print("5" + "5")`}</pre>
+          <div className="prog-card-yellow rounded-xl p-5">
+            <div className="flex items-center gap-2 text-[#ffd43b] mb-1">
+              <Hand className="w-5 h-5" />
+              <span className="text-xs font-mono uppercase tracking-widest">El kaldır</span>
+            </div>
+            <div className="text-lg text-white">
+              İkinci satır için: 10 diyenler? 55 diyenler? Hata diyenler?
+            </div>
+          </div>
         </div>
-        <div className="prog-card rounded-lg px-4 py-3 font-mono">
-          <span className="text-[#9cdcfe]">s[3]</span>{" "}
-          <span className="text-gray-500">→</span>{" "}
-          <span className="text-[#ce9178]">&apos;G&apos;</span>
+        <div className="space-y-4">
+          <Reveal label="Oylar sayıldı mı? Tıkla, göster">
+            <div className="font-mono text-[#86efac]">
+              <div>10</div>
+              <div>55</div>
+            </div>
+            <div className="mt-2">
+              Tırnak içindeki her şey <span className="text-white font-semibold">metindir</span>,
+              sayı değildir. Metinlerde + işareti toplamaz, yan yana yapıştırır.
+            </div>
+          </Reveal>
+          <div className="prog-card rounded-xl px-5 py-4 text-base text-gray-300">
+            Metnin programlamadaki adı: <span className="text-white font-semibold">string</span>{" "}
+            (karakter dizisi).
+          </div>
         </div>
-        <div className="prog-card rounded-lg px-4 py-3 font-mono">
-          <span className="text-[#9cdcfe]">s[-1]</span>{" "}
-          <span className="text-gray-500">→</span>{" "}
-          <span className="text-[#ce9178]">&apos;M&apos;</span>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-4 text-xs text-gray-500 text-center font-mono"
-      >
-        Geçersiz indeks → IndexError. Son geçerli indeks her zaman len(s) - 1&apos;dir.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  6 · DİLİMLEME (SLICING)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · Dilimleme</Eyebrow>
-      <H2 className="mb-2">Dilimleme · s[başlangıç:bitiş:adım]</H2>
-      <Sub className="max-w-3xl mb-6">
-        Dilim, bir aralıktaki karakterleri alır. Bitiş indeksi{" "}
-        <span className="text-white font-semibold">dahil edilmez</span>. Üç parça da
-        isteğe bağlıdır; verilmezse varsayılan kullanılır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CodeEditor
-          title="dilimleme.py — Visual Studio Code"
-          tabs={["dilimleme.py"]}
-          activeTab="dilimleme.py"
-          code={`s = "Programlama"
-
-print(s[0:4])  # 'Prog'
-print(s[4:])    # 'ramlama'
-print(s[:4])   # 'Prog'
-print(s[::2])   # 'Pormaa'
-print(s[::-1])  # ters çevir`}
-        />
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="text-xs font-mono uppercase tracking-widest text-[#5fa8e0] mb-4">
-            Parçaları anlamak
-          </div>
-          <div className="space-y-3 text-sm">
-            <div className="bg-black/30 rounded-lg px-4 py-3">
-              <span className="font-mono text-[#9cdcfe]">[2:5]</span>
-              <span className="text-gray-400"> → 2, 3, 4. karakterler (5 hariç)</span>
-            </div>
-            <div className="bg-black/30 rounded-lg px-4 py-3">
-              <span className="font-mono text-[#9cdcfe]">[:4]</span>
-              <span className="text-gray-400"> → baştan 4. indekse kadar</span>
-            </div>
-            <div className="bg-black/30 rounded-lg px-4 py-3">
-              <span className="font-mono text-[#9cdcfe]">[4:]</span>
-              <span className="text-gray-400"> → 4. indeksten sona kadar</span>
-            </div>
-            <div className="bg-black/30 rounded-lg px-4 py-3">
-              <span className="font-mono text-[#9cdcfe]">[::2]</span>
-              <span className="text-gray-400"> → birer atlayarak (adım 2)</span>
-            </div>
-            <div className="bg-black/30 rounded-lg px-4 py-3">
-              <span className="font-mono text-[#9cdcfe]">[::-1]</span>
-              <span className="text-gray-400"> → tersten oku (palindrom kontrolü)</span>
-            </div>
-          </div>
-          <div className="mt-4 text-[11px] text-gray-500">
-            Dilim sınırı taşarsa hata vermez; var olan kadarını döndürür.
-          </div>
-        </motion.div>
       </div>
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  7 · DEĞİŞMEZLİK (IMMUTABILITY)  ───────────────── */
+  /* 3 · BENZETME */
   () => (
-    <SlideShell>
-      <Eyebrow>Önemli kural</Eyebrow>
-      <H2 className="mb-2">String&apos;ler değişmezdir (immutable)</H2>
-      <Sub className="max-w-3xl mb-6">
-        Bir karakteri yerinde değiştiremezsin. Her &quot;değiştirme&quot; işlemi aslında{" "}
-        <span className="text-white font-semibold">yeni bir string üretir</span>; eskisi olduğu
-        gibi kalır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#f87171]">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Çalışmaz</span>
-          </div>
-          <div className="font-mono text-sm space-y-1 bg-black/30 rounded-lg p-4">
-            <div><span className="tok-var">s</span> = <span className="tok-string">&quot;kedi&quot;</span></div>
-            <div><span className="tok-var">s</span><span className="tok-punct">[</span><span className="tok-number">0</span><span className="tok-punct">]</span> = <span className="tok-string">&quot;b&quot;</span></div>
-            <div className="text-[#f87171] mt-2">TypeError: &apos;str&apos; object does</div>
-            <div className="text-[#f87171]">not support item assignment</div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#86efac]">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Doğru yaklaşım</span>
-          </div>
-          <div className="font-mono text-sm space-y-1 bg-black/30 rounded-lg p-4">
-            <div><span className="tok-var">s</span> = <span className="tok-string">&quot;kedi&quot;</span></div>
-            <div><span className="tok-var">s</span> = <span className="tok-string">&quot;b&quot;</span> + <span className="tok-var">s</span><span className="tok-punct">[</span><span className="tok-number">1</span><span className="tok-punct">:]</span></div>
-            <div className="text-[#86efac] mt-2"># yeni string: &quot;bedi&quot;</div>
-            <div className="text-gray-500 mt-1"># ya da .replace() kullan</div>
-          </div>
-          <div className="mt-4 text-[11px] text-gray-500">
-            Karakteri dilimle koru, yeniden birleştir, sonucu yeni değişkene ata.
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
+    <Frame
+      eyebrow="Benzetme · harf kutuları"
+      title="Metin, yan yana dizilmiş numaralı harf kutularıdır"
+      ask="Bu metinde kaç kutu var? Boşluğu saydın mı?"
+    >
+      <CharStrip />
+    </Frame>
   ),
 
-  /* ─────────────────  8 · BÖLÜM 2/3 · METOTLAR  ───────────────── */
+  /* 4 · KOD 1 */
   () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="String Metotları"
-      subtitle="Metni dönüştüren, arayan ve temizleyen hazır fonksiyonlar — kendin yazma, çağır."
-      glowClass="prog-glow-yellow"
-      icon={<Replace className="w-14 h-14 text-[#1a1a1a]" />}
-    />
-  ),
-
-  /* ─────────────────  9 · METOT TABLOSU  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · En sık kullanılan metotlar</Eyebrow>
-      <H2>Bir metotla bir satırda iş bitsin</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Metot, bir nesnenin üzerinde nokta ile çağrılan fonksiyondur:{" "}
-        <span className="font-mono text-[#9cdcfe]">s.upper()</span>. String hiç değişmez;
-        metot her zaman <span className="text-white font-semibold">yeni bir değer döndürür</span>.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-6 prog-card rounded-xl overflow-hidden"
-      >
-        <table className="prog-compare">
-          <thead>
-            <tr>
-              <th style={{ width: "26%" }}>Metot</th>
-              <th style={{ width: "40%" }}>Ne yapar?</th>
-              <th>Örnek &amp; sonuç</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="font-mono text-[#9cdcfe]">.upper() / .lower()</td>
-              <td>Büyük / küçük harfe çevirir</td>
-              <td className="font-mono">&quot;Abc&quot;.upper() → &quot;ABC&quot;</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-[#9cdcfe]">.strip()</td>
-              <td>Baş ve sondaki boşlukları siler</td>
-              <td className="font-mono">&quot; veri &quot;.strip() → &quot;veri&quot;</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-[#9cdcfe]">.replace(a, b)</td>
-              <td>a&apos;ları b ile değiştirir</td>
-              <td className="font-mono">&quot;a-b&quot;.replace(&quot;-&quot;,&quot;_&quot;) → &quot;a_b&quot;</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-[#9cdcfe]">.split(ayraç)</td>
-              <td>Metni listeye böler</td>
-              <td className="font-mono">&quot;a,b,c&quot;.split(&quot;,&quot;) → [&apos;a&apos;,&apos;b&apos;,&apos;c&apos;]</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-[#9cdcfe]">ayraç.join(liste)</td>
-              <td>Listeyi metne birleştirir</td>
-              <td className="font-mono">&quot;-&quot;.join([&apos;a&apos;,&apos;b&apos;]) → &quot;a-b&quot;</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-[#9cdcfe]">.find(alt) / .index(alt)</td>
-              <td>Alt metnin konumunu bulur</td>
-              <td className="font-mono">&quot;merhaba&quot;.find(&quot;h&quot;) → 3</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono"
-      >
-        Bulamazsa: .find() → -1 döner (hata vermez), .index() ise ValueError fırlatır.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · METOTLAR CANLI · TERMİNAL  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Canlı deneme · Python yorumlayıcısı</Eyebrow>
-      <H2 className="mb-2">Metotları zincirleyebiliriz</H2>
-      <Sub className="max-w-3xl mb-6">
-        Bir metodun çıktısı yine bir string olduğundan üzerine başka metot çağrılabilir.
-        Aşağıdaki örnekte boşluk temizleniyor, küçük harfe çevriliyor ve değiştiriliyor.
-      </Sub>
-
-      <CodeEditor
-        title="repl — Python 3.12"
-        tabs={["metotlar.py"]}
-        activeTab="metotlar.py"
-        code={`e = "  Ali.Veli@KURUM.tr  "
-temiz = e.strip().lower()
-print(temiz)
-
-kullanici = temiz.split("@")[0]
-print(kullanici)`}
-        terminal={
-          <div className="leading-relaxed">
-            <div>
-              <span className="prog-terminal-prompt">user@mcbu</span>
-              <span className="text-gray-500"> $ </span>
-              <span className="prog-terminal-out">python metotlar.py</span>
-            </div>
-            <div className="prog-terminal-out">ali.veli@kurum.tr</div>
-            <div className="prog-terminal-out">ali.veli</div>
-            <div>
-              <span className="prog-terminal-prompt">user@mcbu</span>
-              <span className="text-gray-500"> $ </span>
-              <span className="animate-pulse">▌</span>
-            </div>
-          </div>
-        }
+    <Frame
+      eyebrow="Kod · önce tahmin et"
+      title="İlk harf, son harf ve uzunluk"
+      ask="Kendi adının uzunluğu kaç? Son harfinin indeksi kaç?"
+    >
+      <PredictRun
+        file="sehir.py"
+        code={`sehir = "Manisa"
+print(sehir[0])
+print(sehir[-1])
+print(len(sehir))`}
+        question="Üç satır çıkacak. Sırayla ne yazar?"
+        answer={["M", "a", "6"]}
+        note="Listedeki kuralların aynısı: 0'dan başlar, -1 son harftir, len uzunluğu verir."
       />
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  11 · ARAMA & KONTROL METOTLARI  ───────────────── */
+  /* 5 · DİLİMLEME */
   () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · Arama ve doğrulama</Eyebrow>
-      <H2>Metin içinde aramak ve sınamak</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Form ve girdi denetiminde en çok bunlara ihtiyaç duyarsın: bir parça var mı,
-        nasıl başlıyor, sadece rakam mı içeriyor?
-      </Sub>
+    <Frame
+      eyebrow="Dene gör · ekmek dilimler gibi"
+      title="Dilimleme: metinden istediğin parçayı kesip almak"
+      ask="&ldquo;gram&rdquo; parçasını almak için hangi iki sayı gerekir?"
+    >
+      <SliceLab />
+    </Frame>
+  ),
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        <FeatureCard
-          icon={Search}
-          title="in operatörü"
-          desc="'@' in eposta → True/False. Bir alt metnin var olup olmadığını en kısa yoldan sınar."
-          delay={0.0}
-          accent="#3776ab"
-        />
-        <FeatureCard
-          icon={Type}
-          title=".startswith / .endswith"
-          desc="url.startswith('https') veya ad.endswith('.pdf') ön/son ekini kontrol eder."
-          delay={0.1}
-          accent="#5fa8e0"
-        />
-        <FeatureCard
-          icon={ListChecks}
-          title=".isdigit / .isalpha"
-          desc="Metnin yalnızca rakam veya yalnızca harf içerip içermediğini True/False döndürür."
-          delay={0.2}
-          accent="#ffd43b"
+  /* 6 · TUZAK · MİNİ SINAV */
+  () => (
+    <Frame
+      eyebrow="Klasik tuzak · mini sınav"
+      title="Bitiş numarasındaki harf dilime dahil değildir"
+      ask="İlk dört harfi almak için ne yazarız?"
+    >
+      <div className="max-w-3xl mx-auto">
+        <Quiz
+          q="Bu kod ekrana ne yazar?"
+          code={`sehir = "Manisa"
+print(sehir[0:3])`}
+          options={["Mani", "Man", "ani", "Ma"]}
+          correct={1}
+          why="0, 1 ve 2 numaralı harfler alınır; 3 numaralı harf dahil değildir. Üç harf: Man."
         />
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="mt-6 prog-card rounded-xl p-5"
-      >
-        <div className="text-xs font-mono uppercase tracking-widest text-[#5fa8e0] mb-3">
-          Tipik kontrol · basit e-posta doğrulama
-        </div>
-        <div className="font-mono text-sm bg-black/30 rounded-lg p-4 space-y-1">
-          <div>
-            <span className="tok-keyword">if</span>{" "}
-            <span className="tok-string">&quot;@&quot;</span>{" "}
-            <span className="tok-keyword">in</span>{" "}
-            <span className="tok-var">eposta</span>{" "}
-            <span className="tok-keyword">and</span>{" "}
-            <span className="tok-var">eposta</span>
-            <span className="tok-punct">.</span>
-            <span className="tok-fname">endswith</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;.tr&quot;</span>
-            <span className="tok-punct">):</span>
-          </div>
-          <div className="pl-6">
-            <span className="tok-builtin">print</span>
-            <span className="tok-punct">(</span>
-            <span className="tok-string">&quot;Geçerli görünüyor&quot;</span>
-            <span className="tok-punct">)</span>
-          </div>
-        </div>
-      </motion.div>
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  12 · BÖLÜM 3/3 · BİÇİMLEME  ───────────────── */
+  /* 7 · DEĞİŞMEZLİK */
   () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Birleştirme &amp; Biçimleme"
-      subtitle="Metinleri yan yana getirmek ve değişkenleri okunabilir bir çıktıya yerleştirmek."
-      glowClass="prog-glow-green"
-      icon={<Braces className="w-14 h-14 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  13 · BİRLEŞTİRME & f-string  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 3 · Birleştirme yöntemleri</Eyebrow>
-      <H2 className="mb-2">Üç yol, tercih edilen tek bir tane</H2>
-      <Sub className="max-w-3xl mb-6">
-        Değişkeni metne katmanın birkaç yolu var. Modern Python&apos;da{" "}
-        <span className="text-white font-semibold">f-string</span> en okunabilir ve en hızlı
-        olanıdır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="prog-card rounded-xl p-5"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <ArrowLeftRight className="w-4 h-4 text-gray-400" />
-            <span className="text-xs font-mono uppercase tracking-widest text-gray-400">+ ile</span>
+    <Frame
+      eyebrow="Klasik tuzak · tahmin et"
+      title="Metnin tek harfi değiştirilemez; yeni bir metin üretilir"
+      ask="Listede notlar[0] = 100 yazabiliyorduk. Fark ne?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+        <div>
+          <pre className="prog-editor rounded-xl px-5 py-4 text-[20px]">{`sehir = "Manisa"
+sehir[0] = "K"`}</pre>
+          <div className="text-base text-gray-400 mt-3">
+            Amaç: Manisa&apos;yı Kanisa yapmak. Bu kod çalışır mı?
           </div>
-          <div className="font-mono text-[12px] bg-black/30 rounded-lg p-3 leading-relaxed">
-            <div><span className="tok-string">&quot;Sayı: &quot;</span> + <span className="tok-builtin">str</span><span className="tok-punct">(</span><span className="tok-var">n</span><span className="tok-punct">)</span></div>
-          </div>
-          <div className="text-[11px] text-gray-500 mt-3">
-            str() ile çevirmeyi unutursan TypeError. Hantal.
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="prog-card rounded-xl p-5"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <FileText className="w-4 h-4 text-[#5fa8e0]" />
-            <span className="text-xs font-mono uppercase tracking-widest text-[#5fa8e0]">.format()</span>
-          </div>
-          <div className="font-mono text-[12px] bg-black/30 rounded-lg p-3 leading-relaxed">
-            <div><span className="tok-string">&quot;Sayı: {`{}`}&quot;</span>.<span className="tok-fname">format</span><span className="tok-punct">(</span><span className="tok-var">n</span><span className="tok-punct">)</span></div>
-          </div>
-          <div className="text-[11px] text-gray-500 mt-3">
-            Daha okunabilir; eski kod tabanlarında yaygın.
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prog-card-yellow rounded-xl p-5"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="w-4 h-4 text-[#ffd43b]" />
-            <span className="text-xs font-mono uppercase tracking-widest text-[#ffd43b]">f-string (önerilen)</span>
-          </div>
-          <div className="font-mono text-[12px] bg-black/30 rounded-lg p-3 leading-relaxed">
-            <div><span className="tok-fstring">f</span><span className="tok-string">&quot;Sayı: {`{`}</span><span className="tok-var">n</span><span className="tok-string">{`}`}&quot;</span></div>
-          </div>
-          <div className="text-[11px] text-gray-300 mt-3">
-            Değişkeni doğrudan süslü parantezin içine yaz. Kısa, net, hızlı.
-          </div>
-        </motion.div>
+        </div>
+        <div className="space-y-4">
+          <Reveal label="Çalışır diyenler? Tıkla, göster">
+            <div className="font-mono text-[#fca5a5] text-base">TypeError</div>
+            Çalışmaz. Python, bir metnin içindeki harfi yerinde değiştirmeye izin vermez.
+          </Reveal>
+          <Reveal label="Peki nasıl yaparız? Tıkla">
+            <div className="font-mono text-[#86efac]">yeni = &quot;K&quot; + sehir[1:]</div>
+            Eski metinden parça alıp <span className="text-white font-semibold">yeni</span> bir
+            metin kurarız: Kanisa.
+          </Reveal>
+        </div>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 prog-card rounded-lg px-4 py-3 text-sm text-gray-300 flex items-start gap-3"
-      >
-        <Lightbulb className="w-5 h-5 text-[#ffd43b] flex-shrink-0 mt-0.5" />
-        <span>
-          f-string içinde biçimlendirme de yapılır:{" "}
-          <span className="font-mono text-[#d7ba7d]">f&quot;{`{pi:.2f}`}&quot;</span> →{" "}
-          <span className="font-mono text-[#ce9178]">&quot;3.14&quot;</span> (iki ondalık),{" "}
-          <span className="font-mono text-[#d7ba7d]">f&quot;{`{ad:>10}`}&quot;</span> ise sağa yaslar.
-        </span>
-      </motion.div>
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  14 · UYGULAMALI · KARAKTER SAYACI  ───────────────── */
+  /* 8 · METOTLAR */
   () => (
-    <SlideShell>
-      <Eyebrow>Birlikte yazalım · küçük program</Eyebrow>
-      <H2 className="mb-2">Kelime ve karakter sayan bir araç</H2>
-      <Sub className="max-w-3xl mb-6">
-        Öğrendiğimiz parçaları birleştirelim: kullanıcıdan cümle al, boşlukları temizle,
-        uzunluğunu ölç ve kelimelere böl.
-      </Sub>
+    <Frame
+      eyebrow="Dene gör · hazır araçlar"
+      title="Metnin hazır araçları var: büyüt, küçült, temizle, değiştir"
+      ask="Bir sitede e-posta yazarken hangisi işe yarar, neden?"
+    >
+      <MethodLab />
+    </Frame>
+  ),
 
-      <CodeEditor
-        title="sayac.py — Visual Studio Code"
-        tabs={["sayac.py"]}
-        activeTab="sayac.py"
-        code={`cumle = input("Bir cümle yaz: ").strip()
-
-kelimeler = cumle.split()
-harf_sayisi = len(cumle.replace(" ", ""))
-
-print(f"Kelime: {len(kelimeler)}, Harf: {harf_sayisi}")`}
-        stdin="metin işlemek kolaymış"
-        terminal={
-          <div className="leading-relaxed">
-            <div>
-              <span className="prog-terminal-prompt">user@mcbu</span>
-              <span className="text-gray-500"> $ </span>
-              <span className="prog-terminal-out">python sayac.py</span>
-            </div>
-            <div className="prog-terminal-out">
-              Bir cümle yaz: <span className="prog-terminal-user">metin işlemek kolaymış</span>
-            </div>
-            <div className="prog-terminal-out">Kelime: 3, Harf: 20</div>
-            <div>
-              <span className="prog-terminal-prompt">user@mcbu</span>
-              <span className="text-gray-500"> $ </span>
-              <span className="animate-pulse">▌</span>
-            </div>
-          </div>
-        }
+  /* 9 · KOD 2 */
+  () => (
+    <Frame
+      eyebrow="Kod · önce tahmin et"
+      title="Mesajı düzenleyelim; asıl mesaja ne oluyor?"
+      ask="Değişikliği kalıcı yapmak için ne yazmamız gerekir?"
+    >
+      <PredictRun
+        file="mesaj.py"
+        code={`mesaj = "merhaba dünya"
+print(mesaj.upper())
+print(mesaj.replace("dünya", "Manisa"))
+print(mesaj)`}
+        question="Üç satır çıkacak. En çok üçüncü satıra dikkat: ne yazar?"
+        answer={["MERHABA DÜNYA", "merhaba Manisa", "merhaba dünya"]}
+        note="Araçlar yeni metin verir; mesaj değişmedi. Saklamak için: mesaj = mesaj.upper()."
       />
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  15 · BU HAFTA GÖREV  ───────────────── */
+  /* 10 · ADIM ADIM HARF SAYMA */
   () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta sizin göreviniz</Eyebrow>
-      <H2>Kendi metin araçlarını yaz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Aşağıdaki beş küçük alıştırmayı kendi makinende çöz; sonraki derse çalışan kodu
-        ve örnek çıktıyı getir.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl p-6 max-w-3xl mx-auto"
-      >
-        <div className="text-xs uppercase tracking-wider text-[#5fa8e0] mb-4 font-mono flex items-center gap-2">
-          <ListChecks className="w-4 h-4" />
-          Görev listesi · Hafta 12
-        </div>
-        <div className="space-y-3">
-          {[
-            { t: "Adını ters çevirip yazdır", d: "input() ile adı al, s[::-1] dilimiyle ters çevir" },
-            { t: "Cümledeki kelimeleri say", d: "cumle.split() listesinin len()&apos;ini yazdır" },
-            { t: "Bir kelimeyi başkasıyla değiştir", d: ".replace(&quot;eski&quot;, &quot;yeni&quot;) sonucunu göster" },
-            { t: "Palindrom mu kontrol et", d: "s == s[::-1] ise &apos;palindrom&apos; yazdır (ör. &quot;kayak&quot;)" },
-            { t: "Basit e-posta doğrula", d: "&apos;@&apos; in e ve e.endswith(&apos;.tr&apos;) koşulunu sına" },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.08 }}
-              className="flex items-start gap-3 bg-black/30 rounded-lg p-3"
-            >
-              <div className="w-6 h-6 rounded-md border border-[#5fa8e0]/60 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#5fa8e0]" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm text-white font-medium" dangerouslySetInnerHTML={{ __html: item.t }} />
-                <div className="text-xs text-gray-400 mt-0.5" dangerouslySetInnerHTML={{ __html: item.d }} />
-              </div>
-              <div className="text-[10px] font-mono text-gray-600 mt-1">
-                {String(i + 1).padStart(2, "0")}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </SlideShell>
+    <Frame
+      eyebrow="Adım adım"
+      title="Metin de liste gibi for ile harf harf gezilir"
+      ask="Geçen haftaki hangi kalıbın aynısı bu?"
+    >
+      <Trace
+        code={[
+          'kelime = "manisa"',
+          "sayac = 0",
+          "for harf in kelime:",
+          '    if harf == "a":',
+          "        sayac = sayac + 1",
+          "print(sayac)",
+        ]}
+        steps={[
+          { line: 1, vars: "sayac = 0", note: "Sayaç 0'dan başlıyor." },
+          { line: 3, vars: 'harf = "m" · sayac = 0', note: "m, a değil. Sayaç aynı kalır.", hi: 0 },
+          { line: 3, vars: 'harf = "a" · sayac = 0', note: "Bu harf a. Şart tuttu.", hi: 1 },
+          { line: 4, vars: 'harf = "a" · sayac = 1', note: "Sayaç 1 oldu.", hi: 1 },
+          { line: 3, vars: 'harf = "n" · sayac = 1', note: "n, a değil.", hi: 2 },
+          { line: 3, vars: 'harf = "i" · sayac = 1', note: "i, a değil.", hi: 3 },
+          { line: 3, vars: 'harf = "s" · sayac = 1', note: "s, a değil.", hi: 4 },
+          { line: 3, vars: 'harf = "a" · sayac = 1', note: "Yine a. Şart tuttu.", hi: 5 },
+          { line: 4, vars: 'harf = "a" · sayac = 2', note: "Sayaç 2 oldu.", hi: 5 },
+          { line: 5, vars: "sayac = 2", note: "Harfler bitti. Ekrana 2 yazılır." },
+        ]}
+        render={(hi) => (
+          <Cells
+            items={"manisa".split("")}
+            hi={hi === undefined ? [] : [hi]}
+            size="w-12 h-12 text-lg"
+          />
+        )}
+      />
+    </Frame>
   ),
 
-  /* ─────────────────  16 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
+  /* 11 · F-STRING */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8 prog-glow-blue"
-        >
-          <Ruler className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>12. hafta tamamlandı · sıradaki: Hata Yönetimi</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Hatalar &amp; İstisnalar</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta yanlış girdide programın çöktüğünü gördük (IndexError, ValueError).
-          Gelecek hafta bunları try / except ile yakalamayı ve programı ayakta tutmayı öğreneceğiz.
-        </Sub>
+    <Frame
+      eyebrow="Dene gör · boşluk doldurma"
+      title="f-string: cümledeki boşluğa değişkeni yerleştirir"
+      ask="Davetiyedeki &ldquo;Sayın ......&rdquo; boşluğuna benziyor mu?"
+    >
+      <FStringLab />
+    </Frame>
+  ),
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
-          <div className="prog-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#5fa8e0] mb-2 mx-auto" />
-            <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-              Ders saati
-            </div>
-            <div className="text-white font-semibold mt-1">Perşembe</div>
-            <div className="text-sm text-gray-400">09:55 — 12:30</div>
-          </div>
+  /* 12 · SINIFTA DENEYELİM */
+  () => (
+    <Frame
+      eyebrow="Sınıfta deneyelim · 10 dakika"
+      title="Adından ve soyadından kullanıcı adı üret"
+      ask="Senin kullanıcı adın ne çıktı? Yanındakiyle aynı olan var mı?"
+    >
+      <Activity
+        file="kullanici.py"
+        code={`ad = "Zeynep"
+soyad = "Kaya"
+print(ad[0:3])`}
+        steps={[
+          "Kendi adını ve soyadını yaz, çalıştır.",
+          "Adın ilk 3, soyadın ilk 2 harfini + ile birleştir.",
+          "Sonucu lower() ile küçük harfe çevir.",
+          "f-string ile yazdır: Kullanıcı adın: ...",
+        ]}
+      />
+    </Frame>
+  ),
 
-          <div className="prog-card rounded-xl p-5">
-            <Target className="w-5 h-5 text-[#5fa8e0] mb-2 mx-auto" />
-            <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-              Hazırlık
-            </div>
-            <div className="text-white font-semibold mt-1">5 alıştırma</div>
-            <div className="text-sm text-gray-400">çalışan kodla getir</div>
-          </div>
-
-          <div className="prog-card rounded-xl p-5">
-            <FileText className="w-5 h-5 text-[#5fa8e0] mb-2 mx-auto" />
-            <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-              Sonraki hafta
-            </div>
-            <div className="text-white font-semibold mt-1">H13</div>
-            <div className="text-sm text-gray-400">Hata yönetimi</div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
-        >
-          BVA 1101 · Programlama Temelleri · Bahar 2026
-        </motion.div>
+  /* 13 · KENDİNİ DENE */
+  () => (
+    <Frame
+      eyebrow="Kendini dene"
+      title="İki soru: uzunluk ve f-string"
+      ask="İlk soruda 6 diyenler neyi saymayı unuttu?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Quiz
+          q="Ekrana ne yazar?"
+          code={`print(len("Ali Can"))`}
+          options={["6", "7", "2", "8"]}
+          correct={1}
+          why="Altı harf ve bir boşluk. Boşluk da bir karakterdir: 7."
+        />
+        <Quiz
+          q="Ekrana ne yazar?"
+          code={`ad = "Ece"
+print(f"Selam {ad}!")`}
+          options={["Selam {ad}!", "Selam ad!", "Selam Ece!", "Hata verir"]}
+          correct={2}
+          why="Baştaki f sayesinde {ad} yerine değişkenin değeri yazılır."
+        />
       </div>
-    </SlideShell>
+    </Frame>
+  ),
+
+  /* 14 · ÖZET + KÖPRÜ */
+  () => (
+    <Closing
+      items={[
+        {
+          icon: Quote,
+          title: "Tırnak içi metindir",
+          desc: "Harfler listedeki gibi 0'dan numaralanır. Boşluk da bir karakterdir.",
+          accent: "#3776ab",
+        },
+        {
+          icon: Scissors,
+          title: "Dilimde bitiş dahil değil",
+          desc: "metin[0:3] üç harf verir: 0, 1 ve 2 numaralı harfler.",
+          accent: "#ffd43b",
+        },
+        {
+          icon: WandSparkles,
+          title: "Araçlar yeni metin verir",
+          desc: "upper, strip, replace asıl metni değiştirmez. f-string değişkeni cümleye koyar.",
+          accent: "#86efac",
+        },
+      ]}
+      bridge="len(), upper() gibi hazır araçları kullandık. Sırada kendi aracımızı yazmak var: fonksiyonlar."
+    />
   ),
 ];
 
@@ -1115,7 +1204,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#5fa8e0]/70">
-          BVA 1101 · 12. Hafta · Metin (String) İşlemleri
+          BVA 1101 · 12. Hafta · Metinler (String)
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#5fa8e0]/50">

@@ -9,32 +9,24 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Shield,
-  ShieldCheck,
-  Eye,
-  Activity,
-  Bell,
-  BellRing,
-  Server,
+  Monitor,
   Database,
-  Layers,
-  Filter,
   Search,
-  Network,
-  Terminal,
-  ListChecks,
-  GitBranch,
-  Workflow,
-  FileText,
-  AlertTriangle,
+  BellRing,
+  Eye,
+  Cctv,
+  ScrollText,
+  PhoneCall,
   Siren,
-  Gauge,
-  LayoutDashboard,
-  Clock,
-  Calendar,
-  Target,
-  Brain,
-  Sparkles,
+  ClipboardList,
+  MousePointerClick,
+  Hand,
+  Minus,
+  Plus,
+  Circle,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
   ChevronRight,
   ChevronLeft,
   Maximize2,
@@ -150,222 +142,776 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+
+/* ============================================================
+   ETKİLEŞİM BİLEŞENLERİ (tahmin et · tıkla · karar ver)
+   ============================================================ */
+
+const OK = "#34d399";
+const BAD = "#f87171";
+
+/* Tıklanabilir içerik ortada kalsın: kenar geçiş alanlarına (%12) taşmaz. */
+function Mid({ children }: { children: ReactNode }) {
+  return <div className="max-w-4xl mx-auto w-full">{children}</div>;
+}
+
+function AskLine({ children }: { children: ReactNode }) {
+  return (
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6, duration: 0.5 }}
+      className="mt-5 text-sm text-gray-500"
+    >
+      <span className="font-mono uppercase tracking-widest text-[11px] text-[#06b6d4]/60 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.p>
+  );
+}
+
+function TapHint({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#67e8f9]/70">
+      <MousePointerClick className="w-4 h-4" />
+      {children}
+    </span>
+  );
+}
+
+/* El kaldır: hoca sayar, sonra yorumu açar. */
+function Poll({ question, comment }: { question: string; comment: string }) {
+  const [count, setCount] = useState(0);
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="sgbh-card rounded-xl p-6">
+      <div className="flex items-start gap-4">
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: "#fbbf2418", border: "1px solid #fbbf2455" }}
+        >
+          <Hand className="w-6 h-6 text-[#fbbf24]" />
+        </div>
+        <div className="text-2xl font-semibold text-white leading-snug">{question}</div>
+      </div>
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          aria-label="Bir azalt"
+          onClick={() => setCount((c) => Math.max(0, c - 1))}
+          className="w-12 h-12 rounded-lg sgbh-card sgbh-card-hover flex items-center justify-center text-white"
+        >
+          <Minus className="w-5 h-5" />
+        </button>
+        <div className="w-16 text-center text-4xl font-bold font-mono text-[#67e8f9]">{count}</div>
+        <button
+          type="button"
+          aria-label="Bir artır"
+          onClick={() => setCount((c) => c + 1)}
+          className="w-12 h-12 rounded-lg sgbh-card sgbh-card-hover flex items-center justify-center text-white"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
+        <span className="text-sm text-gray-400">el kalktı</span>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="ml-auto px-5 py-3 rounded-lg text-sm font-semibold text-white transition-colors"
+          style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+        >
+          {open ? "Yorumu gizle" : "Saydık — yorumu aç"}
+        </button>
+      </div>
+      {open ? (
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-5 text-lg text-[#67e8f9] leading-relaxed"
+        >
+          {comment}
+        </motion.p>
+      ) : (
+        <div className="mt-5">
+          <TapHint>Elleri say, + ile gir, sonra yorumu aç</TapHint>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Tahmin et → tıkla göster. */
+function Reveal({
+  question,
+  answer,
+  accent = "#06b6d4",
 }: {
-  num: string;
-  total: string;
+  question: string;
+  answer: string;
+  accent?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className="sgbh-card sgbh-card-hover rounded-xl p-5 text-left w-full transition-all block"
+      style={open ? { borderColor: `${accent}90` } : undefined}
+    >
+      <div className="text-lg font-semibold text-white leading-snug">{question}</div>
+      {open ? (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 text-base leading-relaxed"
+          style={{ color: accent }}
+        >
+          {answer}
+        </motion.div>
+      ) : (
+        <div className="mt-3">
+          <TapHint>Önce tahmin et, sonra tıkla</TapHint>
+        </div>
+      )}
+    </button>
+  );
+}
+
+/* Mini sınav: tek ya da birkaç soru. */
+type QuizQuestion = { q: string; options: string[]; correct: number; why: string[] };
+
+function Quiz({ questions }: { questions: QuizQuestion[] }) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const item = questions[idx];
+  const go = (to: number) => {
+    setIdx(to);
+    setPicked(null);
+  };
+  return (
+    <div>
+      {questions.length > 1 && (
+        <div className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-2">
+          Soru {idx + 1} / {questions.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white leading-snug mb-4">{item.q}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {item.options.map((text, i) => {
+          const color = picked === i ? (i === item.correct ? OK : BAD) : undefined;
+          return (
+            <button
+              type="button"
+              key={text}
+              onClick={() => setPicked(i)}
+              className="sgbh-card sgbh-card-hover rounded-xl px-4 py-3 text-left text-base text-gray-200 transition-all flex items-center gap-3"
+              style={color ? { borderColor: color, background: `${color}18` } : undefined}
+            >
+              <span
+                className="w-8 h-8 rounded-lg flex items-center justify-center font-mono text-sm flex-shrink-0"
+                style={{
+                  background: `${color ?? "#06b6d4"}25`,
+                  color: color ?? "#67e8f9",
+                }}
+              >
+                {"ABCD"[i]}
+              </span>
+              <span className="leading-snug">{text}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[3.5rem] flex items-start justify-between gap-4">
+        <div className="text-base leading-relaxed">
+          {picked === null ? (
+            <TapHint>Sınıf karar versin, sonra şıkka tıkla</TapHint>
+          ) : (
+            <motion.span
+              key={`${idx}-${picked}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ color: picked === item.correct ? OK : BAD }}
+            >
+              {picked === item.correct ? "Doğru. " : "Olmadı. "}
+              {item.why[picked]}
+            </motion.span>
+          )}
+        </div>
+        {questions.length > 1 && (
+          <div className="flex gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => go(idx - 1)}
+              disabled={idx === 0}
+              className="px-4 py-2 rounded-lg text-sm text-gray-300 sgbh-card sgbh-card-hover disabled:opacity-30"
+            >
+              Önceki soru
+            </button>
+            <button
+              type="button"
+              onClick={() => go(idx + 1)}
+              disabled={idx === questions.length - 1}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-30"
+              style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+            >
+              Sonraki soru
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Adım adım açılan süreç. */
+type StepItem = {
   title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  desc: string;
+  extraLabel: string;
+  extra: string;
+  icon: LucideIcon;
+  color: string;
+};
+
+function Stepper({ steps }: { steps: StepItem[] }) {
+  const [shown, setShown] = useState(1);
+  const cur = steps[shown - 1];
+  const CurIcon = cur.icon;
+  return (
+    <div>
+      <div className="flex items-stretch gap-2">
+        {steps.map((s, i) => {
+          const open = i < shown;
+          return (
+            <button
+              type="button"
+              key={s.title}
+              onClick={() => setShown(i + 1)}
+              className="flex-1 min-w-0 rounded-lg px-2 py-2.5 text-center transition-all"
+              style={{
+                border: `1px solid ${open ? `${s.color}80` : "rgba(255,255,255,0.1)"}`,
+                background: i === shown - 1 ? `${s.color}25` : open ? `${s.color}0d` : "transparent",
+              }}
+            >
+              <div className="text-[11px] font-mono" style={{ color: open ? s.color : "#6b7280" }}>
+                {i + 1}. adım
+              </div>
+              <div className={`text-sm font-semibold leading-tight mt-0.5 ${open ? "text-white" : "text-gray-600"}`}>
+                {open ? s.title : "?"}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <motion.div
+        key={shown}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="sgbh-card rounded-xl p-5 mt-3 flex gap-4 min-h-[9.5rem]"
+        style={{ borderColor: `${cur.color}60` }}
+      >
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: `${cur.color}18`, border: `1px solid ${cur.color}55` }}
+        >
+          <CurIcon className="w-6 h-6" style={{ color: cur.color }} />
+        </div>
+        <div>
+          <div className="text-xl font-semibold text-white">
+            {shown}. {cur.title}
+          </div>
+          <p className="text-base text-gray-300 leading-relaxed mt-1">{cur.desc}</p>
+          <p className="text-base leading-relaxed mt-2" style={{ color: cur.color }}>
+            <span className="font-semibold">{cur.extraLabel}</span> {cur.extra}
+          </p>
+        </div>
+      </motion.div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShown((n) => Math.max(1, n - 1))}
+          disabled={shown === 1}
+          className="px-4 py-2.5 rounded-lg text-sm text-gray-300 sgbh-card sgbh-card-hover disabled:opacity-30"
+        >
+          Geri
+        </button>
+        <button
+          type="button"
+          onClick={() => setShown((n) => (n === steps.length ? 1 : n + 1))}
+          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
+          style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+        >
+          {shown === steps.length ? "Baştan başla" : "Sonraki adımı aç"}
+        </button>
+        <TapHint>
+          {shown} / {steps.length}
+        </TapHint>
+      </div>
+    </div>
+  );
+}
+
+/* İki seçenekli karar kartları. */
+type ClassifyItem = { text: string; answer: 0 | 1; why: string };
+
+function Classify({ items, labels }: { items: ClassifyItem[]; labels: [string, string] }) {
+  const [picks, setPicks] = useState<Record<number, 0 | 1>>({});
+  const [last, setLast] = useState<number | null>(null);
+  const right = items.filter((it, i) => picks[i] === it.answer).length;
+  const answered = Object.keys(picks).length;
+  return (
+    <div>
+      <div className="space-y-2">
+        {items.map((it, i) => {
+          const p = picks[i];
+          const done = p !== undefined;
+          const good = done && p === it.answer;
+          return (
+            <div
+              key={it.text}
+              className="sgbh-card rounded-lg px-4 py-2 flex items-center gap-3"
+              style={done ? { borderColor: `${good ? OK : BAD}80` } : undefined}
+            >
+              <span className="flex-shrink-0">
+                {!done ? (
+                  <Circle className="w-5 h-5 text-gray-600" />
+                ) : good ? (
+                  <CheckCircle2 className="w-5 h-5" style={{ color: OK }} />
+                ) : (
+                  <XCircle className="w-5 h-5" style={{ color: BAD }} />
+                )}
+              </span>
+              <span className="flex-1 text-[15px] text-gray-200 leading-snug">{it.text}</span>
+              {labels.map((label, b) => {
+                const mine = p === b;
+                const c = mine ? (good ? OK : BAD) : undefined;
+                return (
+                  <button
+                    type="button"
+                    key={label}
+                    onClick={() => {
+                      setPicks((prev) => ({ ...prev, [i]: b as 0 | 1 }));
+                      setLast(i);
+                    }}
+                    className="w-28 py-2 rounded-lg text-sm font-semibold transition-all flex-shrink-0"
+                    style={{
+                      border: `1px solid ${c ?? "rgba(6,182,212,0.35)"}`,
+                      background: c ? `${c}25` : "rgba(6,182,212,0.06)",
+                      color: c ?? "#e5e7eb",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[3rem] flex items-start justify-between gap-4">
+        <div className="text-base leading-snug">
+          {last === null ? (
+            <TapHint>Her satır için sınıfa sor, sonra düğmeye tıkla</TapHint>
+          ) : (
+            <motion.span
+              key={`${last}-${picks[last]}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ color: picks[last] === items[last].answer ? OK : BAD }}
+            >
+              {picks[last] === items[last].answer ? "Doğru. " : "Tekrar düşün. "}
+              {items[last].why}
+            </motion.span>
+          )}
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className="text-sm font-mono text-gray-400">
+            Doğru: {right} / {items.length}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setPicks({});
+              setLast(null);
+            }}
+            disabled={answered === 0}
+            aria-label="Sıfırla"
+            className="p-2 rounded-lg sgbh-card sgbh-card-hover text-gray-300 disabled:opacity-30"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Sınıf etkinliği: biten adımı tıkla, işaretle. */
+function Checklist({ steps }: { steps: string[] }) {
+  const [done, setDone] = useState<boolean[]>(() => steps.map(() => false));
+  const count = done.filter(Boolean).length;
+  return (
+    <div>
+      <div className="space-y-2">
+        {steps.map((s, i) => (
+          <button
+            type="button"
+            key={s}
+            onClick={() => setDone((d) => d.map((v, j) => (j === i ? !v : v)))}
+            className="sgbh-card sgbh-card-hover rounded-lg px-4 py-2.5 w-full text-left flex items-center gap-3 transition-all"
+            style={done[i] ? { borderColor: `${OK}80`, background: `${OK}10` } : undefined}
+          >
+            {done[i] ? (
+              <CheckCircle2 className="w-6 h-6 flex-shrink-0" style={{ color: OK }} />
+            ) : (
+              <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono flex-shrink-0 text-[#67e8f9] border border-[#06b6d4]/50">
+                {i + 1}
+              </span>
+            )}
+            <span className={`text-base leading-snug ${done[i] ? "text-gray-400" : "text-gray-200"}`}>{s}</span>
+          </button>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <TapHint>Biten adıma tıkla</TapHint>
+        <span className="text-sm font-mono text-gray-400">
+          {count} / {steps.length} adım tamam
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* Kısa başlık + ipucu satırı olan bilgi kartı (tıklanmaz). */
+function Note({
+  icon: Icon,
+  color,
+  label,
+  children,
+}: {
+  icon: LucideIcon;
+  color: string;
+  label: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 sgbh-pulse"
-          style={{ background: bgGradient, boxShadow: shadow }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.5 }}
+      className="sgbh-card rounded-xl p-5"
+      style={{ borderColor: `${color}55` }}
+    >
+      <div className="flex items-center gap-2 mb-2" style={{ color }}>
+        <Icon className="w-5 h-5" />
+        <span className="text-xs font-mono uppercase tracking-widest">{label}</span>
       </div>
-    </SlideShell>
+      <div className="text-base text-gray-200 leading-relaxed">{children}</div>
+    </motion.div>
+  );
+}
+
+function Bullets({ items, color = "#06b6d4" }: { items: string[]; color?: string }) {
+  return (
+    <ul className="space-y-2.5">
+      {items.map((it) => (
+        <li key={it} className="flex gap-2 text-base text-gray-300 leading-snug">
+          <ChevronRight className="w-4 h-4 mt-1 flex-shrink-0" style={{ color }} />
+          <span>{it}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   HAFTAYA ÖZEL BİLEŞENLER
    ============================================================ */
 
-function TerminalWindow({
-  title,
-  children,
+/* Tek bir kayıt (log): kim, ne zaman, nereden, ne oldu. */
+function LogRow({
+  kim,
+  zaman,
+  yer,
+  olay,
+  delay = 0,
 }: {
-  title: string;
-  children: ReactNode;
+  kim: string;
+  zaman: string;
+  yer: string;
+  olay: string;
+  delay?: number;
 }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full"
-    >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
-        >
-          <span
-            className="w-5 h-5 rounded-sm flex items-center justify-center text-[11px]"
-            style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", color: "white" }}
-          >
-            $_
-          </span>
-          <span>{title}</span>
-        </div>
-      </div>
-      <div className="sgbh-terminal">{children}</div>
-    </motion.div>
-  );
-}
-
-function CodeWindow({
-  title,
-  icon: Icon,
-  children,
-}: {
-  title: string;
-  icon: LucideIcon;
-  children: ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full"
-    >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] flex-1 max-w-md mx-auto text-center justify-center font-mono"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
-        >
-          <Icon className="w-3.5 h-3.5" />
-          <span>{title}</span>
-        </div>
-      </div>
-      <div className="sgbh-code">{children}</div>
-    </motion.div>
-  );
-}
-
-/* SOC pipeline: kaynak → toplama → normalize → kural → alarm → pano */
-function SiemPipeline() {
-  const stages = [
-    { icon: Server, label: "Kaynaklar", sub: "Sunucu · uç · ağ · bulut", color: "#06b6d4" },
-    { icon: Layers, label: "Toplama", sub: "Agent · syslog · API", color: "#22d3ee" },
-    { icon: Filter, label: "Ayrıştırma", sub: "Decoder · normalize", color: "#67e8f9" },
-    { icon: ListChecks, label: "Kural", sub: "Eşleştir · seviye ata", color: "#fbbf24" },
-    { icon: BellRing, label: "Alarm", sub: "Olay üret · ilet", color: "#f87171" },
-    { icon: LayoutDashboard, label: "Pano", sub: "Görselleştir · ara", color: "#a78bfa" },
+  const cells = [
+    { label: "Kim?", value: kim, color: "#67e8f9" },
+    { label: "Ne zaman?", value: zaman, color: "#fbbf24" },
+    { label: "Nereden?", value: yer, color: "#a78bfa" },
+    { label: "Ne oldu?", value: olay, color: "#34d399" },
   ];
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="w-full"
+      transition={{ delay, duration: 0.4 }}
+      className="sgbh-card rounded-lg px-4 py-2.5 grid grid-cols-4 gap-4"
     >
-      <div className="flex flex-col md:flex-row items-stretch gap-2">
-        {stages.map((s, i) => (
-          <div key={s.label} className="flex items-center gap-2 flex-1">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 + i * 0.12 }}
-              className="sgbh-card rounded-xl p-4 flex-1 text-center"
-            >
-              <div
-                className="w-11 h-11 rounded-lg flex items-center justify-center mx-auto mb-3"
-                style={{ background: `${s.color}18`, border: `1px solid ${s.color}55` }}
-              >
-                <s.icon className="w-5 h-5" style={{ color: s.color }} />
-              </div>
-              <div className="text-sm font-semibold text-white">{s.label}</div>
-              <div className="text-[10px] text-gray-500 mt-1 font-mono leading-tight">{s.sub}</div>
-            </motion.div>
-            {i < stages.length - 1 && (
-              <ChevronRight className="w-5 h-5 text-gray-600 flex-shrink-0 hidden md:block" />
-            )}
+      {cells.map((c) => (
+        <div key={c.label}>
+          <div className="text-[11px] font-mono uppercase tracking-widest" style={{ color: c.color }}>
+            {c.label}
           </div>
-        ))}
-      </div>
+          <div className="text-base text-white leading-snug">{c.value}</div>
+        </div>
+      ))}
     </motion.div>
   );
 }
 
-/* Wazuh kural eşleşme akışı: ham log → decoder → rule → alert */
-function RuleMatchFlow() {
+const ESIKLER = [
+  {
+    n: 1,
+    gurultu: 100,
+    kacirma: 4,
+    yorum: "Şifresini bir kez yanlış yazan herkes için alarm çalar. Ekip yorulur, alarmlara bakmayı bırakır.",
+  },
+  {
+    n: 3,
+    gurultu: 65,
+    kacirma: 10,
+    yorum: "Hâlâ çok gürültü var: pazartesi sabahı herkes şifresini unutur.",
+  },
+  {
+    n: 5,
+    gurultu: 30,
+    kacirma: 20,
+    yorum: "Dengeli: sıradan unutkanlık geçer, ısrarlı deneme yakalanır.",
+  },
+  {
+    n: 10,
+    gurultu: 14,
+    kacirma: 38,
+    yorum: "Ekran sakin; ama biri 9 şifreyi kimse fark etmeden deneyebilir.",
+  },
+  {
+    n: 30,
+    gurultu: 5,
+    kacirma: 72,
+    yorum: "Alarm çok seyrek çalar. Saldırgan onlarca şifre dener, kimse duymaz.",
+  },
+  {
+    n: 100,
+    gurultu: 2,
+    kacirma: 96,
+    yorum: "Alarm neredeyse hiç çalmaz. Saldırıyı da duymazsın.",
+  },
+];
+
+/* Alarm eşiğini seç: yanlış alarm ile kaçırma riski nasıl değişiyor? */
+function ThresholdDemo() {
+  const [sel, setSel] = useState(0);
+  const cur = ESIKLER[sel];
+  const bars = [
+    { label: "Yanlış alarm (boşuna çalan)", value: cur.gurultu, color: "#fbbf24" },
+    { label: "Saldırıyı kaçırma riski", value: cur.kacirma, color: BAD },
+  ];
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="sgbh-card rounded-xl p-6 w-full"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-stretch">
-        <div className="rounded-lg p-4" style={{ background: "#06b6d410", border: "1px solid #06b6d440" }}>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#67e8f9] mb-2">1 · Ham log</div>
-          <div className="font-mono text-[10.5px] text-gray-300 break-words leading-snug">
-            Aug 14 09:21:03 web01 sshd[2210]: Failed password for invalid user admin from 203.0.113.7 port 51122
-          </div>
-        </div>
-        <div className="rounded-lg p-4" style={{ background: "#67e8f910", border: "1px solid #67e8f940" }}>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#67e8f9] mb-2">2 · Decoder</div>
-          <div className="font-mono text-[10.5px] text-gray-300 leading-snug space-y-1">
-            <div><span className="text-[#a78bfa]">program</span>: sshd</div>
-            <div><span className="text-[#a78bfa]">srcip</span>: 203.0.113.7</div>
-            <div><span className="text-[#a78bfa]">user</span>: admin</div>
-          </div>
-        </div>
-        <div className="rounded-lg p-4" style={{ background: "#fbbf2410", border: "1px solid #fbbf2440" }}>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#fcd34d] mb-2">3 · Kural</div>
-          <div className="font-mono text-[10.5px] text-gray-300 leading-snug space-y-1">
-            <div>id <span className="text-[#fcd34d]">5710</span></div>
-            <div>&quot;sshd: invalid user&quot;</div>
-            <div>level <span className="text-[#fdba74]">5</span></div>
-          </div>
-        </div>
-        <div className="rounded-lg p-4" style={{ background: "#f8717112", border: "1px solid #f8717145" }}>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#fca5a5] mb-2">4 · Alarm</div>
-          <div className="font-mono text-[10.5px] text-gray-300 leading-snug space-y-1">
-            <div className="flex items-center gap-1.5">
-              <Siren className="w-3.5 h-3.5 text-[#f87171]" />
-              <span>olay üretildi</span>
+    <div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-400 mr-1">Alarm kaç hatalı girişte çalsın?</span>
+        {ESIKLER.map((e, i) => (
+          <button
+            type="button"
+            key={e.n}
+            onClick={() => setSel(i)}
+            className="flex-1 py-3 rounded-lg text-xl font-bold font-mono transition-all"
+            style={{
+              border: `1px solid ${i === sel ? "#06b6d4" : "rgba(6,182,212,0.3)"}`,
+              background: i === sel ? "rgba(6,182,212,0.25)" : "rgba(6,182,212,0.05)",
+              color: i === sel ? "#ffffff" : "#9ca3af",
+            }}
+          >
+            {e.n}
+          </button>
+        ))}
+      </div>
+      <div className="sgbh-card rounded-xl p-5 mt-3">
+        <div className="space-y-3">
+          {bars.map((b) => (
+            <div key={b.label} className="flex items-center gap-4">
+              <div className="w-56 text-sm text-gray-300 flex-shrink-0">{b.label}</div>
+              <div className="flex-1 h-5 rounded-full bg-white/5 overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: b.color }}
+                  animate={{ width: `${b.value}%` }}
+                  transition={{ duration: 0.4 }}
+                />
+              </div>
             </div>
-            <div>panoya + e-postaya</div>
-          </div>
+          ))}
         </div>
+        <motion.p
+          key={sel}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-4 text-lg text-[#67e8f9] leading-snug min-h-[3.5rem]"
+        >
+          {cur.yorum}
+        </motion.p>
       </div>
-      <div className="mt-4 text-[11px] text-gray-500 font-mono flex items-center gap-2">
-        <ChevronRight className="w-3.5 h-3.5 text-[#06b6d4]" />
-        Tek tek 5710 bilgi seviyesidir; aynı IP&apos;den kısa sürede çok tekrar ise kural 5712 (level 10) ile
-        <span className="text-[#fca5a5]"> brute-force</span> olarak yükseltilir.
+      <div className="mt-3 flex items-center justify-between">
+        <TapHint>Sayılara sırayla tıkla, çubukları izle</TapHint>
+        <span className="text-xs text-gray-600">Çubuklar örnek amaçlıdır; ölçüm değildir.</span>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 /* ============================================================
    SLIDES
    ============================================================ */
+
+const SIEM_ADIMLARI: StepItem[] = [
+  {
+    title: "Kaynaklar",
+    desc: "Bilgisayarlar, sunucular, e-posta, kapıdaki kart okuyucu… Her biri kendi kaydını tutar.",
+    extraLabel: "Benzetme:",
+    extra: "AVM’nin her katındaki ayrı ayrı kameralar.",
+    icon: Monitor,
+    color: "#a78bfa",
+  },
+  {
+    title: "Toplama",
+    desc: "SIEM bütün bu kayıtları tek bir yere çeker. Artık yüz ayrı yere bakmak gerekmez.",
+    extraLabel: "Benzetme:",
+    extra: "Bütün kameraların tek odadaki ekranlara bağlanması.",
+    icon: Database,
+    color: "#06b6d4",
+  },
+  {
+    title: "Karşılaştırma",
+    desc: "Kayıtları yan yana koyar: aynı kişi beş dakika arayla iki ayrı ülkeden giriş yapmış mı?",
+    extraLabel: "Benzetme:",
+    extra: "Otoparktaki adamla kasadaki adamın aynı kişi olduğunu fark etmek.",
+    icon: Search,
+    color: "#22d3ee",
+  },
+  {
+    title: "Alarm",
+    desc: "Şüpheli bir durum yakalanınca ekrana uyarı düşer.",
+    extraLabel: "Benzetme:",
+    extra: "Ekranın kırmızı yanıp sönmesi.",
+    icon: BellRing,
+    color: "#fbbf24",
+  },
+  {
+    title: "İnsan bakar",
+    desc: "Son kararı SOC çalışanı verir: gerçek bir sorun mu, yanlış alarm mı?",
+    extraLabel: "Unutma:",
+    extra: "SIEM gösterir; karar veren ve harekete geçen insandır.",
+    icon: Eye,
+    color: "#34d399",
+  },
+];
+
+const KAYIT_KARTLARI: ClassifyItem[] = [
+  {
+    text: "Hafta içi 09:05 · muhasebeci · kendi bilgisayarından · giriş başarılı.",
+    answer: 0,
+    why: "Mesai saati, bilinen kişi, bilinen cihaz. Sıradan bir sabah.",
+  },
+  {
+    text: "Aynı hesaba 2 dakika içinde 40 hatalı şifre denemesi.",
+    answer: 1,
+    why: "İnsan bu kadar hızlı ve çok yanılmaz; biri şifre deniyor olabilir.",
+  },
+  {
+    text: "Gece 03:20 · stajyer hesabı · tüm müşteri listesini indirdi.",
+    answer: 1,
+    why: "Saat de, yapılan iş de stajyerin olağan işine uymuyor.",
+  },
+  {
+    text: "Öğle arası · bir çalışan şifresini 1 kez yanlış yazdı, sonra girdi.",
+    answer: 0,
+    why: "Herkesin başına gelir. Tek hata alarm sebebi değildir.",
+  },
+  {
+    text: "Aynı hesap 10 dakika arayla önce Manisa’dan, sonra yurt dışından giriş yaptı.",
+    answer: 1,
+    why: "On dakikada yurt dışına gidilmez; hesabı iki ayrı kişi kullanıyor olabilir.",
+  },
+];
+
+const ARA_SORU: QuizQuestion[] = [
+  {
+    q: "SIEM’in SOC ekibine en büyük faydası hangisidir?",
+    options: [
+      "Bütün saldırıları kendiliğinden engeller",
+      "Dağınık kayıtları tek yerde toplar, şüpheli olanı öne çıkarır",
+      "Çalışanların şifrelerini saklar",
+      "Bilgisayarları hızlandırır",
+    ],
+    correct: 1,
+    why: [
+      "SIEM engellemez; gösterir ve uyarır. Harekete geçen insandır.",
+      "Tek ekran ve alarm: ekip neye bakacağını bilir.",
+      "Şifre saklamak SIEM’in işi değildir.",
+      "Hızla ilgisi yok; işi kayıt toplamak ve uyarmak.",
+    ],
+  },
+];
+
+const KAPANIS_SORULARI: QuizQuestion[] = [
+  {
+    q: "Log (kayıt) nedir?",
+    options: [
+      "Bir tür virüs",
+      "Sistemde olanların saatli kaydı",
+      "Şifreleme yöntemi",
+      "Yedek dosyası",
+    ],
+    correct: 1,
+    why: [
+      "Log zararlı bir şey değil; tam tersine savunmanın gözüdür.",
+      "Kim, ne zaman, nereden, ne yaptı: log bunu yazar.",
+      "Şifrelemeyi kriptografi haftasında gördük; log başka şey.",
+      "Yedek verinin kopyasıdır; log ise olanların günlüğü.",
+    ],
+  },
+  {
+    q: "Hangi kayıt daha şüphelidir?",
+    options: [
+      "Sabah 09:00’da kendi bilgisayarından giriş",
+      "Bir kez yanlış yazılan şifre",
+      "Gece 03:00’te, hiç gidilmemiş bir ülkeden yönetici girişi",
+      "Öğle arasında e-posta okumak",
+    ],
+    correct: 2,
+    why: [
+      "Bilinen saat, bilinen cihaz: sıradan.",
+      "Tek hata herkesin başına gelir.",
+      "Saat, yer ve hesabın yetkisi birlikte alarm sebebidir.",
+      "Sıradan bir iş.",
+    ],
+  },
+  {
+    q: "Alarm çok hassas ayarlanırsa ne olur?",
+    options: [
+      "Hiç alarm çalmaz",
+      "Yanlış alarm çoğalır; ekip gerçek alarmı kaçırabilir",
+      "Saldırılar kendiliğinden durur",
+      "Kayıtlar silinir",
+    ],
+    correct: 1,
+    why: [
+      "Tam tersi: durmadan çalar.",
+      "Sürekli çalan alarma kimse bakmaz; gerçek olan arada kaybolur.",
+      "Alarm durdurmaz, yalnız haber verir.",
+      "Alarm ayarının kayıtları silmekle ilgisi yok.",
+    ],
+  },
+];
 
 const slides: Array<(active: boolean) => ReactNode> = [
   /* ───── 1. Kapak ───── */
@@ -374,813 +920,331 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <div className="text-center">
         <Eyebrow>BVA 2205 · 11. Hafta · Güz Dönemi</Eyebrow>
         <H1>
-          <span className="sgbh-shimmer">SOC &amp; SIEM</span>
+          <span className="sgbh-shimmer">SOC ve SIEM</span>
           <br />
-          <span className="text-white/90">Wazuh ile Olay İzleme</span>
+          <span className="text-white/90">Güvenlik Kamerası Odası</span>
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Logu topla, kuralla eşleştir, alarmı pano üzerinden gör. Dağınık kayıtları tek bir izleme merkezine taşıyoruz.
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Kilit taktık, ikinci kilidi de açtık. Peki biri kapıyı zorlarsa bunu kim, nasıl fark edecek?
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto text-left">
           <FeatureCard
-            icon={Layers}
-            title="Log Toplama"
-            desc="Agent, syslog ve dosya kaynaklarından merkezi log akışı."
+            icon={Cctv}
+            title="Kim izliyor?"
+            desc="SOC: ekranların başındaki güvenlik ekibi."
             delay={0.3}
             accent="#06b6d4"
           />
           <FeatureCard
-            icon={ListChecks}
-            title="Alarm Kuralları"
-            desc="Decoder ve kurallarla olayları sınıflandır, seviye ata."
+            icon={ScrollText}
+            title="Neye bakıyor?"
+            desc="Kayıtlara: kim, ne zaman, nereden, ne yaptı?"
             delay={0.45}
             accent="#fbbf24"
           />
           <FeatureCard
-            icon={LayoutDashboard}
-            title="Dashboard"
-            desc="OpenSearch tabanlı panoda ara, filtrele, görselleştir."
+            icon={BellRing}
+            title="Nasıl fark ediyor?"
+            desc="SIEM kayıtları toplar, şüpheli olanda alarm verir."
             delay={0.6}
-            accent="#a78bfa"
+            accent="#34d399"
           />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Çarşamba 13:30 — 17:00 · Uygulamalı lab (Wazuh tek-düğüm kurulum)
-        </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ───── 2. Köprü: geçen hafta → bu hafta ───── */
+  /* ───── 2. El kaldır ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · 10. haftadan 11. haftaya</Eyebrow>
-      <H2>Olayı tek tek gördük; şimdi her şeyi tek yerden izliyoruz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Geçen hafta olay müdahalesinin (incident response) adımlarını konuştuk. Ama bir saldırıyı yakalamak için
-        önce onu <span className="text-white">görmek</span> gerekir. Tek sunucudaki log dosyasına tek tek bakmak ölçeklenmez.
-        SOC&apos;un kalbi olan SIEM tam burada devreye girer.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card-warn rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#fca5a5]">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">SIEM&apos;siz dünya</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Loglar 40 farklı sunucuda dağınık duruyor.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Saldırgan ortalama haftalarca fark edilmeden kalabiliyor.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Olay olunca log&apos;a bakmaya gidersin; çoğu zaten dönmüş (rotate) olur.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <ShieldCheck className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">SIEM ile</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Tüm loglar tek merkezde, aranabilir ve saklanabilir.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Kurallar şüpheli olayı otomatik işaretler ve alarm üretir.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Pano üzerinden saldırıyı dakikalar içinde görürsün.</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 3. Bu dersin akışı ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: SOC kavramı → log &amp; kural → pano</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce SOC ve SIEM&apos;in ne olduğunu netleştiriyoruz; sonra Wazuh&apos;u kurup log topluyor ve kural
-        yazıyoruz; en sonunda dashboard üzerinde alarmları okuyoruz. Kapanışta küçük bir uygulamalı lab.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "SOC & SIEM Kavramı", items: ["SOC nedir, kim çalışır?", "SIEM mimarisi ve veri akışı", "Wazuh bileşenleri"], icon: Shield, accent: "#06b6d4" },
-          { range: "02", title: "Log & Kural", items: ["Wazuh kurulumu", "Agent ile log toplama", "Decoder & alarm kuralları"], icon: ListChecks, accent: "#fbbf24" },
-          { range: "03", title: "Dashboard", items: ["OpenSearch arayüzü", "Filtre & arama (DQL)", "Görselleştirme & olay üçgeni"], icon: LayoutDashboard, accent: "#a78bfa" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="sgbh-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 4. Bölüm 1 ───── */
-  () => (
-    <SectionDivider
-      num="01"
-      total="03"
-      title="SOC & SIEM Nedir?"
-      subtitle="SOC kurumun izleme merkezidir; SIEM ise o merkezin gözüdür. Önce kavramları ve veri akışını oturtuyoruz."
-      bgGradient="linear-gradient(135deg,#06b6d4,#0e7490)"
-      shadow="0 30px 80px -20px rgba(6,182,212,0.6)"
-      icon={<Eye className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 5. SOC nedir + roller ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>SOC · Security Operations Center</Eyebrow>
-      <H2 className="mb-2">İzleyen, tespit eden, müdahale eden ekip</H2>
-      <Sub className="max-w-3xl mb-6">
-        SOC; insan, süreç ve teknolojiden oluşan bir güvenlik izleme merkezidir. Genellikle üç seviyeli
-        bir analist hiyerarşisiyle çalışır — alarm önce L1&apos;e düşer, gerektikçe yukarı tırmanır (escalation).
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { tier: "L1", role: "Triage Analisti", desc: "Gelen alarmları ilk inceler, yanlış pozitifi eler, gerçek olayı L2&apos;ye yükseltir.", color: "#06b6d4", icon: Bell },
-          { tier: "L2", role: "Olay Müdahale", desc: "Derin analiz yapar, kapsamı belirler, sınırlama (containment) adımlarını yürütür.", color: "#fbbf24", icon: Search },
-          { tier: "L3", role: "Threat Hunter", desc: "Henüz alarm üretmemiş tehdidi proaktif arar; yeni kurallar ve tespit içeriği yazar.", color: "#a78bfa", icon: Target },
-        ].map((t, i) => (
-          <motion.div
-            key={t.tier}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className="sgbh-card rounded-xl p-6"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <span
-                className="font-mono text-sm font-bold px-2.5 py-1 rounded"
-                style={{ background: `${t.color}1a`, color: t.color, border: `1px solid ${t.color}55` }}
-              >
-                {t.tier}
-              </span>
-              <t.icon className="w-5 h-5" style={{ color: t.color }} />
-            </div>
-            <div className="text-base font-semibold text-white mb-2">{t.role}</div>
-            <p className="text-sm text-gray-400 leading-relaxed">{t.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl"
-      >
-        <Gauge className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">İki temel metrik:</span> MTTD (ortalama tespit süresi) ve MTTR (ortalama müdahale süresi).
-          SOC&apos;un işi bu ikisini olabildiğince küçültmektir.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 6. SIEM nedir + 4 görev ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>SIEM · Security Information and Event Management</Eyebrow>
-      <H2 className="mb-2">SOC&apos;un dört işini tek platformda toplar</H2>
-      <Sub className="max-w-3xl mb-6">
-        SIEM; dağınık log&apos;ları merkezde toplayan, normalize eden, kurallarla ilişkilendiren ve görselleştiren
-        yazılım katmanıdır. Dört temel yeteneği vardır:
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          { icon: Layers, title: "Toplama (Collection)", desc: "Sunucu, uç nokta, ağ cihazı ve buluttan log&apos;ları tek noktaya taşır. Agent veya syslog ile.", accent: "#06b6d4" },
-          { icon: Filter, title: "Normalleştirme (Parsing)", desc: "Her kaynağın farklı formatını ortak alanlara çevirir: srcip, user, action... Böylece aranabilir olur.", accent: "#22d3ee" },
-          { icon: GitBranch, title: "İlişkilendirme (Correlation)", desc: "Tekil olayları kurallarla birleştirir. 5 başarısız + 1 başarılı giriş = olası brute-force.", accent: "#fbbf24" },
-          { icon: LayoutDashboard, title: "Görselleştirme & Alarm", desc: "Panolar, aramalar ve eşik aşılınca tetiklenen bildirimler. İnsanın okuyabileceği hâle getirir.", accent: "#a78bfa" },
-        ].map((c, i) => (
-          <motion.div
-            key={c.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="sgbh-card rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${c.accent}18`, border: `1px solid ${c.accent}55` }}
-            >
-              <c.icon className="w-5 h-5" style={{ color: c.accent }} />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-white mb-1">{c.title}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{c.desc}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 7. SIEM veri akışı (pipeline) ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>SIEM · uçtan uca veri akışı</Eyebrow>
-      <H2 className="mb-2">Bir log&apos;un yolculuğu</H2>
-      <Sub className="max-w-3xl mb-8">
-        Ham bir log&apos;un kaynaktan panoya kadar geçtiği altı durak. Wazuh bu zincirin tamamını sağlayan
-        açık kaynak bir platformdur — her durağı somut bir bileşenle karşılar.
-      </Sub>
-      <SiemPipeline />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        className="mt-8 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl mx-auto"
-      >
-        <Workflow className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Eşleştirme:</span> toplama &amp; ayrıştırma → Wazuh agent + manager;
-          kural &amp; alarm → Wazuh kural motoru; saklama &amp; pano → indexer (OpenSearch) + dashboard.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 8. Wazuh mimari bileşenleri ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Wazuh · üç ana bileşen</Eyebrow>
-      <H2 className="mb-2">Agent · Manager · Indexer + Dashboard</H2>
-      <Sub className="max-w-3xl mb-6">
-        Wazuh açık kaynaklı bir SIEM/XDR platformudur. Tek-düğüm kurulumda hepsi aynı sunucuda durabilir;
-        üretimde indexer ayrı düğümlere dağıtılır.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          {
-            icon: Network, title: "Wazuh Agent", port: "→ 1514/udp · 1515/tcp",
-            color: "#06b6d4",
-            items: ["İzlenecek her makineye kurulur", "Log toplar, FIM &amp; rootkit kontrolü yapar", "Veriyi manager&apos;a şifreli yollar"],
-          },
-          {
-            icon: Server, title: "Wazuh Manager", port: "decoder + rule motoru",
-            color: "#fbbf24",
-            items: ["Gelen log&apos;ları ayrıştırır (decoder)", "Kurallarla eşleştirir, seviye atar", "Alarm üretir, indexer&apos;a iletir"],
-          },
-          {
-            icon: Database, title: "Indexer + Dashboard", port: "OpenSearch tabanlı",
-            color: "#a78bfa",
-            items: ["Alarmları saklar &amp; indeksler", "Arama ve görselleştirme sunar", "Web panosu (varsayılan 443/tcp)"],
-          },
-        ].map((c, i) => (
-          <motion.div
-            key={c.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className="sgbh-card rounded-xl p-6"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: `${c.color}18`, border: `1px solid ${c.color}55` }}
-            >
-              <c.icon className="w-6 h-6" style={{ color: c.color }} />
-            </div>
-            <h3 className="text-lg font-semibold text-white">{c.title}</h3>
-            <div className="text-[10px] font-mono mb-3 mt-1" style={{ color: c.color }}>{c.port}</div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {c.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: c.color }} />
-                  <span dangerouslySetInnerHTML={{ __html: it }} />
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 9. Bölüm 2 ───── */
-  () => (
-    <SectionDivider
-      num="02"
-      total="03"
-      title="Kurulum, Log Toplama & Kurallar"
-      subtitle="Wazuh&apos;u ayağa kaldır, bir agent bağla, log akıt ve şüpheli olayları yakalayan kuralları oku."
-      bgGradient="linear-gradient(135deg,#f59e0b,#b45309)"
-      shadow="0 30px 80px -20px rgba(245,158,11,0.55)"
-      icon={<ListChecks className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 10. Kurulum — terminal ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Kurulum · tek-düğüm (all-in-one)</Eyebrow>
-      <H2 className="mb-2">Dört komutla Wazuh ayakta</H2>
-      <Sub className="max-w-3xl mb-6">
-        Resmî kurulum betiği indexer, manager ve dashboard&apos;u tek sunucuya kurar. Lab için en hızlı yol budur;
-        sürüm numarasını her zaman resmî dokümandan doğrula.
-      </Sub>
-      <TerminalWindow title="root@wazuh-lab:~ — wazuh-install.sh">
-        <div>
-          <span className="sgbh-term-prompt">root@wazuh-lab</span>
-          <span className="sgbh-term-dim">:~#</span>{" "}
-          <span className="sgbh-term-cmd">curl -sO https://packages.wazuh.com/4.x/wazuh-install.sh</span>
+      <Mid>
+        <Eyebrow>Isınma · el kaldır</Eyebrow>
+        <H2 className="md:!text-4xl">O uyarıyı sana kim gönderdi?</H2>
+        <div className="mt-6">
+          <Poll
+            question="Kaçınız bugüne kadar “hesabınıza yeni bir cihazdan giriş yapıldı” uyarısı aldı?"
+            comment="O mesajı bir insan yazmadı. Bir sistem giriş kayıtlarını izledi, alışılmadık bir şey gördü ve sana haber verdi. Kurumlarda bu işi yapan yapıya SOC ve SIEM diyoruz."
+          />
         </div>
-        <div>
-          <span className="sgbh-term-prompt">root@wazuh-lab</span>
-          <span className="sgbh-term-dim">:~#</span>{" "}
-          <span className="sgbh-term-cmd">sudo bash wazuh-install.sh -a</span>
-          <span className="sgbh-term-dim"> # all-in-one kurulum</span>
-        </div>
-        <div className="sgbh-term-dim">INFO: Starting Wazuh installation assistant...</div>
-        <div className="sgbh-term-ok">INFO: Wazuh indexer installation finished.</div>
-        <div className="sgbh-term-ok">INFO: Wazuh manager installation finished.</div>
-        <div className="sgbh-term-ok">INFO: Wazuh dashboard installation finished.</div>
-        <div className="sgbh-term-warn">INFO: You can access the web interface https://&lt;wazuh-ip&gt;</div>
-        <div className="sgbh-term-dim">      User: admin    Password: &lt;kurulumda üretilen parola&gt;</div>
-        <div className="mt-1">
-          <span className="sgbh-term-prompt">root@wazuh-lab</span>
-          <span className="sgbh-term-dim">:~#</span>{" "}
-          <span className="sgbh-term-cmd">systemctl status wazuh-manager</span>
-        </div>
-        <div className="sgbh-term-ok">● wazuh-manager.service — active (running)</div>
-        <div className="mt-2">
-          <span className="sgbh-term-prompt">root@wazuh-lab</span>
-          <span className="sgbh-term-dim">:~#</span>{" "}
-          <span className="sgbh-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
-        </div>
-      </TerminalWindow>
+        <AskLine>O uyarı hiç gelmeseydi yabancı girişi ne zaman fark ederdin?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 11. Log toplama — agent ───── */
+  /* ───── 3. SOC ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Log toplama · agent bağlama</Eyebrow>
-      <H2 className="mb-2">İzlenecek makineyi manager&apos;a kaydet</H2>
-      <Sub className="max-w-3xl mb-6">
-        Agent kurulduktan sonra <span className="font-mono text-[#67e8f9]">ossec.conf</span> içinde manager IP&apos;si
-        ve toplanacak log dosyaları tanımlanır. Aşağıda bir Linux uç noktasındaki yapılandırma parçası:
+      <Eyebrow>Benzetme · AVM’nin kamera odası</Eyebrow>
+      <H2>SOC, kurumun güvenlik kamerası odasıdır</H2>
+      <Sub className="mt-3 max-w-4xl">
+        SOC (Güvenlik Operasyon Merkezi): kurumun sistemlerini sürekli izleyen ekip.
+        Kamera odasındaki görevliler gibi üç iş yapar.
       </Sub>
-      <CodeWindow title="agent · /var/ossec/etc/ossec.conf" icon={FileText}>
-        <div><span className="sgbh-code-cmt">&lt;!-- Manager bağlantısı --&gt;</span></div>
-        <div><span className="sgbh-code-tag">&lt;client&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;server&gt;</span></div>
-        <div>{"    "}<span className="sgbh-code-tag">&lt;address&gt;</span><span className="sgbh-code-str">192.168.56.10</span><span className="sgbh-code-tag">&lt;/address&gt;</span></div>
-        <div>{"    "}<span className="sgbh-code-tag">&lt;port&gt;</span><span className="sgbh-code-val">1514</span><span className="sgbh-code-tag">&lt;/port&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;/server&gt;</span></div>
-        <div><span className="sgbh-code-tag">&lt;/client&gt;</span></div>
-        <div className="mt-2"><span className="sgbh-code-cmt">&lt;!-- Toplanacak log dosyaları --&gt;</span></div>
-        <div><span className="sgbh-code-tag">&lt;localfile&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;log_format&gt;</span><span className="sgbh-code-val">syslog</span><span className="sgbh-code-tag">&lt;/log_format&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;location&gt;</span><span className="sgbh-code-str">/var/log/auth.log</span><span className="sgbh-code-tag">&lt;/location&gt;</span></div>
-        <div><span className="sgbh-code-tag">&lt;/localfile&gt;</span></div>
-        <div className="mt-2"><span className="sgbh-code-tag">&lt;localfile&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;log_format&gt;</span><span className="sgbh-code-val">apache</span><span className="sgbh-code-tag">&lt;/log_format&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;location&gt;</span><span className="sgbh-code-str">/var/log/apache2/access.log</span><span className="sgbh-code-tag">&lt;/location&gt;</span></div>
-        <div><span className="sgbh-code-tag">&lt;/localfile&gt;</span></div>
-      </CodeWindow>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono flex items-center gap-2"
-      >
-        <Terminal className="w-3.5 h-3.5 text-[#06b6d4]" />
-        Kayıt için manager&apos;da: <span className="text-[#67e8f9]">/var/ossec/bin/manage_agents</span> · agent tarafında anahtar girilir, servis yeniden başlatılır.
-      </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={Eye}
+          title="1 · İzler"
+          desc="Ekranlara bakar: sistemlerde şu an neler oluyor?"
+          accent="#06b6d4"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={Search}
+          title="2 · Fark eder"
+          desc="Olağan dışı olanı ayırır: bu saatte bu kapıda kim var?"
+          accent="#fbbf24"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={PhoneCall}
+          title="3 · Haber verir"
+          desc="Sorun gerçekse ilgili ekibi arar ve müdahaleyi başlatır."
+          accent="#34d399"
+          delay={0.3}
+        />
+      </div>
+      <AskLine>Kamera var ama ekrana bakan kimse yoksa ne olur?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 12. Alarm kuralı — XML ───── */
+  /* ───── 4. Log ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Alarm kuralları · kural anatomisi</Eyebrow>
-      <H2 className="mb-2">Bir kural neyi, ne zaman, hangi seviyede yakalar?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Wazuh kuralları XML ile tanımlanır. Her kuralın bir <span className="font-mono text-[#67e8f9]">id</span>,
-        bir <span className="font-mono text-[#67e8f9]">level</span> (0-15 önem) ve bir eşleşme koşulu vardır.
-        Aşağıda kendi yazdığımız bir özel kural:
-      </Sub>
-      <CodeWindow title="manager · /var/ossec/etc/rules/local_rules.xml" icon={ListChecks}>
-        <div><span className="sgbh-code-cmt">&lt;!-- Aynı IP&apos;den 6+ başarısız SSH girişi (zaman penceresi içinde) --&gt;</span></div>
-        <div><span className="sgbh-code-tag">&lt;group</span> <span className="sgbh-code-attr">name</span>=<span className="sgbh-code-str">&quot;sshd,authentication&quot;</span><span className="sgbh-code-tag">&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;rule</span> <span className="sgbh-code-attr">id</span>=<span className="sgbh-code-str">&quot;100100&quot;</span> <span className="sgbh-code-attr">level</span>=<span className="sgbh-code-str">&quot;10&quot;</span> <span className="sgbh-code-attr">frequency</span>=<span className="sgbh-code-str">&quot;6&quot;</span> <span className="sgbh-code-attr">timeframe</span>=<span className="sgbh-code-str">&quot;120&quot;</span><span className="sgbh-code-tag">&gt;</span></div>
-        <div>{"    "}<span className="sgbh-code-tag">&lt;if_matched_sid&gt;</span><span className="sgbh-code-val">5710</span><span className="sgbh-code-tag">&lt;/if_matched_sid&gt;</span>{"  "}<span className="sgbh-code-cmt">&lt;!-- base kural --&gt;</span></div>
-        <div>{"    "}<span className="sgbh-code-tag">&lt;same_source_ip /&gt;</span></div>
-        <div>{"    "}<span className="sgbh-code-tag">&lt;description&gt;</span><span className="sgbh-code-key">SSH brute-force: ayni IP&apos;den tekrarli basarisiz giris</span><span className="sgbh-code-tag">&lt;/description&gt;</span></div>
-        <div>{"    "}<span className="sgbh-code-tag">&lt;mitre&gt;</span></div>
-        <div>{"      "}<span className="sgbh-code-tag">&lt;id&gt;</span><span className="sgbh-code-val">T1110</span><span className="sgbh-code-tag">&lt;/id&gt;</span>{"  "}<span className="sgbh-code-cmt">&lt;!-- Brute Force --&gt;</span></div>
-        <div>{"    "}<span className="sgbh-code-tag">&lt;/mitre&gt;</span></div>
-        <div>{"  "}<span className="sgbh-code-tag">&lt;/rule&gt;</span></div>
-        <div><span className="sgbh-code-tag">&lt;/group&gt;</span></div>
-      </CodeWindow>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono flex items-center gap-2"
-      >
-        <ChevronRight className="w-3.5 h-3.5 text-[#fbbf24]" />
-        <span className="text-[#fcd34d]">frequency</span> + <span className="text-[#fcd34d]">timeframe</span> = eşik mantığı: 120 sn içinde 6 eşleşme olursa tek bir yüksek-seviye alarm üretilir.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 13. Kural eşleşme akışı ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Decoder → Kural → Alarm</Eyebrow>
-      <H2 className="mb-2">Ham log nasıl alarma dönüşür?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Manager her log&apos;u önce decoder ile alanlara ayırır, sonra kurallarla eşleştirir. Eşleşen kuralın
-        seviyesi alarmın önemini belirler. İşte tek bir SSH satırının dört adımda alarma dönüşmesi:
-      </Sub>
-      <RuleMatchFlow />
-    </SlideShell>
-  ),
-
-  /* ───── 14. Önem seviyeleri tablosu ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Kural seviyeleri · 0-15 ölçeği</Eyebrow>
-      <H2>Her alarm aynı aciliyette değil</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Wazuh kural seviyeleri 0 (yok say) ile 15 (en kritik) arasındadır. Seviye, alarmın panoda nasıl
-        renklendiğini ve hangi bildirimi tetikleyeceğini belirler. Aşağıda tipik bir eşleştirme:
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="mt-6 sgbh-card rounded-xl p-1"
-      >
-        <table className="sgbh-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "14%" }}>Seviye</th>
-              <th style={{ width: "22%" }}>Sınıf</th>
-              <th style={{ width: "32%" }}>Örnek olay</th>
-              <th>Tipik aksiyon</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span className="sgbh-sev sgbh-sev-low">0-3</span></td>
-              <td className="text-white font-semibold">Bilgilendirme</td>
-              <td>Başarılı giriş, servis yeniden başlatma.</td>
-              <td>Sadece kaydet; alarm üretme.</td>
-            </tr>
-            <tr>
-              <td><span className="sgbh-sev sgbh-sev-med">4-7</span></td>
-              <td className="text-white font-semibold">Düşük / Orta</td>
-              <td>Tekil başarısız giriş, bilinen tarama imzası.</td>
-              <td>Panoda işaretle; trend olarak izle.</td>
-            </tr>
-            <tr>
-              <td><span className="sgbh-sev sgbh-sev-high">8-11</span></td>
-              <td className="text-white font-semibold">Yüksek</td>
-              <td>Brute-force eşiği, dosya bütünlüğü (FIM) değişimi.</td>
-              <td>L1&apos;e alarm; inceleme başlat.</td>
-            </tr>
-            <tr>
-              <td><span className="sgbh-sev sgbh-sev-crit">12-15</span></td>
-              <td className="text-white font-semibold">Kritik</td>
-              <td>Rootkit tespiti, başarılı saldırı sonrası komut çalıştırma.</td>
-              <td>Anında bildirim; olay müdahalesi.</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-4 text-[11px] text-gray-500 max-w-3xl"
-      >
-        Not: Seviye eşikleri kurum politikasına göre ayarlanır; tablodaki aralıklar yaygın bir başlangıç önerisidir.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 15. Bölüm 3 ───── */
-  () => (
-    <SectionDivider
-      num="03"
-      total="03"
-      title="Dashboard — Alarmları Okumak"
-      subtitle="Toplanan log ve üretilen alarmlar OpenSearch tabanlı panoda görünür. Aramak, filtrelemek ve görselleştirmek SOC&apos;un günlük işidir."
-      bgGradient="linear-gradient(135deg,#a855f7,#6b21a8)"
-      shadow="0 30px 80px -20px rgba(168,85,247,0.55)"
-      icon={<LayoutDashboard className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 16. Dashboard mockup — alarm akışı + sayaçlar ───── */
-  () => {
-    const tiles = [
-      { label: "Toplam alarm (24s)", value: "12.480", color: "#06b6d4" },
-      { label: "Kritik (lvl 12+)", value: "7", color: "#f87171" },
-      { label: "Aktif agent", value: "23 / 24", color: "#34d399" },
-      { label: "FIM değişimi", value: "41", color: "#a78bfa" },
-    ];
-    const rows = [
-      { time: "09:21:07", agent: "web01", rule: "100100", lvl: "10", sev: "high" as const, desc: "SSH brute-force: 203.0.113.7" },
-      { time: "09:20:55", agent: "web01", rule: "5710", lvl: "5", sev: "med" as const, desc: "sshd: invalid user admin" },
-      { time: "09:18:02", agent: "db02", rule: "550", lvl: "7", sev: "med" as const, desc: "Integrity checksum changed: /etc/passwd" },
-      { time: "09:15:44", agent: "fw-edge", rule: "100210", lvl: "12", sev: "crit" as const, desc: "Possible web shell upload tespit edildi" },
-      { time: "09:12:31", agent: "app03", rule: "5715", lvl: "3", sev: "low" as const, desc: "sshd: authentication success (a.yilmaz)" },
-    ];
-    return (
-      <SlideShell>
-        <Eyebrow>Wazuh Dashboard · canlı görünüm</Eyebrow>
-        <H2 className="mb-2">Pano: sayaçlar üstte, alarm akışı altta</H2>
-        <Sub className="max-w-3xl mb-6">
-          SOC analisti güne bu ekranla başlar: özet sayaçlar durumu özetler, alarm akışı en yeniden eskiye
-          sıralanır. Bir satıra tıklayınca ham log ve decoder alanları açılır.
+      <Mid>
+        <Eyebrow>Kavram · kayıt (log)</Eyebrow>
+        <H2 className="md:!text-4xl">Her sistem bir günlük tutar: log</H2>
+        <Sub className="mt-2 !text-base">
+          Log (kayıt): apartmanın ziyaretçi defteri gibi. Her satır dört soruya cevap verir.
         </Sub>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="sgbh-window-chrome w-full"
-        >
-          <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-            <div className="flex gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-red-500/70" />
-              <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-              <span className="w-3 h-3 rounded-full bg-green-500/70" />
-            </div>
-            <div
-              className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] flex-1 max-w-md mx-auto text-center justify-center font-mono"
-              style={{ background: "#0d0d0d", color: "#67e8f9" }}
-            >
-              <Activity className="w-3.5 h-3.5" />
-              <span>Wazuh — Threat Hunting · son 24 saat</span>
-            </div>
-          </div>
-          <div className="p-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-              {tiles.map((t) => (
-                <div key={t.label} className="sgbh-tile">
-                  <div className="text-2xl font-bold" style={{ color: t.color }}>{t.value}</div>
-                  <div className="text-[10px] text-gray-400 mt-1 leading-tight">{t.label}</div>
-                </div>
-              ))}
-            </div>
-            <table className="sgbh-logtbl">
-              <thead>
-                <tr>
-                  <th style={{ width: "12%" }}>Zaman</th>
-                  <th style={{ width: "12%" }}>Agent</th>
-                  <th style={{ width: "10%" }}>Kural</th>
-                  <th style={{ width: "9%" }}>Seviye</th>
-                  <th>Açıklama</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.time}>
-                    <td className="text-gray-500">{r.time}</td>
-                    <td style={{ color: "#a78bfa" }}>{r.agent}</td>
-                    <td className="text-gray-400">{r.rule}</td>
-                    <td>
-                      <span className={`sgbh-sev sgbh-sev-${r.sev}`}>{r.lvl}</span>
-                    </td>
-                    <td className="text-gray-300" style={{ whiteSpace: "normal" }}>{r.desc}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-      </SlideShell>
-    );
-  },
-
-  /* ───── 17. DQL arama + örnek bar ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Pano · arama &amp; filtreleme</Eyebrow>
-      <H2 className="mb-2">Gürültüden olaya: doğru sorgu</H2>
-      <Sub className="max-w-3xl mb-6">
-        On binlerce alarmı insan tek tek okuyamaz. Dashboard&apos;ta alan-bazlı sorgu (DQL) ile saniyeler içinde
-        daralırsın. Solda tipik sorgular, sağda en çok alarm üreten ilk kaynaklar:
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-5"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#06b6d4]">
-            <Search className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Örnek sorgular (DQL)</span>
-          </div>
-          <div className="space-y-2 font-mono text-[11px]">
-            <div className="bg-black/40 rounded px-3 py-2 text-gray-300"><span className="text-[#67e8f9]">rule.level</span> &gt;= 10</div>
-            <div className="bg-black/40 rounded px-3 py-2 text-gray-300"><span className="text-[#67e8f9]">agent.name</span> : &quot;web01&quot;</div>
-            <div className="bg-black/40 rounded px-3 py-2 text-gray-300"><span className="text-[#67e8f9]">data.srcip</span> : &quot;203.0.113.7&quot;</div>
-            <div className="bg-black/40 rounded px-3 py-2 text-gray-300"><span className="text-[#67e8f9]">rule.mitre.id</span> : &quot;T1110&quot; <span className="text-gray-500">and</span> <span className="text-[#67e8f9]">rule.level</span> &gt;= 8</div>
-          </div>
-          <div className="text-[11px] text-gray-500 mt-3">Zaman aralığını da daralt; çoğu yanlış pozitif belirli bir agent veya IP&apos;de toplanır.</div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-5"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#a78bfa]">
-            <Gauge className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">En çok alarm üreten ilk 5 kural</span>
-          </div>
-          <div className="space-y-3">
-            {[
-              { name: "5710 · sshd invalid user", pct: 92, color: "#f87171" },
-              { name: "100100 · SSH brute-force", pct: 64, color: "#fdba74" },
-              { name: "550 · FIM checksum changed", pct: 48, color: "#a78bfa" },
-              { name: "31151 · web tarama imzası", pct: 33, color: "#fbbf24" },
-              { name: "5715 · giriş başarılı", pct: 18, color: "#34d399" },
-            ].map((b, i) => (
-              <motion.div
-                key={b.name}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 + i * 0.08 }}
-              >
-                <div className="flex items-center justify-between text-[11px] mb-1">
-                  <span className="text-gray-300 font-mono">{b.name}</span>
-                  <span className="text-gray-500 font-mono">{b.pct}%</span>
-                </div>
-                <div className="sgbh-bar-track">
-                  <motion.div
-                    className="sgbh-bar-fill"
-                    style={{ background: b.color }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${b.pct}%` }}
-                    transition={{ delay: 0.5 + i * 0.08, duration: 0.6 }}
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          <div className="text-[11px] text-gray-500 mt-4">Oranlar göreceli — örnek bir dağılımdır; gerçek değerler ortama göre değişir.</div>
-        </motion.div>
-      </div>
+        <div className="mt-4">
+          <LogRow kim="ayse.yilmaz" zaman="Salı, 03:14" yer="Yurt dışı, yeni cihaz" olay="Giriş başarılı" delay={0.2} />
+        </div>
+        <div className="mt-4">
+          <Reveal
+            accent="#fbbf24"
+            question="Ayşe Manisa’da yaşıyor ve gündüz çalışıyor. Bu kayıtta seni ne rahatsız ediyor?"
+            answer="Saat ve yer. Gece 03:14’te, yurt dışından, daha önce görülmemiş bir cihaz. Tek başına kanıt değil; ama mutlaka bakılması gereken bir kayıt."
+          />
+        </div>
+        <AskLine>Aynı kayıt &ldquo;Salı 10:30, Manisa, kendi bilgisayarı&rdquo; olsaydı dikkatini çeker miydi?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 18. Uygulamalı lab ───── */
+  /* ───── 5. SIEM (adım adım) ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-      <H2>Kendi Wazuh&apos;unu kur, bir saldırıyı yakala</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Lab tamamen kendi izole ağında (Wazuh sunucu VM + bir Linux agent VM, host-only ağ). Sonraki derse bu
-        dört adımı yapmış ve dashboard ekran görüntüsünü almış gelmen bekleniyor.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: Server, title: "Wazuh&apos;u tek-düğüm kur", desc: "wazuh-install.sh -a ile kur; panoya admin olarak giriş yap.", accent: "#06b6d4" },
-          { icon: Network, title: "Bir agent bağla", desc: "Linux VM&apos;e agent kur, ossec.conf&apos;ta manager IP&apos;sini ver, agent&apos;ı Aktif gör.", accent: "#fbbf24" },
-          { icon: Siren, title: "Bir saldırı üret", desc: "Agent&apos;a kasıtlı 6+ kez yanlış SSH parolasıyla bağlanmayı dene.", accent: "#f87171" },
-          { icon: ListChecks, title: "Alarmı dashboard&apos;ta bul", desc: "rule.level >= 8 sorgusuyla brute-force alarmını bul, ekran görüntüsünü al.", accent: "#a78bfa" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="sgbh-card sgbh-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white" dangerouslySetInnerHTML={{ __html: t.title }} />
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.desc }} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <AlertTriangle className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Yalnızca kendi laboratuvarında.</span> Saldırı simülasyonunu yalnızca sana ait,
-          izole VM&apos;ler üzerinde yap. Sana ait olmayan bir sisteme erişim denemesi TCK 243-244 kapsamında suçtur.
-        </span>
-      </motion.div>
+      <Mid>
+        <Eyebrow>SIEM · adım adım aç</Eyebrow>
+        <H2 className="md:!text-4xl">SIEM bütün kameraları tek ekranda toplar</H2>
+        <div className="mt-5">
+          <Stepper steps={SIEM_ADIMLARI} />
+        </div>
+        <AskLine>Yüz ayrı ekrana tek kişi aynı anda bakabilir mi?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 19. Hafta 12 önizleme + kapanış ───── */
+  /* ───── 6. İlişkilendirme ───── */
   () => (
     <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8"
-          style={{ background: "linear-gradient(135deg,#06b6d4,#0e7490)", boxShadow: "0 30px 80px -20px rgba(6,182,212,0.6)" }}
-        >
-          <ShieldCheck className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>11. hafta tamamlandı · sıradaki: Dijital Delil &amp; Adli Bilişim</Eyebrow>
-        <H1>
-          <span className="sgbh-shimmer-soft">Alarmdan Delile</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta SIEM ile alarmı yakaladık. Hafta 12&apos;de o alarmın arkasındaki olayı hukuken geçerli biçimde
-          belgeliyoruz: delil zinciri (chain of custody), imaj alma ve log&apos;un mahkemedeki değeri.
+      <Mid>
+        <Eyebrow>Örnek · kayıtları yan yana koy</Eyebrow>
+        <H2 className="md:!text-4xl">Tek kayıt masum, yan yana gelince hikâye</H2>
+        <div className="mt-5 space-y-2">
+          <LogRow kim="mehmet.k" zaman="02:10" yer="Bilinmeyen cihaz" olay="25 kez hatalı şifre" delay={0.1} />
+          <LogRow kim="mehmet.k" zaman="02:14" yer="Bilinmeyen cihaz" olay="Giriş başarılı" delay={0.2} />
+          <LogRow kim="mehmet.k" zaman="02:16" yer="Bilinmeyen cihaz" olay="Müşteri listesi indirildi" delay={0.3} />
+        </div>
+        <div className="mt-3">
+          <Reveal
+            accent="#fbbf24"
+            question="Bu üç kayıt birlikte ne anlatıyor?"
+            answer="Biri şifreyi deneye deneye bulmuş, içeri girmiş ve veriyi alıyor olabilir. SIEM’in işi bu parçaları birleştirmek; buna ilişkilendirme (korelasyon) denir."
+          />
+        </div>
+        <AskLine>Üç kaydı ayrı günlerde, ayrı ekranlarda görsen alarm verir miydin?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 7. Normal mi, şüpheli mi? ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Oyna-gör · SOC çalışanı sensin</Eyebrow>
+        <H2 className="md:!text-4xl">Bu kayıt normal mi, şüpheli mi?</H2>
+        <div className="mt-5">
+          <Classify items={KAYIT_KARTLARI} labels={["Normal", "Şüpheli"]} />
+        </div>
+        <AskLine>Seni en çok hangi ayrıntı şüphelendirdi: saat mi, yer mi, yapılan iş mi?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 8. Mini sınav ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Mini sınav · dersin ortası</Eyebrow>
+        <H2 className="md:!text-4xl">Buraya kadar anlaştık mı?</H2>
+        <div className="mt-6">
+          <Quiz questions={ARA_SORU} />
+        </div>
+        <AskLine>Şıkka tıklamadan önce: neden o şık?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 9. Alarm eşiği (oyna-gör) ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Oyna-gör · alarm ayarı</Eyebrow>
+        <H2 className="md:!text-4xl">Alarm çok hassas da olmaz, çok gevşek de</H2>
+        <Sub className="mt-2 !text-base">
+          Yanlış alarm (false positive): ortada sorun yokken çalan alarm. Kedi geçince öten araba alarmı gibi.
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
-          <FeatureCard icon={FileText} title="Delil zinciri" desc="Chain of custody — kim, ne zaman, neyi elledi?" accent="#06b6d4" delay={0.1} />
-          <FeatureCard icon={Database} title="İmaj alma" desc="Bit-bit kopya, hash ile doğrulama (write-blocker)." accent="#34d399" delay={0.18} />
-          <FeatureCard icon={Activity} title="Log&apos;un değeri" desc="SIEM kaydı delil olarak ne ifade eder, ne etmez?" accent="#a78bfa" delay={0.26} />
-          <FeatureCard icon={Brain} title="Zaman çizgisi" desc="Olayı saniye saniye yeniden kurmak (timeline)." accent="#fbbf24" delay={0.34} />
+        <div className="mt-4">
+          <ThresholdDemo />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="sgbh-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#06b6d4] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Ders saati</div>
-            <div className="text-white font-semibold">Çarşamba</div>
-            <div className="text-sm text-gray-400">13:30 — 17:00</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Target className="w-5 h-5 text-[#a78bfa] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Hazırlık</div>
-            <div className="text-white font-semibold">Wazuh lab&apos;ı kurulu</div>
-            <div className="text-sm text-gray-400">agent bağlı getir</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Clock className="w-5 h-5 text-[#34d399] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Teslim</div>
-            <div className="text-white font-semibold">Lab raporu</div>
-            <div className="text-sm text-gray-400">4 adım + pano görüntüsü</div>
-          </div>
+        <AskLine>Sen olsan kaçta alarm çaldırırdın? Neden?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 10. Öncelik ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Öncelik · hangisine önce bakılır?</Eyebrow>
+        <H2 className="md:!text-4xl">Her alarm aynı aciliyette değildir</H2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <Note icon={Siren} color="#f87171" label="Üç öncelik seviyesi">
+            <Bullets
+              color="#f87171"
+              items={[
+                "Düşük: not et, sırası gelince bak.",
+                "Orta: bugün içinde bak.",
+                "Yüksek: işi bırak, şimdi bak ve haber ver.",
+              ]}
+            />
+          </Note>
+          <Reveal
+            accent="#fbbf24"
+            question="Aynı anda iki alarm geldi. A: Bir öğrenci 3 kez yanlış şifre girdi. B: Yönetici hesabına gece yurt dışından giriş yapıldı. Hangisine önce bakarsın?"
+            answer="B. Yönetici hesabı her kapıyı açar; zarar çok büyük olabilir. Öncelik, hesabın gücüne ve olası zarara göre belirlenir."
+          />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-10 text-xs font-mono text-gray-600 flex items-center justify-center gap-2"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>İzinsiz erişim/saldırı yok · yalnızca kendi izole labın</span>
-        </motion.div>
+        <AskLine>Acil servisteki sıra da böyle mi işler? Kim önce alınır?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 11. Alarmı gören ne yapar ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>SOC’ta bir alarm · gelecek haftaya hazırlık</Eyebrow>
+      <H2>Alarmı gören kişi üç şey yapar</H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={Search}
+          title="1 · Doğrular"
+          desc="Gerçek bir sorun mu, yanlış alarm mı? Kayıtlara bakıp karar verir."
+          accent="#06b6d4"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={ClipboardList}
+          title="2 · Kaydeder"
+          desc="Ne gördüğünü, saat kaçta gördüğünü ve ne yaptığını yazar."
+          accent="#fbbf24"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={PhoneCall}
+          title="3 · Haber verir"
+          desc="Sorun gerçekse olay müdahale ekibini devreye sokar."
+          accent="#34d399"
+          delay={0.3}
+        />
+      </div>
+      <AskLine>Yanlış alarm çıktı diye not almasak ne kaybederiz?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 12. Sınıfta deneyelim ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Sınıfta deneyelim · 10 dakika · telefonla</Eyebrow>
+        <H2 className="md:!text-4xl">Kendi kayıtlarını oku</H2>
+        <Sub className="mt-2 !text-base">
+          Yalnız kendi hesabın. Menü adları telefona göre biraz değişebilir.
+        </Sub>
+        <div className="mt-4">
+          <Checklist
+            steps={[
+              "Google hesabını aç, “Güvenlik” bölümüne gir.",
+              "Son güvenlik etkinliklerine ve cihaz listesine bak.",
+              "Bir kayıt seç: kim, ne zaman, nereden, ne oldu? Dördünü bul.",
+              "Tanımadığın bir cihaz varsa o cihazdan çıkış yap.",
+              "Yanındakine bir normal, bir dikkat çekici kayıt anlat.",
+            ]}
+          />
+        </div>
+        <AskLine>Kimin listesinde tanımadığı ya da unuttuğu bir cihaz çıktı?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 13. Kendini dene ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Kendini dene · 3 soru</Eyebrow>
+        <H2 className="md:!text-4xl">Dersten çıkmadan son kontrol</H2>
+        <div className="mt-6">
+          <Quiz questions={KAPANIS_SORULARI} />
+        </div>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 14. Aklında kalsın ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Özet · 11. hafta</Eyebrow>
+      <H2>
+        Aklında kalsın: <span className="sgbh-shimmer-soft">3 şey</span>
+      </H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={Cctv}
+          title="1 · SOC kamera odasıdır"
+          desc="Sistemleri izleyen, olağan dışını fark eden ve haber veren ekip."
+          accent="#06b6d4"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={BellRing}
+          title="2 · SIEM tek ekrandır"
+          desc="Kayıtları toplar, yan yana koyar, şüpheli olanda alarm verir."
+          accent="#fbbf24"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={ScrollText}
+          title="3 · Kayıt dört şey söyler"
+          desc="Kim, ne zaman, nereden, ne oldu? Şüpheyi bu dördü doğurur."
+          accent="#34d399"
+          delay={0.3}
+        />
+      </div>
+      <div className="mt-6">
+        <Note icon={Siren} color="#a78bfa" label="Gelecek hafta">
+          Alarm gerçek çıktı. Şimdi ne yapacağız? Olay müdahalesi: panik değil, tatbikat.
+        </Note>
       </div>
     </SlideShell>
   ),
@@ -1272,7 +1336,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#06b6d4]/70">
-          BVA 2205 · 11. Hafta · SOC &amp; SIEM (Wazuh)
+          BVA 2205 · 11. Hafta · SOC ve SIEM: Güvenlik Kamerası Odası
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#06b6d4]/50">

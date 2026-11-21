@@ -9,32 +9,23 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Layers,
-  Network,
-  GitBranch,
-  Building2,
-  Users,
-  User,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
   Check,
-  Boxes,
-  Hash,
+  X,
   Code2,
-  Database,
-  ArrowUpDown,
+  MousePointerClick,
+  RotateCcw,
   Layers3,
-  Workflow,
-  Repeat,
-  Calendar,
-  Clock,
-  Mail,
-  MapPin,
-  AlertTriangle,
-  TrendingUp,
+  Users,
+  School,
+  Network,
+  Megaphone,
+  Bus,
+  UserPlus,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -148,1176 +139,1026 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
+/* ============================================================
+   ORTAK YARDIMCILAR — slayt kalıpları ve tıklanabilir bileşenler
+   ============================================================ */
+
+const BTN =
+  "px-5 py-3 rounded-xl border text-base md:text-lg font-semibold transition-colors cursor-pointer";
+const BTN_IDLE =
+  "bg-white/5 border-[#14b8a6]/40 text-gray-100 hover:border-[#5eead4] hover:bg-[#14b8a6]/15";
+const BTN_ON = "bg-[#14b8a6]/30 border-[#5eead4] text-white";
+const BTN_OK = "bg-emerald-500/25 border-emerald-400 text-white";
+const BTN_NO = "bg-red-500/25 border-red-400 text-white";
+
+type CardInfo = { icon: LucideIcon; title: string; desc: string };
+type ListInfo = { label: string; items: string[] };
+type Question = { q: string; options: string[]; correct: number; why: string };
+type GNode = { id: string; x: number; y: number };
+type GEdge = [string, string];
+
+/** Hocanın sınıfa yönelteceği tek soru — her içerik slaydının altında. */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <p className="mt-5 text-sm text-gray-500">
+      <span className="font-mono text-xs uppercase tracking-widest text-[#14b8a6]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </p>
+  );
+}
+
+/** Standart içerik slaydı: üst etiket + cümle başlık + ortada içerik + Sınıfa sor. */
+function Frame({
+  eyebrow,
   title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+  ask,
+  children,
 }: {
-  num: string;
-  total: string;
+  eyebrow: string;
   title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  ask: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <SlideShell>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <H2 className="mb-6">{title}</H2>
+      <div className="max-w-4xl mx-auto">
+        {children}
+        <Ask>{ask}</Ask>
       </div>
     </SlideShell>
   );
 }
 
-/* ============================================================
-   TOPIC MOCKUPS — çok seviyeli ağ
-   ============================================================ */
-
-type MlNode = { id: string; x: number; y: number; label: string };
-type MlEdge = [string, string];
-
-/**
- * Çok katmanlı (multiplex) ağ görseli: AYNI aktör kümesi (A, B, C, D),
- * iki ayrı katmanda (örn. "yüz yüze arkadaşlık" ve "çevrimiçi takip")
- * farklı bağlarla. Katmanlar arası kesikli sarı çizgiler aynı kişinin
- * iki düzlemdeki kopyasını birbirine bağlar (inter-layer coupling).
- */
-function MultiplexMockup() {
-  const top: MlNode[] = [
-    { id: "tA", x: 120, y: 70, label: "A" },
-    { id: "tB", x: 330, y: 40, label: "B" },
-    { id: "tC", x: 520, y: 95, label: "C" },
-    { id: "tD", x: 300, y: 150, label: "D" },
-  ];
-  const bottom: MlNode[] = [
-    { id: "bA", x: 120, y: 300, label: "A" },
-    { id: "bB", x: 330, y: 270, label: "B" },
-    { id: "bC", x: 520, y: 325, label: "C" },
-    { id: "bD", x: 300, y: 380, label: "D" },
-  ];
-  const topEdges: MlEdge[] = [
-    ["tA", "tB"],
-    ["tB", "tC"],
-    ["tB", "tD"],
-    ["tA", "tD"],
-  ];
-  const bottomEdges: MlEdge[] = [
-    ["bA", "bC"],
-    ["bB", "bC"],
-    ["bC", "bD"],
-  ];
-  const couplings: [string, string][] = [
-    ["tA", "bA"],
-    ["tB", "bB"],
-    ["tC", "bC"],
-    ["tD", "bD"],
-  ];
-  const all = [...top, ...bottom];
-  const find = (id: string) => all.find((n) => n.id === id)!;
+function Cover({
+  week,
+  title,
+  sub,
+  cards,
+}: {
+  week: string;
+  title: [string, string];
+  sub: string;
+  cards: CardInfo[];
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <span className="w-5 h-5 rounded-sm saa-n-tile flex items-center justify-center text-[11px]">
-            N
-          </span>
-          <span>multiplex_ag · 2 katman · 4 aktör · aynı düğüm kümesi</span>
+    <SlideShell>
+      <div className="text-center">
+        <Eyebrow>BVA 2105 · {week}. Hafta — Sosyal Ağ Analizi</Eyebrow>
+        <H1 className="saa-shimmer">
+          {title[0]}
+          <br />
+          {title[1]}
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{sub}</Sub>
+        <div className="mt-8 max-w-4xl mx-auto text-left">
+          <CardRow cards={cards} />
         </div>
       </div>
-      <div className="p-4 bg-[#070b0a]">
-        <svg viewBox="0 0 640 440" className="w-full h-auto">
-          {/* katman düzlemleri */}
-          <rect x={40} y={20} width={560} height={170} rx={12} fill="#14b8a6" fillOpacity={0.05} stroke="#14b8a6" strokeOpacity={0.25} />
-          <rect x={40} y={250} width={560} height={170} rx={12} fill="#0d9488" fillOpacity={0.05} stroke="#0d9488" strokeOpacity={0.25} />
+    </SlideShell>
+  );
+}
 
-          <text x={56} y={42} fontSize={12} fontWeight={700} fill="#5eead4" fontFamily="Inter, sans-serif">
-            Katman 1 · yüz yüze arkadaşlık
-          </text>
-          <text x={56} y={272} fontSize={12} fontWeight={700} fill="#2dd4bf" fontFamily="Inter, sans-serif">
-            Katman 2 · çevrimiçi takip
-          </text>
+function CardRow({ cards }: { cards: CardInfo[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {cards.map((c, i) => (
+        <FeatureCard
+          key={c.title}
+          icon={c.icon}
+          title={c.title}
+          desc={c.desc}
+          delay={0.15 + i * 0.12}
+        />
+      ))}
+    </div>
+  );
+}
 
-          {/* katmanlar arası bağ (coupling) */}
-          {couplings.map(([a, b], i) => {
-            const na = find(a);
-            const nb = find(b);
-            return (
-              <line
-                key={`c-${i}`}
-                x1={na.x}
-                y1={na.y}
-                x2={nb.x}
-                y2={nb.y}
-                className="saa-coupling"
-                strokeWidth={1.6}
-              />
-            );
-          })}
+/** Yan yana iki kısa liste (ör. geçen hafta / bu hafta). */
+function TwoLists({ left, right }: { left: ListInfo; right: ListInfo }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {[left, right].map((l, i) => (
+        <motion.div
+          key={l.label}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 + i * 0.15 }}
+          className={`${i === 0 ? "saa-card" : "saa-card-teal"} rounded-xl p-5`}
+        >
+          <div className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-3">
+            {l.label}
+          </div>
+          <ul className="space-y-2.5 text-base md:text-lg text-gray-200">
+            {l.items.map((t) => (
+              <li key={t} className="flex gap-2">
+                <ChevronRight className="w-5 h-5 mt-1 text-[#14b8a6] flex-shrink-0" />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
-          {/* katman içi kenarlar */}
-          {[...topEdges, ...bottomEdges].map((e, i) => {
-            const na = find(e[0]);
-            const nb = find(e[1]);
-            return (
-              <line
-                key={`e-${i}`}
-                x1={na.x}
-                y1={na.y}
-                x2={nb.x}
-                y2={nb.y}
-                stroke="#14b8a6"
-                strokeWidth={2}
-                strokeOpacity={0.7}
-              />
-            );
-          })}
+/** Tahmin et → tıkla göster. */
+function Reveal({
+  hint = "Cevabı görmek için tıkla",
+  children,
+}: {
+  hint?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`w-full text-left rounded-xl p-6 transition-colors cursor-pointer ${
+        open ? "saa-card-teal" : "saa-card saa-card-hover"
+      }`}
+    >
+      {open ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="block text-lg md:text-xl text-gray-100 leading-relaxed"
+        >
+          {children}
+        </motion.span>
+      ) : (
+        <span className="flex items-center gap-3 text-lg md:text-xl text-[#5eead4]">
+          <MousePointerClick className="w-6 h-6" />
+          {hint}
+        </span>
+      )}
+    </button>
+  );
+}
 
-          {/* düğümler */}
-          {all.map((n) => (
-            <g key={n.id}>
-              <circle
-                cx={n.x}
-                cy={n.y}
-                r={18}
-                fill="#0d9488"
-                stroke="#5eead4"
-                strokeWidth={2}
-              />
-              <text
-                x={n.x}
-                y={n.y + 5}
-                textAnchor="middle"
-                fontSize={13}
-                fontWeight={700}
-                fill="#ffffff"
-                fontFamily="Inter, sans-serif"
+/** Ön yüzde soru, tıklayınca arka yüzde cevap. */
+function FlipCards({
+  items,
+}: {
+  items: Array<{ tag: string; front: string; back: string }>;
+}) {
+  const [open, setOpen] = useState<number[]>([]);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {items.map((it, i) => {
+        const on = open.includes(i);
+        return (
+          <button
+            key={it.tag}
+            type="button"
+            onClick={() =>
+              setOpen((o) => (o.includes(i) ? o.filter((x) => x !== i) : [...o, i]))
+            }
+            className={`text-left rounded-xl p-5 min-h-[190px] flex flex-col transition-colors cursor-pointer ${
+              on ? "saa-card-teal" : "saa-card saa-card-hover"
+            }`}
+          >
+            <span className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-2">
+              {it.tag}
+            </span>
+            <span className="text-lg font-semibold text-white leading-snug">
+              {it.front}
+            </span>
+            {on ? (
+              <motion.span
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 text-base text-[#a7f3d0] leading-relaxed"
               >
-                {n.label}
-              </text>
-            </g>
-          ))}
-        </svg>
-        <div className="mt-1 flex items-center justify-center gap-5 text-[11px] text-gray-400">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-5 h-px bg-[#14b8a6]" /> katman içi kenar
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-5 h-px" style={{ borderTop: "2px dashed #fbbf24" }} /> katmanlar arası bağ
-          </span>
-        </div>
-      </div>
-    </motion.div>
+                {it.back}
+              </motion.span>
+            ) : (
+              <span className="mt-auto pt-3 flex items-center gap-2 text-sm text-gray-500">
+                <MousePointerClick className="w-4 h-4" />
+                tıkla, cevabı gör
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
-/**
- * İki seviyeli (bipartite / iç içe) ağ: bireyler ALT seviyede, ait oldukları
- * gruplar (kurum) ÜST seviyede. Aidiyet kenarları seviyeleri birbirine bağlar.
- */
-function NestedLevelsMockup() {
-  const groups: MlNode[] = [
-    { id: "g1", x: 170, y: 60, label: "Bölüm X" },
-    { id: "g2", x: 470, y: 60, label: "Bölüm Y" },
-  ];
-  const people: MlNode[] = [
-    { id: "p1", x: 90, y: 300, label: "Ali" },
-    { id: "p2", x: 220, y: 300, label: "Ayşe" },
-    { id: "p3", x: 330, y: 300, label: "Mehmet" },
-    { id: "p4", x: 450, y: 300, label: "Zeynep" },
-    { id: "p5", x: 560, y: 300, label: "Can" },
-  ];
-  const membership: [string, string][] = [
-    ["p1", "g1"],
-    ["p2", "g1"],
-    ["p3", "g1"],
-    ["p3", "g2"],
-    ["p4", "g2"],
-    ["p5", "g2"],
-  ];
-  const all = [...groups, ...people];
-  const find = (id: string) => all.find((n) => n.id === id)!;
+/** Mini sınav: doğru şık yeşil, yanlış kırmızı; doğruysa tek cümle açıklama. */
+function Quiz({
+  questions,
+  row = false,
+  unit = "Soru",
+}: {
+  questions: Question[];
+  row?: boolean;
+  unit?: string;
+}) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const cur = questions[idx];
+  const dogru = picked === cur.correct;
+  const son = idx === questions.length - 1;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5"
-    >
-      <svg viewBox="0 0 650 360" className="w-full h-auto">
-        <text x={20} y={28} fontSize={12} fontWeight={700} fill="#5eead4" fontFamily="Inter, sans-serif">
-          Üst seviye · gruplar
-        </text>
-        <text x={20} y={262} fontSize={12} fontWeight={700} fill="#9ca3af" fontFamily="Inter, sans-serif">
-          Alt seviye · bireyler
-        </text>
-
-        {membership.map(([p, g], i) => {
-          const np = find(p);
-          const ng = find(g);
-          return (
-            <line
-              key={`m-${i}`}
-              x1={np.x}
-              y1={np.y - 16}
-              x2={ng.x}
-              y2={ng.y + 20}
-              stroke="#fbbf24"
-              strokeWidth={1.8}
-              strokeOpacity={0.6}
-            />
-          );
-        })}
-
-        {groups.map((g) => (
-          <g key={g.id}>
-            <rect x={g.x - 60} y={g.y - 22} width={120} height={44} rx={10} fill="#14b8a6" fillOpacity={0.18} stroke="#5eead4" strokeWidth={2} />
-            <text x={g.x} y={g.y + 5} textAnchor="middle" fontSize={13} fontWeight={700} fill="#ffffff" fontFamily="Inter, sans-serif">
-              {g.label}
-            </text>
-          </g>
+    <div className="saa-card rounded-xl p-5">
+      {questions.length > 1 && (
+        <div className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-2">
+          {unit} {idx + 1} / {questions.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white mb-4 leading-snug">
+        {cur.q}
+      </div>
+      <div className={row ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-2.5"}>
+        {cur.options.map((o, i) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => setPicked(i)}
+            className={`${BTN} text-left ${
+              picked === i ? (i === cur.correct ? BTN_OK : BTN_NO) : BTN_IDLE
+            }`}
+          >
+            {o}
+          </button>
         ))}
+      </div>
+      <div className="mt-4 min-h-[52px] flex items-center justify-between gap-4">
+        <div className="text-base md:text-lg">
+          {picked === null && (
+            <span className="text-gray-500">Bir şıkka tıkla.</span>
+          )}
+          {picked !== null && !dogru && (
+            <span className="text-red-300 flex items-center gap-2">
+              <X className="w-5 h-5" /> Olmadı, bir daha dene.
+            </span>
+          )}
+          {dogru && (
+            <span className="text-emerald-300 flex items-start gap-2">
+              <Check className="w-5 h-5 mt-1 flex-shrink-0" /> {cur.why}
+            </span>
+          )}
+        </div>
+        {questions.length > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              setIdx(son ? 0 : idx + 1);
+              setPicked(null);
+            }}
+            className={`${BTN} ${BTN_IDLE} flex-shrink-0`}
+          >
+            {son ? "Baştan" : "Sıradaki"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
-        {people.map((p) => (
-          <g key={p.id}>
-            <circle cx={p.x} cy={p.y} r={18} fill="#1f2937" stroke="#9ca3af" strokeWidth={1.6} />
-            <text x={p.x} y={p.y + 40} textAnchor="middle" fontSize={11} fontWeight={600} fill="#cbd5e1" fontFamily="Inter, sans-serif">
-              {p.label}
-            </text>
-          </g>
+/** Adım adım açılan liste (etkinlik yönergesi). */
+function Steps({ items }: { items: Array<{ t: string; d: string }> }) {
+  const [n, setN] = useState(1);
+  const bitti = n >= items.length;
+  return (
+    <div>
+      <div className="space-y-2.5 min-h-[250px]">
+        {items.slice(0, n).map((it, i) => (
+          <motion.div
+            key={it.t}
+            initial={{ opacity: 0, x: -14 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="saa-card rounded-xl px-4 py-3 flex items-center gap-4"
+          >
+            <div className="saa-tick w-9 h-9 flex items-center justify-center shrink-0 text-lg font-bold">
+              {i + 1}
+            </div>
+            <div>
+              <div className="text-lg font-semibold text-white">{it.t}</div>
+              <div className="text-sm text-gray-400">{it.d}</div>
+            </div>
+          </motion.div>
         ))}
-      </svg>
-      <div className="mt-1 text-xs text-gray-400 text-center">
-        <span className="text-[#5eead4] font-semibold">Mehmet</span> iki bölüme de bağlı — seviyeler arası{" "}
-        <span className="text-[#fbbf24] font-semibold">köprü</span> aktör.
       </div>
-    </motion.div>
+      <button
+        type="button"
+        onClick={() => setN(bitti ? 1 : n + 1)}
+        className={`${BTN} ${BTN_IDLE} mt-4 inline-flex items-center gap-2`}
+      >
+        {bitti ? <RotateCcw className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+        {bitti ? "Baştan göster" : `Sonraki adım (${n} / ${items.length})`}
+      </button>
+    </div>
   );
 }
 
-function StructureComparison() {
+/** Tek, kısa Python örneği. "#" sonrası yorum olarak soluk yazılır. */
+function CodeCard({ file, lines }: { file: string; lines: string[] }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5 overflow-x-auto"
-    >
-      <table className="saa-table">
-        <thead>
-          <tr>
-            <th style={{ width: "16%" }}>Yapı</th>
-            <th>Tek katmanlı</th>
-            <th>Çok katmanlı (multiplex)</th>
-            <th>İç içe / hiyerarşik</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="saa-row-head">Düğüm kümesi</td>
-            <td>Tek küme</td>
-            <td>Aynı aktörler her katmanda tekrarlanır</td>
-            <td>Farklı seviyelerde farklı türde düğümler</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Kenar türü</td>
-            <td>Tek ilişki türü</td>
-            <td>Katman içi + katmanlar arası bağ (coupling)</td>
-            <td>Aidiyet / içerme kenarları</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Örnek</td>
-            <td>Sadece &ldquo;arkadaşlık&rdquo; ağı</td>
-            <td>Arkadaşlık &amp; takip &amp; mesajlaşma birlikte</td>
-            <td>Kişi &rarr; ekip &rarr; departman &rarr; şirket</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Soru</td>
-            <td>Kim merkezde?</td>
-            <td>Katmanlar arası kim tutarlı şekilde merkezde?</td>
-            <td>Hangi seviyede topluluk oluşuyor?</td>
-          </tr>
-        </tbody>
-      </table>
-    </motion.div>
-  );
-}
-
-function CodeBlock() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          <span>multilayer.py · Python 3.12 · NetworkX 3.3</span>
-        </div>
+    <div className="saa-window-chrome w-full">
+      <div className="saa-window-bar flex items-center gap-2 px-4 py-2">
+        <Code2 className="w-4 h-4 text-[#5eead4]" />
+        <span className="text-xs font-mono text-[#5eead4]">{file}</span>
       </div>
-      <pre className="saa-code p-6 overflow-x-auto m-0">
+      <pre className="saa-code px-6 py-4 overflow-x-auto m-0" style={{ fontSize: 16 }}>
         <code>
-          <span className="saa-code-cmt"># 1) Her katmanı ayrı bir grafa koyup sözlükte topla</span>
-          {"\n"}
-          <span className="saa-code-kw">import</span>{" "}
-          <span className="saa-code-fn">networkx</span>{" "}
-          <span className="saa-code-kw">as</span>{" "}
-          <span className="saa-code-fn">nx</span>
-          {"\n"}
-          {"\n"}
-          aktorler = [<span className="saa-code-str">&quot;A&quot;</span>,{" "}
-          <span className="saa-code-str">&quot;B&quot;</span>,{" "}
-          <span className="saa-code-str">&quot;C&quot;</span>,{" "}
-          <span className="saa-code-str">&quot;D&quot;</span>]
-          {"\n"}
-          arkadaslik = nx.<span className="saa-code-fn">Graph</span>([(
-          <span className="saa-code-str">&quot;A&quot;</span>,
-          <span className="saa-code-str">&quot;B&quot;</span>), (
-          <span className="saa-code-str">&quot;B&quot;</span>,
-          <span className="saa-code-str">&quot;D&quot;</span>)])
-          {"\n"}
-          takip      = nx.<span className="saa-code-fn">Graph</span>([(
-          <span className="saa-code-str">&quot;A&quot;</span>,
-          <span className="saa-code-str">&quot;C&quot;</span>), (
-          <span className="saa-code-str">&quot;C&quot;</span>,
-          <span className="saa-code-str">&quot;D&quot;</span>)])
-          {"\n"}
-          katmanlar = {"{"}
-          <span className="saa-code-str">&quot;arkadaslik&quot;</span>: arkadaslik,{" "}
-          <span className="saa-code-str">&quot;takip&quot;</span>: takip{"}"}
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># 2) Her aktör için katmana özgü dereceyi karşılaştır</span>
-          {"\n"}
-          <span className="saa-code-kw">for</span> v{" "}
-          <span className="saa-code-kw">in</span> aktorler:
-          {"\n"}
-          {"    "}satir = {"{"}ad: G.<span className="saa-code-fn">degree</span>(v){" "}
-          <span className="saa-code-kw">if</span> v{" "}
-          <span className="saa-code-kw">in</span> G{" "}
-          <span className="saa-code-kw">else</span>{" "}
-          <span className="saa-code-num">0</span>
-          {"\n"}
-          {"             "}<span className="saa-code-kw">for</span> ad, G{" "}
-          <span className="saa-code-kw">in</span> katmanlar.
-          <span className="saa-code-fn">items</span>(){"}"}
-          {"\n"}
-          {"    "}<span className="saa-code-fn">print</span>(v, satir)
-          {"\n"}
-          <span className="saa-code-cmt"># A {"{"}&apos;arkadaslik&apos;: 1, &apos;takip&apos;: 1{"}"} ...</span>
+          {lines.map((ln, i) => {
+            const k = ln.indexOf("#");
+            return (
+              <span key={i}>
+                {k < 0 ? ln : ln.slice(0, k)}
+                {k >= 0 && <span className="saa-code-cmt">{ln.slice(k)}</span>}
+                {"\n"}
+              </span>
+            );
+          })}
         </code>
       </pre>
-    </motion.div>
+    </div>
   );
 }
 
-/* ============================================================
-   SLIDES — BVA 2105 · 9. Hafta · Çok Seviyeli Ağ Analizi
-   ============================================================ */
-
-const slides: Array<(active: boolean) => ReactNode> = [
-  /* ─────────────────  AÇILIŞ  ───────────────── */
-
-  // 1 — Kapak
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 2105 · 9. Hafta — Sosyal Ağ Analizi</Eyebrow>
-        <H1 className="saa-shimmer">
-          Çok Seviyeli
-          <br />
-          Ağ Analizi
-        </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Tek bir ilişki türü gerçeği anlatmaz. Aynı insanlar birden çok
-          ağda — ve birden çok seviyede — aynı anda yaşar.
-        </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
-          <FeatureCard
-            icon={Layers3}
-            title="Çok katmanlı ağ"
-            desc="Aynı aktörler, birden çok ilişki katmanı (arkadaşlık · takip · mesaj)."
-            accent="#14b8a6"
-            delay={0.3}
+/** Küçük ağ çizimi (SVG, 640 birim genişlik). Düğümler tıklanabilir olabilir. */
+function Net({
+  nodes,
+  edges,
+  h = 340,
+  fill,
+  radius,
+  edgeColor,
+  edgeWidth,
+  faded,
+  onNode,
+}: {
+  nodes: GNode[];
+  edges: GEdge[];
+  h?: number;
+  fill?: (id: string) => string | undefined;
+  radius?: (id: string) => number;
+  edgeColor?: (a: string, b: string) => string | undefined;
+  edgeWidth?: (a: string, b: string) => number;
+  faded?: (id: string) => boolean;
+  onNode?: (id: string) => void;
+}) {
+  const pos = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <svg viewBox={`0 0 640 ${h}`} className="w-full h-auto max-h-[40vh]">
+      {edges.map(([a, b]) => {
+        const p = pos.get(a);
+        const q = pos.get(b);
+        if (!p || !q) return null;
+        const soluk = Boolean(faded?.(a)) || Boolean(faded?.(b));
+        const renk = edgeColor?.(a, b) ?? "#5eead4";
+        return (
+          <line
+            key={`${a}-${b}`}
+            x1={p.x}
+            y1={p.y}
+            x2={q.x}
+            y2={q.y}
+            stroke={soluk ? "#475569" : renk}
+            strokeWidth={edgeWidth?.(a, b) ?? 2.5}
+            strokeOpacity={soluk ? 0.35 : 0.85}
+            strokeDasharray={soluk ? "4 6" : undefined}
           />
-          <FeatureCard
-            icon={Building2}
-            title="İç içe seviyeler"
-            desc="Birey &rarr; ekip &rarr; departman &rarr; kurum — hiyerarşik aidiyet."
-            accent="#0d9488"
-            delay={0.45}
-          />
-          <FeatureCard
-            icon={ArrowUpDown}
-            title="Seviyeler arası bağ"
-            desc="Katmanları birbirine bağlayan coupling kenarları ve köprü aktörler."
-            accent="#5eead4"
-            delay={0.6}
-          />
-        </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-10 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Cuma · 09:55 — 11:35 · Uygulamalı (Python + NetworkX)
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 2 — Geçen haftadan köprü / bu haftanın hedefi
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 8. haftadan 9. haftaya</Eyebrow>
-      <H2>Tek katmanı çözdük; gerçek hayat tek katmanlı değil</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Şimdiye kadar tek bir ilişki türü içeren ağlarda merkezilik ve
-        topluluk aradık. Oysa bir kişi aynı anda hem arkadaş, hem takipçi, hem
-        de bir bölümün üyesidir. Bu hafta bu katmanları üst üste koyup birlikte
-        analiz etmeyi öğreniyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5eead4]">
-            <Network className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Şimdiye kadar
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />
-              Tek tip kenar: yalnızca &ldquo;arkadaşlık&rdquo; ya da yalnızca
-              &ldquo;takip&rdquo;.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />
-              Tek seviye: herkes aynı düzlemde bir düğüm.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />
-              Merkezilik, topluluk, en kısa yol — hep tek grafta.
-            </li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <Layers className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Bu haftanın hedefi
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-              Çok katmanlı ve iç içe yapıları ayırt etmek.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-              Katmanlar arası bağı (coupling) modellemek.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-              Çok katmanlı ölçüleri NetworkX ile hesaplamak.
-            </li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  1. SEVİYE & KATMAN  ───────────────── */
-
-  // 3 — Section divider 1/3
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Seviye ve Katman"
-      subtitle="Tek bir ağ resmi yalan söyler; gerçeği görmek için katmanları üst üste koymak gerekir."
-      bgGradient="linear-gradient(135deg, #14b8a6, #0d9488)"
-      shadow="0 20px 60px -10px rgba(20, 184, 166, 0.6)"
-      icon={<Layers3 className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 4 — Neden tek katman yetmez?
-  () => (
-    <SlideShell>
-      <Eyebrow>Sorun</Eyebrow>
-      <H2 className="mb-4">Aynı iki kişi, üç farklı ilişki</H2>
-      <Sub className="mb-8 max-w-3xl">
-        Ali ile Ayşe&apos;yi düşünün: yüz yüze yakın arkadaşlar, ama Ali
-        Ayşe&apos;yi çevrimiçi takip etmiyor ve ikisi hiç mesajlaşmıyor. Tek bir
-        ağ çizersek hangi gerçeği kaydedeceğiz? Üçünü birden kaybetmeden
-        gösteren tek yol katmanlardır.
-      </Sub>
-      <div className="grid md:grid-cols-3 gap-5">
-        <FeatureCard
-          icon={Users}
-          title="Arkadaşlık katmanı"
-          desc="Yüz yüze, güçlü ama yavaş yayılan bağlar. Güven ve destek burada."
-          accent="#14b8a6"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={Repeat}
-          title="Takip katmanı"
-          desc="Çevrimiçi, çoğu zaman yönlü ve asimetrik. Bilgi hızlı yayılır."
-          accent="#0d9488"
-          delay={0.25}
-        />
-        <FeatureCard
-          icon={Mail}
-          title="Mesajlaşma katmanı"
-          desc="Birebir, özel ve sık. Gerçek etkileşimin en güçlü işareti."
-          accent="#5eead4"
-          delay={0.4}
-        />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55 }}
-        className="mt-8 saa-card-teal rounded-xl p-5 text-center text-sm text-gray-300"
-      >
-        Üç katmanı tek ağa ezersek bilgi kaybederiz. Çok seviyeli analiz, her
-        katmanı ayrı tutarken{" "}
-        <span className="text-[#5eead4] font-semibold">birlikte</span> incelememizi
-        sağlar.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 5 — Temel kavramlar: düğüm, katman, coupling
-  () => (
-    <SlideShell>
-      <Eyebrow>Temel Kavramlar</Eyebrow>
-      <H2 className="mb-8">Çok katmanlı ağın üç bileşeni</H2>
-      <div className="grid md:grid-cols-3 gap-5 mb-6">
-        <FeatureCard
-          icon={User}
-          title="Düğüm (aktör)"
-          desc="Gerçek varlık: bir kişi. Çok katmanlı ağda aynı aktör her katmanda bir kopyaya sahiptir."
-          accent="#14b8a6"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={Layers}
-          title="Katman (layer)"
-          desc="Tek bir ilişki türünü taşıyan düzlem: arkadaşlık, takip, mesaj. Her katmanın kendi kenarları var."
-          accent="#0d9488"
-          delay={0.25}
-        />
-        <FeatureCard
-          icon={GitBranch}
-          title="Katmanlar arası bağ"
-          desc="Aynı kişinin farklı katmanlardaki kopyalarını birleştiren coupling kenarı. Katmanları tek modele bağlar."
-          accent="#5eead4"
-          delay={0.4}
-        />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="saa-card-teal rounded-xl p-5 text-center font-mono text-sm text-[#a7f3d0]"
-      >
-        M = (V<sub>M</sub>, E<sub>M</sub>, V, L) &nbsp;·&nbsp; V = aktörler
-        &nbsp;·&nbsp; L = katmanlar &nbsp;·&nbsp; V<sub>M</sub> ⊆ V × L (düğüm-katman çiftleri)
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 6 — Multiplex görsel örnek (büyük)
-  () => (
-    <SlideShell>
-      <Eyebrow>Görsel Örnek</Eyebrow>
-      <H2 className="mb-6">İki katman, aynı dört aktör</H2>
-      <MultiplexMockup />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-5 text-center text-xs text-gray-500"
-      >
-        Kesikli sarı çizgiler <span className="text-[#fbbf24]">aynı kişinin</span>{" "}
-        iki katmandaki kopyasını bağlar (coupling). B üst katmanda merkezdeyken
-        alt katmanda kenarda — katman önemli.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2. YAPI TÜRLERİ  ───────────────── */
-
-  // 7 — Section divider 2/3
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="İki Yapı Türü"
-      subtitle="Çok katmanlı (multiplex) ile iç içe / hiyerarşik seviyeleri karıştırmak en sık hatadır."
-      bgGradient="linear-gradient(135deg, #0d9488, #134e4a)"
-      shadow="0 20px 60px -10px rgba(13, 148, 136, 0.6)"
-      icon={<Boxes className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 8 — Multiplex vs İç içe
-  () => (
-    <SlideShell>
-      <Eyebrow>İki yapıyı ayırt et</Eyebrow>
-      <H2 className="mb-10">Multiplex mi, iç içe mi?</H2>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <Layers3 className="w-6 h-6 text-[#5eead4]" />
-            <h3 className="text-xl font-semibold text-white">Çok katmanlı (multiplex)</h3>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed mb-4">
-            <span className="text-[#5eead4] font-semibold">Aynı</span> aktör kümesi,
-            farklı ilişki türlerinde tekrarlanır. Katmanlar aynı kişileri
-            paylaşır.
-          </p>
-          <ul className="text-sm text-gray-400 space-y-1">
-            <li>· Arkadaşlık + takip + mesaj aynı kullanıcılar</li>
-            <li>· Ulaşım: aynı şehirde metro + otobüs + tramvay hatları</li>
-            <li>· Soru: katmanlar arası kim tutarlı şekilde merkezde?</li>
-          </ul>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <Building2 className="w-6 h-6 text-gray-300" />
-            <h3 className="text-xl font-semibold text-white">İç içe / hiyerarşik</h3>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed mb-4">
-            <span className="text-gray-200 font-semibold">Farklı türde</span>{" "}
-            düğümler farklı seviyelerde; alt seviye üst seviyeye{" "}
-            <span className="text-gray-200">ait olur</span>.
-          </p>
-          <ul className="text-sm text-gray-400 space-y-1">
-            <li>· Kişi &rarr; ekip &rarr; departman &rarr; şirket</li>
-            <li>· Öğrenci &rarr; sınıf &rarr; okul</li>
-            <li>· Soru: hangi seviyede topluluk / etki oluşuyor?</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 9 — İç içe seviyeler görseli
-  () => (
-    <SlideShell>
-      <Eyebrow>İç içe seviyeler · görsel</Eyebrow>
-      <H2 className="mb-6">Bireyler, gruplar ve aidiyet kenarları</H2>
-      <NestedLevelsMockup />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-4 text-center text-xs text-gray-500"
-      >
-        Alt seviye bireyler, üst seviye gruplar. İki seviyeyi bir bipartite
-        (iki parçalı) ağ olarak da modelleyebiliriz; aynı gruba bağlananlar
-        dolaylı olarak bir topluluk oluşturur.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 10 — Karşılaştırma tablosu
-  () => (
-    <SlideShell>
-      <Eyebrow>Toparlayalım</Eyebrow>
-      <H2 className="mb-2">Üç yapı yan yana</H2>
-      <Sub className="mb-6">
-        Aynı veriye üç farklı yapı sorusu sorabiliriz — her biri{" "}
-        <span className="text-[#5eead4] font-semibold">farklı</span> modelleme
-        gerektirir.
-      </Sub>
-      <StructureComparison />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3. ÖLÇÜM & PRATİK  ───────────────── */
-
-  // 11 — Section divider 3/3
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Ölçüm ve Pratik"
-      subtitle="Çok katmanlı dereceden katmanlar arası merkeziliğe ve NetworkX uygulamasına."
-      bgGradient="linear-gradient(135deg, #0d9488, #115e59)"
-      shadow="0 20px 60px -10px rgba(13, 148, 136, 0.6)"
-      icon={<Workflow className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 12 — Çok katmanlı ölçüler
-  () => (
-    <SlideShell>
-      <Eyebrow>Çok katmanlı ölçüler</Eyebrow>
-      <H2 className="mb-4">Dereceyi nasıl toplarız?</H2>
-      <Sub className="mb-8 max-w-3xl">
-        Tek katmanda derece basitti: komşu sayısı. Çok katmanda üç farklı soru
-        sorabiliriz ve hepsi ayrı bilgi verir.
-      </Sub>
-      <div className="grid md:grid-cols-3 gap-5">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <Hash className="w-6 h-6 text-[#5eead4] mb-3" />
-          <h3 className="text-base font-semibold text-white mb-2">
-            Katmana özgü derece
-          </h3>
-          <p className="text-sm text-gray-300 leading-relaxed mb-3">
-            Yalnızca tek bir katmandaki komşu sayısı. Aktörün o ilişki
-            türündeki konumu.
-          </p>
-          <div className="saa-card rounded-lg p-3 font-mono text-xs text-[#a7f3d0] text-center">
-            deg<sub>ℓ</sub>(v)
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <TrendingUp className="w-6 h-6 text-[#5eead4] mb-3" />
-          <h3 className="text-base font-semibold text-white mb-2">
-            Toplam (overlay) derece
-          </h3>
-          <p className="text-sm text-gray-300 leading-relaxed mb-3">
-            Tüm katmanlardaki komşuların toplamı. Genel aktiflik, ama katman
-            bilgisi kaybolur.
-          </p>
-          <div className="saa-card rounded-lg p-3 font-mono text-xs text-[#a7f3d0] text-center">
-            Σ<sub>ℓ</sub> deg<sub>ℓ</sub>(v)
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <Boxes className="w-6 h-6 text-[#5eead4] mb-3" />
-          <h3 className="text-base font-semibold text-white mb-2">
-            Katman çakışması
-          </h3>
-          <p className="text-sm text-gray-300 leading-relaxed mb-3">
-            Aynı bağ kaç katmanda birden var? Yüksek çakışma → güçlü, çok
-            kanallı ilişki.
-          </p>
-          <div className="saa-card rounded-lg p-3 font-mono text-xs text-[#a7f3d0] text-center">
-            o(u,v) = | {"{"}ℓ : (u,v) ∈ E<sub>ℓ</sub>{"}"} |
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 13 — Katmanlar arası merkezilik mantığı
-  () => (
-    <SlideShell>
-      <Eyebrow>Katmanlar arası bakış</Eyebrow>
-      <H2 className="mb-4">Versatility — çok yönlü merkezilik</H2>
-      <Sub className="mb-8 max-w-3xl">
-        Çok katmanlı ağda &ldquo;önemli&rdquo; aktör, tek bir katmanda değil,
-        katmanlar boyunca tutarlı şekilde merkezde olandır. Bunu ölçen yaklaşıma
-        genel olarak versatility (çok yönlülük) denir.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-[#5eead4] mb-3">
-            Mantık
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3">
-              <ArrowUpDown className="w-5 h-5 text-[#5eead4] mt-0.5 flex-shrink-0" />
-              <span>
-                Yürüyüş (random walk) katman içinde dolaşır,{" "}
-                <span className="text-[#5eead4]">coupling</span> üzerinden
-                katman değiştirir.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Repeat className="w-5 h-5 text-[#5eead4] mt-0.5 flex-shrink-0" />
-              <span>
-                Birden çok katmanda merkezde olan aktör daha sık ziyaret edilir —
-                yüksek versatility.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#5eead4] mt-0.5 flex-shrink-0" />
-              <span>
-                Tek katmanda parlayıp diğerlerinde silik olan aktör burada öne
-                çıkmaz.
-              </span>
-            </li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-gray-400 mb-3">
-            Gerçek dünya
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3">
-              <Users className="w-5 h-5 text-[#5eead4] mt-0.5 flex-shrink-0" />
-              <span>
-                Hem yüz yüze sevilen hem çevrimiçi etkili çalışan — gerçek görünür
-                lider.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Building2 className="w-5 h-5 text-[#5eead4] mt-0.5 flex-shrink-0" />
-              <span>
-                Birden çok departmana dokunan kişi — kurumda bilgi köprüsü.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Network className="w-5 h-5 text-[#5eead4] mt-0.5 flex-shrink-0" />
-              <span>
-                Tek katmanlı analiz bu kişileri kolayca ıskalar; çok katmanlı
-                bakış yakalar.
-              </span>
-            </li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 14 — NetworkX kod
-  () => (
-    <SlideShell>
-      <Eyebrow>Python · NetworkX</Eyebrow>
-      <H2 className="mb-6">Katmanları sözlükte tut, dereceyi karşılaştır</H2>
-      <CodeBlock />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-5 text-xs text-gray-500 text-center"
-      >
-        NetworkX&apos;te tek bir &ldquo;çok katmanlı graf&rdquo; tipi yok; pratikte
-        her katmanı ayrı graf tutmak en sade yöntemdir. Daha ileri analiz için{" "}
-        <span className="text-[#5eead4]">multinetx</span> veya{" "}
-        <span className="text-[#5eead4]">py3plex</span> gibi kütüphaneler kullanılır.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 15 — Uygulamalı: bu hafta yap-bitir
-  () => {
-    const items: Array<{ t: string; d: string; icon: LucideIcon }> = [
-      {
-        t: "İki katmanlı veri hazırla",
-        d: "Aynı 8-10 kişi için iki ilişki listesi: arkadaşlik.csv ve takip.csv.",
-        icon: Database,
-      },
-      {
-        t: "Her katmanı ayrı grafa yükle",
-        d: "nx.Graph() ile iki graf kur, ortak düğüm kümesini doğrula.",
-        icon: Code2,
-      },
-      {
-        t: "Katmana özgü ve toplam dereceyi hesapla",
-        d: "Her aktör için iki katman derecesi + toplamı bir tabloda karşılaştır.",
-        icon: TrendingUp,
-      },
-      {
-        t: "Bir köprü aktör bul ve yorumla",
-        d: "Bir katmanda silik, diğerinde merkezde olan kişiyi 3 cümlede açıkla.",
-        icon: GitBranch,
-      },
-    ];
-    return (
-      <SlideShell>
-        <Eyebrow>Bu hafta · uygulama</Eyebrow>
-        <H2 className="mb-8">Kendi iki katmanlı ağını analiz et</H2>
-        <div className="space-y-3">
-          {items.map((it, i) => (
-            <motion.div
-              key={it.t}
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="saa-card saa-card-hover rounded-xl p-4 flex items-center gap-4"
+        );
+      })}
+      {nodes.map((n) => {
+        const r = radius?.(n.id) ?? 22;
+        const soluk = Boolean(faded?.(n.id));
+        return (
+          <g
+            key={n.id}
+            onClick={onNode ? () => onNode(n.id) : undefined}
+            style={{
+              cursor: onNode ? "pointer" : "default",
+              opacity: soluk ? 0.3 : 1,
+              transition: "opacity 0.3s",
+            }}
+          >
+            <circle cx={n.x} cy={n.y} r={r + 12} fill="transparent" />
+            <circle
+              cx={n.x}
+              cy={n.y}
+              r={r}
+              fill={fill?.(n.id) ?? "#0f2a27"}
+              stroke="#5eead4"
+              strokeWidth={2}
+              style={{ transition: "fill 0.3s" }}
+            />
+            <text
+              x={n.x}
+              y={n.y + r + 17}
+              textAnchor="middle"
+              fontSize={15}
+              fontWeight={600}
+              fill="#e5e7eb"
             >
-              <div className="saa-tick w-9 h-9 rounded-md flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5" strokeWidth={3} />
+              {n.id}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/** Kapanış: Aklında kalsın — 3 şey + gelecek haftaya köprü. */
+function Recap({ items, next }: { items: [string, string, string]; next: string }) {
+  return (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2 className="mb-6">Aklında kalsın: 3 şey</H2>
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-3">
+          {items.map((t, i) => (
+            <motion.div
+              key={t}
+              initial={{ opacity: 0, x: -14 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 + i * 0.15 }}
+              className="saa-card rounded-xl px-5 py-4 flex items-center gap-4"
+            >
+              <div className="saa-tick w-10 h-10 flex items-center justify-center shrink-0 text-xl font-bold">
+                {i + 1}
               </div>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-[#14b8a6]/15 border border-[#14b8a6]/35">
-                <it.icon className="w-4 h-4 text-[#5eead4]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-white">{it.t}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{it.d}</div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-600">
-                #{String(i + 1).padStart(2, "0")}
-              </div>
+              <div className="text-lg md:text-xl text-gray-100">{t}</div>
             </motion.div>
           ))}
         </div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-5 text-xs text-gray-500 text-center"
+          transition={{ delay: 0.7 }}
+          className="mt-5 saa-card-teal rounded-xl px-5 py-4 text-base md:text-lg text-gray-200"
         >
-          Teslim: küçük bir not defteri (notebook) + derece karşılaştırma tablosu.
+          <span className="text-[#5eead4] font-semibold">Gelecek hafta: </span>
+          {next}
         </motion.div>
-      </SlideShell>
-    );
-  },
+        <Ask>Bugünden aklında kalan tek cümle ne?</Ask>
+      </div>
+    </SlideShell>
+  );
+}
 
-  // 16 — Sıradaki hafta
-  () => (
-    <SlideShell>
-      <Eyebrow>Sıradaki Hafta</Eyebrow>
-      <H2 className="mb-8">10. Hafta — Bilgi yayılımı (SI · SIR)</H2>
-      <div className="grid md:grid-cols-3 gap-5">
-        <FeatureCard
-          icon={Repeat}
-          title="Yayılım modelleri"
-          desc="Bir bilginin / söylentinin ağda nasıl yayıldığını SI ve SIR modelleriyle anlatma."
-          accent="#14b8a6"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={Layers}
-          title="Çok katmanlı yayılım"
-          desc="Bu haftaki katman fikri orada da işe yarar: bilgi katmandan katmana atlayabilir."
-          accent="#0d9488"
-          delay={0.25}
-        />
-        <FeatureCard
-          icon={Workflow}
-          title="Simülasyon"
-          desc="Küçük bir ağda adım adım yayılımı NetworkX ile çalıştırıp gözlemleme."
-          accent="#5eead4"
-          delay={0.4}
+/* ============================================================
+   9. HAFTA — çok katmanlı ağ: veri ve etkileşimli bileşenler
+   ============================================================ */
+
+const KISILER: GNode[] = [
+  { id: "Ali", x: 320, y: 45 },
+  { id: "Ayşe", x: 510, y: 105 },
+  { id: "Can", x: 510, y: 225 },
+  { id: "Deniz", x: 320, y: 280 },
+  { id: "Elif", x: 130, y: 225 },
+  { id: "Mert", x: 130, y: 105 },
+];
+
+const KATMANLAR: Array<{ ad: string; anlam: string; renk: string; kenarlar: GEdge[] }> = [
+  {
+    ad: "WhatsApp",
+    anlam: "Bu hafta birebir yazışanlar",
+    renk: "#34d399",
+    kenarlar: [
+      ["Ali", "Ayşe"],
+      ["Ali", "Can"],
+      ["Ali", "Deniz"],
+      ["Ali", "Elif"],
+      ["Can", "Deniz"],
+    ],
+  },
+  {
+    ad: "Instagram",
+    anlam: "Karşılıklı takipleşenler",
+    renk: "#f0abfc",
+    kenarlar: [
+      ["Ali", "Elif"],
+      ["Ayşe", "Elif"],
+      ["Can", "Elif"],
+      ["Elif", "Mert"],
+      ["Deniz", "Elif"],
+      ["Ayşe", "Mert"],
+      ["Can", "Deniz"],
+    ],
+  },
+  {
+    ad: "Sınıf",
+    anlam: "Aynı proje grubunda çalışanlar",
+    renk: "#93c5fd",
+    kenarlar: [
+      ["Can", "Deniz"],
+      ["Deniz", "Mert"],
+      ["Ayşe", "Deniz"],
+      ["Can", "Mert"],
+    ],
+  },
+];
+
+const anahtar = (a: string, b: string) => [a, b].sort().join("|");
+
+/** Aynı altı kişi: katman çipine tıkla, bağlar değişsin. */
+function LayerExplorer() {
+  const [k, setK] = useState(0);
+  const hepsi = k === KATMANLAR.length;
+  const sayim = new Map<string, number>();
+  for (const kat of KATMANLAR)
+    for (const [a, b] of kat.kenarlar)
+      sayim.set(anahtar(a, b), (sayim.get(anahtar(a, b)) ?? 0) + 1);
+  const kenarlar: GEdge[] = hepsi
+    ? [...sayim.keys()].map((s) => s.split("|") as GEdge)
+    : KATMANLAR[k].kenarlar;
+  const derece = (id: string) => kenarlar.filter((e) => e.includes(id)).length;
+  const enCok = Math.max(...KISILER.map((n) => derece(n.id)));
+  const lider = KISILER.filter((n) => derece(n.id) === enCok).map((n) => n.id);
+  const renk = hepsi ? "#5eead4" : KATMANLAR[k].renk;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+      <div className="md:col-span-3 saa-card rounded-xl p-2">
+        <Net
+          nodes={KISILER}
+          edges={kenarlar}
+          fill={(id) => (!hepsi && derece(id) === enCok ? renk : undefined)}
+          edgeColor={(a, b) =>
+            hepsi ? (sayim.get(anahtar(a, b)) === 3 ? "#fbbf24" : "#5eead4") : renk
+          }
+          edgeWidth={(a, b) => (hepsi ? (sayim.get(anahtar(a, b)) ?? 1) * 2.5 : 2.5)}
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="mt-10 saa-card-teal rounded-xl p-5 text-center"
-      >
-        <div className="text-sm text-gray-300">
-          Hazırlık önerisi: Bu haftaki{" "}
-          <span className="text-[#5eead4] font-semibold">iki katmanlı ağ</span>{" "}
-          notebook&apos;unu yanında getir — yayılımı aynı veride deneyeceğiz.
+      <div className="md:col-span-2">
+        <div className="text-sm text-gray-500 mb-2 flex items-center gap-2">
+          <MousePointerClick className="w-4 h-4" /> Bir katmana tıkla
         </div>
-      </motion.div>
-    </SlideShell>
+        <div className="grid grid-cols-2 gap-2.5">
+          {[...KATMANLAR.map((x) => x.ad), "Hepsi üst üste"].map((ad, i) => (
+            <button
+              key={ad}
+              type="button"
+              onClick={() => setK(i)}
+              className={`${BTN} ${k === i ? BTN_ON : BTN_IDLE}`}
+            >
+              {ad}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200 min-h-[120px]">
+          {hepsi ? (
+            <>
+              Kalın çizgi: aynı bağ birden çok katmanda var.{" "}
+              <span className="text-[#fbbf24] font-semibold">Can ile Deniz</span> üç
+              katmanda da bağlı.
+            </>
+          ) : (
+            <>
+              <span className="text-gray-400">{KATMANLAR[k].anlam}.</span>
+              <br />
+              En çok bağlantı:{" "}
+              <span className="font-semibold" style={{ color: renk }}>
+                {lider.join(", ")}
+              </span>{" "}
+              ({enCok} bağ)
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const SEVIYE_NOT = [
+  "En altta öğrenciler var. Henüz hiçbir yere bağlamadık.",
+  "Her öğrenci bir sınıfa aittir.",
+  "Sınıflar bir bölüme aittir.",
+  "Bölüm de okula aittir. Küçük olan, büyüğün içindedir.",
+];
+
+/** İç içe seviyeler: İleri düğmesiyle bir üst seviye eklenir. */
+function NestedSteps() {
+  const [adim, setAdim] = useState(0);
+  const ogr = [70, 170, 270, 370, 470, 570];
+  const sinif = [
+    { x: 170, ad: "1-A" },
+    { x: 470, ad: "1-B" },
+  ];
+  const kutu = (x: number, y: number, ad: string, w: number) => (
+    <g key={ad}>
+      <rect
+        x={x - w / 2}
+        y={y - 18}
+        width={w}
+        height={36}
+        rx={8}
+        fill="#134e4a"
+        stroke="#5eead4"
+        strokeWidth={2}
+      />
+      <text x={x} y={y + 5} textAnchor="middle" fontSize={15} fontWeight={700} fill="#fff">
+        {ad}
+      </text>
+    </g>
+  );
+  const cizgi = (x1: number, y1: number, x2: number, y2: number) => (
+    <line
+      key={`${x1}-${y1}-${x2}`}
+      x1={x1}
+      y1={y1}
+      x2={x2}
+      y2={y2}
+      stroke="#fbbf24"
+      strokeWidth={2}
+      strokeDasharray="5 4"
+    />
+  );
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+      <div className="md:col-span-3 saa-card rounded-xl p-2">
+        <svg viewBox="0 0 640 320" className="w-full h-auto max-h-[40vh]">
+          {adim >= 1 && ogr.map((x, i) => cizgi(x, 268, sinif[i < 3 ? 0 : 1].x, 198))}
+          {adim >= 2 && sinif.map((s) => cizgi(s.x, 162, 320, 118))}
+          {adim >= 3 && cizgi(320, 82, 320, 48)}
+          {ogr.map((x) => (
+            <circle key={x} cx={x} cy={285} r={17} fill="#0f2a27" stroke="#5eead4" strokeWidth={2} />
+          ))}
+          {adim >= 1 && sinif.map((s) => kutu(s.x, 180, s.ad, 90))}
+          {adim >= 2 && kutu(320, 100, "Büyük Veri Analistliği", 230)}
+          {adim >= 3 && kutu(320, 30, "MYO", 110)}
+        </svg>
+      </div>
+      <div className="md:col-span-2">
+        <div className="saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200 min-h-[110px]">
+          <div className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-1">
+            Adım {adim + 1} / 4
+          </div>
+          {SEVIYE_NOT[adim]}
+        </div>
+        <button
+          type="button"
+          onClick={() => setAdim(adim === 3 ? 0 : adim + 1)}
+          className={`${BTN} ${BTN_IDLE} mt-4 inline-flex items-center gap-2`}
+        >
+          {adim === 3 ? <RotateCcw className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+          {adim === 3 ? "Baştan" : "İleri: bir üst seviye"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const SECENEK = ["Katman: aynı kişiler, başka ilişki", "Seviye: küçük, büyüğün içinde"];
+
+/* ============================================================
+   SLIDES — BVA 2105 · 9. Hafta · Çok Seviyeli Ağ Analizi
+   ============================================================ */
+
+const slides: Array<(active: boolean) => ReactNode> = [
+  // 1 — Kapak
+  () => (
+    <Cover
+      week="9"
+      title={["Çok Seviyeli", "Ağ Analizi"]}
+      sub="Aynı arkadaş grubu, tek bir ağ değildir: WhatsApp'ta ayrı, Instagram'da ayrı, sınıfta ayrı bağlar vardır."
+      cards={[
+        { icon: Layers3, title: "Katman", desc: "Aynı kişiler arasında tek bir ilişki türü." },
+        { icon: Users, title: "Kim önemli?", desc: "Cevap, baktığın katmana göre değişir." },
+        { icon: School, title: "Seviye", desc: "Öğrenci sınıfın, sınıf okulun içindedir." },
+      ]}
+    />
   ),
 
-  // 17 — Kapanış + iletişim
+  // 2 — Köprü
   () => (
-    <SlideShell>
-      <div className="text-center max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: "linear-gradient(135deg, #14b8a6, #0d9488)",
-            boxShadow: "0 20px 60px -10px rgba(20, 184, 166, 0.6)",
-          }}
-        >
-          <Layers3 className="w-12 h-12 text-white" />
-        </motion.div>
-        <H1 className="saa-shimmer-teal">Özet</H1>
-        <Sub className="mt-6">
-          Tek katman gerçeği basitleştirir; katmanlar onu geri kazandırır.{" "}
-          <span className="text-[#5eead4]">Hafta 10&apos;da görüşmek üzere.</span>
-        </Sub>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 text-left"
-        >
-          <div className="saa-card rounded-xl p-4 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <Layers3 className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Kavram
-              </div>
-              <div className="text-sm font-semibold text-white">Katman &amp; seviye</div>
-              <div className="text-xs text-gray-400">multiplex vs. iç içe</div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <GitBranch className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Anahtar fikir
-              </div>
-              <div className="text-sm font-semibold text-white">Coupling</div>
-              <div className="text-xs text-gray-400">katmanları bağlar</div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Ölçü
-              </div>
-              <div className="text-sm font-semibold text-white">Versatility</div>
-              <div className="text-xs text-gray-400">çok katmanlı merkezilik</div>
-            </div>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-left"
-        >
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Ders Saati
-              </div>
-              <div className="text-sm font-semibold text-white">
-                Cuma · 09:55 – 11:35
-              </div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <MapPin className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Derslik
-              </div>
-              <div className="text-sm font-semibold text-white">
-                MYO · Derslik 7
-              </div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <Mail className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Ofis Saati
-              </div>
-              <div className="text-sm font-semibold text-white">
-                Salı · 14:00 – 16:00
-              </div>
-            </div>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-10 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Clock className="w-3.5 h-3.5" />
-          BVA 2105 · Sosyal Ağ Analizi · 9. Hafta
-        </motion.div>
+    <Frame
+      eyebrow="Vizeden bu haftaya"
+      title="Şimdiye kadar tek tür çizgi çizdik"
+      ask="İki arkadaş arasında kaç farklı türde bağ olabilir?"
+    >
+      <TwoLists
+        left={{
+          label: "Vizeye kadar",
+          items: [
+            "Tek bir ilişki türü: yalnız arkadaşlık ya da yalnız takip.",
+            "En çok bağlantılı kişiyi bulduk (merkezilik).",
+            "Grupları bulduk (topluluk tespiti).",
+          ],
+        }}
+        right={{
+          label: "Bu hafta",
+          items: [
+            "Aynı kişiler arasında birden çok ilişki türü var.",
+            "Her ilişki türünü ayrı bir katman olarak çizeceğiz.",
+            "Katmanları yan yana koyup karşılaştıracağız.",
+          ],
+        }}
+      />
+    </Frame>
+  ),
+
+  // 3 — El kaldır
+  () => (
+    <Frame
+      eyebrow="El kaldır"
+      title="En yakın arkadaşınla kaç yerden bağlısın?"
+      ask="Tek bir çizgi çizseydik hangi bağı çizmiş olurduk?"
+    >
+      <div className="saa-card rounded-xl p-5 mb-4 text-lg md:text-xl text-gray-200">
+        Kaçınız en yakın arkadaşıyla hem WhatsApp&apos;ta yazışıyor, hem Instagram&apos;da
+        takipleşiyor, hem de aynı sınıfta oturuyor?
       </div>
-    </SlideShell>
+      <Reveal hint="Eller kalktı mı? Yorumu görmek için tıkla">
+        Demek ki aynı iki kişi arasında{" "}
+        <span className="text-[#5eead4] font-semibold">üç ayrı bağ</span> var. Tek çizgi
+        çizersek ikisini kaybederiz. Çözüm: her ilişki türünü ayrı çizmek.
+      </Reveal>
+    </Frame>
+  ),
+
+  // 4 — Oyna-gör: katmanlar
+  () => (
+    <Frame
+      eyebrow="Oyna-gör"
+      title="Aynı altı kişi, üç ayrı ağ"
+      ask="Katman değişince en çok bağlantılı kişi neden değişti?"
+    >
+      <LayerExplorer />
+    </Frame>
+  ),
+
+  // 5 — Terim
+  () => (
+    <Frame
+      eyebrow="Kavram"
+      title="Katman, tek bir ilişki türünün ağıdır"
+      ask="Bu arkadaş grubu için dördüncü katman ne olabilirdi?"
+    >
+      <CardRow
+        cards={[
+          {
+            icon: Users,
+            title: "Kişiler aynı",
+            desc: "Ali her katmanda aynı Ali'dir. Değişen yalnızca bağlardır.",
+          },
+          {
+            icon: Layers3,
+            title: "Katman (layer)",
+            desc: "Tek bir ilişki türünü gösteren ağ: yalnız WhatsApp ya da yalnız sınıf.",
+          },
+          {
+            icon: Network,
+            title: "Çok katmanlı ağ",
+            desc: "Aynı kişilerin katmanlarının üst üste konmuş hâli. Bütün resmi verir.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 6 — Tahmin et: kim önemli?
+  () => (
+    <Frame
+      eyebrow="Tahmin et"
+      title="Grubun en önemli kişisi kim?"
+      ask="Sence hangisi grubun gerçek lideri? Neden?"
+    >
+      <FlipCards
+        items={[
+          {
+            tag: "WhatsApp",
+            front: "Yazışmalarda en çok bağlantısı olan kim?",
+            back: "Ali: 4 kişiyle yazışıyor. Haber önce ona ulaşır.",
+          },
+          {
+            tag: "Instagram",
+            front: "Takipleşmede en çok bağlantısı olan kim?",
+            back: "Elif: 5 kişiyle takipleşiyor. Ama WhatsApp'ta tek bağı var.",
+          },
+          {
+            tag: "Sınıf",
+            front: "Proje grubunda en çok bağlantısı olan kim?",
+            back: "Deniz: 3 kişiyle çalışıyor. Ali'nin bu katmanda hiç bağı yok.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 7 — Mini sınav: güçlü bağ
+  () => (
+    <Frame
+      eyebrow="Mini sınav"
+      title="Aynı bağ çok katmanda varsa güçlüdür"
+      ask="Senin üç katmanda da bağlı olduğun biri var mı?"
+    >
+      <Quiz
+        questions={[
+          {
+            q: "Hangi ikilinin arasındaki ilişki en güçlüdür?",
+            options: [
+              "Ali ile Ayşe: yalnız WhatsApp'ta bağlılar",
+              "Can ile Deniz: WhatsApp, Instagram ve sınıfta bağlılar",
+              "Ayşe ile Mert: yalnız Instagram'da bağlılar",
+            ],
+            correct: 1,
+            why: "Üç katmanda da bağlı olanlar birbirine birçok yoldan ulaşır.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 8 — İç içe seviyeler
+  () => (
+    <Frame
+      eyebrow="İkinci yapı · adım adım"
+      title="Seviyede küçük, büyüğün içindedir"
+      ask="Okulun üstüne bir seviye daha koysak ne yazardık?"
+    >
+      <NestedSteps />
+    </Frame>
+  ),
+
+  // 9 — Katman mı seviye mi
+  () => (
+    <Frame
+      eyebrow="Oyna-gör"
+      title="Katman mı, seviye mi?"
+      ask="Kendi hayatından bir katman, bir de seviye örneği ver."
+    >
+      <Quiz
+        row
+        unit="Örnek"
+        questions={[
+          {
+            q: "Aynı çalışanlar: kim kime e-posta atıyor, kim kiminle öğle yemeği yiyor?",
+            options: SECENEK,
+            correct: 0,
+            why: "Kişiler aynı, ilişki türü farklı: iki katman.",
+          },
+          {
+            q: "Oyuncu, takım, lig.",
+            options: SECENEK,
+            correct: 1,
+            why: "Oyuncu takımın, takım ligin içinde: iç içe seviyeler.",
+          },
+          {
+            q: "Aynı duraklar: otobüs hatları ve minibüs hatları.",
+            options: SECENEK,
+            correct: 0,
+            why: "Duraklar aynı, hat türü farklı: iki katman.",
+          },
+          {
+            q: "Mahalle, ilçe, il.",
+            options: SECENEK,
+            correct: 1,
+            why: "Mahalle ilçenin, ilçe ilin içinde: iç içe seviyeler.",
+          },
+          {
+            q: "Aynı sınıf: kim kiminle oturuyor, kim kiminle oyun oynuyor?",
+            options: SECENEK,
+            correct: 0,
+            why: "Öğrenciler aynı, ilişki türü farklı: iki katman.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 10 — Ne işe yarar
+  () => (
+    <Frame
+      eyebrow="Ne işe yarar?"
+      title="Tek katmana bakan, birini kaçırır"
+      ask="Sınıfa bir duyuruyu hangi katmandan yapardın? Neden?"
+    >
+      <CardRow
+        cards={[
+          {
+            icon: Megaphone,
+            title: "Duyuru yapmak",
+            desc: "Haberi WhatsApp'tan yayacaksan Ali'ye, Instagram'dan yayacaksan Elif'e söylersin.",
+          },
+          {
+            icon: Bus,
+            title: "Şehir ulaşımı",
+            desc: "Otobüs ve minibüs ayrı katmandır. Yolcu ikisini birlikte kullanır.",
+          },
+          {
+            icon: UserPlus,
+            title: "Arkadaş önerisi",
+            desc: "Sınıfta birlikte çalışıp takipleşmeyen iki kişi, iyi bir öneri adayıdır.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 11 — Kod
+  () => (
+    <Frame
+      eyebrow="Python · NetworkX"
+      title="Her katmanı ayrı bir ağ olarak tutarız"
+      ask="Ali'nin iki katmandaki bağlantı sayısı neden farklı çıktı?"
+    >
+      <CodeCard
+        file="katmanlar.py"
+        lines={[
+          "import networkx as nx",
+          "",
+          'whatsapp  = nx.Graph([("Ali", "Ayşe"), ("Ali", "Can"), ("Can", "Deniz")])',
+          'instagram = nx.Graph([("Elif", "Ali"), ("Elif", "Can"), ("Can", "Deniz")])',
+          "",
+          'print(whatsapp.degree("Ali"))     # 2 → WhatsApp katmanında 2 bağ',
+          'print(instagram.degree("Ali"))    # 1 → Instagram katmanında 1 bağ',
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 12 — Sınıfta deneyelim
+  () => (
+    <Frame
+      eyebrow="Sınıfta deneyelim · 10 dakika · kağıt ve kalem"
+      title="Kendi grubunun üç katmanını çiz"
+      ask="Hangi katmanda en çok bağlantı sende çıktı?"
+    >
+      <Steps
+        items={[
+          {
+            t: "4-5 kişilik grup ol",
+            d: "İsimleri bir kağıda üç kez, daire biçiminde yaz: üç ayrı katman.",
+          },
+          {
+            t: "Bağları çiz",
+            d: "1: WhatsApp'ta bu hafta yazışanlar · 2: Instagram'da takipleşenler · 3: Yan yana oturanlar.",
+          },
+          {
+            t: "Her katmanda en çok bağlantılı kişiyi yuvarlak içine al",
+            d: "Üç katmanda aynı kişi mi çıktı?",
+          },
+          {
+            t: "Üç katmanda da geçen bağı bul",
+            d: "Varsa kalın çiz: grubun en güçlü ilişkisi o.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 13 — Kendini dene
+  () => (
+    <Frame
+      eyebrow="Kendini dene"
+      title="Üç soruda bu hafta"
+      ask="Hangi soruda kararsız kaldın?"
+    >
+      <Quiz
+        questions={[
+          {
+            q: "Çok katmanlı ağda katmanlar arasında ne aynı kalır?",
+            options: ["Kişiler (düğümler)", "Bağlar (çizgiler)", "En çok bağlantılı kişi"],
+            correct: 0,
+            why: "Kişiler aynıdır; her katmanda yalnız bağlar değişir.",
+          },
+          {
+            q: "Ali WhatsApp'ta 4, sınıf katmanında 0 bağa sahip. Ne söyleyebiliriz?",
+            options: [
+              "Ali her yerde önemlidir",
+              "Ali hiç önemli değildir",
+              "Ali'nin önemi katmana göre değişir",
+            ],
+            correct: 2,
+            why: "Önem tek bir sayı değildir; hangi ilişkiye baktığına bağlıdır.",
+          },
+          {
+            q: "Hangisi katman değil, iç içe seviye örneğidir?",
+            options: [
+              "Aynı kişilerin WhatsApp ve Instagram bağları",
+              "Öğrenci, sınıf, bölüm, okul",
+              "Aynı durakların otobüs ve minibüs hatları",
+            ],
+            correct: 1,
+            why: "Öğrenci sınıfın, sınıf bölümün içindedir: küçük, büyüğün içinde.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 14 — Özet
+  () => (
+    <Recap
+      items={[
+        "Aynı kişiler arasında birden çok ilişki türü vardır; her biri ayrı bir katmandır.",
+        "Kimin önemli olduğu, baktığın katmana göre değişir.",
+        "Katman: aynı kişiler, başka ilişki. Seviye: küçük, büyüğün içinde.",
+      ]}
+      next="Ağlar yerinde durmaz. Yeni kişiler gelir, yeni bağlar kurulur: ağın zamanla nasıl değiştiğine bakacağız."
+    />
   ),
 ];
 

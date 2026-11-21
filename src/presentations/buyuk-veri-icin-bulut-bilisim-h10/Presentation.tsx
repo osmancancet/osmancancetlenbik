@@ -9,13 +9,8 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Cpu,
-  Database,
-  Layers,
-  FileText,
-  Split,
-  Shuffle,
-  Combine,
+  Server,
+  HardDrive,
   ArrowRight,
   ChevronRight,
   ChevronLeft,
@@ -24,21 +19,17 @@ import {
   Keyboard,
   Check,
   X,
-  Sparkles,
-  Zap,
-  Lightbulb,
-  HardDrive,
-  Network,
-  Server,
-  Code,
-  Terminal,
-  ListChecks,
-  Workflow,
-  GitMerge,
-  Hash,
-  Boxes,
-  AlertTriangle,
-  Brain,
+  Target,
+  MousePointerClick,
+  HelpCircle,
+  RotateCcw,
+  Users,
+  Timer,
+  Calculator,
+  Shuffle,
+  FileText,
+  Plus,
+  Repeat,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -152,223 +143,654 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+/* ============================================================
+   ETKİLEŞİM BİLEŞENLERİ
+   ============================================================ */
+
+const DUGME =
+  "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-base font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
+const DUGME_IKINCIL =
+  "inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-base text-gray-300 border border-white/15 hover:border-[#60a5fa] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
+const CIP = (secili: boolean) =>
+  `px-5 py-2.5 rounded-full text-base font-semibold border transition-colors ${
+    secili
+      ? "bg-[#2563eb] border-[#60a5fa] text-white"
+      : "border-white/15 text-gray-300 hover:border-[#60a5fa]"
+  }`;
+function TikIpucu({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-[#60a5fa]/80">
+      <MousePointerClick className="w-3.5 h-3.5" />
+      {children}
+    </span>
+  );
+}
+
+/* İçerik slaydı kabuğu: etiket + cümle başlık + ortada içerik + "Sınıfa sor" satırı */
+function Slayt({
+  etiket,
+  baslik,
+  alt,
+  soru,
+  children,
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  etiket: string;
+  baslik: ReactNode;
+  alt?: ReactNode;
+  soru?: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
+    <SlideShell>
+      <Eyebrow>{etiket}</Eyebrow>
+      <H2>{baslik}</H2>
+      {alt && <Sub className="mt-3 max-w-4xl">{alt}</Sub>}
+      <div className="mt-6 max-w-4xl mx-auto">{children}</div>
+      {soru && (
+        <div className="mt-5 max-w-4xl mx-auto flex items-center gap-2 text-sm text-gray-500">
+          <HelpCircle className="w-4 h-4 flex-shrink-0" />
+          <span>
+            <span className="font-semibold text-gray-400">Sınıfa sor:</span> {soru}
+          </span>
+        </div>
+      )}
+    </SlideShell>
+  );
+}
+
+function Kapak({
+  hafta,
+  vurgu,
+  satir,
+  alt,
+  cipler,
+}: {
+  hafta: string;
+  vurgu: string;
+  satir: string;
+  alt: string;
+  cipler: Array<{ ad: string; etiket: string; icon: LucideIcon; renk: string }>;
+}) {
+  return (
+    <SlideShell>
       <div className="text-center">
+        <Eyebrow>BVA 2103 · {hafta} · Güz Dönemi</Eyebrow>
+        <H1>
+          <span className="bvbb-shimmer">{vurgu}</span>
+          <br />
+          <span className="text-white">{satir}</span>
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{alt}</Sub>
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 bvbb-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
         >
-          {icon}
+          {cipler.map((p) => (
+            <div
+              key={p.ad}
+              className="bvbb-card rounded-xl p-4 flex items-center gap-3"
+              style={{ borderColor: `${p.renk}55` }}
+            >
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: `${p.renk}22`, border: `1px solid ${p.renk}66` }}
+              >
+                <p.icon className="w-5 h-5" style={{ color: p.renk }} />
+              </div>
+              <div className="text-left">
+                <div className="text-base font-bold text-white">{p.ad}</div>
+                <div className="text-xs text-gray-400">{p.etiket}</div>
+              </div>
+            </div>
+          ))}
         </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+          className="mt-10 text-[11px] font-mono text-gray-600"
+        >
+          Öğr. Gör. Osman Can Çetlenbik · MCBÜ Manisa Teknik Bilimler MYO · Büyük Veri Analistliği
+        </motion.div>
+      </div>
+    </SlideShell>
+  );
+}
+
+/* Tahmin et → tıkla göster */
+function TahminKarti({ soru, cevap }: { soru: string; cevap: string }) {
+  const [acik, setAcik] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setAcik((a) => !a)}
+      aria-expanded={acik}
+      className="bvbb-card bvbb-card-hover rounded-xl p-5 text-left w-full min-h-[150px] flex flex-col transition-all cursor-pointer"
+    >
+      <span className="text-lg font-semibold text-white leading-snug">{soru}</span>
+      {acik ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 block text-base text-[#93c5fd] leading-snug"
+        >
+          {cevap}
+        </motion.span>
+      ) : (
+        <span className="mt-3 block">
+          <TikIpucu>Tıkla, cevabı gör</TikIpucu>
+        </span>
+      )}
+    </button>
+  );
+}
+
+type Soru = { soru: string; siklar: string[]; dogru: number; aciklama: string };
+
+/* Mini sınav: doğru şık yeşil, yanlış şık kırmızı olur; doğruyu bulunca açıklama çıkar */
+function MiniSinav({ s }: { s: Soru }) {
+  const [secilen, setSecilen] = useState<number[]>([]);
+  const bildi = secilen.includes(s.dogru);
+  return (
+    <div>
+      <div className="text-xl font-semibold text-white mb-4 leading-snug">{s.soru}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {s.siklar.map((sik, i) => {
+          const tiklandi = secilen.includes(i);
+          const dogru = i === s.dogru;
+          const stil = !tiklandi
+            ? "border-white/15 text-gray-200 hover:border-[#60a5fa]"
+            : dogru
+              ? "border-green-500 bg-green-500/15 text-green-200"
+              : "border-red-500 bg-red-500/15 text-red-200";
+          return (
+            <button
+              key={sik}
+              type="button"
+              disabled={bildi}
+              onClick={() => setSecilen((o) => (o.includes(i) ? o : [...o, i]))}
+              className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left text-base transition-colors ${stil}`}
+            >
+              <span className="font-mono text-sm opacity-70">{"ABCD"[i]}</span>
+              <span className="flex-1">{sik}</span>
+              {tiklandi &&
+                (dogru ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />)}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[56px] flex items-start justify-between gap-4">
+        <div className="text-base leading-snug">
+          {bildi ? (
+            <motion.span
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="block text-green-300"
+            >
+              Doğru. {s.aciklama}
+            </motion.span>
+          ) : secilen.length > 0 ? (
+            <span className="text-red-300">Olmadı. Bir daha düşün, başka şıkka tıkla.</span>
+          ) : (
+            <TikIpucu>Bir şıkka tıkla</TikIpucu>
+          )}
+        </div>
+        {secilen.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSecilen([])}
+            className="flex-shrink-0 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" /> Sıfırla
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function KendiniDene({ sorular }: { sorular: Soru[] }) {
+  const [no, setNo] = useState(0);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm font-mono text-[#60a5fa]">
+          Soru {no + 1} / {sorular.length}
+        </span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={DUGME_IKINCIL}
+            disabled={no === 0}
+            onClick={() => setNo((n) => n - 1)}
+          >
+            Önceki soru
+          </button>
+          <button
+            type="button"
+            className={DUGME}
+            disabled={no === sorular.length - 1}
+            onClick={() => setNo((n) => n + 1)}
+          >
+            Sonraki soru <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <MiniSinav key={no} s={sorular[no]} />
+    </div>
+  );
+}
+
+type Adim = { baslik: string; metin: string };
+
+/* "İleri" ile adım adım açılan liste */
+function AdimAdim({ adimlar }: { adimlar: Adim[] }) {
+  const [n, setN] = useState(1);
+  return (
+    <div>
+      <div className="space-y-2.5">
+        {adimlar.map((a, i) =>
+          i < n ? (
+            <motion.div
+              key={a.baslik}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bvbb-card rounded-lg px-4 py-2.5 flex items-center gap-4"
+            >
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white bg-[#2563eb] flex-shrink-0">
+                {i + 1}
+              </span>
+              <div>
+                <div className="text-base font-semibold text-white leading-snug">
+                  {a.baslik}
+                </div>
+                <div className="text-sm text-gray-400 leading-snug">{a.metin}</div>
+              </div>
+            </motion.div>
+          ) : (
+            <div
+              key={a.baslik}
+              className="rounded-lg px-4 py-2.5 border border-dashed border-white/10 flex items-center gap-4 text-sm text-gray-600"
+            >
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-white/10 flex-shrink-0">
+                {i + 1}
+              </span>
+              Sıradaki adım için &ldquo;İleri&rdquo;ye tıkla
+            </div>
+          ),
+        )}
+      </div>
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          type="button"
+          className={DUGME}
+          disabled={n >= adimlar.length}
+          onClick={() => setN((x) => Math.min(x + 1, adimlar.length))}
+        >
+          İleri <ArrowRight className="w-4 h-4" />
+        </button>
+        <button type="button" className={DUGME_IKINCIL} onClick={() => setN(1)}>
+          <RotateCcw className="w-4 h-4" /> Baştan
+        </button>
+        <span className="text-sm text-gray-500">
+          Adım {n} / {adimlar.length}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+type KodSatiri = { kod: string; aciklama: string; tur?: "tarif" | "pisir" };
+
+/* Kod satır satır okunur: satıra ya da "Sonraki satır"a tıklayınca açıklaması görünür */
+function KodSatirlari({ satirlar, cikti }: { satirlar: KodSatiri[]; cikti?: string }) {
+  const [secili, setSecili] = useState(0);
+  const son = satirlar.length - 1;
+  return (
+    <div>
+      <div className="bvbb-window-chrome">
+        <div className="py-2" style={{ background: "#0b1020" }}>
+          {satirlar.map((satir, i) => (
+            <button
+              key={satir.kod}
+              type="button"
+              onClick={() => setSecili(i)}
+              className={`w-full flex items-center gap-3 px-4 py-1.5 text-left font-mono text-[15px] transition-colors ${
+                i === secili
+                  ? "bg-[#2563eb]/25 text-white"
+                  : "text-gray-400 hover:bg-white/5"
+              }`}
+            >
+              <span className="w-5 text-right text-gray-600">{i + 1}</span>
+              <span className="flex-1 whitespace-pre">{satir.kod}</span>
+              {satir.tur && (
+                <span
+                  className={`text-[11px] uppercase tracking-wider px-2 py-0.5 rounded ${
+                    satir.tur === "tarif"
+                      ? "bg-sky-500/15 text-sky-300"
+                      : "bg-amber-500/15 text-amber-300"
+                  }`}
+                >
+                  {satir.tur === "tarif" ? "tarif" : "pişir"}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-3 bvbb-card rounded-lg px-4 py-3 min-h-[68px] text-base text-gray-200 leading-snug">
+        <span className="font-mono text-sm text-[#60a5fa] mr-2">{secili + 1}. satır:</span>
+        {satirlar[secili].aciklama}
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          className={DUGME}
+          disabled={secili === son}
+          onClick={() => setSecili((x) => Math.min(x + 1, son))}
+        >
+          Sonraki satır <ArrowRight className="w-4 h-4" />
+        </button>
+        <button type="button" className={DUGME_IKINCIL} onClick={() => setSecili(0)}>
+          <RotateCcw className="w-4 h-4" /> Baştan
+        </button>
+        {cikti && secili === son ? (
+          <span className="font-mono text-base text-green-300">Çıktı: {cikti}</span>
+        ) : (
+          <TikIpucu>Satıra da tıklayabilirsin</TikIpucu>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Kapanış: "Aklında kalsın: 3 şey" + gelecek haftaya köprü */
+function UcSey({ maddeler, kopru }: { maddeler: [string, string, string]; kopru: string }) {
+  return (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2>Aklında kalsın: 3 şey</H2>
+      <div className="mt-8 max-w-4xl mx-auto space-y-3">
+        {maddeler.map((m, i) => (
+          <motion.div
+            key={m}
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 + i * 0.15 }}
+            className="bvbb-card rounded-xl px-5 py-4 flex items-center gap-4"
+          >
+            <span className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold text-white bg-[#2563eb] flex-shrink-0">
+              {i + 1}
+            </span>
+            <span className="text-lg text-gray-100 leading-snug">{m}</span>
+          </motion.div>
+        ))}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="bvbb-card-sky rounded-xl px-5 py-4 flex items-center gap-3 text-base text-sky-200"
+        >
+          <ArrowRight className="w-5 h-5 flex-shrink-0" />
+          <span>
+            <span className="font-semibold">Gelecek hafta:</span> {kopru}
+          </span>
+        </motion.div>
       </div>
     </SlideShell>
   );
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   10. HAFTA — MAPREDUCE'A ÖZEL ETKİLEŞİMLER
    ============================================================ */
 
-/* Kod / terminal penceresi (macOS chrome) */
-function CodeWindow({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+const KELIME_RENK: Record<string, string> = {
+  bulut: "#0ea5e9",
+  veri: "#22c55e",
+  büyük: "#a855f7",
+  elma: "#ef4444",
+  armut: "#22c55e",
+  muz: "#f59e0b",
+};
+
+function Cift({ kelime, deger = "1" }: { kelime: string; deger?: string }) {
+  const renk = KELIME_RENK[kelime] ?? "#60a5fa";
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-window-chrome w-full"
+    <span
+      className="rounded px-2 py-1 text-sm font-mono font-semibold whitespace-nowrap"
+      style={{ background: `${renk}22`, color: renk, border: `1px solid ${renk}66` }}
     >
-      <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d1117", color: "#94a3b8" }}
-        >
-          <Terminal className="w-3 h-3" />
-          <span>{title}</span>
-        </div>
-      </div>
-      <div className="bvbb-code-body">{children}</div>
-    </motion.div>
+      ({kelime}, {deger})
+    </span>
   );
 }
 
-/* WordCount veri akışı: input -> split -> map -> shuffle -> reduce -> output */
-function WordCountDataflow() {
-  const cols = [
-    {
-      stage: "Girdi (split)",
-      badge: "INPUT",
-      color: "#94a3b8",
-      rows: ["the cat sat", "the dog ran", "the cat ran"],
-    },
-    {
-      stage: "Map çıktısı",
-      badge: "MAP",
-      color: "#22c55e",
-      rows: ["the,1  cat,1  sat,1", "the,1  dog,1  ran,1", "the,1  cat,1  ran,1"],
-    },
-    {
-      stage: "Shuffle & Sort",
-      badge: "SHUFFLE",
-      color: "#f59e0b",
-      rows: ["cat → [1,1]", "the → [1,1,1]", "ran → [1,1]  dog → [1]  sat → [1]"],
-    },
-    {
-      stage: "Reduce çıktısı",
-      badge: "REDUCE",
-      color: "#2563eb",
-      rows: ["cat 2", "the 3", "ran 2   dog 1   sat 1"],
-    },
+const SATIRLAR = ["bulut veri bulut", "veri büyük veri", "bulut büyük veri"];
+const SAYILACAK = ["bulut", "veri", "büyük"];
+const TUM_KELIMELER = SATIRLAR.flatMap((s) => s.split(" "));
+
+/* Slayt 5 — kelime sayma canlandırması: Girdi → Böl → Map → Shuffle → Reduce */
+function KelimeSayma() {
+  const [adim, setAdim] = useState(0);
+  const adimlar = [
+    { ad: "Girdi", metin: "Elimizde üç satırlık bir metin var. Hangi kelime kaç kez geçiyor?" },
+    { ad: "Böl", metin: "Her satır ayrı bir bilgisayara verilir. Herkes yalnızca kendi satırına bakar." },
+    { ad: "Map", metin: "Her bilgisayar gördüğü her kelime için (kelime, 1) yazar. Henüz toplama yok." },
+    { ad: "Shuffle", metin: "Aynı kelimenin çiftleri aynı kutuda buluşur. Seçimdeki “aynı aday aynı masaya”." },
+    { ad: "Reduce", metin: "Her kutudaki 1'ler toplanır. Sonuç: her kelime ve kaç kez geçtiği." },
   ];
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="grid grid-cols-1 md:grid-cols-4 gap-3"
-    >
-      {cols.map((c, i) => (
-        <motion.div
-          key={c.stage}
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 + i * 0.15 }}
-          className="bvbb-card rounded-xl p-4 relative"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-semibold text-white">{c.stage}</span>
-            <span
-              className="text-[9px] font-mono px-1.5 py-0.5 rounded"
-              style={{ background: `${c.color}22`, color: c.color }}
-            >
-              {c.badge}
-            </span>
-          </div>
-          <div className="space-y-2">
-            {c.rows.map((r, ri) => (
-              <div
-                key={ri}
-                className="font-mono text-[10.5px] rounded px-2 py-1.5 text-gray-300"
-                style={{ background: `${c.color}10`, border: `1px solid ${c.color}33` }}
-              >
-                {r}
-              </div>
+    <div>
+      <div className="flex items-center gap-2 mb-4">
+        {adimlar.map((a, i) => (
+          <button key={a.ad} type="button" className={CIP(i === adim)} onClick={() => setAdim(i)}>
+            {i + 1}. {a.ad}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 min-h-[132px]">
+        {adim === 0 && (
+          <div className="col-span-3 bvbb-card rounded-xl p-4 font-mono text-lg text-gray-200 leading-relaxed">
+            {SATIRLAR.map((s) => (
+              <div key={s}>{s}</div>
             ))}
           </div>
-          {i < cols.length - 1 && (
-            <ArrowRight className="hidden md:block absolute top-1/2 -right-3.5 w-5 h-5 text-gray-600 -translate-y-1/2 z-10" />
-          )}
-        </motion.div>
-      ))}
-    </motion.div>
+        )}
+        {(adim === 1 || adim === 2) &&
+          SATIRLAR.map((s, i) => (
+            <motion.div
+              key={`${adim}-${s}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.12 }}
+              className="bvbb-card rounded-xl p-3"
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
+                <Server className="w-4 h-4 text-gray-400" /> Bilgisayar {i + 1}
+              </div>
+              {adim === 1 ? (
+                <div className="font-mono text-base text-gray-200">{s}</div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {s.split(" ").map((k, j) => (
+                    <Cift key={`${k}-${j}`} kelime={k} />
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          ))}
+        {(adim === 3 || adim === 4) &&
+          SAYILACAK.map((k, i) => {
+            const adet = TUM_KELIMELER.filter((x) => x === k).length;
+            return (
+              <motion.div
+                key={`${adim}-${k}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.12 }}
+                className="bvbb-card rounded-xl p-3"
+              >
+                <div className="text-sm font-semibold text-white mb-2">
+                  &ldquo;{k}&rdquo; kutusu
+                </div>
+                {adim === 3 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {Array.from({ length: adet }).map((_, j) => (
+                      <Cift key={j} kelime={k} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Cift kelime={k} deger={String(adet)} />
+                    <span className="text-sm text-gray-400">
+                      {Array.from({ length: adet }).fill("1").join(" + ")} = {adet}
+                    </span>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+      </div>
+
+      <div className="mt-3 min-h-[52px] text-lg text-gray-100 leading-snug">{adimlar[adim].metin}</div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          className={DUGME_IKINCIL}
+          disabled={adim === 0}
+          onClick={() => setAdim((a) => Math.max(a - 1, 0))}
+        >
+          Geri
+        </button>
+        <button
+          type="button"
+          className={DUGME}
+          disabled={adim === adimlar.length - 1}
+          onClick={() => setAdim((a) => Math.min(a + 1, adimlar.length - 1))}
+        >
+          İleri <ArrowRight className="w-4 h-4" />
+        </button>
+        <button type="button" className={DUGME_IKINCIL} onClick={() => setAdim(0)}>
+          <RotateCcw className="w-4 h-4" /> Baştan
+        </button>
+      </div>
+    </div>
   );
 }
 
-/* YARN üzerinde bir MapReduce job'ın çalışma topolojisi */
-function YarnJobDiagram() {
+/* Slayt 6 — kelime ekle, map ve reduce çıktısını anında gör */
+function KelimeEkle() {
+  const meyveler = ["elma", "armut", "muz"];
+  const [liste, setListe] = useState<string[]>(["elma", "muz", "elma"]);
+  const dolu = liste.length >= 10;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-card rounded-xl p-6"
-    >
-      <svg viewBox="0 0 720 300" className="w-full h-72">
-        <defs>
-          <marker id="arrowH" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#64748b" />
-          </marker>
-        </defs>
-
-        {/* Client */}
-        <g>
-          <rect x="20" y="125" width="110" height="50" rx="8" fill="#1e293b" stroke="#475569" />
-          <text x="75" y="148" textAnchor="middle" fontSize="12" fill="#e2e8f0" fontWeight="700">Client</text>
-          <text x="75" y="164" textAnchor="middle" fontSize="9" fill="#94a3b8">job gönderir</text>
-        </g>
-
-        {/* ResourceManager */}
-        <g>
-          <rect x="200" y="115" width="150" height="70" rx="8" fill="#1e3a8a" stroke="#3b82f6" />
-          <text x="275" y="142" textAnchor="middle" fontSize="12" fill="#dbeafe" fontWeight="700">ResourceManager</text>
-          <text x="275" y="160" textAnchor="middle" fontSize="9" fill="#93c5fd">YARN · küme planlayıcı</text>
-        </g>
-
-        {/* NodeManager 1 */}
-        <g>
-          <rect x="430" y="30" width="260" height="100" rx="8" fill="#0f172a" stroke="#334155" />
-          <text x="445" y="50" fontSize="10" fill="#cbd5e1" fontWeight="700">NodeManager · worker-01</text>
-          <rect x="445" y="60" width="110" height="26" rx="4" fill="#14532d" stroke="#22c55e" />
-          <text x="500" y="77" textAnchor="middle" fontSize="9.5" fill="#86efac">Map Task</text>
-          <rect x="565" y="60" width="110" height="26" rx="4" fill="#1e3a5f" stroke="#3b82f6" />
-          <text x="620" y="77" textAnchor="middle" fontSize="9.5" fill="#93c5fd">AppMaster</text>
-          <rect x="445" y="94" width="230" height="24" rx="4" fill="#1f2937" stroke="#475569" />
-          <text x="560" y="110" textAnchor="middle" fontSize="9" fill="#94a3b8">HDFS DataNode (yerel blok)</text>
-        </g>
-
-        {/* NodeManager 2 */}
-        <g>
-          <rect x="430" y="170" width="260" height="100" rx="8" fill="#0f172a" stroke="#334155" />
-          <text x="445" y="190" fontSize="10" fill="#cbd5e1" fontWeight="700">NodeManager · worker-02</text>
-          <rect x="445" y="200" width="110" height="26" rx="4" fill="#14532d" stroke="#22c55e" />
-          <text x="500" y="217" textAnchor="middle" fontSize="9.5" fill="#86efac">Map Task</text>
-          <rect x="565" y="200" width="110" height="26" rx="4" fill="#3b2f12" stroke="#f59e0b" />
-          <text x="620" y="217" textAnchor="middle" fontSize="9.5" fill="#fcd34d">Reduce Task</text>
-          <rect x="445" y="234" width="230" height="24" rx="4" fill="#1f2937" stroke="#475569" />
-          <text x="560" y="250" textAnchor="middle" fontSize="9" fill="#94a3b8">HDFS DataNode (yerel blok)</text>
-        </g>
-
-        {/* Bağlantılar */}
-        <line x1="130" y1="150" x2="198" y2="150" stroke="#64748b" strokeWidth="1.5" markerEnd="url(#arrowH)" />
-        <line x1="350" y1="135" x2="428" y2="80" stroke="#64748b" strokeWidth="1.5" markerEnd="url(#arrowH)" />
-        <line x1="350" y1="165" x2="428" y2="220" stroke="#64748b" strokeWidth="1.5" markerEnd="url(#arrowH)" />
-      </svg>
-      <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2 text-[10px]">
-        <div className="bvbb-stage-map rounded px-2 py-1 text-center">Map task → veriye yakın çalışır</div>
-        <div className="bvbb-stage-shuffle rounded px-2 py-1 text-center">Ara veri ağ üzerinden taşınır</div>
-        <div className="bvbb-stage-reduce rounded px-2 py-1 text-center">Reduce task → toplama yapar</div>
+    <div>
+      <div className="flex items-center gap-3">
+        {meyveler.map((m) => (
+          <button
+            key={m}
+            type="button"
+            className={DUGME}
+            disabled={dolu}
+            onClick={() => setListe((o) => (o.length >= 10 ? o : [...o, m]))}
+          >
+            <Plus className="w-4 h-4" /> {m}
+          </button>
+        ))}
+        <button type="button" className={DUGME_IKINCIL} onClick={() => setListe([])}>
+          <RotateCcw className="w-4 h-4" /> Temizle
+        </button>
+        <TikIpucu>{dolu ? "Liste doldu, temizle" : "Kelime ekle"}</TikIpucu>
       </div>
-    </motion.div>
+
+      <div className="mt-4 bvbb-card rounded-xl p-4 space-y-3">
+        <div className="flex items-start gap-3">
+          <span className="w-20 flex-shrink-0 text-sm font-semibold text-gray-400 pt-1">Girdi</span>
+          <span className="font-mono text-lg text-gray-100 min-h-[28px]">
+            {liste.length > 0 ? liste.join(" ") : "(boş)"}
+          </span>
+        </div>
+        <div className="flex items-start gap-3">
+          <span className="w-20 flex-shrink-0 text-sm font-semibold text-gray-400 pt-1">Map</span>
+          <span className="flex flex-wrap gap-1.5 min-h-[66px] content-start">
+            {liste.map((k, i) => (
+              <Cift key={`${k}-${i}`} kelime={k} />
+            ))}
+          </span>
+        </div>
+        <div className="flex items-start gap-3">
+          <span className="w-20 flex-shrink-0 text-sm font-semibold text-gray-400 pt-1">Reduce</span>
+          <span className="flex flex-wrap gap-1.5 min-h-[30px]">
+            {meyveler
+              .filter((m) => liste.includes(m))
+              .map((m) => (
+                <Cift key={m} kelime={m} deger={String(liste.filter((x) => x === m).length)} />
+              ))}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Slayt 8 — bilgisayar sayısı arttıkça sayım kısalır (temsilî) */
+function ParalelOyun() {
+  const secenekler = [
+    { n: 1, sure: "100%", metin: "Tek bilgisayar bütün sayfaları sırayla sayar. En uzun süre bu." },
+    { n: 2, sure: "56%", metin: "İş ikiye bölünür, iki bilgisayar aynı anda sayar. Süre yarıya yaklaşır." },
+    { n: 4, sure: "33%", metin: "Dört bilgisayar aynı anda sayar. Süre iyice kısalır." },
+    {
+      n: 8,
+      sure: "21%",
+      metin: "Sekiz bilgisayar: daha da kısa. Ama işi dağıtmak ve sonuçları toplamak da zaman alır.",
+    },
+  ];
+  const [secim, setSecim] = useState(0);
+  const s = secenekler[secim];
+  return (
+    <div>
+      <div className="flex items-center gap-3">
+        <span className="text-base text-gray-300">Kaç bilgisayar saysın?</span>
+        {secenekler.map((o, i) => (
+          <button key={o.n} type="button" className={CIP(i === secim)} onClick={() => setSecim(i)}>
+            {o.n}
+          </button>
+        ))}
+        <TikIpucu>Sayıyı değiştir</TikIpucu>
+      </div>
+      <div className="mt-4 bvbb-card rounded-xl p-5">
+        <div className="flex flex-wrap gap-2 min-h-[36px]">
+          {Array.from({ length: s.n }).map((_, i) => (
+            <motion.span
+              key={`${s.n}-${i}`}
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.05 }}
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#2563eb]/20 border border-[#2563eb]/50"
+            >
+              <Server className="w-4 h-4 text-[#60a5fa]" />
+            </motion.span>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <span className="w-28 text-sm font-semibold text-gray-400">Sayım süresi</span>
+          <div className="flex-1 h-4 rounded-full bg-white/5 overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-[#60a5fa]"
+              animate={{ width: s.sure }}
+              transition={{ duration: 0.6 }}
+            />
+          </div>
+        </div>
+        <div className="mt-4 text-lg text-gray-100 leading-snug min-h-[52px]">{s.metin}</div>
+      </div>
+      <div className="mt-2 text-sm text-gray-500">Çubuk temsilîdir; gerçek süre işe ve kümeye göre değişir.</div>
+    </div>
   );
 }
 
@@ -379,775 +801,345 @@ function YarnJobDiagram() {
 const slides: Array<(active: boolean) => ReactNode> = [
   /* ─────────────────  1 · KAPAK  ───────────────── */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 2103 · 10. Hafta · Güz Dönemi</Eyebrow>
-        <H1>
-          <span className="bvbb-shimmer">Hadoop MapReduce</span>
-          <br />
-          <span className="text-white">Programlama</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Veriyi taşımak yerine kodu veriye götüren paralel hesaplama modeli.
-          Map &rarr; Shuffle &rarr; Reduce ile petabaytlık dosyaları kümeye dağıtarak
-          işliyoruz.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { name: "Map", tag: "Eşle: (k,v) üret", color: "#22c55e", icon: Split },
-            { name: "Shuffle", tag: "Grupla & sırala", color: "#f59e0b", icon: Shuffle },
-            { name: "Reduce", tag: "İndirge: topla", color: "#2563eb", icon: Combine },
-          ].map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 flex items-center gap-3"
-              style={{ borderColor: `${p.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
-              >
-                <p.icon className="w-5 h-5" style={{ color: p.color }} />
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">{p.name}</div>
-                <div className="text-[10px] text-gray-400">{p.tag}</div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          Öğr. Gör. Osman Can Çetlenbik · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 9. haftadan 10. haftaya</Eyebrow>
-      <H2>HDFS veriyi sakladı; şimdi onu işleyeceğiz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Geçen hafta Hadoop ekosistemini ve HDFS&apos;in büyük dosyaları bloklara bölüp
-        küme düğümlerine dağıtarak sakladığını gördük. Bu hafta soru şu: bu dağıtık
-        veriyi tek bir makineye indirmeden nasıl işleriz?
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#93c5fd]">
-            <HardDrive className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Geçen hafta · HDFS</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#60a5fa] flex-shrink-0" />Dosya 128 MB&apos;lık bloklara bölünür.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#60a5fa] flex-shrink-0" />Her blok 3 kopya halinde düğümlere yayılır.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#60a5fa] flex-shrink-0" />NameNode metadata, DataNode bloğu tutar.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <Cpu className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bu hafta · MapReduce</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />İşleme, verinin durduğu düğümde başlar.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Map ve Reduce iki temel fonksiyonu yazarız.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Hadoop paralelliği, hata toleransını üstlenir.</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3 · BU DERSİN HEDEFİ / AKIŞ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: model → kod → küme</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce MapReduce&apos;ün düşünce modelini kuruyoruz; sonra gerçek bir
-        WordCount programını satır satır yazıyoruz; en son işin YARN üzerinde
-        kümede nasıl koştuğunu ve nasıl optimize edileceğini görüyoruz.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "Programlama Modeli", items: ["Anahtar-değer çiftleri", "Map · Shuffle · Reduce", "Veri yerelliği ilkesi"], icon: Workflow, accent: "#22c55e" },
-          { range: "02", title: "WordCount Kodu", items: ["Mapper sınıfı", "Reducer sınıfı", "Driver & çalıştırma"], icon: Code, accent: "#f59e0b" },
-          { range: "03", title: "Küme & Optimizasyon", items: ["YARN üzerinde job", "Combiner & partitioner", "Sık hatalar"], icon: Server, accent: "#2563eb" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="bvbb-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  4 · BÖLÜM 1 · PROGRAMLAMA MODELİ  ───────────────── */
-  () => (
-    <SectionDivider
-      num="01"
-      total="03"
-      title="MapReduce Programlama Modeli"
-      subtitle="Veriyi merkeze taşıma; kodu veriye taşı. Her şey anahtar-değer çiftleriyle ifade edilir — model bundan ibarettir."
-      bgGradient="linear-gradient(135deg, #16a34a 0%, #22c55e 100%)"
-      shadow="0 20px 60px -10px rgba(34, 197, 94, 0.6)"
-      icon={<Workflow className="w-16 h-16 text-white" />}
+    <Kapak
+      hafta="10. Hafta"
+      vurgu="MapReduce"
+      satir="Böl, say, topla"
+      alt="Büyük bir sayım işini birçok bilgisayara paylaştırmanın yolu. Sınıfta seçim sayar gibi: herkes kendi destesini sayar, sonra toplanır."
+      cipler={[
+        { ad: "Map", etiket: "Herkes kendi parçasını işler", icon: Users, renk: "#0ea5e9" },
+        { ad: "Shuffle", etiket: "Aynılar bir araya gelir", icon: Shuffle, renk: "#a855f7" },
+        { ad: "Reduce", etiket: "Her grup toplanır", icon: Calculator, renk: "#22c55e" },
+      ]}
     />
   ),
 
-  /* ─────────────────  5 · TEMEL FİKİR · VERİ YERELLİĞİ  ───────────────── */
+  /* ─────────────────  2 · SORUN (TAHMİN ET)  ───────────────── */
   () => (
-    <SlideShell>
-      <Eyebrow>Temel fikir</Eyebrow>
-      <H2>
-        Kodu veriye götür, <span className="bvbb-shimmer-sky">veriyi koda değil</span>
-      </H2>
-      <Sub className="mt-3 max-w-3xl">
-        Terabaytlarca veriyi ağ üzerinden tek bir hesaplama düğümüne çekmek
-        pahalıdır. MapReduce küçük olan kodu, verinin zaten durduğu düğüme yollar.
-      </Sub>
+    <Slayt
+      etiket="Sorun"
+      baslik="Kalın bir kitapta kelimeyi tek başına sayar mısın?"
+      alt="Geçen hafta dosyayı parçalara bölüp kümeye dağıttık. Şimdi o parçaların içinde bir şey saymak istiyoruz."
+      soru="Bu işi sınıfça yapsak aramızda nasıl paylaşırdık?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <TahminKarti
+          soru="1000 sayfalık kitapta “veri” kelimesini tek kişi sayarsa?"
+          cevap="Saatler sürer; yorulunca hata da yapar. Tek bilgisayar için de durum aynıdır."
+        />
+        <TahminKarti
+          soru="Kitabı 40 kişiye paylaştırırsak?"
+          cevap="Herkese az sayfa düşer ve herkes aynı anda sayar. İş dakikalara iner."
+        />
+        <TahminKarti
+          soru="Geriye hangi iş kalır?"
+          cevap="40 ayrı sonucu birleştirmek. MapReduce, bu paylaş–say–birleştir düzeninin adıdır."
+        />
+      </div>
+    </Slayt>
+  ),
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+  /* ─────────────────  3 · BENZETME  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Benzetme"
+      baslik="MapReduce, sınıfta seçim sayımı gibidir"
+      alt="Sınıf başkanlığı seçimi yaptık. Sandıktan çıkan pusulalar sıralara deste deste dağıtıldı."
+      soru="Bütün pusulaları tek kişi sayarsa ne ters gidebilir?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FeatureCard
-          icon={Network}
-          title="Veri yerelliği (data locality)"
-          desc="Map görevi, işleyeceği HDFS bloğunun bulunduğu düğümde başlatılır — ağ trafiği en aza iner."
-          delay={0.0}
+          icon={Users}
+          title="1. Herkes kendi destesini sayar"
+          desc="Kimse başkasının destesine bakmaz. Bu adımın adı map (eşle)."
+          accent="#0ea5e9"
+        />
+        <FeatureCard
+          icon={Shuffle}
+          title="2. Aynı aday aynı masaya"
+          desc="Aynı adaya ait pusulalar bir araya getirilir. Bu adımın adı shuffle (grupla)."
+          delay={0.1}
+          accent="#a855f7"
+        />
+        <FeatureCard
+          icon={Calculator}
+          title="3. Her masa toplamını söyler"
+          desc="Masadaki pusulalar toplanır, sonuç tahtaya yazılır. Bu adımın adı reduce (topla)."
+          delay={0.2}
           accent="#22c55e"
         />
+      </div>
+    </Slayt>
+  ),
+
+  /* ─────────────────  4 · ANAHTAR–DEĞER  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Kavram"
+      baslik="Her şey bir etiket ve bir sayıdır"
+      alt="MapReduce'ta bilgi hep ikili hâlde dolaşır: (etiket, sayı). Bilgisayarcılar buna (anahtar, değer) çifti der."
+      soru="Markette en çok satılan ürünü sayıyor olsaydık etiket ne olurdu?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FeatureCard
-          icon={Boxes}
-          title="Otomatik paralellik"
-          desc="Her blok için ayrı bir map görevi açılır; yüzlerce görev aynı anda farklı düğümlerde koşar."
-          delay={0.1}
-          accent="#2563eb"
+          icon={Target}
+          title="Etiket: anahtar (key)"
+          desc="Neyi saydığımızı söyler: bir kelime, bir adayın adı, bir ürün."
         />
         <FeatureCard
-          icon={Zap}
-          title="Hata toleransı"
-          desc="Bir görev çöken düğümde başarısız olursa Hadoop onu başka düğümde otomatik yeniden çalıştırır."
+          icon={Plus}
+          title="Sayı: değer (value)"
+          desc="O an gördüğümüz adet. Kelime sayarken hep 1 yazarız: (veri, 1)."
+          delay={0.1}
+          accent="#22c55e"
+        />
+        <TahminKarti
+          soru="Üzerinde “Ayşe” yazan pusula için çift ne olur?"
+          cevap="(Ayşe, 1). Üç pusula görürsek üç ayrı (Ayşe, 1) yazarız; toplamak sonraki adımın işi."
+        />
+      </div>
+    </Slayt>
+  ),
+
+  /* ─────────────────  5 · KELİME SAYMA CANLANDIRMASI  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Adım adım"
+      baslik="Kelime sayma adım adım ilerler"
+      soru="İleri'ye basmadan önce: bir sonraki adımda ekranda ne göreceğiz?"
+    >
+      <KelimeSayma />
+    </Slayt>
+  ),
+
+  /* ─────────────────  6 · OYNA-GÖR: KELİME EKLE  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Oyna, gör"
+      baslik="Kelime ekle, sayımı izle"
+      soru="Üç kez “elma” eklersem map kaç çift üretir, reduce ne yazar?"
+    >
+      <KelimeEkle />
+    </Slayt>
+  ),
+
+  /* ─────────────────  7 · MİNİ SINAV  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Hızlı yoklama"
+      baslik="Buraya kadar anlaştık mı?"
+      soru="Tıklamadan önce el kaldıralım: kim hangi şıkkı seçiyor?"
+    >
+      <MiniSinav
+        s={{
+          soru: "Aynı kelimeye ait çiftleri bir araya getiren adım hangisidir?",
+          siklar: ["Map", "Shuffle", "Reduce", "Böl"],
+          dogru: 1,
+          aciklama:
+            "Shuffle, aynı etiketli çiftleri aynı kutuda toplar; seçimdeki “aynı aday aynı masaya” adımıdır.",
+        }}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  8 · PARALEL ÇALIŞMA  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Oyna, gör"
+      baslik="Bilgisayar çoğaldıkça sayım kısalır"
+      soru="Bilgisayar sayısını iki katına çıkarınca süre neden tam yarıya inmez?"
+    >
+      <ParalelOyun />
+    </Slayt>
+  ),
+
+  /* ─────────────────  9 · HATA OLURSA  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Kavram"
+      baslik="Biri yarıda kalırsa sayım bozulmaz"
+      alt="Sayım görevlilerinden biri hastalanıp çıkarsa seçim iptal olmaz; yalnızca onun destesi yeniden sayılır."
+      soru="Hastalanan görevlinin destesine ne olur?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FeatureCard
+          icon={Repeat}
+          title="Görev yeniden verilir"
+          desc="Bir bilgisayar yarıda kalırsa onun parçası başka bir bilgisayara verilir."
+        />
+        <FeatureCard
+          icon={Check}
+          title="Baştan başlanmaz"
+          desc="Diğer bilgisayarların saydıkları geçerli kalır. Yalnızca eksik parça yeniden sayılır."
+          delay={0.1}
+          accent="#22c55e"
+        />
+        <TahminKarti
+          soru="Bunu mümkün kılan ne?"
+          cevap="Geçen haftaki kopyalar. Parçanın kopyası başka bilgisayarda durduğu için orada yeniden sayılır."
+        />
+      </div>
+    </Slayt>
+  ),
+
+  /* ─────────────────  10 · ZAYIF YAN  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Sınırlar"
+      baslik="MapReduce sağlamdır ama yavaştır"
+      alt="Fikir bugün de geçerli. Ancak yeni işlerin çoğu artık aynı fikri daha hızlı uygulayan araçlarla yazılıyor."
+      soru="Ders çalışırken her sayfadan sonra defteri dolaba kaldırsaydın ne olurdu?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FeatureCard
+          icon={HardDrive}
+          title="Her adımda diske yazar"
+          desc="Ara sonuçlar bellekte tutulmaz, diske yazılıp geri okunur. Disk yavaş olduğu için süre uzar."
+          accent="#ef4444"
+        />
+        <FeatureCard
+          icon={Timer}
+          title="Küçük işte bile hazırlığı uzun"
+          desc="Üç satırlık dosya için bile işi dağıtmak ve toplamak zaman alır."
+          delay={0.1}
+          accent="#f59e0b"
+        />
+        <FeatureCard
+          icon={FileText}
+          title="Kodu uzundur"
+          desc="Klasik MapReduce programı Java ile yazılır ve basit bir sayım bile onlarca satır tutar."
           delay={0.2}
           accent="#a855f7"
         />
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 bvbb-card rounded-xl p-4 flex items-start gap-3"
-      >
-        <Lightbulb className="w-5 h-5 text-[#60a5fa] flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-gray-300">
-          <span className="bvbb-token">Sonuç</span> Programcı yalnızca iki fonksiyon
-          yazar; dağıtım, sıralama, kopyalama ve yeniden deneme işlerini çatı
-          (framework) üstlenir.
-        </p>
-      </motion.div>
-    </SlideShell>
+    </Slayt>
   ),
 
-  /* ─────────────────  6 · ÜÇ AŞAMA · KEY-VALUE  ───────────────── */
+  /* ─────────────────  11 · PYSPARK ÖN İZLEME  ───────────────── */
   () => (
-    <SlideShell>
-      <Eyebrow>Veri tipi · her şey (anahtar, değer)</Eyebrow>
-      <H2>Üç aşama, tek veri tipi</H2>
-      <Sub className="mt-3 max-w-3xl">
-        MapReduce&apos;te her aşamanın girdisi ve çıktısı bir anahtar-değer çifti
-        listesidir. Aşamalar arasındaki dönüşümü ezberlemek modeli anlamanın anahtarıdır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        {[
+    <Slayt
+      etiket="Kod · ön izleme"
+      baslik="Aynı sayım Python ile 5 satır"
+      soru="Hangi satır map adımı, hangi satır reduce adımı?"
+    >
+      <KodSatirlari
+        cikti="[('bulut', 3), ('veri', 4), ('büyük', 2)]"
+        satirlar={[
           {
-            tier: "Map",
-            sub: "Eşle",
-            color: "#22c55e",
-            icon: Split,
-            io: "(k1, v1) → list(k2, v2)",
-            desc: "Her girdi kaydını bağımsızca işler ve ara çiftler üretir. Filtreleme ve dönüştürme burada yapılır.",
+            kod: 'satirlar = sc.textFile("metin.txt")',
+            aciklama:
+              "Dosyayı açar; her satır bir eleman olur. sc, Spark'a bağlantımızın adı. Ayrıntısı gelecek hafta.",
           },
           {
-            tier: "Shuffle & Sort",
-            sub: "Grupla",
-            color: "#f59e0b",
-            icon: Shuffle,
-            io: "k2 → list(v2)",
-            desc: "Çatının otomatik yaptığı adım: aynı anahtarlı tüm değerleri tek listede toplar ve anahtara göre sıralar.",
+            kod: "kelimeler = satirlar.flatMap(lambda satir: satir.split())",
+            aciklama:
+              "Her satırı boşluklardan kelimelere böler. lambda, tek satırlık küçük bir tarif demek.",
           },
           {
-            tier: "Reduce",
-            sub: "İndirge",
-            color: "#2563eb",
-            icon: Combine,
-            io: "(k2, list(v2)) → list(k3, v3)",
-            desc: "Bir anahtara ait değer listesini tek bir sonuca indirger: toplam, sayım, ortalama, en büyük vb.",
+            kod: "ciftler = kelimeler.map(lambda kelime: (kelime, 1))",
+            aciklama: "Map adımı: her kelimenin yanına 1 yazar. Sonuç (kelime, 1) çiftleridir.",
           },
-        ].map((m, i) => (
-          <motion.div
-            key={m.tier}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bvbb-card rounded-xl p-5"
-            style={{ borderColor: `${m.color}55` }}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${m.color}25`, border: `1px solid ${m.color}66` }}
-              >
-                <m.icon className="w-5 h-5" style={{ color: m.color }} />
-              </div>
-              <div>
-                <div className="text-base font-bold text-white">{m.tier}</div>
-                <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">{m.sub}</div>
-              </div>
-            </div>
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Tip imzası</div>
-            <div
-              className="font-mono text-[11px] rounded px-2 py-1.5 mb-3"
-              style={{ background: `${m.color}12`, color: m.color, border: `1px solid ${m.color}33` }}
-            >
-              {m.io}
-            </div>
-            <p className="text-xs text-gray-400 leading-relaxed">{m.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-center text-[11px] text-gray-500"
-      >
-        Shuffle aşamasını sen yazmazsın — ama maliyetini (ağ trafiği) hep aklında tut.
-      </motion.div>
-    </SlideShell>
+          {
+            kod: "sayim = ciftler.reduceByKey(lambda a, b: a + b)",
+            aciklama:
+              "Shuffle ve reduce birlikte: aynı kelimenin 1'lerini bir araya getirir ve toplar.",
+          },
+          {
+            kod: "print(sayim.collect())",
+            aciklama: "Sonucu ister ve ekrana yazar. Kelimelerin sırası her çalıştırmada değişebilir.",
+          },
+        ]}
+      />
+    </Slayt>
   ),
 
-  /* ─────────────────  7 · WORDCOUNT VERİ AKIŞI (diyagram)  ───────────────── */
+  /* ─────────────────  12 · SINIFTA DENEYELİM  ───────────────── */
   () => (
-    <SlideShell>
-      <Eyebrow>Klasik örnek · WordCount</Eyebrow>
-      <H2 className="mb-2">Üç satır metin, baştan sona akış</H2>
-      <Sub className="max-w-3xl mb-6">
-        MapReduce&apos;ün &quot;merhaba dünya&quot;sı: bir metindeki kelimeleri saymak.
-        Girdiden çıktıya her aşamada verinin nasıl dönüştüğünü izleyelim.
-      </Sub>
-      <WordCountDataflow />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Dikkat</span> Map çıktısındaki her kelime için
-        değer her zaman <span className="font-mono text-gray-300">1</span>&apos;dir; gerçek sayım Reduce&apos;te toplanarak çıkar.
-      </motion.div>
-    </SlideShell>
+    <Slayt
+      etiket="Sınıfta deneyelim · 8–10 dk"
+      baslik="Kâğıtla kelime sayalım"
+      soru="Hangi adım en çok zaman aldı? Neden?"
+    >
+      <AdimAdim
+        adimlar={[
+          {
+            baslik: "Böl",
+            metin: "Hoca kısa bir paragrafı cümle cümle sıralara dağıtır. Her sıra bir bilgisayardır.",
+          },
+          {
+            baslik: "Map",
+            metin: "Herkes cümlesindeki her kelimeyi ayrı bir küçük kâğıda yazar. Saymak yok, yalnızca yaz.",
+          },
+          {
+            baslik: "Shuffle",
+            metin: "Kâğıtlar toplanır; aynı kelimeyi taşıyanlar aynı masaya konur.",
+          },
+          {
+            baslik: "Reduce",
+            metin: "Her masanın başına bir kişi geçer, kâğıtları sayar ve toplamı tahtaya yazar.",
+          },
+        ]}
+      />
+    </Slayt>
   ),
 
-  /* ─────────────────  8 · BÖLÜM 2 · KOD  ───────────────── */
+  /* ─────────────────  13 · KENDİNİ DENE  ───────────────── */
   () => (
-    <SectionDivider
-      num="02"
-      total="03"
-      title="WordCount&apos;u Koda Dökmek"
-      subtitle="Modeli anladık; şimdi Java ile Mapper, Reducer ve Driver sınıflarını yazıp gerçek bir Hadoop programı kuruyoruz."
-      bgGradient="linear-gradient(135deg, #d97706 0%, #f59e0b 100%)"
-      shadow="0 20px 60px -10px rgba(245, 158, 11, 0.55)"
-      icon={<Code className="w-16 h-16 text-white" />}
+    <Slayt
+      etiket="Kendini dene"
+      baslik="Üç soruda bugünün dersi"
+      soru="Yanlış şıklar neden yanlış? Birini seçip açıklayın."
+    >
+      <KendiniDene
+        sorular={[
+          {
+            soru: "Map adımı “veri veri bulut” satırı için ne üretir?",
+            siklar: [
+              "(veri, 2), (bulut, 1)",
+              "(veri, 1), (veri, 1), (bulut, 1)",
+              "Yalnızca 3 sayısını",
+              "(bulut, veri)",
+            ],
+            dogru: 1,
+            aciklama: "Map toplamaz; gördüğü her kelime için ayrı bir (kelime, 1) yazar.",
+          },
+          {
+            soru: "Reduce adımı ne yapar?",
+            siklar: [
+              "Dosyayı parçalara böler",
+              "Kelimeleri alfabeye göre sıralar",
+              "Aynı etikete ait sayıları toplar",
+              "Parçaların kopyasını çıkarır",
+            ],
+            dogru: 2,
+            aciklama: "Reduce, aynı kutuya düşen değerleri tek bir sonuca indirir: (veri, 4) gibi.",
+          },
+          {
+            soru: "MapReduce neden yavaş kalabilir?",
+            siklar: [
+              "Ara sonuçları her adımda diske yazdığı için",
+              "Yalnızca tek bilgisayarda çalıştığı için",
+              "Kelime saymaktan başka iş yapamadığı için",
+              "Kopya tutmadığı için",
+            ],
+            dogru: 0,
+            aciklama: "Diske yazıp geri okumak, bellekte tutmaktan çok daha yavaştır.",
+          },
+        ]}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  14 · AKLINDA KALSIN  ───────────────── */
+  () => (
+    <UcSey
+      maddeler={[
+        "MapReduce üç adımdır: map (etiketle), shuffle (grupla), reduce (topla).",
+        "Bilgi hep (etiket, sayı) çifti olarak dolaşır: (kelime, 1) gibi.",
+        "İş birçok bilgisayarda aynı anda yürür; sağlamdır ama diske yazdığı için yavaştır.",
+      ]}
+      kopru="Aynı sayımı bellekte, çok daha hızlı yapan araçla tanışacağız: Apache Spark."
     />
-  ),
-
-  /* ─────────────────  9 · MAPPER SINIFI (kod)  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Kod · TokenizerMapper</Eyebrow>
-      <H2 className="mb-2">Mapper: satırı kelimelere böl</H2>
-      <Sub className="max-w-3xl mb-6">
-        <span className="font-mono text-[#93c5fd]">map()</span> her metin satırı için bir kez çağrılır.
-        Satırı kelimelere ayırır ve her kelime için <span className="font-mono text-gray-300">(kelime, 1)</span> çifti yazar.
-      </Sub>
-      <CodeWindow title="TokenizerMapper.java">
-        <div><span className="bvbb-code-kw">public class</span> <span className="bvbb-code-fn">TokenizerMapper</span></div>
-        <div>{"    "}<span className="bvbb-code-kw">extends</span> Mapper&lt;Object, Text, Text, IntWritable&gt; {"{"}</div>
-        <div>{" "}</div>
-        <div>{"  "}<span className="bvbb-code-kw">private final static</span> IntWritable one = <span className="bvbb-code-kw">new</span> <span className="bvbb-code-fn">IntWritable</span>(<span className="bvbb-code-num">1</span>);</div>
-        <div>{"  "}<span className="bvbb-code-kw">private</span> Text word = <span className="bvbb-code-kw">new</span> <span className="bvbb-code-fn">Text</span>();</div>
-        <div>{" "}</div>
-        <div>{"  "}<span className="bvbb-code-com">// her girdi satırı için bir kez çağrılır</span></div>
-        <div>{"  "}<span className="bvbb-code-kw">public void</span> <span className="bvbb-code-fn">map</span>(Object key, Text value, Context context)</div>
-        <div>{"      "}<span className="bvbb-code-kw">throws</span> IOException, InterruptedException {"{"}</div>
-        <div>{"    "}StringTokenizer itr = <span className="bvbb-code-kw">new</span> <span className="bvbb-code-fn">StringTokenizer</span>(value.<span className="bvbb-code-fn">toString</span>());</div>
-        <div>{"    "}<span className="bvbb-code-kw">while</span> (itr.<span className="bvbb-code-fn">hasMoreTokens</span>()) {"{"}</div>
-        <div>{"      "}word.<span className="bvbb-code-fn">set</span>(itr.<span className="bvbb-code-fn">nextToken</span>());</div>
-        <div>{"      "}context.<span className="bvbb-code-fn">write</span>(word, one);  <span className="bvbb-code-com">// (kelime, 1)</span></div>
-        <div>{"    "}{"}"}</div>
-        <div>{"  "}{"}"}</div>
-        <div>{"}"}</div>
-      </CodeWindow>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · REDUCER SINIFI (kod)  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Kod · IntSumReducer</Eyebrow>
-      <H2 className="mb-2">Reducer: aynı kelimenin 1&apos;lerini topla</H2>
-      <Sub className="max-w-3xl mb-6">
-        <span className="font-mono text-[#93c5fd]">reduce()</span> her benzersiz kelime için bir kez çağrılır;
-        Shuffle&apos;ın hazırladığı değer listesini (örn. <span className="font-mono text-gray-300">[1,1,1]</span>) toplayıp sonucu yazar.
-      </Sub>
-      <CodeWindow title="IntSumReducer.java">
-        <div><span className="bvbb-code-kw">public class</span> <span className="bvbb-code-fn">IntSumReducer</span></div>
-        <div>{"    "}<span className="bvbb-code-kw">extends</span> Reducer&lt;Text, IntWritable, Text, IntWritable&gt; {"{"}</div>
-        <div>{" "}</div>
-        <div>{"  "}<span className="bvbb-code-kw">private</span> IntWritable result = <span className="bvbb-code-kw">new</span> <span className="bvbb-code-fn">IntWritable</span>();</div>
-        <div>{" "}</div>
-        <div>{"  "}<span className="bvbb-code-com">// her benzersiz anahtar (kelime) için bir kez çağrılır</span></div>
-        <div>{"  "}<span className="bvbb-code-kw">public void</span> <span className="bvbb-code-fn">reduce</span>(Text key, Iterable&lt;IntWritable&gt; values,</div>
-        <div>{"      "}Context context) <span className="bvbb-code-kw">throws</span> IOException, InterruptedException {"{"}</div>
-        <div>{"    "}<span className="bvbb-code-kw">int</span> sum = <span className="bvbb-code-num">0</span>;</div>
-        <div>{"    "}<span className="bvbb-code-kw">for</span> (IntWritable val : values) {"{"}</div>
-        <div>{"      "}sum += val.<span className="bvbb-code-fn">get</span>();  <span className="bvbb-code-com">// 1 + 1 + 1 ...</span></div>
-        <div>{"    "}{"}"}</div>
-        <div>{"    "}result.<span className="bvbb-code-fn">set</span>(sum);</div>
-        <div>{"    "}context.<span className="bvbb-code-fn">write</span>(key, result);  <span className="bvbb-code-com">// (kelime, toplam)</span></div>
-        <div>{"  "}{"}"}</div>
-        <div>{"}"}</div>
-      </CodeWindow>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  11 · DRIVER + ÇALIŞTIRMA (kod/terminal)  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Kod · Driver &amp; çalıştırma</Eyebrow>
-      <H2 className="mb-2">Job&apos;ı kur, paketle, kümede çalıştır</H2>
-      <Sub className="max-w-3xl mb-6">
-        Driver, Mapper/Reducer&apos;ı bir Job nesnesine bağlar ve girdi/çıktı
-        yollarını tanımlar. Sonra <span className="font-mono text-gray-300">hadoop jar</span> komutu işi kümeye gönderir.
-      </Sub>
-      <CodeWindow title="WordCount.java — main()  +  terminal">
-        <div>{"  "}Configuration conf = <span className="bvbb-code-kw">new</span> <span className="bvbb-code-fn">Configuration</span>();</div>
-        <div>{"  "}Job job = Job.<span className="bvbb-code-fn">getInstance</span>(conf, <span className="bvbb-code-str">&quot;word count&quot;</span>);</div>
-        <div>{"  "}job.<span className="bvbb-code-fn">setJarByClass</span>(WordCount.<span className="bvbb-code-kw">class</span>);</div>
-        <div>{"  "}job.<span className="bvbb-code-fn">setMapperClass</span>(TokenizerMapper.<span className="bvbb-code-kw">class</span>);</div>
-        <div>{"  "}job.<span className="bvbb-code-fn">setCombinerClass</span>(IntSumReducer.<span className="bvbb-code-kw">class</span>);  <span className="bvbb-code-com">// yerel ön-toplama</span></div>
-        <div>{"  "}job.<span className="bvbb-code-fn">setReducerClass</span>(IntSumReducer.<span className="bvbb-code-kw">class</span>);</div>
-        <div>{"  "}job.<span className="bvbb-code-fn">setOutputKeyClass</span>(Text.<span className="bvbb-code-kw">class</span>);</div>
-        <div>{"  "}job.<span className="bvbb-code-fn">setOutputValueClass</span>(IntWritable.<span className="bvbb-code-kw">class</span>);</div>
-        <div>{"  "}FileInputFormat.<span className="bvbb-code-fn">addInputPath</span>(job, <span className="bvbb-code-kw">new</span> <span className="bvbb-code-fn">Path</span>(args[<span className="bvbb-code-num">0</span>]));</div>
-        <div>{"  "}FileOutputFormat.<span className="bvbb-code-fn">setOutputPath</span>(job, <span className="bvbb-code-kw">new</span> <span className="bvbb-code-fn">Path</span>(args[<span className="bvbb-code-num">1</span>]));</div>
-        <div>{"  "}System.<span className="bvbb-code-fn">exit</span>(job.<span className="bvbb-code-fn">waitForCompletion</span>(<span className="bvbb-code-kw">true</span>) ? <span className="bvbb-code-num">0</span> : <span className="bvbb-code-num">1</span>);</div>
-        <div className="bvbb-code-com mt-2">──────────────────────────────────────</div>
-        <div><span className="bvbb-code-prompt">student@cluster</span>:~$ <span className="bvbb-code-out">hadoop jar wc.jar WordCount /veri/kitap.txt /cikti</span></div>
-        <div className="bvbb-code-out">map 0% reduce 0%  ...  map 100% reduce 100%</div>
-        <div className="bvbb-code-out">Job job_1729_0007 completed successfully</div>
-        <div><span className="bvbb-code-prompt">student@cluster</span>:~$ <span className="bvbb-code-out">hdfs dfs -cat /cikti/part-r-00000</span></div>
-        <div className="bvbb-code-out">bulut   42</div>
-        <div className="bvbb-code-out">veri    87</div>
-      </CodeWindow>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  12 · BÖLÜM 3 · KÜME & OPTİMİZASYON  ───────────────── */
-  () => (
-    <SectionDivider
-      num="03"
-      total="03"
-      title="Küme Üzerinde Çalışma"
-      subtitle="İş YARN&apos;a gider, görevler düğümlere dağılır. Combiner, partitioner ve doğru görev sayısı performansı belirler."
-      bgGradient="linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)"
-      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.6)"
-      icon={<Server className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  13 · YARN ÜZERİNDE JOB (diyagram)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Yürütme · YARN topolojisi</Eyebrow>
-      <H2 className="mb-2">Bir job kümede nasıl koşar?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Client işi ResourceManager&apos;a gönderir; o da görevleri verinin durduğu
-        düğümlerdeki NodeManager&apos;lara dağıtır. ApplicationMaster tek bir işin
-        yaşam döngüsünü yönetir.
-      </Sub>
-      <YarnJobDiagram />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  14 · COMBINER & PARTITIONER (karşılaştırma)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>İki kritik ayar</Eyebrow>
-      <H2>Combiner ve Partitioner</H2>
-      <Sub className="mt-3 max-w-3xl">
-        İkisi de Shuffle aşamasının etrafında çalışır: biri ağ trafiğini azaltır,
-        diğeri hangi anahtarın hangi reducer&apos;a gideceğini belirler.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <GitMerge className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Combiner · &quot;mini reducer&quot;</span>
-          </div>
-          <p className="text-sm text-gray-300 mb-3">
-            Map çıktısını, henüz ağdan geçmeden o düğümde yerel olarak ön-toplar.
-            WordCount&apos;ta <span className="font-mono text-gray-300">(the,1)(the,1)(the,1)</span> yerine
-            tek <span className="font-mono text-gray-300">(the,3)</span> gönderilir.
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="bvbb-heat-high rounded p-2">
-              <div className="font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1"><Check className="w-3 h-3" /> Kazanç</div>
-              <div className="mt-1">Çok daha az ağ trafiği</div>
-            </div>
-            <div className="bvbb-heat-mid rounded p-2">
-              <div className="font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Koşul</div>
-              <div className="mt-1">İşlem değişmeli &amp; birleşmeli olmalı</div>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#93c5fd]">
-            <Hash className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Partitioner · anahtar yönlendirme</span>
-          </div>
-          <p className="text-sm text-gray-300 mb-3">
-            Her ara anahtarı hangi reducer&apos;ın işleyeceğine karar verir.
-            Varsayılan: <span className="font-mono text-gray-300">hash(key) % R</span>. Böylece aynı anahtar her zaman aynı reducer&apos;a düşer.
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="bvbb-heat-high rounded p-2">
-              <div className="font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1"><Check className="w-3 h-3" /> Amaç</div>
-              <div className="mt-1">Dengeli yük dağılımı</div>
-            </div>
-            <div className="bvbb-heat-low rounded p-2">
-              <div className="font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1"><X className="w-3 h-3" /> Risk</div>
-              <div className="mt-1">Çarpık anahtar = yavaş reducer</div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  15 · SIK YAPILAN HATALAR (tablo)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Sahadan · sık hatalar</Eyebrow>
-      <H2>MapReduce&apos;te tökezlenen yerler</H2>
-      <Sub className="mt-3 max-w-3xl">
-        İlk programlarda en çok karşılaşılan beş tuzak ve doğru yaklaşım.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-7 bvbb-card rounded-xl overflow-hidden"
-      >
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#1e293b] text-gray-300">
-              <th className="text-left px-4 py-3 font-semibold">Belirti</th>
-              <th className="text-left px-4 py-3 font-semibold">
-                <X className="inline w-4 h-4 mr-1.5 -mt-0.5 text-red-400" />
-                Yanlış
-              </th>
-              <th className="text-left px-4 py-3 font-semibold">
-                <Check className="inline w-4 h-4 mr-1.5 -mt-0.5 text-[#34d399]" />
-                Doğru
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-300">
-            {[
-              {
-                k: "Çıktı klasörü hatası",
-                op: "Var olan /cikti dizinine yazmaya çalışmak",
-                cl: "Her çalıştırmadan önce çıktı yolunu boş/yeni seç",
-              },
-              {
-                k: "Combiner toplamı bozuyor",
-                op: "Ortalama gibi birleşmez işlemi combiner&apos;a vermek",
-                cl: "Yalnızca toplam/sayım/min-maks gibi işlemlerde kullan",
-              },
-              {
-                k: "Tek reducer darboğazı",
-                op: "Tüm anahtarların tek reducer&apos;a düşmesi",
-                cl: "Reducer sayısını artır, partitioner ile dağıt",
-              },
-              {
-                k: "Bellek taşması (OOM)",
-                op: "reduce() içinde tüm değerleri listeye biriktirmek",
-                cl: "Iterable üzerinde tek geçişte akıtarak işle",
-              },
-              {
-                k: "Yazılabilir tip uyuşmazlığı",
-                op: "String/int kullanmak",
-                cl: "Text, IntWritable, LongWritable kullan",
-              },
-            ].map((row, i) => (
-              <motion.tr
-                key={row.k}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.08 }}
-                className="border-t border-white/5"
-              >
-                <td className="px-4 py-3 font-medium text-white">{row.k}</td>
-                <td className="px-4 py-3 text-gray-400">{row.op}</td>
-                <td className="px-4 py-3 text-[#93c5fd]">{row.cl}</td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · UYGULAMALI LAB  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-      <H2>Kendi MapReduce işini çalıştır</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Lab tek düğümlü bir Hadoop kurulumunda (pseudo-distributed) yapılır.
-        Sonraki derse dört adımı tamamlayıp çıktının ekran görüntüsünü almış gelmen beklenir.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: FileText, title: "Veriyi HDFS&apos;e yükle", desc: "hdfs dfs -put kitap.txt /veri ile bir metin dosyasını dağıtık dosya sistemine koy.", accent: "#22c55e" },
-          { icon: Code, title: "WordCount&apos;u derle &amp; paketle", desc: "Mapper, Reducer ve Driver&apos;ı derleyip wc.jar olarak paketle.", accent: "#f59e0b" },
-          { icon: Terminal, title: "Job&apos;ı çalıştır", desc: "hadoop jar wc.jar WordCount /veri /cikti ile işi başlat; map/reduce yüzdesini izle.", accent: "#2563eb" },
-          { icon: ListChecks, title: "En sık 5 kelimeyi raporla", desc: "part-r-00000 çıktısını oku; ikinci bir MapReduce ile (veya sort) en sık 5 kelimeyi çıkar.", accent: "#a855f7" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white" dangerouslySetInnerHTML={{ __html: t.title }} />
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.desc }} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">İpucu</span> Önce çok küçük bir dosyayla dene;
-        çalıştığını gördükten sonra büyük girdiye geç — hata ayıklamak çok kolaylaşır.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  17 · SIRADAKİ HAFTA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Hafta 11 Önizleme</Eyebrow>
-      <H2>
-        MapReduce&apos;ten <span className="bvbb-shimmer-sky">Apache Spark</span>&apos;a
-      </H2>
-      <Sub className="mt-3 max-w-3xl">
-        MapReduce her aşamada ara sonucu diske yazar; bu çok iterasyonlu işlerde
-        yavaştır. Spark veriyi bellekte tutarak aynı modeli onlarca kat hızlandırır.
-        Gelecek hafta bu geçişi konuşacağız.
-      </Sub>
-
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FeatureCard
-          icon={Zap}
-          title="Bellek içi işleme"
-          desc="RDD ve DataFrame ile ara veriyi diske yazmadan bellekte tutarak büyük hız kazanımı."
-          delay={0.0}
-          accent="#f59e0b"
-        />
-        <FeatureCard
-          icon={Layers}
-          title="DAG yürütücü"
-          desc="Tek tek map/reduce yerine işlemleri bir yönlü çizge olarak planlayıp optimize eder."
-          delay={0.1}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={Brain}
-          title="Zengin API"
-          desc="SQL, MLlib, Streaming — tek motorda toplu ve akan veri ile makine öğrenmesi."
-          delay={0.2}
-          accent="#22c55e"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 bvbb-card rounded-xl p-5 flex items-center gap-4"
-      >
-        <Database className="w-6 h-6 text-[#60a5fa]" />
-        <div className="flex-1">
-          <div className="text-sm font-semibold text-white">Hazırlık</div>
-          <div className="text-xs text-gray-400 mt-0.5">
-            Bu haftanın WordCount çıktısını yanında getir — aynı problemi Spark ile
-            çözüp satır sayısını karşılaştıracağız.
-          </div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-gray-500" />
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  18 · KAPANIŞ  ───────────────── */
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8"
-          style={{
-            background: "linear-gradient(135deg, #16a34a 0%, #2563eb 100%)",
-            boxShadow: "0 20px 60px -10px rgba(37,99,235,0.6)",
-          }}
-        >
-          <Cpu className="w-12 h-12 text-white" />
-        </motion.div>
-
-        <Eyebrow>Hafta 10 · Özet</Eyebrow>
-        <H1>
-          <span className="bvbb-shimmer">Map · Shuffle · Reduce</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          İki fonksiyon yazdık, kümeye gönderdik, çatı gerisini halletti.
-          Sorular için derslik 7&apos;de buluşuyoruz.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { icon: Split, label: "Map", value: "Satırı (k,v) çiftlerine eşle" },
-            { icon: Shuffle, label: "Shuffle", value: "Çatı anahtara göre grupla/sırala" },
-            { icon: Combine, label: "Reduce", value: "Değer listesini sonuca indirge" },
-          ].map((c, i) => (
-            <motion.div
-              key={c.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 text-left"
-            >
-              <c.icon className="w-5 h-5 text-[#60a5fa] mb-2" />
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider">{c.label}</div>
-              <div className="text-sm font-semibold text-white mt-1">{c.value}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="mt-10 text-[11px] font-mono text-gray-600 flex items-center justify-center gap-2"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>BVA 2103 · Büyük Veri İçin Bulut Bilişim · Güz 2026</span>
-        </motion.div>
-      </div>
-    </SlideShell>
   ),
 ];
 

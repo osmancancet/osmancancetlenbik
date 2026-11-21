@@ -9,30 +9,23 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Share2,
-  Network,
-  GitBranch,
-  Activity,
-  Target,
-  Clock,
-  Users,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
   Check,
-  TrendingUp,
-  Brain,
-  Lightbulb,
-  Database,
+  X,
   Code2,
-  ArrowRight,
-  Calendar,
+  MousePointerClick,
+  RotateCcw,
+  Film,
+  Users,
+  Star,
+  UserPlus,
   Link2,
-  History,
-  GitCompare,
-  Sparkles,
+  Unlink,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -146,123 +139,427 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
+/* ============================================================
+   ORTAK YARDIMCILAR — slayt kalıpları ve tıklanabilir bileşenler
+   ============================================================ */
+
+const BTN =
+  "px-5 py-3 rounded-xl border text-base md:text-lg font-semibold transition-colors cursor-pointer";
+const BTN_IDLE =
+  "bg-white/5 border-[#14b8a6]/40 text-gray-100 hover:border-[#5eead4] hover:bg-[#14b8a6]/15";
+const BTN_ON = "bg-[#14b8a6]/30 border-[#5eead4] text-white";
+const BTN_OK = "bg-emerald-500/25 border-emerald-400 text-white";
+const BTN_NO = "bg-red-500/25 border-red-400 text-white";
+
+type CardInfo = { icon: LucideIcon; title: string; desc: string };
+type ListInfo = { label: string; items: string[] };
+type Question = { q: string; options: string[]; correct: number; why: string };
+type GNode = { id: string; x: number; y: number };
+type GEdge = [string, string];
+
+/** Hocanın sınıfa yönelteceği tek soru — her içerik slaydının altında. */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <p className="mt-5 text-sm text-gray-500">
+      <span className="font-mono text-xs uppercase tracking-widest text-[#14b8a6]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </p>
+  );
+}
+
+/** Standart içerik slaydı: üst etiket + cümle başlık + ortada içerik + Sınıfa sor. */
+function Frame({
+  eyebrow,
   title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+  ask,
+  children,
 }: {
-  num: string;
-  total: string;
+  eyebrow: string;
   title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  ask: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <SlideShell>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <H2 className="mb-6">{title}</H2>
+      <div className="max-w-4xl mx-auto">
+        {children}
+        <Ask>{ask}</Ask>
       </div>
     </SlideShell>
   );
 }
 
-/* ============================================================
-   TOPIC MOCKUPS — AĞ DİNAMİKLERİ & EVRİM
-   ============================================================ */
-
-type EvNode = { id: string; x: number; y: number; r?: number; appears?: number };
-type EvEdge = { from: string; to: string; appears: number };
-
-/* Üç anlık görüntüde (t0, t1, t2) büyüyen küçük bir ağ.
-   step = kaçıncı snapshot'a kadar gösterileceği. */
-function EvolvingGraph({ step }: { step: 0 | 1 | 2 }) {
-  const nodes: EvNode[] = [
-    { id: "A", x: 130, y: 110, r: 22, appears: 0 },
-    { id: "B", x: 330, y: 70, r: 22, appears: 0 },
-    { id: "C", x: 250, y: 240, r: 22, appears: 0 },
-    { id: "D", x: 470, y: 180, r: 22, appears: 1 },
-    { id: "E", x: 110, y: 300, r: 20, appears: 1 },
-    { id: "F", x: 540, y: 70, r: 20, appears: 2 },
-    { id: "G", x: 420, y: 330, r: 20, appears: 2 },
-  ];
-  const edges: EvEdge[] = [
-    { from: "A", to: "B", appears: 0 },
-    { from: "A", to: "C", appears: 0 },
-    { from: "B", to: "C", appears: 0 },
-    { from: "B", to: "D", appears: 1 },
-    { from: "C", to: "E", appears: 1 },
-    { from: "C", to: "D", appears: 1 },
-    { from: "D", to: "F", appears: 2 },
-    { from: "D", to: "G", appears: 2 },
-    { from: "C", to: "G", appears: 2 },
-  ];
-  const find = (id: string) => nodes.find((n) => n.id === id)!;
-  const visNodes = nodes.filter((n) => (n.appears ?? 0) <= step);
-  const visEdges = edges.filter((e) => e.appears <= step);
+function Cover({
+  week,
+  title,
+  sub,
+  cards,
+}: {
+  week: string;
+  title: [string, string];
+  sub: string;
+  cards: CardInfo[];
+}) {
   return (
-    <svg viewBox="0 0 640 400" className="w-full h-auto">
-      {visEdges.map((e, i) => {
-        const a = find(e.from);
-        const b = find(e.to);
-        const isNew = e.appears === step && step > 0;
+    <SlideShell>
+      <div className="text-center">
+        <Eyebrow>BVA 2105 · {week}. Hafta — Sosyal Ağ Analizi</Eyebrow>
+        <H1 className="saa-shimmer">
+          {title[0]}
+          <br />
+          {title[1]}
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{sub}</Sub>
+        <div className="mt-8 max-w-4xl mx-auto text-left">
+          <CardRow cards={cards} />
+        </div>
+      </div>
+    </SlideShell>
+  );
+}
+
+function CardRow({ cards }: { cards: CardInfo[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {cards.map((c, i) => (
+        <FeatureCard
+          key={c.title}
+          icon={c.icon}
+          title={c.title}
+          desc={c.desc}
+          delay={0.15 + i * 0.12}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** Yan yana iki kısa liste (ör. geçen hafta / bu hafta). */
+function TwoLists({ left, right }: { left: ListInfo; right: ListInfo }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {[left, right].map((l, i) => (
+        <motion.div
+          key={l.label}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 + i * 0.15 }}
+          className={`${i === 0 ? "saa-card" : "saa-card-teal"} rounded-xl p-5`}
+        >
+          <div className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-3">
+            {l.label}
+          </div>
+          <ul className="space-y-2.5 text-base md:text-lg text-gray-200">
+            {l.items.map((t) => (
+              <li key={t} className="flex gap-2">
+                <ChevronRight className="w-5 h-5 mt-1 text-[#14b8a6] flex-shrink-0" />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/** Tahmin et → tıkla göster. */
+function Reveal({
+  hint = "Cevabı görmek için tıkla",
+  children,
+}: {
+  hint?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`w-full text-left rounded-xl p-6 transition-colors cursor-pointer ${
+        open ? "saa-card-teal" : "saa-card saa-card-hover"
+      }`}
+    >
+      {open ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="block text-lg md:text-xl text-gray-100 leading-relaxed"
+        >
+          {children}
+        </motion.span>
+      ) : (
+        <span className="flex items-center gap-3 text-lg md:text-xl text-[#5eead4]">
+          <MousePointerClick className="w-6 h-6" />
+          {hint}
+        </span>
+      )}
+    </button>
+  );
+}
+
+/** Ön yüzde soru, tıklayınca arka yüzde cevap. */
+function FlipCards({
+  items,
+}: {
+  items: Array<{ tag: string; front: string; back: string }>;
+}) {
+  const [open, setOpen] = useState<number[]>([]);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {items.map((it, i) => {
+        const on = open.includes(i);
+        return (
+          <button
+            key={it.tag}
+            type="button"
+            onClick={() =>
+              setOpen((o) => (o.includes(i) ? o.filter((x) => x !== i) : [...o, i]))
+            }
+            className={`text-left rounded-xl p-5 min-h-[190px] flex flex-col transition-colors cursor-pointer ${
+              on ? "saa-card-teal" : "saa-card saa-card-hover"
+            }`}
+          >
+            <span className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-2">
+              {it.tag}
+            </span>
+            <span className="text-lg font-semibold text-white leading-snug">
+              {it.front}
+            </span>
+            {on ? (
+              <motion.span
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 text-base text-[#a7f3d0] leading-relaxed"
+              >
+                {it.back}
+              </motion.span>
+            ) : (
+              <span className="mt-auto pt-3 flex items-center gap-2 text-sm text-gray-500">
+                <MousePointerClick className="w-4 h-4" />
+                tıkla, cevabı gör
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Mini sınav: doğru şık yeşil, yanlış kırmızı; doğruysa tek cümle açıklama. */
+function Quiz({
+  questions,
+  row = false,
+  unit = "Soru",
+}: {
+  questions: Question[];
+  row?: boolean;
+  unit?: string;
+}) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const cur = questions[idx];
+  const dogru = picked === cur.correct;
+  const son = idx === questions.length - 1;
+  return (
+    <div className="saa-card rounded-xl p-5">
+      {questions.length > 1 && (
+        <div className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-2">
+          {unit} {idx + 1} / {questions.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white mb-4 leading-snug">
+        {cur.q}
+      </div>
+      <div className={row ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-2.5"}>
+        {cur.options.map((o, i) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => setPicked(i)}
+            className={`${BTN} text-left ${
+              picked === i ? (i === cur.correct ? BTN_OK : BTN_NO) : BTN_IDLE
+            }`}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+      <div className="mt-4 min-h-[52px] flex items-center justify-between gap-4">
+        <div className="text-base md:text-lg">
+          {picked === null && (
+            <span className="text-gray-500">Bir şıkka tıkla.</span>
+          )}
+          {picked !== null && !dogru && (
+            <span className="text-red-300 flex items-center gap-2">
+              <X className="w-5 h-5" /> Olmadı, bir daha dene.
+            </span>
+          )}
+          {dogru && (
+            <span className="text-emerald-300 flex items-start gap-2">
+              <Check className="w-5 h-5 mt-1 flex-shrink-0" /> {cur.why}
+            </span>
+          )}
+        </div>
+        {questions.length > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              setIdx(son ? 0 : idx + 1);
+              setPicked(null);
+            }}
+            className={`${BTN} ${BTN_IDLE} flex-shrink-0`}
+          >
+            {son ? "Baştan" : "Sıradaki"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Adım adım açılan liste (etkinlik yönergesi). */
+function Steps({ items }: { items: Array<{ t: string; d: string }> }) {
+  const [n, setN] = useState(1);
+  const bitti = n >= items.length;
+  return (
+    <div>
+      <div className="space-y-2.5 min-h-[250px]">
+        {items.slice(0, n).map((it, i) => (
+          <motion.div
+            key={it.t}
+            initial={{ opacity: 0, x: -14 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="saa-card rounded-xl px-4 py-3 flex items-center gap-4"
+          >
+            <div className="saa-tick w-9 h-9 flex items-center justify-center shrink-0 text-lg font-bold">
+              {i + 1}
+            </div>
+            <div>
+              <div className="text-lg font-semibold text-white">{it.t}</div>
+              <div className="text-sm text-gray-400">{it.d}</div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => setN(bitti ? 1 : n + 1)}
+        className={`${BTN} ${BTN_IDLE} mt-4 inline-flex items-center gap-2`}
+      >
+        {bitti ? <RotateCcw className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+        {bitti ? "Baştan göster" : `Sonraki adım (${n} / ${items.length})`}
+      </button>
+    </div>
+  );
+}
+
+/** Tek, kısa Python örneği. "#" sonrası yorum olarak soluk yazılır. */
+function CodeCard({ file, lines }: { file: string; lines: string[] }) {
+  return (
+    <div className="saa-window-chrome w-full">
+      <div className="saa-window-bar flex items-center gap-2 px-4 py-2">
+        <Code2 className="w-4 h-4 text-[#5eead4]" />
+        <span className="text-xs font-mono text-[#5eead4]">{file}</span>
+      </div>
+      <pre className="saa-code px-6 py-4 overflow-x-auto m-0" style={{ fontSize: 16 }}>
+        <code>
+          {lines.map((ln, i) => {
+            const k = ln.indexOf("#");
+            return (
+              <span key={i}>
+                {k < 0 ? ln : ln.slice(0, k)}
+                {k >= 0 && <span className="saa-code-cmt">{ln.slice(k)}</span>}
+                {"\n"}
+              </span>
+            );
+          })}
+        </code>
+      </pre>
+    </div>
+  );
+}
+
+/** Küçük ağ çizimi (SVG, 640 birim genişlik). Düğümler tıklanabilir olabilir. */
+function Net({
+  nodes,
+  edges,
+  h = 340,
+  fill,
+  radius,
+  edgeColor,
+  edgeWidth,
+  faded,
+  onNode,
+}: {
+  nodes: GNode[];
+  edges: GEdge[];
+  h?: number;
+  fill?: (id: string) => string | undefined;
+  radius?: (id: string) => number;
+  edgeColor?: (a: string, b: string) => string | undefined;
+  edgeWidth?: (a: string, b: string) => number;
+  faded?: (id: string) => boolean;
+  onNode?: (id: string) => void;
+}) {
+  const pos = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <svg viewBox={`0 0 640 ${h}`} className="w-full h-auto max-h-[40vh]">
+      {edges.map(([a, b]) => {
+        const p = pos.get(a);
+        const q = pos.get(b);
+        if (!p || !q) return null;
+        const soluk = Boolean(faded?.(a)) || Boolean(faded?.(b));
+        const renk = edgeColor?.(a, b) ?? "#5eead4";
         return (
           <line
-            key={`ee-${e.from}-${e.to}`}
-            x1={a.x}
-            y1={a.y}
-            x2={b.x}
-            y2={b.y}
-            stroke={isNew ? "#5eead4" : "#475569"}
-            strokeWidth={isNew ? 2.4 : 1.4}
-            strokeOpacity={isNew ? 0.95 : 0.55}
-            className={isNew ? "saa-edge-new" : ""}
-            style={{ transitionDelay: `${i * 40}ms` }}
+            key={`${a}-${b}`}
+            x1={p.x}
+            y1={p.y}
+            x2={q.x}
+            y2={q.y}
+            stroke={soluk ? "#475569" : renk}
+            strokeWidth={edgeWidth?.(a, b) ?? 2.5}
+            strokeOpacity={soluk ? 0.35 : 0.85}
+            strokeDasharray={soluk ? "4 6" : undefined}
           />
         );
       })}
-      {visNodes.map((n) => {
-        const isNew = (n.appears ?? 0) === step && step > 0;
+      {nodes.map((n) => {
+        const r = radius?.(n.id) ?? 22;
+        const soluk = Boolean(faded?.(n.id));
         return (
-          <g key={n.id}>
+          <g
+            key={n.id}
+            onClick={onNode ? () => onNode(n.id) : undefined}
+            style={{
+              cursor: onNode ? "pointer" : "default",
+              opacity: soluk ? 0.3 : 1,
+              transition: "opacity 0.3s",
+            }}
+          >
+            <circle cx={n.x} cy={n.y} r={r + 12} fill="transparent" />
             <circle
               cx={n.x}
               cy={n.y}
-              r={n.r ?? 20}
-              fill={isNew ? "#0d9488" : "#1f2937"}
-              stroke={isNew ? "#5eead4" : "#475569"}
-              strokeWidth={isNew ? 2.5 : 1.5}
-              className={isNew ? "saa-node-pulse" : ""}
+              r={r}
+              fill={fill?.(n.id) ?? "#0f2a27"}
+              stroke="#5eead4"
+              strokeWidth={2}
+              style={{ transition: "fill 0.3s" }}
             />
             <text
               x={n.x}
-              y={n.y + 5}
+              y={n.y + r + 17}
               textAnchor="middle"
-              fontSize={14}
-              fontWeight={700}
-              fill="#ffffff"
-              fontFamily="Inter, sans-serif"
+              fontSize={15}
+              fontWeight={600}
+              fill="#e5e7eb"
             >
               {n.id}
             </text>
@@ -273,1011 +570,662 @@ function EvolvingGraph({ step }: { step: 0 | 1 | 2 }) {
   );
 }
 
-function EvolutionTimeline() {
-  const frames: Array<{ step: 0 | 1 | 2; label: string; n: number; m: number; note: string }> = [
-    { step: 0, label: "t0", n: 3, m: 3, note: "Başlangıç çekirdeği — 3 düğüm, kapalı üçgen" },
-    { step: 1, label: "t1", n: 5, m: 6, note: "D ve E katıldı; yeni kenarlar mevcut düğümlere bağlandı" },
-    { step: 2, label: "t2", n: 7, m: 9, note: "F ve G çoğunlukla D ve C'ye bağlandı — yüksek dereceli düğüm büyüyor" },
-  ];
+/** Kapanış: Aklında kalsın — 3 şey + gelecek haftaya köprü. */
+function Recap({ items, next }: { items: [string, string, string]; next: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="grid md:grid-cols-3 gap-4"
-    >
-      {frames.map((f, i) => (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2 className="mb-6">Aklında kalsın: 3 şey</H2>
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-3">
+          {items.map((t, i) => (
+            <motion.div
+              key={t}
+              initial={{ opacity: 0, x: -14 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 + i * 0.15 }}
+              className="saa-card rounded-xl px-5 py-4 flex items-center gap-4"
+            >
+              <div className="saa-tick w-10 h-10 flex items-center justify-center shrink-0 text-xl font-bold">
+                {i + 1}
+              </div>
+              <div className="text-lg md:text-xl text-gray-100">{t}</div>
+            </motion.div>
+          ))}
+        </div>
         <motion.div
-          key={f.label}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: i * 0.12 }}
-          className="saa-card rounded-xl p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="mt-5 saa-card-teal rounded-xl px-5 py-4 text-base md:text-lg text-gray-200"
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className="saa-time-badge px-2.5 py-1 text-xs">{f.label}</span>
-            <span className="text-[11px] font-mono text-gray-500">
-              n={f.n} · m={f.m}
-            </span>
-          </div>
-          <div className="rounded-lg bg-[#070b0a] p-2">
-            <EvolvingGraph step={f.step} />
-          </div>
-          <p className="text-[11px] text-gray-400 leading-snug mt-3">{f.note}</p>
+          <span className="text-[#5eead4] font-semibold">Gelecek hafta: </span>
+          {next}
         </motion.div>
-      ))}
-    </motion.div>
-  );
-}
-
-function MechanismTable() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5 overflow-x-auto"
-    >
-      <table className="saa-table">
-        <thead>
-          <tr>
-            <th style={{ width: "20%" }}>Mekanizma</th>
-            <th>Ne der?</th>
-            <th>Sosyal karşılığı</th>
-            <th>İz bıraktığı yapı</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="saa-row-head">Üçlü kapanma</td>
-            <td>Ortak arkadaşı olan iki kişi zamanla tanışır</td>
-            <td>&ldquo;Arkadaşımın arkadaşı arkadaşımdır&rdquo;</td>
-            <td>Yüksek kümelenme katsayısı</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Tercihli bağlanma</td>
-            <td>Yeni düğüm, derecesi yüksek düğüme bağlanmaya meyillidir</td>
-            <td>Popüler hesap daha hızlı takipçi kazanır</td>
-            <td>Ölçeksiz derece dağılımı (hub&apos;lar)</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Homofili</td>
-            <td>Benzer düğümler birbirine bağlanma eğilimindedir</td>
-            <td>Benzer ilgi / şehir / dil gruplaşır</td>
-            <td>Topluluk yapısı (community)</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Kopma / silinme</td>
-            <td>Kenarlar ve düğümler zamanla kaybolabilir</td>
-            <td>Takipten çıkma, hesap kapatma</td>
-            <td>Küçülen bileşenler, seyrelme</td>
-          </tr>
-        </tbody>
-      </table>
-    </motion.div>
-  );
-}
-
-function DegreeDistribution() {
-  // Sağa çarpık (power-law benzeri) derece dağılımı — birkaç hub, çok sayıda düşük dereceli düğüm.
-  const bars = [
-    { k: "1", h: 96 },
-    { k: "2", h: 72 },
-    { k: "3", h: 50 },
-    { k: "4", h: 34 },
-    { k: "5", h: 22 },
-    { k: "6", h: 14 },
-    { k: "7", h: 9 },
-    { k: "8+", h: 5 },
-  ];
-  const max = 96;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5"
-    >
-      <svg viewBox="0 0 560 300" className="w-full h-auto">
-        {/* eksenler */}
-        <line x1="60" y1="250" x2="540" y2="250" stroke="#475569" strokeWidth="1.5" />
-        <line x1="60" y1="30" x2="60" y2="250" stroke="#475569" strokeWidth="1.5" />
-        {bars.map((b, i) => {
-          const bw = 48;
-          const gap = 12;
-          const x = 78 + i * (bw + gap);
-          const barH = (b.h / max) * 200;
-          const y = 250 - barH;
-          const isHub = i >= 5;
-          return (
-            <g key={b.k}>
-              <rect
-                x={x}
-                y={y}
-                width={bw}
-                height={barH}
-                rx={4}
-                fill={isHub ? "#0d9488" : "#14b8a6"}
-                fillOpacity={isHub ? 0.55 : 0.85}
-                stroke={isHub ? "#5eead4" : "#14b8a6"}
-                strokeOpacity={0.6}
-              />
-              <text x={x + bw / 2} y={268} textAnchor="middle" fontSize={12} fill="#9ca3af" fontFamily="Inter, sans-serif">
-                {b.k}
-              </text>
-            </g>
-          );
-        })}
-        <text x="300" y="292" textAnchor="middle" fontSize={12} fill="#6b7280" fontFamily="Inter, sans-serif">
-          k = düğüm derecesi
-        </text>
-        <text
-          x="22"
-          y="140"
-          textAnchor="middle"
-          fontSize={12}
-          fill="#6b7280"
-          fontFamily="Inter, sans-serif"
-          transform="rotate(-90 22 140)"
-        >
-          düğüm sayısı P(k)
-        </text>
-        {/* hub işareti */}
-        <text x="470" y="60" textAnchor="middle" fontSize={11} fill="#5eead4" fontWeight={700} fontFamily="Inter, sans-serif">
-          ↙ az sayıda hub
-        </text>
-      </svg>
-      <div className="mt-1 text-xs text-gray-400 text-center">
-        Tercihli bağlanma ile ortaya çıkan{" "}
-        <span className="text-[#5eead4] font-semibold">ağır kuyruklu (power-law benzeri)</span>{" "}
-        derece dağılımı.
+        <Ask>Bugünden aklında kalan tek cümle ne?</Ask>
       </div>
-    </motion.div>
-  );
-}
-
-function CodeBlock() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          <span>ag_evrimi.py · Python 3.12 · NetworkX 3.3</span>
-        </div>
-      </div>
-      <pre className="saa-code p-6 overflow-x-auto m-0">
-        <code>
-          <span className="saa-code-cmt"># 1) Tercihli bağlanma ile büyüyen ağ üret (Barabási–Albert)</span>
-          {"\n"}
-          <span className="saa-code-kw">import</span>{" "}
-          <span className="saa-code-fn">networkx</span>{" "}
-          <span className="saa-code-kw">as</span>{" "}
-          <span className="saa-code-fn">nx</span>
-          {"\n"}
-          {"\n"}
-          BA = nx.<span className="saa-code-fn">barabasi_albert_graph</span>(
-          <span className="saa-code-num">500</span>,{" "}
-          <span className="saa-code-num">2</span>)
-          <span className="saa-code-cmt"># 500 düğüm, her yeni düğüm 2 kenarla katılır</span>
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># 2) Zaman içinde değişimi snapshot&apos;larla karşılaştır</span>
-          {"\n"}
-          G_t0 = nx.<span className="saa-code-fn">read_graphml</span>(
-          <span className="saa-code-str">&quot;ag_ocak.graphml&quot;</span>)
-          {"\n"}
-          G_t1 = nx.<span className="saa-code-fn">read_graphml</span>(
-          <span className="saa-code-str">&quot;ag_subat.graphml&quot;</span>)
-          {"\n"}
-          {"\n"}
-          yeni = <span className="saa-code-fn">set</span>(G_t1.edges()) -{" "}
-          <span className="saa-code-fn">set</span>(G_t0.edges())
-          {"\n"}
-          <span className="saa-code-fn">print</span>(
-          <span className="saa-code-str">&quot;Yeni kenar:&quot;</span>,{" "}
-          <span className="saa-code-fn">len</span>(yeni))
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># 3) Bağlantı tahmini — kimler bağlanacak? (Jaccard)</span>
-          {"\n"}
-          skor = nx.<span className="saa-code-fn">jaccard_coefficient</span>(G_t0)
-          {"\n"}
-          top = <span className="saa-code-fn">sorted</span>(skor, key=
-          <span className="saa-code-kw">lambda</span> x: -x[
-          <span className="saa-code-num">2</span>])[:
-          <span className="saa-code-num">5</span>]
-          {"\n"}
-          <span className="saa-code-fn">print</span>(
-          <span className="saa-code-str">&quot;En olası 5 yeni bağ:&quot;</span>, top)
-        </code>
-      </pre>
-    </motion.div>
+    </SlideShell>
   );
 }
 
 /* ============================================================
-   SLIDES
+   10. HAFTA — ağın zamanla değişimi: veri ve etkileşimli bileşenler
+   ============================================================ */
+
+const HAFTALAR = ["1. hafta", "4. hafta", "8. hafta", "12. hafta"];
+const HAFTA_NOT = [
+  "Dönemin ilk haftası: yalnızca üç kişi birbirini tanıyor.",
+  "Deniz ve Elif geldi. Ayşe ile Can, ortak arkadaşları Ali sayesinde tanıştı.",
+  "Mert ve Naz geldi. Yeni gelenler eskilere bağlandı, ağ büyüdü.",
+  "İki yeni bağ kuruldu. Ali ile Can artık görüşmüyor: o bağ koptu.",
+];
+
+const Z_KISI: Array<GNode & { from: number }> = [
+  { id: "Ali", x: 130, y: 90, from: 0 },
+  { id: "Ayşe", x: 300, y: 55, from: 0 },
+  { id: "Can", x: 210, y: 230, from: 0 },
+  { id: "Deniz", x: 400, y: 185, from: 1 },
+  { id: "Elif", x: 520, y: 75, from: 1 },
+  { id: "Mert", x: 540, y: 250, from: 2 },
+  { id: "Naz", x: 350, y: 285, from: 2 },
+];
+
+const Z_BAG: Array<{ e: GEdge; from: number; to?: number }> = [
+  { e: ["Ali", "Ayşe"], from: 0 },
+  { e: ["Ali", "Can"], from: 0, to: 3 },
+  { e: ["Ayşe", "Deniz"], from: 1 },
+  { e: ["Deniz", "Elif"], from: 1 },
+  { e: ["Ayşe", "Can"], from: 1 },
+  { e: ["Deniz", "Mert"], from: 2 },
+  { e: ["Can", "Naz"], from: 2 },
+  { e: ["Ayşe", "Elif"], from: 2 },
+  { e: ["Can", "Deniz"], from: 2 },
+  { e: ["Deniz", "Naz"], from: 3 },
+  { e: ["Elif", "Mert"], from: 3 },
+];
+
+/** Aynı ağın dört anı: hafta çipine tıkla. Yeni bağlar sarı görünür. */
+function TimeNet() {
+  const [t, setT] = useState(0);
+  const kisiler = Z_KISI.filter((n) => n.from <= t);
+  const baglar = Z_BAG.filter((b) => b.from <= t && (b.to === undefined || t < b.to));
+  const yeni = (a: string, b: string) =>
+    t > 0 && baglar.some((x) => x.from === t && x.e[0] === a && x.e[1] === b);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+      <div className="md:col-span-3 saa-card rounded-xl p-2">
+        <Net
+          nodes={kisiler}
+          edges={baglar.map((b) => b.e)}
+          fill={(id) =>
+            t > 0 && Z_KISI.some((n) => n.id === id && n.from === t) ? "#fbbf24" : undefined
+          }
+          edgeColor={(a, b) => (yeni(a, b) ? "#fbbf24" : undefined)}
+          edgeWidth={(a, b) => (yeni(a, b) ? 4 : 2.5)}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <div className="text-sm text-gray-500 mb-2 flex items-center gap-2">
+          <MousePointerClick className="w-4 h-4" /> Bir haftaya tıkla
+        </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          {HAFTALAR.map((ad, i) => (
+            <button
+              key={ad}
+              type="button"
+              onClick={() => setT(i)}
+              className={`${BTN} ${t === i ? BTN_ON : BTN_IDLE}`}
+            >
+              {ad}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200 min-h-[130px]">
+          <div className="font-semibold text-[#5eead4] mb-1">
+            {kisiler.length} kişi · {baglar.length} bağ
+          </div>
+          {HAFTA_NOT[t]}
+          {t > 0 && <span className="text-[#fbbf24]"> Sarı: bu dönemde yeni.</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const U_KISI: GNode[] = [
+  { id: "Ayşe", x: 80, y: 95 },
+  { id: "Ali", x: 220, y: 55 },
+  { id: "Can", x: 320, y: 175 },
+  { id: "Deniz", x: 450, y: 75 },
+  { id: "Elif", x: 560, y: 185 },
+  { id: "Mert", x: 450, y: 275 },
+];
+const U_ILK: GEdge[] = [
+  ["Ali", "Ayşe"],
+  ["Ali", "Can"],
+  ["Can", "Deniz"],
+  ["Deniz", "Elif"],
+  ["Elif", "Mert"],
+];
+const U_ADIM: Array<{ e: GEdge; ortak: string }> = [
+  { e: ["Ayşe", "Can"], ortak: "Ali" },
+  { e: ["Ali", "Deniz"], ortak: "Can" },
+  { e: ["Can", "Elif"], ortak: "Deniz" },
+  { e: ["Deniz", "Mert"], ortak: "Elif" },
+];
+
+/** Arkadaşımın arkadaşı: her tıklamada bir açık üçgen kapanır. */
+function TriadDemo() {
+  const [n, setN] = useState(0);
+  const son = n > 0 ? U_ADIM[n - 1] : null;
+  const baglar = [...U_ILK, ...U_ADIM.slice(0, n).map((a) => a.e)];
+  const sonMu = (a: string, b: string) =>
+    son !== null && son.e[0] === a && son.e[1] === b;
+  const bitti = n === U_ADIM.length;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+      <div className="md:col-span-3 saa-card rounded-xl p-2">
+        <Net
+          nodes={U_KISI}
+          edges={baglar}
+          h={320}
+          fill={(id) =>
+            son === null
+              ? undefined
+              : id === son.ortak
+                ? "#fbbf24"
+                : son.e.includes(id)
+                  ? "#14b8a6"
+                  : undefined
+          }
+          edgeColor={(a, b) => (sonMu(a, b) ? "#fbbf24" : undefined)}
+          edgeWidth={(a, b) => (sonMu(a, b) ? 4.5 : 2.5)}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <div className="saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200 min-h-[130px]">
+          {son === null ? (
+            <>Başlangıç: 6 kişi, 5 bağ. Sence ilk yeni arkadaşlık kimler arasında kurulur?</>
+          ) : (
+            <>
+              <span className="text-[#5eead4] font-semibold">
+                {son.e[0]} ile {son.e[1]}
+              </span>{" "}
+              tanıştı. Ortak arkadaşları:{" "}
+              <span className="text-[#fbbf24] font-semibold">{son.ortak}</span>. Üçgen
+              kapandı.
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setN(bitti ? 0 : n + 1)}
+          className={`${BTN} ${BTN_IDLE} mt-4 inline-flex items-center gap-2`}
+        >
+          {bitti ? <RotateCcw className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+          {bitti ? "Baştan" : `İleri: yeni bağ (${n} / ${U_ADIM.length})`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const P_ILK_KISI: GNode[] = [
+  { id: "Zeynep", x: 320, y: 165 },
+  { id: "Ali", x: 170, y: 85 },
+  { id: "Ayşe", x: 170, y: 255 },
+  { id: "Can", x: 470, y: 85 },
+];
+const P_ILK_BAG: GEdge[] = [
+  ["Zeynep", "Ali"],
+  ["Zeynep", "Ayşe"],
+  ["Zeynep", "Can"],
+  ["Ali", "Ayşe"],
+];
+const P_YENI: Array<GNode & { kime: string }> = [
+  { id: "Yeni 1", x: 470, y: 255, kime: "Zeynep" },
+  { id: "Yeni 2", x: 320, y: 35, kime: "Zeynep" },
+  { id: "Yeni 3", x: 50, y: 165, kime: "Ali" },
+  { id: "Yeni 4", x: 590, y: 165, kime: "Zeynep" },
+  { id: "Yeni 5", x: 320, y: 290, kime: "Zeynep" },
+];
+
+/** Popüler olana bağlanma: her tıklamada sınıfa bir yeni kişi gelir. */
+function GrowDemo() {
+  const [n, setN] = useState(0);
+  const gelen = P_YENI.slice(0, n);
+  const kisiler: GNode[] = [...P_ILK_KISI, ...gelen];
+  const baglar: GEdge[] = [...P_ILK_BAG, ...gelen.map((g): GEdge => [g.id, g.kime])];
+  const derece = (id: string) => baglar.filter((e) => e.includes(id)).length;
+  const son = n > 0 ? P_YENI[n - 1] : null;
+  const bitti = n === P_YENI.length;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+      <div className="md:col-span-3 saa-card rounded-xl p-2">
+        <Net
+          nodes={kisiler}
+          edges={baglar}
+          radius={(id) => 12 + 3 * derece(id)}
+          fill={(id) =>
+            id === "Zeynep" ? "#14b8a6" : son !== null && id === son.id ? "#fbbf24" : undefined
+          }
+          edgeColor={(a) => (son !== null && a === son.id ? "#fbbf24" : undefined)}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <div className="saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200 min-h-[150px]">
+          <div className="font-semibold text-[#5eead4] mb-1">
+            Zeynep: {derece("Zeynep")} bağ · Ali: {derece("Ali")} bağ
+          </div>
+          {son === null && <>Zeynep sınıfın en çok tanınan kişisi. Daire büyüdükçe bağ sayısı artar.</>}
+          {son !== null && !bitti && (
+            <>
+              {son.id}, <span className="text-[#fbbf24] font-semibold">{son.kime}</span> ile
+              tanıştı.
+            </>
+          )}
+          {bitti && <>Bu örnekte 5 yeni kişiden 4&apos;ü Zeynep&apos;i seçti. Popüler olan daha da popüler oldu.</>}
+        </div>
+        <button
+          type="button"
+          onClick={() => setN(bitti ? 0 : n + 1)}
+          className={`${BTN} ${BTN_IDLE} mt-4 inline-flex items-center gap-2`}
+        >
+          {bitti ? <RotateCcw className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+          {bitti ? "Baştan" : "Yeni kişi gelsin"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const CUBUKLAR: Array<{ ad: string; bag: number }> = [
+  { ad: "Zeynep", bag: 7 },
+  { ad: "Ali", bag: 3 },
+  { ad: "Ayşe", bag: 2 },
+  { ad: "Can", bag: 1 },
+  { ad: "Yeni gelenlerin her biri", bag: 1 },
+];
+
+/** Az önceki ağın son hâli: kimin kaç bağı var? */
+function HubBars() {
+  return (
+    <div className="saa-card rounded-xl p-5 space-y-3">
+      {CUBUKLAR.map((c, i) => (
+        <div key={c.ad} className="flex items-center gap-4">
+          <div className="w-56 text-base md:text-lg text-gray-200 text-right">{c.ad}</div>
+          <div className="flex-1">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(c.bag / 7) * 100}%` }}
+              transition={{ duration: 0.6, delay: 0.1 * i }}
+              className="h-7 rounded-md"
+              style={{ background: i === 0 ? "#14b8a6" : "#134e4a", border: "1px solid #5eead4" }}
+            />
+          </div>
+          <div className="w-16 text-lg font-semibold text-[#5eead4]">{c.bag} bağ</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const KURAL = ["Arkadaşımın arkadaşı", "Popüler olana bağlanma"];
+
+/* ============================================================
+   SLIDES — BVA 2105 · 10. Hafta · Ağ Dinamikleri ve Evrim
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
-  /* ─────────────────  AÇILIŞ  ───────────────── */
-
   // 1 — Kapak
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 2105 · 10. Hafta — Sosyal Ağ Analizi</Eyebrow>
-        <H1 className="saa-shimmer">
-          Ağ Dinamikleri
-          <br />
-          ve Evrim
-        </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Ağlar fotoğraf değil, filmdir. Düğüm ve kenarlar zamanla doğar, büyür ve
-          kaybolur — peki bu değişim nasıl ölçülür?
-        </Sub>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12 flex items-center justify-center gap-3 flex-wrap"
-        >
-          {[
-            { l: "t0", s: "başlangıç" },
-            { l: "t1", s: "büyüme" },
-            { l: "t2", s: "olgunlaşma" },
-          ].map((t, i) => (
-            <div key={t.l} className="flex items-center gap-3">
-              <div className="saa-card rounded-xl px-5 py-3 flex items-center gap-3">
-                <span className="saa-time-badge px-2.5 py-1 text-xs">{t.l}</span>
-                <span className="text-sm text-gray-300">{t.s}</span>
-              </div>
-              {i < 2 && <ArrowRight className="w-5 h-5 text-[#5eead4]" />}
-            </div>
-          ))}
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Cuma · 09:55 — 11:35 · Temporal ağlar, büyüme modelleri ve bağlantı tahmini
-        </motion.div>
-      </div>
-    </SlideShell>
+    <Cover
+      week="10"
+      title={["Ağ Dinamikleri", "ve Evrim"]}
+      sub="Ağ bir fotoğraf değil, bir filmdir: her hafta yeni kişiler gelir, yeni bağlar kurulur, bazı bağlar kopar."
+      cards={[
+        { icon: Film, title: "Ağ değişir", desc: "Bugünkü ağ, geçen ayki ağ değildir." },
+        { icon: Users, title: "Ortak arkadaş", desc: "Arkadaşımın arkadaşı, arkadaşım olur." },
+        { icon: Star, title: "Popüler olan", desc: "Yeni gelen, çok tanınan kişiye bağlanır." },
+      ]}
+    />
   ),
 
-  // 2 — Geçen haftadan köprü / bu haftanın hedefi
+  // 2 — Köprü
   () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 9. haftadan 10. haftaya</Eyebrow>
-      <H2>Şimdiye kadar hep tek bir an&apos;ı ölçtük</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Merkezilik, topluluk tespiti, ölçeksiz ağlar… hepsini ağın{" "}
-        <span className="text-[#5eead4]">tek bir fotoğrafı</span> üzerinde hesapladık.
-        Bu hafta zamanı ekliyoruz: aynı ağı farklı anlarda inceleyip{" "}
-        <span className="text-[#5eead4]">nasıl değiştiğini</span> sorguluyoruz.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-gray-300">
-            <History className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Şimdiye kadar — statik ağ
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-400">
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-gray-500 shrink-0" />
-              Tek G = (V, E) üzerinde ölçüm
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-gray-500 shrink-0" />
-              &ldquo;Şu an en merkezi kim?&rdquo;
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-gray-500 shrink-0" />
-              Zaman bilgisi yok
-            </li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5eead4]">
-            <Activity className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Bu hafta — dinamik ağ
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] shrink-0" />
-              G(t0), G(t1), G(t2) … zaman serisi
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] shrink-0" />
-              &ldquo;Kim bağlanacak, kim kopacak?&rdquo;
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] shrink-0" />
-              Büyüme mekanizmaları ve tahmin
-            </li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
+    <Frame
+      eyebrow="9. haftadan 10. haftaya"
+      title="Geçen hafta katmanlara, bu hafta zamana bakıyoruz"
+      ask="Bu sınıfın arkadaşlık ağı dönemin ilk günü nasıldı?"
+    >
+      <TwoLists
+        left={{
+          label: "Geçen hafta",
+          items: [
+            "Aynı kişiler, farklı ilişki türleri: katmanlar.",
+            "Ağa hep tek bir anda baktık.",
+            "Sanki ağın bir fotoğrafını çektik.",
+          ],
+        }}
+        right={{
+          label: "Bu hafta",
+          items: [
+            "Ağ zamanla nasıl değişir?",
+            "Yeni bağlar rastgele mi kurulur, bir kuralı var mı?",
+            "İki basit kural öğreneceğiz.",
+          ],
+        }}
+      />
+    </Frame>
   ),
 
-  // 3 — Dersin akışı
+  // 3 — El kaldır
   () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: zaman → mekanizma → ölçüm</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce ağa zaman boyutunu nasıl ekleyeceğimizi tanımlıyoruz; sonra ağı büyüten
-        mekanizmaları görüyoruz; en son değişimi sayısal olarak ölçüp tahmin ediyoruz.
-      </Sub>
-      <div className="grid md:grid-cols-3 gap-4 mt-10">
-        {[
+    <Frame
+      eyebrow="El kaldır"
+      title="Dönem başında tanımadığın biri, şimdi arkadaşın mı?"
+      ask="O kişiyle nasıl tanıştın: biri mi tanıştırdı, kendin mi buldun?"
+    >
+      <div className="saa-card rounded-xl p-5 mb-4 text-lg md:text-xl text-gray-200">
+        Kaçınızın bu dönem tanıştığı, şimdi yazıştığı ya da takipleştiği biri var?
+      </div>
+      <Reveal hint="Eller kalktı mı? Yorumu görmek için tıkla">
+        Demek ki sınıfın ağı dönem başında başkaydı, bugün başka. Ağın zamanla
+        değişmesine <span className="text-[#5eead4] font-semibold">ağın evrimi</span>{" "}
+        diyoruz.
+      </Reveal>
+    </Frame>
+  ),
+
+  // 4 — Oyna-gör: zaman
+  () => (
+    <Frame
+      eyebrow="Oyna-gör"
+      title="Ağ bir fotoğraf değil, bir filmdir"
+      ask="8. haftadan 12. haftaya geçince ne değişti?"
+    >
+      <TimeNet />
+    </Frame>
+  ),
+
+  // 5 — Kavram
+  () => (
+    <Frame
+      eyebrow="Kavram"
+      title="Bir ağda zamanla üç şey değişir"
+      ask="Senin ağında bu dönem bunlardan hangisi oldu?"
+    >
+      <CardRow
+        cards={[
           {
-            range: "1",
-            title: "Temporal Ağ",
-            items: ["Statik vs dinamik", "Snapshot / zaman penceresi", "Zaman damgalı kenar"],
-            icon: Clock,
-            accent: "#14b8a6",
+            icon: UserPlus,
+            title: "Yeni kişi gelir",
+            desc: "Sınıfa yeni öğrenci, uygulamaya yeni kullanıcı. Ağa bir düğüm eklenir.",
           },
           {
-            range: "2",
-            title: "Büyüme Mekanizmaları",
-            items: ["Üçlü kapanma", "Tercihli bağlanma", "Homofili & kopma"],
-            icon: GitBranch,
-            accent: "#0d9488",
+            icon: Link2,
+            title: "Yeni bağ kurulur",
+            desc: "İki kişi tanışır, takipleşir, yazışmaya başlar.",
           },
           {
-            range: "3",
-            title: "Değişimi Ölçmek",
-            items: ["Snapshot karşılaştırma", "Bağlantı tahmini", "NetworkX ile pratik"],
+            icon: Unlink,
+            title: "Bağ kopar",
+            desc: "Taşınma, mezuniyet, takipten çıkma. Ağ yalnız büyümez, eksilir de.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 6 — Kural 1
+  () => (
+    <Frame
+      eyebrow="1. kural · adım adım"
+      title="Arkadaşımın arkadaşı, arkadaşım olur"
+      ask="İleri'ye basmadan önce: sıradaki arkadaşlık kimler arasında kurulur?"
+    >
+      <TriadDemo />
+    </Frame>
+  ),
+
+  // 7 — Kural 2
+  () => (
+    <Frame
+      eyebrow="2. kural · oyna-gör"
+      title="Yeni gelen, popüler olana bağlanır"
+      ask="Düğmeye basmadan önce: yeni gelen sence kimle tanışacak?"
+    >
+      <GrowDemo />
+    </Frame>
+  ),
+
+  // 8 — Günlük örnekler
+  () => (
+    <Frame
+      eyebrow="Tahmin et"
+      title="Popüler olan neden daha da popüler olur?"
+      ask="Sen en son kimi, herkes takip ediyor diye takip ettin?"
+    >
+      <FlipCards
+        items={[
+          {
+            tag: "Lokanta",
+            front: "Yan yana iki lokanta: biri dolu, biri boş. Hangisine girersin?",
+            back: "Çoğumuz dolu olana. Dolu olan böylece daha da dolar.",
+          },
+          {
+            tag: "Video",
+            front: "İki kanal aynı konuyu anlatıyor. Hangisi sana önerilir?",
+            back: "Genellikle çok izleneni görürsün. O da daha çok abone kazanır.",
+          },
+          {
+            tag: "Sınıf",
+            front: "Yeni gelen öğrenci ilk gün kiminle tanışır?",
+            back: "Çoğunlukla herkesin tanıdığı kişiyle. Onun çevresi bir kişi daha büyür.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 9 — Sonuç
+  () => (
+    <Frame
+      eyebrow="Sonuç"
+      title="Birkaç dev, çok sayıda küçük düğüm oluşur"
+      ask="Bu sınıfın ağında çok bağlantılı kişi kim olurdu?"
+    >
+      <HubBars />
+      <div className="mt-4 saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200">
+        Çok bağlantılı düğüme{" "}
+        <span className="text-[#5eead4] font-semibold">merkez düğüm (hub)</span> denir.
+        Gerçek ağların çoğunda birkaç merkez, çok sayıda az bağlantılı düğüm vardır.
+      </div>
+    </Frame>
+  ),
+
+  // 10 — Hangi kural
+  () => (
+    <Frame
+      eyebrow="Oyna-gör"
+      title="Hangi kural çalışıyor?"
+      ask="Kendi hayatından iki kurala birer örnek ver."
+    >
+      <Quiz
+        row
+        unit="Örnek"
+        questions={[
+          {
+            q: "Kuzeninin ev arkadaşıyla bir doğum gününde tanıştın.",
+            options: KURAL,
+            correct: 0,
+            why: "Sizi ortak tanıdığınız kuzenin buluşturdu.",
+          },
+          {
+            q: "Yeni açtığın hesapla ilk iş çok ünlü bir futbolcuyu takip ettin.",
+            options: KURAL,
+            correct: 1,
+            why: "Zaten çok takipçisi olan, bir takipçi daha kazandı.",
+          },
+          {
+            q: "Uygulama, 12 ortak arkadaşınız olan birini önerdi.",
+            options: KURAL,
+            correct: 0,
+            why: "Ortak arkadaş çoksa tanışma ihtimali yüksektir.",
+          },
+          {
+            q: "Yeni bir oyuna başladın ve en kalabalık topluluğa katıldın.",
+            options: KURAL,
+            correct: 1,
+            why: "Kalabalık olan seçildi ve daha da kalabalıklaştı.",
+          },
+          {
+            q: "Sıra arkadaşının eski okul arkadaşıyla proje grubunda tanıştın.",
+            options: KURAL,
+            correct: 0,
+            why: "Aradaki ortak kişi sıra arkadaşın.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 11 — Ne işe yarar
+  () => (
+    <Frame
+      eyebrow="Ne işe yarar?"
+      title="Bu iki kuralla ağın yarınını tahmin ederiz"
+      ask="Tanıyor olabileceğin kişiler listesi sence nasıl hazırlanıyor?"
+    >
+      <CardRow
+        cards={[
+          {
+            icon: Users,
+            title: "Arkadaş önerisi",
+            desc: "Ortak arkadaşı çok olan iki kişi birbirine önerilir. Bu, 1. kuraldır.",
+          },
+          {
             icon: TrendingUp,
-            accent: "#5eead4",
+            title: "Kim büyüyecek?",
+            desc: "Bugün çok bağlantısı olan, yarın büyük ihtimalle daha da büyür. Bu, 2. kuraldır.",
           },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="saa-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div
-                  className="text-[10px] font-mono uppercase tracking-widest"
-                  style={{ color: g.accent }}
-                >
-                  Bölüm {g.range}
-                </div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight
-                    className="w-3.5 h-3.5 mt-0.5 shrink-0"
-                    style={{ color: g.accent }}
-                  />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
+          {
+            icon: Unlink,
+            title: "Kim kopuyor?",
+            desc: "Bağları azalan müşteri ya da üye, ayrılmak üzere olabilir.",
+          },
+        ]}
+      />
+    </Frame>
   ),
 
-  /* ─────────────────  1. TEMPORAL AĞ  ───────────────── */
-
-  // 4 — Section divider 1/3
+  // 12 — Kod
   () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Temporal Ağ"
-      subtitle="Ağa zaman boyutunu eklemek: snapshot dizisi ve zaman damgalı kenarlar"
-      bgGradient="linear-gradient(135deg, #14b8a6, #0d9488)"
-      shadow="0 20px 60px -10px rgba(20, 184, 166, 0.6)"
-      icon={<Clock className="w-16 h-16 text-white" />}
+    <Frame
+      eyebrow="Python · NetworkX"
+      title="Ağa yeni bağ eklemek tek satırdır"
+      ask="Son satır neden 4 ve 3 yazdı?"
+    >
+      <CodeCard
+        file="ag_buyuyor.py"
+        lines={[
+          "import networkx as nx",
+          "",
+          'G = nx.Graph([("Ali", "Ayşe"), ("Ali", "Can")])   # 1. hafta: 2 bağ',
+          "",
+          'G.add_edge("Ayşe", "Can")     # arkadaşımın arkadaşı',
+          'G.add_edge("Yeni", "Ali")     # yeni gelen, popüler olana',
+          "",
+          'print(G.number_of_edges(), G.degree("Ali"))   # 4 3',
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 13 — Sınıfta deneyelim
+  () => (
+    <Frame
+      eyebrow="Sınıfta deneyelim · 10 dakika · tahta"
+      title="Tahtada bir ağ büyütelim"
+      ask="En çok bağ kimde toplandı? Neden o?"
+    >
+      <Steps
+        items={[
+          {
+            t: "Dört gönüllü tahtaya adını yazsın",
+            d: "Aralarına gerçek arkadaşlıklara göre birkaç çizgi çizelim.",
+          },
+          {
+            t: "Sırayla gelin, adınızı yazıp tek bir kişiye bağlanın",
+            d: "Kime bağlanacağına herkes kendi karar versin. 8-10 kişi yeter.",
+          },
+          {
+            t: "Bağları sayalım",
+            d: "En çok çizgi kimde? İlk dört kişiden biri mi?",
+          },
+          {
+            t: "Açık üçgenleri bulalım",
+            d: "Ortak arkadaşı olup da bağlı olmayan iki kişi var mı? Kesikli çizgiyle bağlayalım.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 14 — Kendini dene
+  () => (
+    <Frame
+      eyebrow="Kendini dene"
+      title="Üç soruda bu hafta"
+      ask="Hangi soruda kararsız kaldın?"
+    >
+      <Quiz
+        questions={[
+          {
+            q: "Ağın evrimi ne demektir?",
+            options: [
+              "Ağın zamanla değişmesi: yeni kişi, yeni bağ, kopan bağ",
+              "Ağın renkli çizilmesi",
+              "Ağdaki en çok bağlantılı kişinin bulunması",
+            ],
+            correct: 0,
+            why: "Ağ yerinde durmaz; evrim bu değişimin adıdır.",
+          },
+          {
+            q: "Ayşe ile Can tanışmıyor ama ikisi de Ali'nin arkadaşı. Büyük ihtimalle ne olur?",
+            options: [
+              "Ali ikisiyle de bağını koparır",
+              "Ayşe ile Can tanışır",
+              "Hiçbir şey değişmez",
+            ],
+            correct: 1,
+            why: "Arkadaşımın arkadaşı, arkadaşım olur: açık üçgen kapanır.",
+          },
+          {
+            q: "Bir ağda neden birkaç kişi çok fazla bağlantıya sahip olur?",
+            options: [
+              "Çünkü ağlar hep eşit büyür",
+              "Çünkü bağlar zamanla kopar",
+              "Çünkü yeni gelenler çoğunlukla zaten popüler olana bağlanır",
+            ],
+            correct: 2,
+            why: "Popüler olan her yeni gelenle biraz daha büyür.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 15 — Özet
+  () => (
+    <Recap
+      items={[
+        "Ağ yerinde durmaz: yeni kişi gelir, yeni bağ kurulur, bazı bağlar kopar.",
+        "Arkadaşımın arkadaşı, arkadaşım olur: ortak arkadaş yeni bağ kurdurur.",
+        "Yeni gelen popüler olana bağlanır; böylece birkaç merkez düğüm oluşur.",
+      ]}
+      next="Ağın üstünde bir şeyler dolaşır: dedikodu, viral video, grip. Bunların kişiden kişiye nasıl yayıldığına bakacağız."
     />
-  ),
-
-  // 5 — Statik vs Dinamik
-  () => (
-    <SlideShell>
-      <Eyebrow>İki bakış açısı</Eyebrow>
-      <H2 className="mb-8">Statik fotoğraf vs. dinamik film</H2>
-      <div className="grid md:grid-cols-2 gap-5 mb-6">
-        <FeatureCard
-          icon={History}
-          title="Statik ağ — G = (V, E)"
-          desc="Tek bir an. Zaman bilgisi yoktur; tüm kenarlar aynı anda varmış gibi ele alınır. Hızlı ve basit ama değişimi gizler."
-          accent="#64748b"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={Activity}
-          title="Dinamik ağ — G(t)"
-          desc="Aynı ağın zamanla değişen hali. Düğüm/kenar ekleme-silme zamanı kayıtlıdır; büyüme ve çözülme görünür hale gelir."
-          accent="#14b8a6"
-          delay={0.25}
-        />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.45 }}
-        className="saa-card-teal rounded-xl p-5 text-center font-mono text-sm text-[#a7f3d0]"
-      >
-        G(t) = (V(t), E(t)) &nbsp;·&nbsp; her kenara (u, v, t) zaman damgası eklenir
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-xs text-gray-500 text-center max-w-3xl mx-auto"
-      >
-        Statik ağda &ldquo;A ve B arkadaş&rdquo; bilgisini görürüz; dinamik ağda{" "}
-        <span className="text-[#5eead4]">ne zaman</span> arkadaş olduklarını da biliriz.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 6 — Snapshot dizisi (büyüyen ağ)
-  () => (
-    <SlideShell>
-      <Eyebrow>Snapshot dizisi</Eyebrow>
-      <H2 className="mb-2">Aynı ağ, üç farklı anda</H2>
-      <Sub className="mb-6 max-w-3xl">
-        Sürekli değişen ağı incelemenin en yaygın yolu, onu eşit aralıklı{" "}
-        <span className="text-[#5eead4]">anlık görüntülere (snapshot)</span> bölmek.
-        Aşağıda yeni gelen düğüm ve kenarlar her adımda vurgulanıyor.
-      </Sub>
-      <EvolutionTimeline />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-center text-xs text-gray-500"
-      >
-        Pencere çok dar olursa gürültü, çok geniş olursa değişim kaybolur — pencere
-        seçimi analiz kararıdır.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 7 — Zaman damgalı kenar listesi
-  () => (
-    <SlideShell>
-      <Eyebrow>Veri tarafı · zaman damgalı kenar</Eyebrow>
-      <H2 className="mb-2">Dinamik ağı bir tablo nasıl saklar?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Temporal ağ pratikte çoğu zaman üç-sütunlu (hatta dört) bir kenar listesidir:
-        kim, kiminle, ne zaman — istenirse ağırlık. Bu satırlar zaman penceresine göre
-        filtrelenip her snapshot oluşturulur.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="saa-card rounded-xl p-5 overflow-x-auto"
-      >
-        <table className="saa-table">
-          <thead>
-            <tr>
-              <th>source</th>
-              <th>target</th>
-              <th>timestamp</th>
-              <th>etkileşim</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["ayse", "mehmet", "2026-01-04 09:12", "mesaj"],
-              ["ayse", "deniz", "2026-01-04 18:40", "yorum"],
-              ["mehmet", "deniz", "2026-01-18 11:05", "beğeni"],
-              ["can", "mehmet", "2026-02-02 21:33", "retweet"],
-              ["can", "elif", "2026-02-15 08:20", "mesaj"],
-            ].map((r) => (
-              <tr key={`${r[0]}-${r[1]}-${r[2]}`}>
-                <td className="font-mono text-[#5eead4]">{r[0]}</td>
-                <td className="font-mono text-[#5eead4]">{r[1]}</td>
-                <td className="font-mono text-gray-300">{r[2]}</td>
-                <td className="text-gray-400">{r[3]}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-4 text-xs text-gray-500 text-center"
-      >
-        Ocak satırları → G(t0), Şubat satırları → G(t1). Sıralama (zaman yönü) ağda
-        bilginin akış yönünü de belirler.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2. BÜYÜME MEKANİZMALARI  ───────────────── */
-
-  // 8 — Section divider 2/3
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Büyüme Mekanizmaları"
-      subtitle="Ağlar rastgele büyümez. Birkaç basit kural, gerçek sosyal ağların yapısını üretir."
-      bgGradient="linear-gradient(135deg, #0d9488, #134e4a)"
-      shadow="0 20px 60px -10px rgba(13, 148, 136, 0.6)"
-      icon={<GitBranch className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 9 — Üçlü kapanma
-  () => (
-    <SlideShell>
-      <Eyebrow>Mekanizma 1 — Üçlü Kapanma (Triadic Closure)</Eyebrow>
-      <H2 className="mb-4">Arkadaşımın arkadaşı, arkadaşım olur</H2>
-      <Sub className="mb-8 max-w-3xl">
-        İki kişinin ortak bir arkadaşı varsa, zamanla onların da birbirine bağlanma
-        olasılığı yüksektir. Sosyal ağlardaki üçgenlerin (ve yüksek kümelenmenin) ana
-        kaynağı budur.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6 items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card rounded-xl p-5"
-        >
-          <div className="text-[11px] uppercase tracking-wider text-gray-500 mb-2 text-center">
-            Önce — açık üçlü
-          </div>
-          <svg viewBox="0 0 320 220" className="w-full h-auto">
-            <line x1="60" y1="170" x2="160" y2="50" stroke="#475569" strokeWidth="2" />
-            <line x1="160" y1="50" x2="260" y2="170" stroke="#475569" strokeWidth="2" />
-            {[
-              { x: 60, y: 170, l: "A" },
-              { x: 160, y: 50, l: "C" },
-              { x: 260, y: 170, l: "B" },
-            ].map((n) => (
-              <g key={n.l}>
-                <circle cx={n.x} cy={n.y} r={20} fill="#1f2937" stroke="#475569" strokeWidth="2" />
-                <text x={n.x} y={n.y + 5} textAnchor="middle" fontSize={14} fontWeight={700} fill="#fff">
-                  {n.l}
-                </text>
-              </g>
-            ))}
-            <text x="160" y="205" textAnchor="middle" fontSize={11} fill="#94a3b8">
-              A — C — B (A ile B bağsız)
-            </text>
-          </svg>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card-teal rounded-xl p-5"
-        >
-          <div className="text-[11px] uppercase tracking-wider text-[#5eead4] mb-2 text-center">
-            Sonra — üçgen kapandı
-          </div>
-          <svg viewBox="0 0 320 220" className="w-full h-auto">
-            <line x1="60" y1="170" x2="160" y2="50" stroke="#475569" strokeWidth="2" />
-            <line x1="160" y1="50" x2="260" y2="170" stroke="#475569" strokeWidth="2" />
-            <line
-              x1="60"
-              y1="170"
-              x2="260"
-              y2="170"
-              stroke="#5eead4"
-              strokeWidth="2.5"
-              className="saa-edge-new"
-            />
-            {[
-              { x: 60, y: 170, l: "A" },
-              { x: 160, y: 50, l: "C" },
-              { x: 260, y: 170, l: "B" },
-            ].map((n) => (
-              <g key={n.l}>
-                <circle cx={n.x} cy={n.y} r={20} fill="#0d9488" stroke="#5eead4" strokeWidth="2" />
-                <text x={n.x} y={n.y + 5} textAnchor="middle" fontSize={14} fontWeight={700} fill="#fff">
-                  {n.l}
-                </text>
-              </g>
-            ))}
-            <text x="160" y="205" textAnchor="middle" fontSize={11} fill="#5eead4">
-              A — B yeni kenarı oluştu
-            </text>
-          </svg>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 10 — Tercihli bağlanma
-  () => (
-    <SlideShell>
-      <Eyebrow>Mekanizma 2 — Tercihli Bağlanma (Preferential Attachment)</Eyebrow>
-      <H2 className="mb-4">Zengin daha da zenginleşir</H2>
-      <Sub className="mb-8 max-w-3xl">
-        Ağa yeni katılan bir düğüm, rastgele değil; derecesi zaten yüksek olan düğümlere
-        bağlanma eğilimindedir. Barabási–Albert modelinin temel kuralı budur.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-[#5eead4] mb-3">Kural</div>
-          <p className="text-base text-gray-200 leading-relaxed mb-5">
-            Yeni düğümün i&apos;ye bağlanma olasılığı, i&apos;nin derecesiyle{" "}
-            <span className="text-[#5eead4]">orantılıdır</span>.
-          </p>
-          <div className="saa-card rounded-lg p-4 font-mono text-sm text-[#a7f3d0] text-center">
-            P(i) = k<sub>i</sub> / Σ<sub>j</sub> k<sub>j</sub>
-          </div>
-          <div className="mt-4 text-xs text-gray-500">
-            Sonuç: ağır kuyruklu (ölçeksiz benzeri) derece dağılımı ve birkaç büyük hub.
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-gray-400 mb-3">
-            Gerçek dünya örneği
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3">
-              <Users className="w-5 h-5 text-[#5eead4] mt-0.5 shrink-0" />
-              <span>
-                Çok takipçili hesap, görünürlüğü yüksek olduğu için daha hızlı takipçi
-                kazanır.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Link2 className="w-5 h-5 text-[#5eead4] mt-0.5 shrink-0" />
-              <span>
-                Çok atıf alan bilimsel makale, yeni yazarlarca daha kolay bulunup tekrar
-                atıf alır.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Lightbulb className="w-5 h-5 text-[#5eead4] mt-0.5 shrink-0" />
-              <span>
-                Tek başına popülerlik her şeyi açıklamaz — yenilik, kalite ve homofili de
-                rol oynar.
-              </span>
-            </li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 11 — Derece dağılımı grafiği
-  () => (
-    <SlideShell>
-      <Eyebrow>Mekanizmanın izi</Eyebrow>
-      <H2 className="mb-2">Tercihli bağlanma neye benzer bir dağılım üretir?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Tercihli bağlanmayla büyüyen bir ağda çoğu düğümün derecesi düşük, çok az
-        düğümün ise çok yüksektir. Bu &ldquo;ağır kuyruk&rdquo; ölçeksiz ağların imzasıdır.
-      </Sub>
-      <DegreeDistribution />
-    </SlideShell>
-  ),
-
-  // 12 — Mekanizma tablosu (toparlama)
-  () => (
-    <SlideShell>
-      <Eyebrow>Toparlayalım</Eyebrow>
-      <H2 className="mb-2">Dört mekanizma yan yana</H2>
-      <Sub className="mb-6 max-w-3xl">
-        Gerçek bir sosyal ağ aynı anda birden çok mekanizmanın sonucudur. Her biri ağda
-        farklı bir yapısal iz bırakır.
-      </Sub>
-      <MechanismTable />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3. DEĞİŞİMİ ÖLÇMEK  ───────────────── */
-
-  // 13 — Section divider 3/3
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Değişimi Ölçmek"
-      subtitle="Snapshot karşılaştırma, bağlantı tahmini ve NetworkX ile pratik"
-      bgGradient="linear-gradient(135deg, #0d9488, #115e59)"
-      shadow="0 20px 60px -10px rgba(13, 148, 136, 0.6)"
-      icon={<TrendingUp className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 14 — Snapshot karşılaştırma metrikleri
-  () => (
-    <SlideShell>
-      <Eyebrow>İki snapshot arasındaki fark</Eyebrow>
-      <H2 className="mb-8">G(t0) ile G(t1) ne kadar değişti?</H2>
-      <div className="grid md:grid-cols-3 gap-4">
-        <FeatureCard
-          icon={GitCompare}
-          title="Kenar dönüşümü (turnover)"
-          desc="Kaç kenar eklendi, kaçı silindi? Eklenen ve silinen kenar kümeleri ağın oynaklığını gösterir."
-          accent="#14b8a6"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={Users}
-          title="Büyüme & kalıcılık"
-          desc="Düğüm sayısı artıyor mu, hangi düğümler her snapshot'ta kalıyor (çekirdek), hangileri geçici?"
-          accent="#0d9488"
-          delay={0.2}
-        />
-        <FeatureCard
-          icon={Activity}
-          title="Yapısal metrik serisi"
-          desc="Yoğunluk, ortalama derece, kümelenme katsayısı zamana göre çizilir — eğilim okunur."
-          accent="#5eead4"
-          delay={0.3}
-        />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="mt-8 saa-card-teal rounded-xl p-5 text-center"
-      >
-        <div className="text-sm text-gray-300">
-          Pratik kural:{" "}
-          <span className="text-[#5eead4] font-semibold">tek bir sayı değil bir seri</span>{" "}
-          çizin. Bir metriğin t0&apos;dan t2&apos;ye eğilimi, tek bir snapshot&apos;tan çok daha
-          fazlasını anlatır.
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 15 — Bağlantı tahmini
-  () => (
-    <SlideShell>
-      <Eyebrow>Geleceğe bakmak · Link Prediction</Eyebrow>
-      <H2 className="mb-2">Sıradaki kenar nerede oluşacak?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Bağlantı tahmini, henüz bağlı olmayan iki düğümün gelecekte bağlanma olasılığını
-        skorlar. Öneri sistemlerinin (&ldquo;tanıyor olabileceğin kişiler&rdquo;) temelidir.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="saa-card rounded-xl p-5 overflow-x-auto"
-      >
-        <table className="saa-table">
-          <thead>
-            <tr>
-              <th style={{ width: "22%" }}>Skor</th>
-              <th>Sezgi</th>
-              <th>Formül (özet)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="saa-row-head">Ortak komşu</td>
-              <td>Ne kadar çok ortak arkadaş, o kadar olası</td>
-              <td className="font-mono">|Γ(u) ∩ Γ(v)|</td>
-            </tr>
-            <tr>
-              <td className="saa-row-head">Jaccard</td>
-              <td>Ortak komşuyu, toplam komşuya oranlar</td>
-              <td className="font-mono">|Γ(u) ∩ Γ(v)| / |Γ(u) ∪ Γ(v)|</td>
-            </tr>
-            <tr>
-              <td className="saa-row-head">Adamic–Adar</td>
-              <td>Az dereceli ortak komşuya daha çok ağırlık verir</td>
-              <td className="font-mono">Σ 1 / log k(w)</td>
-            </tr>
-            <tr>
-              <td className="saa-row-head">Tercihli bağlanma</td>
-              <td>İki düğüm de yüksek dereceliyse olası</td>
-              <td className="font-mono">k(u) · k(v)</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-4 text-xs text-gray-500 text-center"
-      >
-        Değerlendirme: G(t0) üzerinde skorla, G(t1)&apos;de gerçekten oluşan kenarlarla
-        karşılaştır (AUC / precision@k).
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 16 — NetworkX kod örneği
-  () => (
-    <SlideShell>
-      <Eyebrow>Python · NetworkX</Eyebrow>
-      <H2 className="mb-6">Üret, karşılaştır, tahmin et</H2>
-      <CodeBlock />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-5 text-xs text-gray-500 text-center"
-      >
-        barabasi_albert_graph ile sentetik büyüme; set farkıyla yeni kenarlar;
-        jaccard_coefficient ile bağlantı tahmini — üçü de tek kütüphanede.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 17 — Bu hafta yapılacaklar (uygulamalı)
-  () => {
-    const items: Array<{ t: string; d: string; icon: LucideIcon }> = [
-      {
-        t: "İki snapshot hazırla",
-        d: "Bir temporal kenar listesini iki zaman penceresine böl → G(t0), G(t1). NetworkX'e yükle.",
-        icon: Database,
-      },
-      {
-        t: "Değişimi say",
-        d: "Eklenen ve silinen kenarları set farkıyla bul; düğüm/kenar/yoğunluk değişimini raporla.",
-        icon: GitCompare,
-      },
-      {
-        t: "Bağlantı tahmini çalıştır",
-        d: "G(t0) üzerinde jaccard_coefficient ile en olası 10 yeni bağı skorla.",
-        icon: Link2,
-      },
-      {
-        t: "Tahmini doğrula",
-        d: "Tahmin edilen bağların kaçı G(t1)'de gerçekten oluşmuş? precision@10 hesapla.",
-        icon: Check,
-      },
-    ];
-    return (
-      <SlideShell>
-        <Eyebrow>Bu hafta · uygulamalı görev</Eyebrow>
-        <H2 className="mb-8">Yap-bitir listesi</H2>
-        <div className="space-y-3">
-          {items.map((it, i) => (
-            <motion.div
-              key={it.t}
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="saa-card saa-card-hover rounded-xl p-4 flex items-center gap-4"
-            >
-              <div className="saa-tick w-9 h-9 rounded-md flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5" strokeWidth={3} />
-              </div>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-[#14b8a6]/15 border border-[#14b8a6]/35">
-                <it.icon className="w-4 h-4 text-[#5eead4]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-white">{it.t}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{it.d}</div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-600">
-                #{String(i + 1).padStart(2, "0")}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </SlideShell>
-    );
-  },
-
-  // 18 — Sıradaki hafta + kapanış
-  () => (
-    <SlideShell>
-      <div className="text-center max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: "linear-gradient(135deg, #14b8a6, #0d9488)",
-            boxShadow: "0 20px 60px -10px rgba(20, 184, 166, 0.6)",
-          }}
-        >
-          <Share2 className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>10. hafta tamamlandı · sıradaki: Etki Maksimizasyonu</Eyebrow>
-        <H1 className="saa-shimmer-teal">Kimden başlatmalı?</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta ağın nasıl büyüdüğünü ve değiştiğini gördük. 11. hafta bunu kullanıma
-          döküyoruz: bir mesajı en geniş kitleye yaymak için hangi düğümlerden
-          başlamalı?
-        </Sub>
-        <div className="grid md:grid-cols-3 gap-4 mt-10 text-left">
-          <FeatureCard
-            icon={Target}
-            title="Tohum seçimi"
-            desc="Yayılımı başlatacak en etkili k düğümü seçme problemi."
-            accent="#14b8a6"
-            delay={0.1}
-          />
-          <FeatureCard
-            icon={Network}
-            title="Yayılım modeli"
-            desc="Bağımsız basamak (IC) ve doğrusal eşik (LT) modelleri."
-            accent="#0d9488"
-            delay={0.2}
-          />
-          <FeatureCard
-            icon={Brain}
-            title="Açgözlü algoritma"
-            desc="Submodülerlik ve yaklaşık çözüm garantisi."
-            accent="#5eead4"
-            delay={0.3}
-          />
-        </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-          className="mt-10 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          BVA 2105 · Sosyal Ağ Analizi · 2026 Bahar — İki snapshot&apos;lı veri setini hazır getirin
-        </motion.div>
-      </div>
-    </SlideShell>
   ),
 ];
 

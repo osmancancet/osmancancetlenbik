@@ -261,3 +261,51 @@
   background: rgba(52, 211, 153, 0.08);
   border: 1px solid rgba(52, 211, 153, 0.3);
 }
+
+/* ---- Etkileşim yardımcıları (tıklanabilir kart, buton, çip) ---- */
+
+.uyz-tap {
+  border-style: dashed;
+  border-color: rgba(192, 132, 252, 0.55);
+}
+.uyz-tap:hover {
+  border-color: #c084fc;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.uyz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.uyz-btn:hover { filter: brightness(1.15); }
+
+.uyz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d1d5db;
+  background: rgba(168, 85, 247, 0.05);
+  border: 1px dashed rgba(192, 132, 252, 0.55);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.uyz-chip:hover { border-color: #c084fc; }
+.uyz-chip-on {
+  color: #ffffff;
+  background: rgba(168, 85, 247, 0.3);
+  border: 1px solid #c084fc;
+}

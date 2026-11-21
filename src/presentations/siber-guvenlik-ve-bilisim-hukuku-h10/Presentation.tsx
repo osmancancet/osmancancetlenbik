@@ -9,33 +9,25 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Cloud,
-  CloudCog,
-  ShieldCheck,
-  Lock,
-  Key,
+  Handshake,
+  DoorOpen,
   KeyRound,
-  Users,
-  UserCog,
   Server,
-  Database,
+  Building2,
+  Cloud,
+  ScrollText,
+  Bell,
   Eye,
+  ShieldCheck,
   AlertTriangle,
-  Network,
-  Globe,
-  FileWarning,
-  FolderLock,
-  ScanSearch,
-  Activity,
-  ListChecks,
-  Layers,
-  ArrowRight,
-  Check,
-  X,
-  Calendar,
-  Target,
-  Brain,
-  Sparkles,
+  MousePointerClick,
+  Hand,
+  Minus,
+  Plus,
+  Circle,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
   ChevronRight,
   ChevronLeft,
   Maximize2,
@@ -151,172 +143,758 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+
+/* ============================================================
+   ETKİLEŞİM BİLEŞENLERİ (tahmin et · tıkla · karar ver)
+   ============================================================ */
+
+const OK = "#34d399";
+const BAD = "#f87171";
+
+/* Tıklanabilir içerik ortada kalsın: kenar geçiş alanlarına (%12) taşmaz. */
+function Mid({ children }: { children: ReactNode }) {
+  return <div className="max-w-4xl mx-auto w-full">{children}</div>;
+}
+
+function AskLine({ children }: { children: ReactNode }) {
+  return (
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6, duration: 0.5 }}
+      className="mt-5 text-sm text-gray-500"
+    >
+      <span className="font-mono uppercase tracking-widest text-[11px] text-[#06b6d4]/60 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.p>
+  );
+}
+
+function TapHint({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#67e8f9]/70">
+      <MousePointerClick className="w-4 h-4" />
+      {children}
+    </span>
+  );
+}
+
+/* El kaldır: hoca sayar, sonra yorumu açar. */
+function Poll({ question, comment }: { question: string; comment: string }) {
+  const [count, setCount] = useState(0);
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="sgbh-card rounded-xl p-6">
+      <div className="flex items-start gap-4">
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: "#fbbf2418", border: "1px solid #fbbf2455" }}
+        >
+          <Hand className="w-6 h-6 text-[#fbbf24]" />
+        </div>
+        <div className="text-2xl font-semibold text-white leading-snug">{question}</div>
+      </div>
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          aria-label="Bir azalt"
+          onClick={() => setCount((c) => Math.max(0, c - 1))}
+          className="w-12 h-12 rounded-lg sgbh-card sgbh-card-hover flex items-center justify-center text-white"
+        >
+          <Minus className="w-5 h-5" />
+        </button>
+        <div className="w-16 text-center text-4xl font-bold font-mono text-[#67e8f9]">{count}</div>
+        <button
+          type="button"
+          aria-label="Bir artır"
+          onClick={() => setCount((c) => c + 1)}
+          className="w-12 h-12 rounded-lg sgbh-card sgbh-card-hover flex items-center justify-center text-white"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
+        <span className="text-sm text-gray-400">el kalktı</span>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="ml-auto px-5 py-3 rounded-lg text-sm font-semibold text-white transition-colors"
+          style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+        >
+          {open ? "Yorumu gizle" : "Saydık — yorumu aç"}
+        </button>
+      </div>
+      {open ? (
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-5 text-lg text-[#67e8f9] leading-relaxed"
+        >
+          {comment}
+        </motion.p>
+      ) : (
+        <div className="mt-5">
+          <TapHint>Elleri say, + ile gir, sonra yorumu aç</TapHint>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Tahmin et → tıkla göster. */
+function Reveal({
+  question,
+  answer,
+  accent = "#06b6d4",
 }: {
-  num: string;
-  total: string;
+  question: string;
+  answer: string;
+  accent?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className="sgbh-card sgbh-card-hover rounded-xl p-5 text-left w-full transition-all block"
+      style={open ? { borderColor: `${accent}90` } : undefined}
+    >
+      <div className="text-lg font-semibold text-white leading-snug">{question}</div>
+      {open ? (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 text-base leading-relaxed"
+          style={{ color: accent }}
+        >
+          {answer}
+        </motion.div>
+      ) : (
+        <div className="mt-3">
+          <TapHint>Önce tahmin et, sonra tıkla</TapHint>
+        </div>
+      )}
+    </button>
+  );
+}
+
+/* Mini sınav: tek ya da birkaç soru. */
+type QuizQuestion = { q: string; options: string[]; correct: number; why: string[] };
+
+function Quiz({ questions }: { questions: QuizQuestion[] }) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const item = questions[idx];
+  const go = (to: number) => {
+    setIdx(to);
+    setPicked(null);
+  };
+  return (
+    <div>
+      {questions.length > 1 && (
+        <div className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-2">
+          Soru {idx + 1} / {questions.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white leading-snug mb-4">{item.q}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {item.options.map((text, i) => {
+          const color = picked === i ? (i === item.correct ? OK : BAD) : undefined;
+          return (
+            <button
+              type="button"
+              key={text}
+              onClick={() => setPicked(i)}
+              className="sgbh-card sgbh-card-hover rounded-xl px-4 py-3 text-left text-base text-gray-200 transition-all flex items-center gap-3"
+              style={color ? { borderColor: color, background: `${color}18` } : undefined}
+            >
+              <span
+                className="w-8 h-8 rounded-lg flex items-center justify-center font-mono text-sm flex-shrink-0"
+                style={{
+                  background: `${color ?? "#06b6d4"}25`,
+                  color: color ?? "#67e8f9",
+                }}
+              >
+                {"ABCD"[i]}
+              </span>
+              <span className="leading-snug">{text}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[3.5rem] flex items-start justify-between gap-4">
+        <div className="text-base leading-relaxed">
+          {picked === null ? (
+            <TapHint>Sınıf karar versin, sonra şıkka tıkla</TapHint>
+          ) : (
+            <motion.span
+              key={`${idx}-${picked}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ color: picked === item.correct ? OK : BAD }}
+            >
+              {picked === item.correct ? "Doğru. " : "Olmadı. "}
+              {item.why[picked]}
+            </motion.span>
+          )}
+        </div>
+        {questions.length > 1 && (
+          <div className="flex gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => go(idx - 1)}
+              disabled={idx === 0}
+              className="px-4 py-2 rounded-lg text-sm text-gray-300 sgbh-card sgbh-card-hover disabled:opacity-30"
+            >
+              Önceki soru
+            </button>
+            <button
+              type="button"
+              onClick={() => go(idx + 1)}
+              disabled={idx === questions.length - 1}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-30"
+              style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+            >
+              Sonraki soru
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Adım adım açılan süreç. */
+type StepItem = {
   title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  desc: string;
+  extraLabel: string;
+  extra: string;
+  icon: LucideIcon;
+  color: string;
+};
+
+function Stepper({ steps }: { steps: StepItem[] }) {
+  const [shown, setShown] = useState(1);
+  const cur = steps[shown - 1];
+  const CurIcon = cur.icon;
+  return (
+    <div>
+      <div className="flex items-stretch gap-2">
+        {steps.map((s, i) => {
+          const open = i < shown;
+          return (
+            <button
+              type="button"
+              key={s.title}
+              onClick={() => setShown(i + 1)}
+              className="flex-1 min-w-0 rounded-lg px-2 py-2.5 text-center transition-all"
+              style={{
+                border: `1px solid ${open ? `${s.color}80` : "rgba(255,255,255,0.1)"}`,
+                background: i === shown - 1 ? `${s.color}25` : open ? `${s.color}0d` : "transparent",
+              }}
+            >
+              <div className="text-[11px] font-mono" style={{ color: open ? s.color : "#6b7280" }}>
+                {i + 1}. adım
+              </div>
+              <div className={`text-sm font-semibold leading-tight mt-0.5 ${open ? "text-white" : "text-gray-600"}`}>
+                {open ? s.title : "?"}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <motion.div
+        key={shown}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="sgbh-card rounded-xl p-5 mt-3 flex gap-4 min-h-[9.5rem]"
+        style={{ borderColor: `${cur.color}60` }}
+      >
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: `${cur.color}18`, border: `1px solid ${cur.color}55` }}
+        >
+          <CurIcon className="w-6 h-6" style={{ color: cur.color }} />
+        </div>
+        <div>
+          <div className="text-xl font-semibold text-white">
+            {shown}. {cur.title}
+          </div>
+          <p className="text-base text-gray-300 leading-relaxed mt-1">{cur.desc}</p>
+          <p className="text-base leading-relaxed mt-2" style={{ color: cur.color }}>
+            <span className="font-semibold">{cur.extraLabel}</span> {cur.extra}
+          </p>
+        </div>
+      </motion.div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShown((n) => Math.max(1, n - 1))}
+          disabled={shown === 1}
+          className="px-4 py-2.5 rounded-lg text-sm text-gray-300 sgbh-card sgbh-card-hover disabled:opacity-30"
+        >
+          Geri
+        </button>
+        <button
+          type="button"
+          onClick={() => setShown((n) => (n === steps.length ? 1 : n + 1))}
+          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
+          style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+        >
+          {shown === steps.length ? "Baştan başla" : "Sonraki adımı aç"}
+        </button>
+        <TapHint>
+          {shown} / {steps.length}
+        </TapHint>
+      </div>
+    </div>
+  );
+}
+
+/* İki seçenekli karar kartları. */
+type ClassifyItem = { text: string; answer: 0 | 1; why: string };
+
+function Classify({ items, labels }: { items: ClassifyItem[]; labels: [string, string] }) {
+  const [picks, setPicks] = useState<Record<number, 0 | 1>>({});
+  const [last, setLast] = useState<number | null>(null);
+  const right = items.filter((it, i) => picks[i] === it.answer).length;
+  const answered = Object.keys(picks).length;
+  return (
+    <div>
+      <div className="space-y-2">
+        {items.map((it, i) => {
+          const p = picks[i];
+          const done = p !== undefined;
+          const good = done && p === it.answer;
+          return (
+            <div
+              key={it.text}
+              className="sgbh-card rounded-lg px-4 py-2 flex items-center gap-3"
+              style={done ? { borderColor: `${good ? OK : BAD}80` } : undefined}
+            >
+              <span className="flex-shrink-0">
+                {!done ? (
+                  <Circle className="w-5 h-5 text-gray-600" />
+                ) : good ? (
+                  <CheckCircle2 className="w-5 h-5" style={{ color: OK }} />
+                ) : (
+                  <XCircle className="w-5 h-5" style={{ color: BAD }} />
+                )}
+              </span>
+              <span className="flex-1 text-[15px] text-gray-200 leading-snug">{it.text}</span>
+              {labels.map((label, b) => {
+                const mine = p === b;
+                const c = mine ? (good ? OK : BAD) : undefined;
+                return (
+                  <button
+                    type="button"
+                    key={label}
+                    onClick={() => {
+                      setPicks((prev) => ({ ...prev, [i]: b as 0 | 1 }));
+                      setLast(i);
+                    }}
+                    className="w-28 py-2 rounded-lg text-sm font-semibold transition-all flex-shrink-0"
+                    style={{
+                      border: `1px solid ${c ?? "rgba(6,182,212,0.35)"}`,
+                      background: c ? `${c}25` : "rgba(6,182,212,0.06)",
+                      color: c ?? "#e5e7eb",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[3rem] flex items-start justify-between gap-4">
+        <div className="text-base leading-snug">
+          {last === null ? (
+            <TapHint>Her satır için sınıfa sor, sonra düğmeye tıkla</TapHint>
+          ) : (
+            <motion.span
+              key={`${last}-${picks[last]}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ color: picks[last] === items[last].answer ? OK : BAD }}
+            >
+              {picks[last] === items[last].answer ? "Doğru. " : "Tekrar düşün. "}
+              {items[last].why}
+            </motion.span>
+          )}
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className="text-sm font-mono text-gray-400">
+            Doğru: {right} / {items.length}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setPicks({});
+              setLast(null);
+            }}
+            disabled={answered === 0}
+            aria-label="Sıfırla"
+            className="p-2 rounded-lg sgbh-card sgbh-card-hover text-gray-300 disabled:opacity-30"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Sınıf etkinliği: biten adımı tıkla, işaretle. */
+function Checklist({ steps }: { steps: string[] }) {
+  const [done, setDone] = useState<boolean[]>(() => steps.map(() => false));
+  const count = done.filter(Boolean).length;
+  return (
+    <div>
+      <div className="space-y-2">
+        {steps.map((s, i) => (
+          <button
+            type="button"
+            key={s}
+            onClick={() => setDone((d) => d.map((v, j) => (j === i ? !v : v)))}
+            className="sgbh-card sgbh-card-hover rounded-lg px-4 py-2.5 w-full text-left flex items-center gap-3 transition-all"
+            style={done[i] ? { borderColor: `${OK}80`, background: `${OK}10` } : undefined}
+          >
+            {done[i] ? (
+              <CheckCircle2 className="w-6 h-6 flex-shrink-0" style={{ color: OK }} />
+            ) : (
+              <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono flex-shrink-0 text-[#67e8f9] border border-[#06b6d4]/50">
+                {i + 1}
+              </span>
+            )}
+            <span className={`text-base leading-snug ${done[i] ? "text-gray-400" : "text-gray-200"}`}>{s}</span>
+          </button>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <TapHint>Biten adıma tıkla</TapHint>
+        <span className="text-sm font-mono text-gray-400">
+          {count} / {steps.length} adım tamam
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* Kısa başlık + ipucu satırı olan bilgi kartı (tıklanmaz). */
+function Note({
+  icon: Icon,
+  color,
+  label,
+  children,
+}: {
+  icon: LucideIcon;
+  color: string;
+  label: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 sgbh-pulse"
-          style={{ background: bgGradient, boxShadow: shadow }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.5 }}
+      className="sgbh-card rounded-xl p-5"
+      style={{ borderColor: `${color}55` }}
+    >
+      <div className="flex items-center gap-2 mb-2" style={{ color }}>
+        <Icon className="w-5 h-5" />
+        <span className="text-xs font-mono uppercase tracking-widest">{label}</span>
       </div>
-    </SlideShell>
+      <div className="text-base text-gray-200 leading-relaxed">{children}</div>
+    </motion.div>
+  );
+}
+
+function Bullets({ items, color = "#06b6d4" }: { items: string[]; color?: string }) {
+  return (
+    <ul className="space-y-2.5">
+      {items.map((it) => (
+        <li key={it} className="flex gap-2 text-base text-gray-300 leading-snug">
+          <ChevronRight className="w-4 h-4 mt-1 flex-shrink-0" style={{ color }} />
+          <span>{it}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   HAFTAYA ÖZEL OYNA-GÖR BİLEŞENLERİ
    ============================================================ */
 
-function TerminalWindow({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+const PAYLASIM = [
+  {
+    label: "Yalnız ben",
+    who: "Sadece sen görürsün.",
+    risk: "Düşük",
+    color: OK,
+    when: "Kimlik fotoğrafı, okul belgesi gibi kişisel dosyalar.",
+  },
+  {
+    label: "Seçtiğim kişiler",
+    who: "Yalnız e-postasını eklediğin kişiler görür.",
+    risk: "Düşük",
+    color: "#67e8f9",
+    when: "Grup ödevi, ortak rapor. İş bitince kişileri listeden çıkar.",
+  },
+  {
+    label: "Bağlantıya sahip herkes",
+    who: "Bağlantı kimin eline geçerse o görür. Giriş yapması bile gerekmez.",
+    risk: "Yüksek",
+    color: BAD,
+    when: "Yalnız herkesin görmesinde sakınca olmayan şeyler: afiş, duyuru.",
+  },
+];
+
+/* Paylaşım ayarını seç, kimin gördüğünü gör. */
+function ShareDemo() {
+  const [sel, setSel] = useState(0);
+  const cur = PAYLASIM[sel];
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full"
-    >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
-        >
-          <span
-            className="w-5 h-5 rounded-sm flex items-center justify-center text-[11px]"
-            style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", color: "white" }}
+    <div>
+      <div className="grid grid-cols-3 gap-3">
+        {PAYLASIM.map((p, i) => (
+          <button
+            type="button"
+            key={p.label}
+            onClick={() => setSel(i)}
+            className="rounded-xl px-4 py-4 text-base font-semibold transition-all"
+            style={{
+              border: `1px solid ${i === sel ? p.color : "rgba(6,182,212,0.3)"}`,
+              background: i === sel ? `${p.color}22` : "rgba(6,182,212,0.05)",
+              color: i === sel ? p.color : "#e5e7eb",
+            }}
           >
-            $_
-          </span>
-          <span>{title}</span>
-        </div>
-      </div>
-      <div className="sgbh-terminal">{children}</div>
-    </motion.div>
-  );
-}
-
-/* AWS konsol benzeri JSON gösterici (IAM policy belgesi) */
-function PolicyWindow({
-  title,
-  icon,
-  children,
-}: {
-  title: string;
-  icon: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full"
-    >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] flex-1 max-w-md mx-auto text-center justify-center font-mono"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
-        >
-          {icon}
-          <span>{title}</span>
-        </div>
-      </div>
-      <div className="sgbh-json">{children}</div>
-    </motion.div>
-  );
-}
-
-/* IAM erişim zinciri: kimlik → policy → kaynak */
-function IAMChain() {
-  const nodes = [
-    { icon: Users, label: "Principal", detail: "Kullanıcı · Rol · Servis", color: "#06b6d4" },
-    { icon: KeyRound, label: "Policy", detail: "Effect · Action · Resource", color: "#a78bfa" },
-    { icon: Database, label: "Resource", detail: "S3 · EC2 · DynamoDB", color: "#34d399" },
-  ];
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="sgbh-card rounded-xl p-6 max-w-4xl mx-auto"
-    >
-      <div className="flex items-center justify-between gap-3">
-        {nodes.map((n, i) => (
-          <div key={n.label} className="flex items-center gap-3 flex-1">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 + i * 0.2 }}
-              className="flex flex-col items-center text-center flex-1"
-            >
-              <div
-                className="w-14 h-14 rounded-xl flex items-center justify-center mb-2"
-                style={{ background: `${n.color}18`, border: `1px solid ${n.color}55` }}
-              >
-                <n.icon className="w-7 h-7" style={{ color: n.color }} />
-              </div>
-              <div className="text-sm font-semibold text-white">{n.label}</div>
-              <div className="text-[11px] text-gray-500 font-mono mt-0.5">{n.detail}</div>
-            </motion.div>
-            {i < nodes.length - 1 && (
-              <ArrowRight className="w-6 h-6 text-gray-600 flex-shrink-0" />
-            )}
-          </div>
+            {p.label}
+          </button>
         ))}
       </div>
-      <div className="mt-5 text-[11px] text-gray-500 font-mono text-center border-t border-white/5 pt-4">
-        AWS&apos;de varsayılan <span className="text-[#f87171]">implicit deny</span> &middot; bir eylem ancak{" "}
-        <span className="text-[#34d399]">açıkça Allow</span> edilirse ve hiçbir yerde Deny yoksa çalışır.
+      <motion.div
+        key={sel}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="sgbh-card rounded-xl p-5 mt-3 grid grid-cols-1 md:grid-cols-3 gap-5 min-h-[8.5rem]"
+        style={{ borderColor: `${cur.color}70` }}
+      >
+        <div>
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-500 mb-1">
+            <Eye className="w-4 h-4" />
+            Kim görür?
+          </div>
+          <div className="text-base text-gray-200 leading-snug">{cur.who}</div>
+        </div>
+        <div>
+          <div className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-1">Risk</div>
+          <div className="text-2xl font-bold" style={{ color: cur.color }}>
+            {cur.risk}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-1">Ne zaman uygun?</div>
+          <div className="text-base text-gray-200 leading-snug">{cur.when}</div>
+        </div>
+      </motion.div>
+      <div className="mt-3">
+        <TapHint>Üç ayarı sırayla tıkla, farkı gör</TapHint>
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+/* MFA'yı aç/kapa: şifre çalınınca ne olur? */
+function MfaToggle() {
+  const [on, setOn] = useState(false);
+  const color = on ? OK : BAD;
+  return (
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
+        <div className="sgbh-card rounded-xl p-4">
+          <div className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-1">1 · Olay</div>
+          <div className="text-base text-gray-200 leading-snug">
+            Şifren bir sızıntıda ele geçti. Saldırgan e-postanı ve şifreni biliyor.
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOn((v) => !v)}
+          className="rounded-xl p-4 text-left transition-all"
+          style={{ border: `1px solid ${color}`, background: `${color}18` }}
+        >
+          <div className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">
+            2 · İkinci kilit (MFA)
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              className="relative w-16 h-8 rounded-full transition-colors flex-shrink-0"
+              style={{ background: on ? OK : "#4b5563" }}
+            >
+              <span
+                className="absolute top-1 w-6 h-6 rounded-full bg-white transition-all"
+                style={{ left: on ? "2.25rem" : "0.25rem" }}
+              />
+            </span>
+            <span className="text-2xl font-bold" style={{ color }}>
+              {on ? "AÇIK" : "KAPALI"}
+            </span>
+          </div>
+          <div className="mt-2">
+            <TapHint>Tıkla, değiştir</TapHint>
+          </div>
+        </button>
+        <motion.div
+          key={String(on)}
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="sgbh-card rounded-xl p-4"
+          style={{ borderColor: `${color}80` }}
+        >
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-1" style={{ color }}>
+            {on ? <ShieldCheck className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+            3 · Sonuç
+          </div>
+          <div className="text-base leading-snug" style={{ color }}>
+            {on
+              ? "Şifre doğru ama giriş, telefonuna gelen onayda takıldı. Sana “Bu sen misin?” bildirimi geldi; “Hayır” dedin ve şifreni değiştirdin."
+              : "Saldırgan doğrudan içeri girdi. E-postaların, fotoğrafların ve dosyaların artık onun da elinde."}
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 }
 
 /* ============================================================
    SLIDES
    ============================================================ */
+
+const KIMIN_ISI: ClassifyItem[] = [
+  {
+    text: "Veri merkezinin kapısında güvenlik görevlisi bulundurmak.",
+    answer: 0,
+    why: "Bina sağlayıcının; fiziksel güvenlik de onun işi.",
+  },
+  {
+    text: "Hesaba güçlü bir şifre koymak ve iki adımlı doğrulamayı açmak.",
+    answer: 1,
+    why: "Dairenin anahtarı müşteride; hesabı korumak onun işi.",
+  },
+  {
+    text: "Bozulan diski yenisiyle değiştirmek.",
+    answer: 0,
+    why: "Donanım sağlayıcıya ait; arızayı o giderir.",
+  },
+  {
+    text: "Bir dosyanın paylaşım ayarını “herkes görebilir” bırakmamak.",
+    answer: 1,
+    why: "Dosya ve ayar müşterinin; sağlayıcı senin yerine karar vermez.",
+  },
+  {
+    text: "İşten ayrılan çalışanın hesabını kapatmak.",
+    answer: 1,
+    why: "Kimin erişeceğine müşteri karar verir; eski hesap açık kapıdır.",
+  },
+];
+
+const IZLEME_ADIMLARI: StepItem[] = [
+  {
+    title: "Kayıt tut",
+    desc: "Kim, ne zaman, nereden girdi? Bulut bunu yazar; yeter ki kayıt tutma açık olsun.",
+    extraLabel: "Günlük hayatta:",
+    extra: "Apartman girişindeki ziyaretçi defteri.",
+    icon: ScrollText,
+    color: "#06b6d4",
+  },
+  {
+    title: "Uyarı kur",
+    desc: "Alışılmadık bir şey olunca haber gelsin: yeni cihaz, yeni ülke, gece yarısı girişi.",
+    extraLabel: "Günlük hayatta:",
+    extra: "E-postana gelen “yeni cihazdan giriş yapıldı” mesajı.",
+    icon: Bell,
+    color: "#fbbf24",
+  },
+  {
+    title: "Uyarıya bak",
+    desc: "Uyarı geldiyse biri ona bakmalı: bu ben miyim, değil miyim? Değilse şifreyi değiştir.",
+    extraLabel: "Unutma:",
+    extra: "Okunmayan uyarı, çalıp da kimsenin duymadığı alarm gibidir.",
+    icon: Eye,
+    color: "#34d399",
+  },
+];
+
+const ARA_SORU: QuizQuestion[] = [
+  {
+    q: "Bir şirket, müşteri listesini bulutta “bağlantıya sahip herkes” ayarıyla bırakmış ve liste sızmış. Bu ayar kimin işiydi?",
+    options: [
+      "Bulut sağlayıcısının",
+      "Dosyayı paylaşan şirketin (müşterinin)",
+      "İnternet şirketinin",
+      "Kimsenin; önlenemezdi",
+    ],
+    correct: 1,
+    why: [
+      "Sağlayıcı binayı korur; dosyanı kiminle paylaştığına karışmaz.",
+      "Paylaşım ayarı müşterinin sorumluluğundadır.",
+      "İnternet şirketi yalnız bağlantıyı sağlar.",
+      "Tek bir ayar değişikliğiyle önlenebilirdi.",
+    ],
+  },
+];
+
+const KAPANIS_SORULARI: QuizQuestion[] = [
+  {
+    q: "Paylaşılan sorumlulukta veri merkezinin fiziksel güvenliği kimdedir?",
+    options: ["Müşteride", "Sağlayıcıda", "Devlette", "Kullanıcının telefonunda"],
+    correct: 1,
+    why: [
+      "Müşteri binaya giremez bile; onun işi hesabı ve verisi.",
+      "Bina, donanım ve fiziksel güvenlik sağlayıcının işidir.",
+      "Devlet kural koyar ama binayı korumaz.",
+      "Telefon yalnız hesabına açılan kapıdır.",
+    ],
+  },
+  {
+    q: "Şifren sızdı ama hesabına giremediler. Seni büyük olasılıkla ne korudu?",
+    options: [
+      "Şifrenin uzun olması",
+      "İki adımlı doğrulama (MFA)",
+      "Telefonunun kılıfı",
+      "Hesabın eski olması",
+    ],
+    correct: 1,
+    why: [
+      "Şifre zaten sızmış; uzun olması artık işe yaramaz.",
+      "Şifre bilinse de ikinci adım (telefon onayı) olmadan giriş tamamlanmaz.",
+      "Kılıf telefonu düşmekten korur, hesabı değil.",
+      "Hesabın yaşı güvenlik sağlamaz.",
+    ],
+  },
+  {
+    q: "Yalnız rapor okuyacak bir stajyere hangi yetki verilmeli?",
+    options: [
+      "Yönetici yetkisi; ne olur ne olmaz",
+      "Yalnız okuma yetkisi",
+      "Herkesle aynı yetki",
+      "Hiç hesap açmadan başkasının şifresi",
+    ],
+    correct: 1,
+    why: [
+      "Fazla yetki, hata ya da hesap çalınması hâlinde zararı büyütür.",
+      "En az yetki: işine yetecek kadar, fazlası değil.",
+      "Herkesin işi aynı değil; yetkisi de aynı olmamalı.",
+      "Şifre paylaşılırsa kimin ne yaptığı bilinemez.",
+    ],
+  },
+];
 
 const slides: Array<(active: boolean) => ReactNode> = [
   /* ───── 1. Kapak ───── */
@@ -327,805 +905,322 @@ const slides: Array<(active: boolean) => ReactNode> = [
         <H1>
           <span className="sgbh-shimmer">Bulut Güvenliği</span>
           <br />
-          <span className="text-white/90">AWS&apos;te Yapılandırmayı Doğru Kur</span>
+          <span className="text-white/90">Bina Onların, Anahtar Senin</span>
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          İhlallerin çoğu sıfır-gün değil, yanlış yapılandırmadır. IAM, S3, security group ve
-          GuardDuty ile bulutta saldırı yüzeyini daraltıyoruz.
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Dosyalarımız artık başkasının bilgisayarında duruyor. Peki onları korumak kimin işi
+          ve biz kendi payımıza düşeni nasıl yaparız?
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto text-left">
           <FeatureCard
-            icon={KeyRound}
-            title="IAM"
-            desc="Kimlik ve yetki: kullanıcı, rol, policy ve en az yetki ilkesi."
+            icon={Handshake}
+            title="Kim neyi korur?"
+            desc="Paylaşılan sorumluluk: bina sağlayıcının, anahtar senin."
             delay={0.3}
             accent="#06b6d4"
           />
           <FeatureCard
-            icon={FolderLock}
-            title="S3"
-            desc="Bucket erişim modeli ve public ifşaya yol açan yanlış ayarlar."
-            delay={0.42}
-            accent="#a78bfa"
+            icon={DoorOpen}
+            title="En sık hata ne?"
+            desc="Saldırı değil, açık unutulan kapı: yanlış ayar."
+            delay={0.45}
+            accent="#f87171"
           />
           <FeatureCard
-            icon={Network}
-            title="Security Groups"
-            desc="Sanal güvenlik duvarı: stateful kurallar ve 0.0.0.0/0 tuzağı."
-            delay={0.54}
-            accent="#fbbf24"
-          />
-          <FeatureCard
-            icon={ScanSearch}
-            title="GuardDuty"
-            desc="Tehdit tespiti: anormal API ve ağ davranışını yakalayan servis."
-            delay={0.66}
+            icon={KeyRound}
+            title="Ben ne yaparım?"
+            desc="İkinci kilit (MFA) ve işine yetecek kadar anahtar."
+            delay={0.6}
             accent="#34d399"
           />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Çarşamba 13:30 — 17:00 · Uygulamalı lab (AWS Free Tier + AWS CLI)
-        </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ───── 2. Geçen hafta → bu hafta köprü ───── */
+  /* ───── 2. El kaldır ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · 9. haftadan 10. haftaya</Eyebrow>
-      <H2>Sunucu bizimken kurduğumuz savunmayı şimdi paylaşımlı buluta taşıyoruz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bulutta güvenlik artık tek taraflı değil: altyapıyı sağlayıcı korur, içine ne koyup nasıl
-        yapılandırdığından sen sorumlusun. Bu çizgiyi bilmemek ihlallerin bir numaralı sebebi.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#67e8f9]">
-            <Cloud className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Sağlayıcının sorumluluğu</span>
-          </div>
-          <div className="text-[11px] text-gray-500 font-mono mb-3">security OF the cloud</div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Veri merkezleri, donanım, fiziksel güvenlik.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Hipervizör ve temel ağ altyapısı.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Yönetilen servislerin altyapı yaması.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <UserCog className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Senin sorumluluğun</span>
-          </div>
-          <div className="text-[11px] text-gray-500 font-mono mb-3">security IN the cloud</div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />IAM kullanıcı/rol ve policy tasarımı.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />S3 erişim ayarları ve veri şifreleme.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Security group / firewall kuralları, log izleme.</li>
-          </ul>
-        </motion.div>
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl"
-      >
-        <Layers className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          Buna <span className="text-white">Paylaşımlı Sorumluluk Modeli</span> denir. Sağlayıcı bulutu güvende
-          tutar; bulutun içindekini güvende tutmak müşterinin işidir. Çizgiyi karıştırmak veri sızıntısıyla biter.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 3. Dersin akışı ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: kimlik → açık yüzey → tespit</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce kimin neye erişebileceğini (IAM) kuruyoruz; sonra yanlış yapılandırmanın yarattığı
-        açık yüzeyi (S3 ve security group) görüyoruz; en son anormali yakalayan tespiti (GuardDuty)
-        ekliyoruz. Sonunda küçük bir uygulamalı lab.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "IAM — Kimlik & Yetki", items: ["Kullanıcı, rol, policy", "En az yetki (least privilege)", "Allow / Deny değerlendirme"], icon: KeyRound, accent: "#06b6d4" },
-          { range: "02", title: "Açık Yüzey", items: ["S3 bucket erişim modeli", "Public ifşa anatomisi", "Security group 0.0.0.0/0"], icon: FileWarning, accent: "#fbbf24" },
-          { range: "03", title: "GuardDuty — Tespit", items: ["Tehdit tespit kaynakları", "Bulgu (finding) okuma", "Olay müdahale akışı"], icon: ScanSearch, accent: "#34d399" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="sgbh-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 4. Bölüm 1 — IAM ───── */
-  () => (
-    <SectionDivider
-      num="01"
-      total="03"
-      title="IAM — Kimlik & Erişim Yönetimi"
-      subtitle="Bulutta her şey bir API çağrısı. IAM, hangi kimliğin hangi kaynakta hangi eylemi yapabileceğini belirleyen bekçidir."
-      bgGradient="linear-gradient(135deg,#06b6d4,#0e7490)"
-      shadow="0 30px 80px -20px rgba(6,182,212,0.6)"
-      icon={<KeyRound className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 5. IAM zinciri ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>IAM · temel model</Eyebrow>
-      <H2 className="mb-2">Kim, neye, ne yapabilir?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Her erişim üç parçaya ayrışır: bir <span className="text-white">principal</span> (kimlik),
-        ona bağlı bir <span className="text-white">policy</span> (izin belgesi) ve hedef bir{" "}
-        <span className="text-white">resource</span> (kaynak). Policy bu üçlüyü birbirine bağlar.
-      </Sub>
-      <IAMChain />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <div className="sgbh-card rounded-lg px-4 py-3">
-          <div className="text-xs font-mono uppercase tracking-widest text-[#06b6d4] mb-1">Kullanıcı (User)</div>
-          <p className="text-[12px] text-gray-400">Kalıcı kimlik; uzun ömürlü erişim anahtarı taşır. İnsanlar için MFA şart.</p>
+      <Mid>
+        <Eyebrow>Isınma · el kaldır</Eyebrow>
+        <H2 className="md:!text-4xl">Fotoğrafların şu an nerede duruyor?</H2>
+        <div className="mt-6">
+          <Poll
+            question="Kaçınızın telefonundaki fotoğraflar Google Fotoğraflar ya da iCloud’a yedekleniyor?"
+            comment="Eli kalkan herkes zaten bulut kullanıyor. Fotoğrafların telefonda değil, bir şirketin uzaktaki bilgisayarlarında da duruyor. Bugünün sorusu: orayı kim koruyor?"
+          />
         </div>
-        <div className="sgbh-card rounded-lg px-4 py-3">
-          <div className="text-xs font-mono uppercase tracking-widest text-[#a78bfa] mb-1">Rol (Role)</div>
-          <p className="text-[12px] text-gray-400">Üstlenilen geçici kimlik; kısa ömürlü kimlik bilgisi üretir. EC2 ve servisler için tercih.</p>
-        </div>
-        <div className="sgbh-card rounded-lg px-4 py-3">
-          <div className="text-xs font-mono uppercase tracking-widest text-[#34d399] mb-1">Grup (Group)</div>
-          <p className="text-[12px] text-gray-400">Policy&apos;leri kullanıcılara toplu atamak için kova; kendi başına oturum açamaz.</p>
-        </div>
-      </div>
+        <AskLine>Telefonun bugün bozulsa fotoğrafların gider mi? Neden?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 6. IAM policy JSON ───── */
+  /* ───── 3. Bulut nedir ───── */
   () => (
     <SlideShell>
-      <Eyebrow>IAM · policy belgesi</Eyebrow>
-      <H2 className="mb-2">Bir policy nasıl okunur?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Policy bir JSON belgesidir. Asıl iş <span className="text-white">Effect</span>,{" "}
-        <span className="text-white">Action</span> ve <span className="text-white">Resource</span>{" "}
-        alanlarında biter. Solda en az yetki ilkesine uygun, sağda tehlikeli geniş yetki.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <PolicyWindow title="least-privilege.json" icon={<ShieldCheck className="w-3.5 h-3.5 text-[#34d399]" />}>
-{`{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": `}<span className="sgbh-json-good">&quot;Allow&quot;</span>{`,
-    "Action": [
-      `}<span className="sgbh-json-str">&quot;s3:GetObject&quot;</span>{`
-    ],
-    "Resource":
-      `}<span className="sgbh-json-str">&quot;arn:aws:s3:::raporlar/*&quot;</span>{`
-  }]
-}`}
-        </PolicyWindow>
-        <PolicyWindow title="dangerous.json" icon={<AlertTriangle className="w-3.5 h-3.5 text-[#f87171]" />}>
-{`{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": `}<span className="sgbh-json-good">&quot;Allow&quot;</span>{`,
-    "Action": `}<span className="sgbh-json-bad">&quot;*&quot;</span>{`,
-    "Resource": `}<span className="sgbh-json-bad">&quot;*&quot;</span>{`
-  }]
-}
-`}<span className="sgbh-json-comment">{`// her eylem, her kaynak =
-// AdministratorAccess eşdeğeri`}</span>{`
-`}
-        </PolicyWindow>
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl"
-      >
-        <Lock className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">En az yetki ilkesi:</span> bir kimliğe yalnızca işini yapması için gereken
-          eylemleri ve kaynakları ver. <span className="font-mono text-[#f87171]">&quot;Action&quot;: &quot;*&quot;</span> ile
-          başlayıp daraltmak değil, dar başlayıp gerektikçe genişletmek doğru yöndür.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 7. IAM en iyi pratikler ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>IAM · sahadan kurallar</Eyebrow>
-      <H2>Root&apos;u kilitle, anahtarı döndür, MFA&apos;yı zorla</H2>
-      <Sub className="mt-3 max-w-3xl">
-        IAM zafiyetlerinin çoğu eksik bilgiden değil, ihmalden doğar. Aşağıdaki altı pratik,
-        bulut hesabının büyük kısmını korur.
+      <Eyebrow>Benzetme · ev almak mı, kiralamak mı?</Eyebrow>
+      <H2>Bulut, başkasının bilgisayarını kiralamaktır</H2>
+      <Sub className="mt-3 max-w-4xl">
+        Bulut (cloud): internet üzerinden kullandığın, başka bir şirkete ait bilgisayarlar.
+        O şirkete sağlayıcı diyoruz.
       </Sub>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         <FeatureCard
-          icon={Lock}
-          title="Root&apos;u kullanma"
-          desc="Hesap kök kimliğine MFA tak, anahtarını sil, günlük işlerde asla kullanma. Sadece acil durum için."
-          accent="#f87171"
+          icon={Server}
+          title="Kendi sunucun: kendi evin"
+          desc="Her şey sende: tamiri de, kilidi de, faturası da."
+          accent="#fbbf24"
           delay={0.1}
         />
         <FeatureCard
-          icon={ShieldCheck}
-          title="MFA zorunlu"
-          desc="Konsola erişen her insan kimliğine çok faktörlü doğrulama. Çalınan parola tek başına yetmesin."
+          icon={Building2}
+          title="Bulut: kiralık daire"
+          desc="Bina ve bakım sağlayıcıda. Sen içeri yerleşir, kullandığın kadar ödersin."
           accent="#06b6d4"
-          delay={0.18}
+          delay={0.2}
         />
         <FeatureCard
-          icon={UserCog}
-          title="Rol > anahtar"
-          desc="EC2 ve uygulamalar için uzun ömürlü erişim anahtarı yerine üstlenilen rol kullan; kod içine anahtar gömme."
-          accent="#a78bfa"
-          delay={0.26}
-        />
-        <FeatureCard
-          icon={Key}
-          title="Anahtar rotasyonu"
-          desc="Erişim anahtarlarını düzenli döndür, kullanılmayanı devre dışı bırak. Sızan eski anahtar uzun süre risk."
-          accent="#fbbf24"
-          delay={0.34}
-        />
-        <FeatureCard
-          icon={Users}
-          title="Grup ile yönet"
-          desc="Policy&apos;yi kullanıcıya tek tek değil gruba bağla; izin yönetimi denetlenebilir ve tutarlı kalır."
+          icon={Cloud}
+          title="Zaten kullanıyorsun"
+          desc="E-posta, Drive, iCloud, fotoğraf yedeği. Şirketler de sunucularını böyle kiralar."
           accent="#34d399"
-          delay={0.42}
-        />
-        <FeatureCard
-          icon={Eye}
-          title="Erişimi denetle"
-          desc="IAM Access Analyzer ve son-kullanım raporları ile kimsenin kullanmadığı geniş izinleri budama."
-          accent="#22d3ee"
-          delay={0.5}
+          delay={0.3}
         />
       </div>
+      <AskLine>Bugün sabahtan beri hangi bulut hizmetini kullandın?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 8. Bölüm 2 — Açık Yüzey ───── */
-  () => (
-    <SectionDivider
-      num="02"
-      total="03"
-      title="Açık Yüzey: S3 & Security Groups"
-      subtitle="İhlallerin manşete çıkanı genelde tek bir yanlış ayardır: herkese açık bir bucket ya da internete sonuna kadar açık bir port."
-      bgGradient="linear-gradient(135deg,#f59e0b,#b45309)"
-      shadow="0 30px 80px -20px rgba(245,158,11,0.55)"
-      icon={<FileWarning className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 9. S3 erişim modeli ───── */
+  /* ───── 4. Paylaşılan sorumluluk ───── */
   () => (
     <SlideShell>
-      <Eyebrow>S3 · erişim kapıları</Eyebrow>
-      <H2 className="mb-2">Bir bucket&apos;a erişimi dört kapı belirler</H2>
-      <Sub className="max-w-3xl mb-6">
-        S3&apos;te &quot;public&quot; tek bir düğme değil; birden çok katmanın bileşkesidir. Hepsi
-        birlikte değerlendirilir — biri açık kalırsa veri sızar.
+      <Eyebrow>Temel kural · paylaşılan sorumluluk</Eyebrow>
+      <H2>Bina onların, dairenin anahtarı senin</H2>
+      <Sub className="mt-3 max-w-4xl">
+        Paylaşılan sorumluluk (shared responsibility): güvenlik işi ikiye bölünür.
+        Sağlayıcı binayı korur, müşteri kendi dairesini.
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          { icon: ShieldCheck, title: "Block Public Access", desc: "Hesap ve bucket düzeyinde ana şalter. Açık kalması herkese açık ifşanın bir numaralı sebebi; varsayılan olarak açık tutulmalı.", accent: "#06b6d4" },
-          { icon: FolderLock, title: "Bucket Policy", desc: "Bucket&apos;a kaynak-bazlı izin. Principal &quot;*&quot; + s3:GetObject yazmak bucket&apos;ı internete açar.", accent: "#a78bfa" },
-          { icon: ListChecks, title: "ACL (eski)", desc: "Nesne/bucket düzeyinde eski erişim listesi. Artık önerilmez; çoğu hesapta kapatılır.", accent: "#fbbf24" },
-          { icon: Lock, title: "IAM Policy", desc: "Kimlik-bazlı izin: hangi kullanıcı/rol bucket&apos;a erişebilir. Bucket policy ile birlikte değerlendirilir.", accent: "#34d399" },
-        ].map((c, i) => (
-          <motion.div
-            key={c.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="sgbh-card rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${c.accent}18`, border: `1px solid ${c.accent}55` }}
-            >
-              <c.icon className="w-5 h-5" style={{ color: c.accent }} />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-white mb-1">{c.title}</h3>
-              <p className="text-[13px] text-gray-400 leading-relaxed">{c.desc}</p>
-            </div>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-7">
+        <Note icon={Building2} color="#67e8f9" label="Sağlayıcının işi · bina">
+          <Bullets
+            items={[
+              "Veri merkezinin kapısı, kamerası, görevlisi.",
+              "Elektrik, soğutma, internet bağlantısı.",
+              "Bozulan donanımı değiştirmek.",
+            ]}
+          />
+        </Note>
+        <Note icon={KeyRound} color="#fbbf24" label="Müşterinin işi · daire">
+          <Bullets
+            color="#fbbf24"
+            items={[
+              "Şifreler ve iki adımlı doğrulama.",
+              "Kimin neye erişeceği.",
+              "Hangi dosyanın herkese açık olduğu.",
+            ]}
+          />
+        </Note>
       </div>
+      <AskLine>Dairene hırsız girdi; kapıyı kilitlememişsin. Suç ev sahibinde mi?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 10. S3 misconfiguration — bucket policy + CLI ───── */
+  /* ───── 5. Kimin işi? ───── */
   () => (
     <SlideShell>
-      <Eyebrow>S3 · yanlış yapılandırma anatomisi</Eyebrow>
-      <H2 className="mb-2">Bu policy bucket&apos;ı internete açar</H2>
-      <Sub className="max-w-3xl mb-6">
-        <span className="font-mono text-[#f87171]">&quot;Principal&quot;: &quot;*&quot;</span> herhangi biri demektir
-        (kimlik doğrulama yok). Bir saldırgan kimliği olmadan, sadece bucket adını bilerek tüm nesneleri indirebilir.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-        <PolicyWindow title="bucket-policy.json (tehlikeli)" icon={<AlertTriangle className="w-3.5 h-3.5 text-[#f87171]" />}>
-{`{
-  "Statement": [{
-    "Effect": `}<span className="sgbh-json-good">&quot;Allow&quot;</span>{`,
-    "Principal": `}<span className="sgbh-json-bad">&quot;*&quot;</span>{`,
-    "Action": `}<span className="sgbh-json-str">&quot;s3:GetObject&quot;</span>{`,
-    "Resource":
-      `}<span className="sgbh-json-str">&quot;arn:aws:s3:::sirket-yedek/*&quot;</span>{`
-  }]
-}`}
-        </PolicyWindow>
-        <TerminalWindow title="attacker@anon:~ — aws-cli (kimliksiz)">
-          <div>
-            <span className="sgbh-term-prompt">attacker@anon</span>
-            <span className="sgbh-term-dim">:~$</span>{" "}
-            <span className="sgbh-term-cmd">aws s3 ls s3://sirket-yedek --no-sign-request</span>
-          </div>
-          <div className="sgbh-term-err">2026-06-20 03:11   8.4 GB  db-dump-2026.sql</div>
-          <div className="sgbh-term-err">2026-06-20 03:12   120 MB  musteri-listesi.csv</div>
-          <div className="sgbh-term-dim mt-1">--no-sign-request = imzasız, yani kimlik doğrulamadan</div>
-          <div className="mt-2">
-            <span className="sgbh-term-prompt">attacker@anon</span>
-            <span className="sgbh-term-dim">:~$</span>{" "}
-            <span className="sgbh-term-cmd">aws s3 cp s3://sirket-yedek/db-dump-2026.sql . --no-sign-request</span>
-          </div>
-          <div className="sgbh-term-err">download: s3://sirket-yedek/db-dump-2026.sql to ./db-dump-2026.sql</div>
-          <div className="mt-2">
-            <span className="sgbh-term-prompt">attacker@anon</span>
-            <span className="sgbh-term-dim">:~$</span>{" "}
-            <span className="sgbh-term-cmd">_</span>
-            <span className="animate-pulse">█</span>
-          </div>
-        </TerminalWindow>
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 sgbh-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <X className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-        <span>
-          Çözüm: <span className="text-white">Block Public Access</span> açık kalsın, Principal asla &quot;*&quot; olmasın,
-          veri <span className="text-white">SSE-KMS</span> ile şifrelensin ve değişiklikler S3 erişim loglarıyla izlensin.
-        </span>
-      </motion.div>
+      <Mid>
+        <Eyebrow>Oyna-gör · karar ver</Eyebrow>
+        <H2 className="md:!text-4xl">Bu kimin işi: sağlayıcının mı, müşterinin mi?</H2>
+        <div className="mt-5">
+          <Classify items={KIMIN_ISI} labels={["Sağlayıcı", "Müşteri"]} />
+        </div>
+        <AskLine>Müşterinin en sık unuttuğu iş sence hangisi?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 11. Security groups ───── */
+  /* ───── 6. Yanlış yapılandırma ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Security Group · sanal güvenlik duvarı</Eyebrow>
-      <H2 className="mb-2">Hangi trafik içeri girer?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Security group, EC2 örneğinin önündeki <span className="text-white">stateful</span> güvenlik
-        duvarıdır: yalnızca <span className="text-white">izin</span> kuralları içerir (deny yok), izin verilen
-        gelen trafiğin yanıtı otomatik geri döner. Sorun, kuralın kaynağını çok geniş bırakmaktır.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="sgbh-card rounded-xl p-1"
-      >
-        <table className="sgbh-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "12%" }}>Tür</th>
-              <th style={{ width: "12%" }}>Port</th>
-              <th style={{ width: "26%" }}>Kaynak (Source)</th>
-              <th style={{ width: "16%" }}>Değerlendirme</th>
-              <th>Neden?</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="font-mono text-white">HTTPS</td>
-              <td className="font-mono">443</td>
-              <td><span className="font-mono text-[#86efac]">0.0.0.0/0</span></td>
-              <td><span className="sgbh-pill sgbh-pill-a">Kabul</span></td>
-              <td>Genel web sitesi için herkese açık olması beklenir.</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-white">SSH</td>
-              <td className="font-mono">22</td>
-              <td><span className="font-mono text-[#f87171]">0.0.0.0/0</span></td>
-              <td><span className="sgbh-pill" style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.35)" }}>Tehlikeli</span></td>
-              <td>Tüm internete açık yönetim portu — brute force ve tarama hedefi.</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-white">SSH</td>
-              <td className="font-mono">22</td>
-              <td><span className="font-mono text-[#86efac]">203.0.113.10/32</span></td>
-              <td><span className="sgbh-pill sgbh-pill-a">Doğru</span></td>
-              <td>Yalnızca tek bir yönetici IP&apos;sine açık; saldırı yüzeyi en aza iner.</td>
-            </tr>
-            <tr>
-              <td className="font-mono text-white">MySQL</td>
-              <td className="font-mono">3306</td>
-              <td><span className="font-mono text-[#f87171]">0.0.0.0/0</span></td>
-              <td><span className="sgbh-pill" style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.35)" }}>Kritik</span></td>
-              <td>Veritabanı asla internete açılmaz; yalnız uygulama SG&apos;sinden erişilmeli.</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono"
-      >
-        Kural: <span className="text-[#67e8f9]">/32</span> tek host · <span className="text-[#67e8f9]">/0</span> tüm internet ·
-        veritabanı kaynağı IP değil, başka bir security group olmalı.
-      </motion.div>
+      <Mid>
+        <Eyebrow>Sorun · açık unutulan kapı</Eyebrow>
+        <H2 className="md:!text-4xl">En sık hata saldırı değil, yanlış ayardır</H2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <Note icon={DoorOpen} color="#f87171" label="Yanlış yapılandırma">
+            Yanlış yapılandırma (misconfiguration): bir ayarı olması gerekenden açık bırakmak.
+            Kilit sağlam, ama kapı kapatılmamış.
+          </Note>
+          <Reveal
+            accent="#fbbf24"
+            question="Bir şirketin müşteri listesi internete düştü. Kimse şifre kırmadı, kimse içeri sızmadı. Nasıl olmuş olabilir?"
+            answer="Dosyanın paylaşım ayarı “bağlantıya sahip herkes” olarak unutulmuş. Bağlantıyı bulan herkes dosyayı açabilmiş."
+          />
+        </div>
+        <AskLine>Kimse şifre kırmadıysa veri nasıl dışarı çıkar?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 12. SG katmanları: NACL vs SG ───── */
+  /* ───── 7. Paylaşım ayarı (oyna-gör) ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Ağ savunması · iki katman</Eyebrow>
-      <H2>Security Group ile Network ACL&apos;i karıştırma</H2>
-      <Sub className="mt-3 max-w-3xl">
-        İkisi de filtreler ama farklı seviyede ve farklı mantıkla çalışır. Sınavda da sahada da
-        en sık karışan ikili.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#67e8f9]">
-            <Server className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Security Group</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Örnek (instance) seviyesinde çalışır.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" /><span className="text-white">Stateful</span>: izin verilen isteğin yanıtı otomatik döner.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Yalnız Allow kuralı; örtük olarak gerisini engeller.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Kaynak olarak başka bir SG referansı verilebilir.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#a78bfa]">
-            <Network className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Network ACL</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Subnet seviyesinde çalışır (tüm örnekleri kapsar).</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" /><span className="text-white">Stateless</span>: gelen ve giden ayrı ayrı tanımlanır.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Hem Allow hem Deny kuralı yazılabilir, sıralıdır.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Belirli bir IP&apos;yi geniş bir bloktan engellemek için ideal.</li>
-          </ul>
-        </motion.div>
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl"
-      >
-        <Layers className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Defense in depth:</span> ikisi birlikte kullanılır. NACL kaba ağ sınırını
-          (subnet) çizer, security group örnek bazında ince ayar yapar. Bir trafiğin geçmesi için her ikisinden de izin gerekir.
-        </span>
-      </motion.div>
+      <Mid>
+        <Eyebrow>Oyna-gör · paylaşım ayarı</Eyebrow>
+        <H2 className="md:!text-4xl">Paylaşım ayarını değiştir, kim görüyor bak</H2>
+        <div className="mt-6">
+          <ShareDemo />
+        </div>
+        <AskLine>En son hangi dosyanı &ldquo;bağlantıya sahip herkes&rdquo; ile paylaştın? Hâlâ açık mı?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 13. Bölüm 3 — GuardDuty ───── */
-  () => (
-    <SectionDivider
-      num="03"
-      total="03"
-      title="GuardDuty — Tehdit Tespiti"
-      subtitle="Yapılandırmayı sıkılaştırsan da bir gün biri içeri sızabilir. GuardDuty, bulut hesabındaki anormal davranışı sürekli izleyip uyaran tespit servisidir."
-      bgGradient="linear-gradient(135deg,#22c55e,#15803d)"
-      shadow="0 30px 80px -20px rgba(34,197,94,0.55)"
-      icon={<ScanSearch className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 14. GuardDuty nasıl çalışır ───── */
+  /* ───── 8. MFA (oyna-gör) ───── */
   () => (
     <SlideShell>
-      <Eyebrow>GuardDuty · veri kaynakları</Eyebrow>
-      <H2 className="mb-2">Ne izler, neyi yakalar?</H2>
-      <Sub className="max-w-3xl mb-6">
-        GuardDuty ajan kurmadan, üç tür telemetriyi sürekli analiz eder ve bilinen tehdit
-        istihbaratı ile makine öğrenmesini birleştirerek anomalileri bulgu (finding) olarak üretir.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FeatureCard
-          icon={Activity}
-          title="CloudTrail olayları"
-          desc="API çağrı geçmişi. Örnek: alışılmadık bir ülkeden root API kullanımı veya toplu izin değişikliği."
-          accent="#06b6d4"
-          delay={0.15}
-        />
-        <FeatureCard
-          icon={Network}
-          title="VPC Flow Logs"
-          desc="Ağ akış kayıtları. Örnek: bir EC2&apos;nin bilinen kötü amaçlı IP&apos;lere ya da madencilik havuzuna bağlanması."
-          accent="#a78bfa"
-          delay={0.25}
-        />
-        <FeatureCard
-          icon={Globe}
-          title="DNS sorguları"
-          desc="Çözümleme kayıtları. Örnek: komuta-kontrol (C2) için kullanılan alan adlarına yapılan DNS istekleri."
-          accent="#34d399"
-          delay={0.35}
-        />
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl"
-      >
-        <CloudCog className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          GuardDuty bir <span className="text-white">tespit</span> servisidir, engelleme değil. Bulgu ürettiğinde otomatik
-          aksiyon için EventBridge + Lambda ya da AWS Security Hub ile entegre edilir.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 15. GuardDuty bulgu paneli ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>GuardDuty · bulgu konsolu</Eyebrow>
-      <H2 className="mb-2">Bir bulgu (finding) nasıl okunur?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Her bulgunun bir <span className="text-white">tip</span>, bir{" "}
-        <span className="text-white">önem derecesi</span> (severity) ve etkilenen kaynağı vardır.
-        Bulgu tipi <span className="font-mono text-[#67e8f9]">Tehdit:Kaynak/Davranış</span> biçiminde okunur.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25, duration: 0.6 }}
-        className="space-y-2.5 max-w-4xl"
-      >
-        {[
-          { sev: "high" as const, type: "UnauthorizedAccess:IAMUser/MaliciousIPCaller", detail: "Bir IAM kullanıcısının erişim anahtarı bilinen kötü amaçlı bir IP&apos;den API çağrısı yapıyor.", res: "IAMUser: deploy-bot" },
-          { sev: "high" as const, type: "CryptoCurrency:EC2/BitcoinTool.B!DNS", detail: "Bir EC2 örneği bir kripto madencilik havuzuyla ilişkili alan adını çözümlüyor — büyük olasılıkla ele geçirilmiş.", res: "Instance: i-0a9f2c..." },
-          { sev: "med" as const, type: "Recon:IAMUser/MaliciousIPCaller", detail: "Kötü amaçlı bir IP, hesapta keşif amaçlı izin sıralama API&apos;leri çağırıyor.", res: "IAMUser: temp-user" },
-          { sev: "low" as const, type: "Policy:S3/BucketBlockPublicAccessDisabled", detail: "Bir S3 bucket&apos;ında Block Public Access kapatıldı — public ifşa riski açıldı.", res: "Bucket: sirket-yedek" },
-        ].map((f, i) => (
-          <motion.div
-            key={f.type}
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 + i * 0.1 }}
-            className="sgbh-finding"
-          >
-            <span className={`sgbh-sev ${f.sev === "high" ? "sgbh-sev-high" : f.sev === "med" ? "sgbh-sev-med" : "sgbh-sev-low"}`}>
-              {f.sev === "high" ? "Yüksek" : f.sev === "med" ? "Orta" : "Düşük"}
-            </span>
-            <div className="min-w-0">
-              <div className="font-mono text-[12px] text-white leading-tight break-all">{f.type}</div>
-              <div className="text-[12px] text-gray-400 mt-1">{f.detail}</div>
-              <div className="text-[11px] text-gray-600 font-mono mt-1">{f.res}</div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 16. Olay müdahale akışı ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bulgudan aksiyona</Eyebrow>
-      <H2 className="mb-2">Yüksek önemli bir bulgu geldi — ne yaparsın?</H2>
-      <Sub className="max-w-3xl mb-8">
-        Tespit yalnızca başlangıçtır. Aşağıdaki dört adım, ele geçirilmiş bir kimlik veya örnek için
-        temel olay müdahale akışıdır — sıra önemlidir.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        {[
-          { n: "01", icon: Lock, title: "İzole et", desc: "Etkilenen EC2&apos;yi kısıtlayıcı bir SG&apos;ye al; şüpheli IAM anahtarını devre dışı bırak.", accent: "#f87171" },
-          { n: "02", icon: Key, title: "Kimlik bilgisini iptal et", desc: "Sızan erişim anahtarını sil/döndür, rol oturumlarını geçersiz kıl, parolayı sıfırla.", accent: "#fbbf24" },
-          { n: "03", icon: ScanSearch, title: "Kapsamı çıkar", desc: "CloudTrail ile saldırganın hangi API&apos;leri çağırdığını, neye eriştiğini araştır.", accent: "#06b6d4" },
-          { n: "04", icon: ShieldCheck, title: "Kapat & güçlendir", desc: "Açığı gideren yapılandırmayı uygula; benzer bulgu için otomatik müdahale kur.", accent: "#34d399" },
-        ].map((s, i) => (
-          <motion.div
-            key={s.n}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.12 }}
-            className="sgbh-card rounded-xl p-5 flex flex-col"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color: s.accent }}>{s.n}</span>
-              <s.icon className="w-5 h-5" style={{ color: s.accent }} />
-            </div>
-            <div className="text-base font-semibold text-white mb-2">{s.title}</div>
-            <p className="text-[12px] text-gray-400 leading-relaxed">{s.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 17. Uygulamalı lab ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-      <H2>Kendi AWS Free Tier hesabında dört adım</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Lab tamamen kendi hesabında. Yanlış yapılandırmayı önce kurup sonra düzelterek riski elinle
-        görüyorsun. Sonraki derse bu dördünü yapmış ve ekran görüntülerini almış gelmen bekleniyor.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: KeyRound, title: "Dar bir IAM kullanıcısı oluştur", desc: "Sadece tek bir bucket&apos;a s3:GetObject veren bir policy yaz; AdministratorAccess verme. MFA ekle.", accent: "#06b6d4" },
-          { icon: FolderLock, title: "Bir bucket&apos;ı incele", desc: "Bir test bucket&apos;ında Block Public Access durumunu kontrol et; açıksa bırakma, kapalıysa neden riskli olduğunu yaz.", accent: "#fbbf24" },
-          { icon: Network, title: "SSH kuralını daralt", desc: "Bir security group&apos;ta 22 portunu 0.0.0.0/0 yerine kendi IP&apos;ne /32 olarak sınırla; öncesi-sonrası kaydet.", accent: "#a78bfa" },
-          { icon: ScanSearch, title: "GuardDuty&apos;yi etkinleştir", desc: "GuardDuty&apos;yi aç, örnek (sample) bulgular üret ve bir yüksek önemli bulguyu 3 cümlede yorumla.", accent: "#34d399" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="sgbh-card sgbh-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white">{t.title}</h3>
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed">{t.desc}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <AlertTriangle className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Yalnızca kendi hesabında.</span> Sana ait olmayan bir bucket&apos;ı taramak veya
-          erişmek izinsiz erişimdir ve TCK 243-245 kapsamında suçtur. Ayrıca lab sonunda kaynakları kapatıp
-          beklenmedik ücretten kaçın.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 18. Hafta 11 önizleme + kapanış ───── */
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8"
-          style={{ background: "linear-gradient(135deg,#06b6d4,#0e7490)", boxShadow: "0 30px 80px -20px rgba(6,182,212,0.6)" }}
-        >
-          <ShieldCheck className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>10. hafta tamamlandı · sıradaki: KVKK &amp; Veri Sorumlusu</Eyebrow>
-        <H1>
-          <span className="sgbh-shimmer-soft">Teknikten Hukuka</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta bir S3 sızıntısını teknik olarak önledik. Hafta 11&apos;de aynı olayın hukuki yüzünü
-          açıyoruz: KVKK kapsamında veri sorumlusunun yükümlülükleri, ihlal bildirimi ve idari yaptırımlar.
+      <Mid>
+        <Eyebrow>Oyna-gör · ikinci kilit</Eyebrow>
+        <H2 className="md:!text-4xl">Şifre çalınsa bile ikinci kilit durdurur</H2>
+        <Sub className="mt-2 !text-base">
+          MFA (çok adımlı doğrulama): şifreye ek ikinci bir kanıt. Bankamatik gibi: kart
+          (sahip olduğun) + şifre (bildiğin).
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
-          <FeatureCard icon={FileWarning} title="İhlal bildirimi" desc="Veri ihlalinin Kurul&apos;a ve ilgili kişiye bildirim süreci." accent="#06b6d4" delay={0.1} />
-          <FeatureCard icon={Users} title="Veri sorumlusu" desc="Kim sorumlu? Veri sorumlusu ve işleyen ayrımı." accent="#a78bfa" delay={0.18} />
-          <FeatureCard icon={ShieldCheck} title="Teknik tedbir" desc="KVKK&apos;nın beklediği teknik ve idari tedbirler." accent="#34d399" delay={0.26} />
-          <FeatureCard icon={Target} title="Yaptırım" desc="İdari para cezaları ve örnek Kurul kararları." accent="#fbbf24" delay={0.34} />
+        <div className="mt-5">
+          <MfaToggle />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="sgbh-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#06b6d4] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Ders saati</div>
-            <div className="text-white font-semibold">Çarşamba</div>
-            <div className="text-sm text-gray-400">13:30 — 17:00</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Target className="w-5 h-5 text-[#a78bfa] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Hazırlık</div>
-            <div className="text-white font-semibold">AWS Free Tier</div>
-            <div className="text-sm text-gray-400">hesap + CLI kurulu getir</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Brain className="w-5 h-5 text-[#34d399] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Teslim</div>
-            <div className="text-white font-semibold">Lab raporu</div>
-            <div className="text-sm text-gray-400">4 adım + ekran görüntüsü</div>
-          </div>
+        <AskLine>Kaçınızın e-posta hesabında iki adımlı doğrulama açık?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 9. Mini sınav ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Mini sınav · dersin ortası</Eyebrow>
+        <H2 className="md:!text-4xl">Buraya kadar anlaştık mı?</H2>
+        <div className="mt-6">
+          <Quiz questions={ARA_SORU} />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-10 text-xs font-mono text-gray-600 flex items-center justify-center gap-2"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Yalnızca kendi hesabın · lab sonunda kaynakları kapat</span>
-        </motion.div>
+        <AskLine>Şıkka tıklamadan önce: neden o şık?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 10. En az yetki ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Kural · en az yetki</Eyebrow>
+        <H2 className="md:!text-4xl">Herkese işine yetecek kadar anahtar</H2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <Note icon={KeyRound} color="#34d399" label="En az yetki (least privilege)">
+            <Bullets
+              color="#34d399"
+              items={[
+                "Apartman görevlisine bütün dairelerin anahtarı verilmez.",
+                "Yetkiyi işe göre ver: okuyacaksa yalnız okuma.",
+                "İş bitince yetkiyi geri al.",
+              ]}
+            />
+          </Note>
+          <Reveal
+            accent="#fbbf24"
+            question="Stajyer Ayşe yalnız rapor okuyacak. Kolay olsun diye ona yönetici yetkisi verdik. Ne ters gidebilir?"
+            answer="Yanlışlıkla bir şeyi silebilir. Daha kötüsü: hesabı çalınırsa saldırgan da yönetici olur. Yetki ne kadar azsa zarar o kadar küçük kalır."
+          />
+        </div>
+        <AskLine>Herkese yönetici yetkisi vermek neden kolaya kaçmaktır?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 11. Kayıt ve uyarı (adım adım) ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>İzleme · adım adım aç</Eyebrow>
+        <H2 className="md:!text-4xl">Bulutta da kayıt tutulur: kim, ne zaman girdi?</H2>
+        <div className="mt-5">
+          <Stepper steps={IZLEME_ADIMLARI} />
+        </div>
+        <AskLine>&ldquo;Yeni cihazdan giriş&rdquo; uyarısı geldi ve o sen değilsin. İlk ne yaparsın?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 12. Sınıfta deneyelim ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Sınıfta deneyelim · 10 dakika · telefonla</Eyebrow>
+        <H2 className="md:!text-4xl">Kendi bulutunu denetle</H2>
+        <Sub className="mt-2 !text-base">
+          Yalnız kendi hesabın. Ekranını kimseye göstermek zorunda değilsin.
+        </Sub>
+        <div className="mt-4">
+          <Checklist
+            steps={[
+              "Drive’ı (ya da iCloud’u) aç, “Paylaşılanlar” bölümüne gir.",
+              "“Bağlantıya sahip herkes” ayarında kalmış bir dosya ara.",
+              "Bulduysan ve artık gerekmiyorsa ayarı “Kısıtlı” yap.",
+              "Hesap ayarlarında iki adımlı doğrulamaya bak: açık mı?",
+              "Hesabına bağlı cihazlara bak: tanımadığın var mı?",
+            ]}
+          />
+        </div>
+        <AskLine>Kimde &ldquo;herkese açık&rdquo; unutulmuş bir dosya çıktı? Ne zamandan kalmış?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 13. Kendini dene ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Kendini dene · 3 soru</Eyebrow>
+        <H2 className="md:!text-4xl">Dersten çıkmadan son kontrol</H2>
+        <div className="mt-6">
+          <Quiz questions={KAPANIS_SORULARI} />
+        </div>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 14. Aklında kalsın ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Özet · 10. hafta</Eyebrow>
+      <H2>
+        Aklında kalsın: <span className="sgbh-shimmer-soft">3 şey</span>
+      </H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={Handshake}
+          title="1 · Sorumluluk paylaşılır"
+          desc="Binayı sağlayıcı korur; hesabı, ayarı ve veriyi sen korursun."
+          accent="#06b6d4"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={DoorOpen}
+          title="2 · En sık hata yanlış ayar"
+          desc="“Bağlantıya sahip herkes” açık unutulan kapıdır. Paylaşımlarını arada bir denetle."
+          accent="#f87171"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={KeyRound}
+          title="3 · MFA ve en az yetki"
+          desc="İkinci kilidi aç; herkese yalnız işine yetecek kadar yetki ver."
+          accent="#34d399"
+          delay={0.3}
+        />
+      </div>
+      <div className="mt-6">
+        <Note icon={Eye} color="#a78bfa" label="Gelecek hafta">
+          Kayıtlar tutuluyor, peki onlara kim bakıyor? Kurumun güvenlik kamerası odası: SOC ve SIEM.
+        </Note>
       </div>
     </SlideShell>
   ),
@@ -1217,7 +1312,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#06b6d4]/70">
-          BVA 2205 · 10. Hafta · Bulut Güvenliği (AWS)
+          BVA 2205 · 10. Hafta · Bulut Güvenliği: Bina Onların, Anahtar Senin
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#06b6d4]/50">

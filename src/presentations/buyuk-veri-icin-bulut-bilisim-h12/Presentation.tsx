@@ -9,9 +9,8 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Cloud,
-  Database,
-  Layers,
+  Server,
+  ArrowRight,
   ChevronRight,
   ChevronLeft,
   Maximize2,
@@ -19,25 +18,14 @@ import {
   Keyboard,
   Check,
   X,
-  Zap,
-  Target,
-  Lightbulb,
-  HardDrive,
-  Network,
-  Boxes,
-  Split,
-  Filter,
-  GitBranch,
-  RefreshCw,
-  Save,
-  Cpu,
-  Terminal,
-  Workflow,
-  ArrowRight,
-  AlertTriangle,
+  MousePointerClick,
+  HelpCircle,
+  RotateCcw,
+  Flame,
+  Scissors,
+  Share2,
+  ClipboardList,
   Repeat,
-  Server,
-  ListChecks,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -151,198 +139,676 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+/* ============================================================
+   ETKİLEŞİM BİLEŞENLERİ
+   ============================================================ */
+
+const DUGME =
+  "inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-base font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
+const DUGME_IKINCIL =
+  "inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-base text-gray-300 border border-white/15 hover:border-[#60a5fa] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
+const CIP = (secili: boolean) =>
+  `px-5 py-2.5 rounded-full text-base font-semibold border transition-colors ${
+    secili
+      ? "bg-[#2563eb] border-[#60a5fa] text-white"
+      : "border-white/15 text-gray-300 hover:border-[#60a5fa]"
+  }`;
+function TikIpucu({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-[#60a5fa]/80">
+      <MousePointerClick className="w-3.5 h-3.5" />
+      {children}
+    </span>
+  );
+}
+
+/* İçerik slaydı kabuğu: etiket + cümle başlık + ortada içerik + "Sınıfa sor" satırı */
+function Slayt({
+  etiket,
+  baslik,
+  alt,
+  soru,
+  children,
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  etiket: string;
+  baslik: ReactNode;
+  alt?: ReactNode;
+  soru?: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
+    <SlideShell>
+      <Eyebrow>{etiket}</Eyebrow>
+      <H2>{baslik}</H2>
+      {alt && <Sub className="mt-3 max-w-4xl">{alt}</Sub>}
+      <div className="mt-6 max-w-4xl mx-auto">{children}</div>
+      {soru && (
+        <div className="mt-5 max-w-4xl mx-auto flex items-center gap-2 text-sm text-gray-500">
+          <HelpCircle className="w-4 h-4 flex-shrink-0" />
+          <span>
+            <span className="font-semibold text-gray-400">Sınıfa sor:</span> {soru}
+          </span>
+        </div>
+      )}
+    </SlideShell>
+  );
+}
+
+function Kapak({
+  hafta,
+  vurgu,
+  satir,
+  alt,
+  cipler,
+}: {
+  hafta: string;
+  vurgu: string;
+  satir: string;
+  alt: string;
+  cipler: Array<{ ad: string; etiket: string; icon: LucideIcon; renk: string }>;
+}) {
+  return (
+    <SlideShell>
       <div className="text-center">
+        <Eyebrow>BVA 2103 · {hafta} · Güz Dönemi</Eyebrow>
+        <H1>
+          <span className="bvbb-shimmer">{vurgu}</span>
+          <br />
+          <span className="text-white">{satir}</span>
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{alt}</Sub>
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 bvbb-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
         >
-          {icon}
+          {cipler.map((p) => (
+            <div
+              key={p.ad}
+              className="bvbb-card rounded-xl p-4 flex items-center gap-3"
+              style={{ borderColor: `${p.renk}55` }}
+            >
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: `${p.renk}22`, border: `1px solid ${p.renk}66` }}
+              >
+                <p.icon className="w-5 h-5" style={{ color: p.renk }} />
+              </div>
+              <div className="text-left">
+                <div className="text-base font-bold text-white">{p.ad}</div>
+                <div className="text-xs text-gray-400">{p.etiket}</div>
+              </div>
+            </div>
+          ))}
         </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+          className="mt-10 text-[11px] font-mono text-gray-600"
+        >
+          Öğr. Gör. Osman Can Çetlenbik · MCBÜ Manisa Teknik Bilimler MYO · Büyük Veri Analistliği
+        </motion.div>
+      </div>
+    </SlideShell>
+  );
+}
+
+/* Tahmin et → tıkla göster */
+function TahminKarti({ soru, cevap }: { soru: string; cevap: string }) {
+  const [acik, setAcik] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setAcik((a) => !a)}
+      aria-expanded={acik}
+      className="bvbb-card bvbb-card-hover rounded-xl p-5 text-left w-full min-h-[150px] flex flex-col transition-all cursor-pointer"
+    >
+      <span className="text-lg font-semibold text-white leading-snug">{soru}</span>
+      {acik ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 block text-base text-[#93c5fd] leading-snug"
+        >
+          {cevap}
+        </motion.span>
+      ) : (
+        <span className="mt-3 block">
+          <TikIpucu>Tıkla, cevabı gör</TikIpucu>
+        </span>
+      )}
+    </button>
+  );
+}
+
+type Soru = { soru: string; siklar: string[]; dogru: number; aciklama: string };
+
+/* Mini sınav: doğru şık yeşil, yanlış şık kırmızı olur; doğruyu bulunca açıklama çıkar */
+function MiniSinav({ s }: { s: Soru }) {
+  const [secilen, setSecilen] = useState<number[]>([]);
+  const bildi = secilen.includes(s.dogru);
+  return (
+    <div>
+      <div className="text-xl font-semibold text-white mb-4 leading-snug">{s.soru}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {s.siklar.map((sik, i) => {
+          const tiklandi = secilen.includes(i);
+          const dogru = i === s.dogru;
+          const stil = !tiklandi
+            ? "border-white/15 text-gray-200 hover:border-[#60a5fa]"
+            : dogru
+              ? "border-green-500 bg-green-500/15 text-green-200"
+              : "border-red-500 bg-red-500/15 text-red-200";
+          return (
+            <button
+              key={sik}
+              type="button"
+              disabled={bildi}
+              onClick={() => setSecilen((o) => (o.includes(i) ? o : [...o, i]))}
+              className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left text-base transition-colors ${stil}`}
+            >
+              <span className="font-mono text-sm opacity-70">{"ABCD"[i]}</span>
+              <span className="flex-1">{sik}</span>
+              {tiklandi &&
+                (dogru ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />)}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[56px] flex items-start justify-between gap-4">
+        <div className="text-base leading-snug">
+          {bildi ? (
+            <motion.span
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="block text-green-300"
+            >
+              Doğru. {s.aciklama}
+            </motion.span>
+          ) : secilen.length > 0 ? (
+            <span className="text-red-300">Olmadı. Bir daha düşün, başka şıkka tıkla.</span>
+          ) : (
+            <TikIpucu>Bir şıkka tıkla</TikIpucu>
+          )}
+        </div>
+        {secilen.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSecilen([])}
+            className="flex-shrink-0 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" /> Sıfırla
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function KendiniDene({ sorular }: { sorular: Soru[] }) {
+  const [no, setNo] = useState(0);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm font-mono text-[#60a5fa]">
+          Soru {no + 1} / {sorular.length}
+        </span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={DUGME_IKINCIL}
+            disabled={no === 0}
+            onClick={() => setNo((n) => n - 1)}
+          >
+            Önceki soru
+          </button>
+          <button
+            type="button"
+            className={DUGME}
+            disabled={no === sorular.length - 1}
+            onClick={() => setNo((n) => n + 1)}
+          >
+            Sonraki soru <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <MiniSinav key={no} s={sorular[no]} />
+    </div>
+  );
+}
+
+type IkiliMadde = { metin: string; dogru: 0 | 1; aciklama: string };
+
+/* Her satır için iki düğmeden biri seçilir; doğruysa yeşil, yanlışsa kırmızı */
+function IkiSecenek({
+  etiketler,
+  maddeler,
+}: {
+  etiketler: [string, string];
+  maddeler: IkiliMadde[];
+}) {
+  const [cevap, setCevap] = useState<Record<number, number>>({});
+  return (
+    <div>
+      <div className="space-y-2.5">
+        {maddeler.map((m, i) => {
+          const c = cevap[i];
+          const verildi = c !== undefined;
+          const bildi = c === m.dogru;
+          return (
+            <div
+              key={m.metin}
+              className="bvbb-card rounded-lg px-4 py-2.5 flex items-center gap-3"
+            >
+              <div className="flex-1">
+                <div className="text-base text-white leading-snug">{m.metin}</div>
+                {verildi && (
+                  <div
+                    className={`text-sm mt-0.5 leading-snug ${
+                      bildi ? "text-green-300" : "text-red-300"
+                    }`}
+                  >
+                    {bildi ? "Doğru. " : "Olmadı. "}
+                    {m.aciklama}
+                  </div>
+                )}
+              </div>
+              {etiketler.map((e, k) => {
+                const stil =
+                  c !== k
+                    ? "border-white/15 text-gray-300 hover:border-[#60a5fa]"
+                    : k === m.dogru
+                      ? "border-green-500 bg-green-500/15 text-green-200"
+                      : "border-red-500 bg-red-500/15 text-red-200";
+                return (
+                  <button
+                    key={e}
+                    type="button"
+                    onClick={() => setCevap((o) => ({ ...o, [i]: k }))}
+                    className={`w-28 flex-shrink-0 rounded-lg border px-2 py-2 text-sm font-semibold transition-colors ${stil}`}
+                  >
+                    {e}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <TikIpucu>Her satırda bir düğmeye tıkla</TikIpucu>
+        <button
+          type="button"
+          onClick={() => setCevap({})}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white transition-colors"
+        >
+          <RotateCcw className="w-4 h-4" /> Sıfırla
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type Adim = { baslik: string; metin: string };
+
+/* "İleri" ile adım adım açılan liste */
+function AdimAdim({ adimlar }: { adimlar: Adim[] }) {
+  const [n, setN] = useState(1);
+  return (
+    <div>
+      <div className="space-y-2.5">
+        {adimlar.map((a, i) =>
+          i < n ? (
+            <motion.div
+              key={a.baslik}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bvbb-card rounded-lg px-4 py-2.5 flex items-center gap-4"
+            >
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white bg-[#2563eb] flex-shrink-0">
+                {i + 1}
+              </span>
+              <div>
+                <div className="text-base font-semibold text-white leading-snug">
+                  {a.baslik}
+                </div>
+                <div className="text-sm text-gray-400 leading-snug">{a.metin}</div>
+              </div>
+            </motion.div>
+          ) : (
+            <div
+              key={a.baslik}
+              className="rounded-lg px-4 py-2.5 border border-dashed border-white/10 flex items-center gap-4 text-sm text-gray-600"
+            >
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-white/10 flex-shrink-0">
+                {i + 1}
+              </span>
+              Sıradaki adım için &ldquo;İleri&rdquo;ye tıkla
+            </div>
+          ),
+        )}
+      </div>
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          type="button"
+          className={DUGME}
+          disabled={n >= adimlar.length}
+          onClick={() => setN((x) => Math.min(x + 1, adimlar.length))}
+        >
+          İleri <ArrowRight className="w-4 h-4" />
+        </button>
+        <button type="button" className={DUGME_IKINCIL} onClick={() => setN(1)}>
+          <RotateCcw className="w-4 h-4" /> Baştan
+        </button>
+        <span className="text-sm text-gray-500">
+          Adım {n} / {adimlar.length}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+type KodSatiri = { kod: string; aciklama: string; tur?: "tarif" | "pisir" };
+
+/* Kod satır satır okunur: satıra ya da "Sonraki satır"a tıklayınca açıklaması görünür */
+function KodSatirlari({ satirlar, cikti }: { satirlar: KodSatiri[]; cikti?: string }) {
+  const [secili, setSecili] = useState(0);
+  const son = satirlar.length - 1;
+  return (
+    <div>
+      <div className="bvbb-window-chrome">
+        <div className="py-2" style={{ background: "#0b1020" }}>
+          {satirlar.map((satir, i) => (
+            <button
+              key={satir.kod}
+              type="button"
+              onClick={() => setSecili(i)}
+              className={`w-full flex items-center gap-3 px-4 py-1.5 text-left font-mono text-[15px] transition-colors ${
+                i === secili
+                  ? "bg-[#2563eb]/25 text-white"
+                  : "text-gray-400 hover:bg-white/5"
+              }`}
+            >
+              <span className="w-5 text-right text-gray-600">{i + 1}</span>
+              <span className="flex-1 whitespace-pre">{satir.kod}</span>
+              {satir.tur && (
+                <span
+                  className={`text-[11px] uppercase tracking-wider px-2 py-0.5 rounded ${
+                    satir.tur === "tarif"
+                      ? "bg-sky-500/15 text-sky-300"
+                      : "bg-amber-500/15 text-amber-300"
+                  }`}
+                >
+                  {satir.tur === "tarif" ? "tarif" : "pişir"}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-3 bvbb-card rounded-lg px-4 py-3 min-h-[68px] text-base text-gray-200 leading-snug">
+        <span className="font-mono text-sm text-[#60a5fa] mr-2">{secili + 1}. satır:</span>
+        {satirlar[secili].aciklama}
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          className={DUGME}
+          disabled={secili === son}
+          onClick={() => setSecili((x) => Math.min(x + 1, son))}
+        >
+          Sonraki satır <ArrowRight className="w-4 h-4" />
+        </button>
+        <button type="button" className={DUGME_IKINCIL} onClick={() => setSecili(0)}>
+          <RotateCcw className="w-4 h-4" /> Baştan
+        </button>
+        {cikti && secili === son ? (
+          <span className="font-mono text-base text-green-300">Çıktı: {cikti}</span>
+        ) : (
+          <TikIpucu>Satıra da tıklayabilirsin</TikIpucu>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Kapanış: "Aklında kalsın: 3 şey" + gelecek haftaya köprü */
+function UcSey({ maddeler, kopru }: { maddeler: [string, string, string]; kopru: string }) {
+  return (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2>Aklında kalsın: 3 şey</H2>
+      <div className="mt-8 max-w-4xl mx-auto space-y-3">
+        {maddeler.map((m, i) => (
+          <motion.div
+            key={m}
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 + i * 0.15 }}
+            className="bvbb-card rounded-xl px-5 py-4 flex items-center gap-4"
+          >
+            <span className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold text-white bg-[#2563eb] flex-shrink-0">
+              {i + 1}
+            </span>
+            <span className="text-lg text-gray-100 leading-snug">{m}</span>
+          </motion.div>
+        ))}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="bvbb-card-sky rounded-xl px-5 py-4 flex items-center gap-3 text-base text-sky-200"
+        >
+          <ArrowRight className="w-5 h-5 flex-shrink-0" />
+          <span>
+            <span className="font-semibold">Gelecek hafta:</span> {kopru}
+          </span>
+        </motion.div>
       </div>
     </SlideShell>
   );
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   12. HAFTA — RDD'YE ÖZEL ETKİLEŞİMLER
    ============================================================ */
 
-function SparkShellWindow({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="bvbb-window-chrome w-full"
-    >
-      <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0e16", color: "#60a5fa" }}
-        >
-          <Terminal className="w-3 h-3" />
-          <span>{title}</span>
-        </div>
-      </div>
-      <div className="bvbb-terminal">{children}</div>
-    </motion.div>
-  );
-}
+const ON_IKI = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-function LineageDiagram() {
-  const stages = [
-    { name: "textFile", label: "logs.txt → satırlar", kind: "kaynak", color: "#60a5fa", icon: HardDrive },
-    { name: "filter", label: "ERROR içerenler", kind: "transformasyon", color: "#a855f7", icon: Filter },
-    { name: "map", label: "satır → (tarih, 1)", kind: "transformasyon", color: "#a855f7", icon: Split },
-    { name: "reduceByKey", label: "tarihe göre topla", kind: "transformasyon (shuffle)", color: "#f59e0b", icon: GitBranch },
-    { name: "collect", label: "sonucu sürücüye getir", kind: "eylem", color: "#22c55e", icon: Target },
-  ];
+/* Slayt 4 — listeyi kaç parçaya bölelim? */
+function ParcaBol() {
+  const [n, setN] = useState(3);
+  const boy = ON_IKI.length / n;
+  const parcalar = Array.from({ length: n }, (_, i) => ON_IKI.slice(i * boy, (i + 1) * boy));
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-card rounded-xl p-6"
-    >
-      <div className="flex flex-col md:flex-row md:items-stretch gap-3">
-        {stages.map((s, i) => (
-          <div key={s.name} className="flex-1 flex md:flex-col items-center gap-3">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 + i * 0.12 }}
-              className="w-full rounded-lg p-3 text-center"
-              style={{ background: `${s.color}14`, border: `1px solid ${s.color}55` }}
-            >
-              <s.icon className="w-5 h-5 mx-auto mb-2" style={{ color: s.color }} />
-              <div className="font-mono text-sm font-bold text-white">{s.name}</div>
-              <div className="text-[11px] text-gray-400 mt-1">{s.label}</div>
-              <div
-                className="mt-2 text-[9px] font-mono uppercase tracking-wider inline-block px-2 py-0.5 rounded"
-                style={{ background: `${s.color}1f`, color: s.color }}
-              >
-                {s.kind}
-              </div>
-            </motion.div>
-            {i < stages.length - 1 && (
-              <ArrowRight
-                className="w-5 h-5 text-gray-600 flex-shrink-0 rotate-90 md:rotate-0"
-              />
-            )}
-          </div>
+    <div>
+      <div className="flex items-center gap-3">
+        <span className="text-base text-gray-300">Kaç parça olsun?</span>
+        {[2, 3, 4].map((k) => (
+          <button key={k} type="button" className={CIP(n === k)} onClick={() => setN(k)}>
+            {k}
+          </button>
         ))}
+        <TikIpucu>Sayıyı değiştir</TikIpucu>
       </div>
-      <div className="mt-5 text-[11px] text-gray-500 flex items-start gap-2">
-        <Lightbulb className="w-4 h-4 text-[#60a5fa] flex-shrink-0 mt-0.5" />
-        <span>
-          Soldan sağa zincire <span className="bvbb-token">lineage</span> (soyağacı)
-          denir. Transformasyonlar tembeldir (lazy); hiçbir hesap <span className="text-white">collect</span> eylemi
-          çağrılana kadar gerçekleşmez.
-        </span>
+      <div className="mt-4 bvbb-window-chrome px-4 py-3 font-mono text-[15px] text-gray-200">
+        sayilar = sc.parallelize([1, 2, 3, ..., 12], <span className="text-[#fbbf24]">{n}</span>)
       </div>
-    </motion.div>
-  );
-}
-
-function PartitionDiagram() {
-  const parts = [
-    { id: "P0", rows: ["sat-1", "sat-2", "sat-3"], node: "worker-01" },
-    { id: "P1", rows: ["sat-4", "sat-5", "sat-6"], node: "worker-01" },
-    { id: "P2", rows: ["sat-7", "sat-8", "sat-9"], node: "worker-02" },
-    { id: "P3", rows: ["sat-10", "sat-11", "sat-12"], node: "worker-02" },
-  ];
-  const colors = ["#60a5fa", "#a855f7", "#22c55e", "#f59e0b"];
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-card rounded-xl p-6"
-    >
-      <div className="flex items-center gap-2 mb-4 text-xs font-mono uppercase tracking-widest text-gray-400">
-        <Boxes className="w-4 h-4 text-[#60a5fa]" />
-        <span>RDD — 4 parça · 2 düğüme dağıtık</span>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {parts.map((p, i) => (
+      <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
+        {parcalar.map((p, i) => (
           <motion.div
-            key={p.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 + i * 0.1 }}
-            className="rounded-lg p-3"
-            style={{ background: `${colors[i]}12`, border: `1px solid ${colors[i]}55` }}
+            key={`${n}-${i}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.08 }}
+            className="bvbb-card rounded-xl p-3"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-sm font-bold" style={{ color: colors[i] }}>
-                {p.id}
-              </span>
-              <span className="text-[9px] font-mono text-gray-500 flex items-center gap-1">
-                <Server className="w-3 h-3" /> {p.node}
-              </span>
+            <div className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
+              <Server className="w-4 h-4 text-gray-400" /> Parça {i + 1}
             </div>
-            <div className="space-y-1">
-              {p.rows.map((r) => (
-                <div
-                  key={r}
-                  className="text-[11px] font-mono text-gray-300 bg-black/30 rounded px-2 py-0.5"
-                >
-                  {r}
-                </div>
-              ))}
-            </div>
+            <div className="font-mono text-base text-[#93c5fd]">[{p.join(", ")}]</div>
+            <div className="mt-1 text-xs text-gray-500">Bilgisayar {i + 1}&apos;de durur</div>
           </motion.div>
         ))}
       </div>
-      <div className="mt-5 text-[11px] text-gray-500 flex items-start gap-2">
-        <Cpu className="w-4 h-4 text-[#60a5fa] flex-shrink-0 mt-0.5" />
-        <span>
-          Her parça (partition) bir görev (task) olarak <span className="text-white">paralel</span> işlenir.
-          Paralellik seviyesi kabaca parça sayısı kadardır — bu yüzden parça sayısı performansı doğrudan etkiler.
-        </span>
+      <div className="mt-3 text-base text-gray-300 leading-snug">
+        12 sayı {n} parçaya bölündü. Her parça ayrı bir bilgisayarda, diğerleriyle aynı anda işlenir.
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+const KAYNAK_PARCALAR = [
+  [1, 2],
+  [3, 4],
+  [5, 6],
+];
+
+/* Slayt 6 — bir parçayı kaybet, tarifle yeniden üret */
+function YenidenUret() {
+  const [kayip, setKayip] = useState<number | null>(null);
+  const [onarilan, setOnarilan] = useState<number | null>(null);
+  return (
+    <div>
+      <div className="bvbb-card-sky rounded-lg px-4 py-2.5 text-base text-sky-100">
+        <span className="font-semibold">Tarif:</span> kaynak listeyi oku → her sayıyı 10 ile çarp
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-3">
+        {KAYNAK_PARCALAR.map((p, i) => {
+          const yok = kayip === i;
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={kayip !== null}
+              onClick={() => {
+                setKayip(i);
+                setOnarilan(null);
+              }}
+              className={`rounded-xl p-3 min-h-[104px] text-left border transition-all ${
+                yok
+                  ? "border-red-500/60 bg-red-500/10"
+                  : onarilan === i
+                    ? "border-green-500/60 bg-green-500/10"
+                    : "bvbb-card bvbb-card-hover"
+              }`}
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
+                <Server className="w-4 h-4 text-gray-400" /> Parça {i + 1}
+              </div>
+              {yok ? (
+                <div className="text-base text-red-300">Bilgisayar bozuldu, parça kayboldu</div>
+              ) : (
+                <>
+                  <div className="font-mono text-sm text-gray-500">kaynak [{p.join(", ")}]</div>
+                  <div className="font-mono text-lg text-[#93c5fd]">
+                    [{p.map((x) => x * 10).join(", ")}]
+                  </div>
+                </>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          className={DUGME}
+          disabled={kayip === null}
+          onClick={() => {
+            setOnarilan(kayip);
+            setKayip(null);
+          }}
+        >
+          <Repeat className="w-4 h-4" /> Tarifi yeniden uygula
+        </button>
+        <button
+          type="button"
+          className={DUGME_IKINCIL}
+          onClick={() => {
+            setKayip(null);
+            setOnarilan(null);
+          }}
+        >
+          <RotateCcw className="w-4 h-4" /> Sıfırla
+        </button>
+        {kayip === null && onarilan === null && (
+          <TikIpucu>Bir parçaya tıkla: kaybolsun</TikIpucu>
+        )}
+      </div>
+      <div className="mt-3 min-h-[52px] text-lg leading-snug">
+        {kayip !== null ? (
+          <span className="text-red-200">
+            Parça {kayip + 1} gitti. Yedeği yok ama tarif duruyor. Düğmeye tıkla.
+          </span>
+        ) : onarilan !== null ? (
+          <span className="text-green-200">
+            Yalnızca Parça {onarilan + 1} yeniden hesaplandı. Diğer parçalara dokunulmadı.
+          </span>
+        ) : (
+          <span className="text-gray-400">Üç parça da yerinde.</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Slayt 12 — cache açık/kapalı: tarif kaç kez baştan çalışıyor? */
+function CacheOyunu() {
+  const [cache, setCache] = useState(false);
+  const [istek, setIstek] = useState(0);
+  const [hesap, setHesap] = useState(0);
+  const sec = (deger: boolean) => {
+    setCache(deger);
+    setIstek(0);
+    setHesap(0);
+  };
+  return (
+    <div>
+      <div className="flex items-center gap-3">
+        <button type="button" className={CIP(!cache)} onClick={() => sec(false)}>
+          cache kapalı
+        </button>
+        <button type="button" className={CIP(cache)} onClick={() => sec(true)}>
+          cache açık
+        </button>
+        <button
+          type="button"
+          className={`${DUGME} ml-auto`}
+          onClick={() => {
+            setIstek((x) => x + 1);
+            if (!cache || hesap === 0) setHesap((x) => x + 1);
+          }}
+        >
+          <Flame className="w-4 h-4" /> Sonuç iste (count)
+        </button>
+      </div>
+      <div className="mt-4 bvbb-window-chrome px-4 py-3 font-mono text-[15px] text-gray-200">
+        gecenler = notlar.filter(lambda n: n &gt;= 50)
+        {cache && <span className="text-[#fbbf24]">.cache()</span>}
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="bvbb-card rounded-xl p-4 text-center">
+          <div className="text-5xl font-bold text-white">{istek}</div>
+          <div className="mt-1 text-base text-gray-400">kez sonuç istendi</div>
+        </div>
+        <div
+          className={`rounded-xl p-4 text-center border ${
+            cache ? "border-green-500/50 bg-green-500/10" : "border-amber-500/50 bg-amber-500/10"
+          }`}
+        >
+          <div className="text-5xl font-bold text-white">{hesap}</div>
+          <div className="mt-1 text-base text-gray-300">kez tarif baştan çalıştı</div>
+        </div>
+      </div>
+      <div className="mt-3 text-base text-gray-300 leading-snug">
+        {cache
+          ? "cache açık: ilk istekte hesaplanır ve bellekte saklanır; sonraki istekler hazır sonucu kullanır."
+          : "cache kapalı: her istekte tarif en baştan çalışır. Düğmeye birkaç kez tıkla, sonra cache'i aç."}
+      </div>
+    </div>
   );
 }
 
@@ -353,947 +819,392 @@ function PartitionDiagram() {
 const slides: Array<(active: boolean) => ReactNode> = [
   /* ─────────────────  1 · KAPAK  ───────────────── */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 2103 · 12. Hafta · Güz Dönemi</Eyebrow>
-        <H1>
-          <span className="bvbb-shimmer">Spark RDD&apos;leri</span>
-          <br />
-          <span className="text-white">Dayanıklı Dağıtık Veri Kümeleri</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Apache Spark&apos;ın çekirdeği: bellekte tutulan, parçalara bölünmüş ve
-          kaybolduğunda kendini yeniden inşa edebilen dağıtık koleksiyonlar.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { name: "Resilient", tag: "Lineage ile kurtarma", color: "#22c55e", icon: RefreshCw },
-            { name: "Distributed", tag: "Düğümlere parçalı", color: "#2563eb", icon: Network },
-            { name: "Dataset", tag: "Değişmez koleksiyon", color: "#a855f7", icon: Database },
-          ].map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 flex items-center gap-3"
-              style={{ borderColor: `${p.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
-              >
-                <p.icon className="w-5 h-5" style={{ color: p.color }} />
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">{p.name}</div>
-                <div className="text-[10px] text-gray-400">{p.tag}</div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          Öğr. Gör. Osman Can Çetlenbik · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 11. haftadan 12. haftaya</Eyebrow>
-      <H2>Spark&apos;ı tanıdık; şimdi onun veri yapısına iniyoruz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Geçen hafta Apache Spark&apos;ın mimarisini (driver, executor, cluster
-        manager) ve MapReduce&apos;a göre neden çok daha hızlı olduğunu gördük.
-        Bu hafta &ldquo;hızlı&rdquo;yı mümkün kılan temel soyutlamayı açıyoruz: RDD.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#93c5fd]">
-            <HardDrive className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">MapReduce&apos;ta</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#60a5fa] flex-shrink-0" />Her adım ara sonucu diske yazar.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#60a5fa] flex-shrink-0" />Iteratif işler (ML, graf) çok yavaş.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#60a5fa] flex-shrink-0" />Disk I/O darboğaz oluşturur.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card-sky rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <Zap className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">RDD ile</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Ara veriler bellekte (RAM) tutulabilir.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Aynı veri tekrar tekrar diske okunmaz.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Lineage sayesinde diske yedek yazmadan dayanıklılık.</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3 · DERSİN AKIŞI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: RDD nedir → işlemler → dayanıklılık</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce RDD&apos;nin ne olduğunu ve özelliklerini tanımlıyoruz; sonra
-        transformasyon/eylem ayrımını ve tembel değerlendirmeyi işliyoruz; en son
-        lineage ile hata toleransına bakıp küçük bir uygulamalı lab yapıyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          {
-            range: "01",
-            title: "RDD Nedir?",
-            items: ["Tanım ve 3 temel özellik", "Parçalanma (partitioning)", "Değişmezlik (immutability)"],
-            icon: Database,
-            accent: "#60a5fa",
-          },
-          {
-            range: "02",
-            title: "İşlemler",
-            items: ["Transformasyon vs eylem", "Tembel değerlendirme (lazy)", "map · filter · reduceByKey"],
-            icon: Workflow,
-            accent: "#a855f7",
-          },
-          {
-            range: "03",
-            title: "Dayanıklılık",
-            items: ["Lineage (soyağacı)", "Hata toleransı", "persist / cache"],
-            icon: RefreshCw,
-            accent: "#22c55e",
-          },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="bvbb-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>
-                  Durak {g.range}
-                </div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  4 · BÖLÜM 1 · RDD NEDİR  ───────────────── */
-  () => (
-    <SectionDivider
-      num="01"
-      total="03"
-      title="RDD Nedir?"
-      subtitle="Resilient Distributed Dataset — Spark&apos;ın en temel, değişmez ve parçalara bölünmüş dağıtık koleksiyonu."
-      bgGradient="linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)"
-      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.6)"
-      icon={<Database className="w-16 h-16 text-white" />}
+    <Kapak
+      hafta="12. Hafta"
+      vurgu="Spark RDD"
+      satir="Bölünmüş, dayanıklı liste"
+      alt="Parçalara bölünüp kümeye dağıtılan ve bir parçası kaybolursa yeniden üretilebilen veri listesi."
+      cipler={[
+        { ad: "Parçalı", etiket: "Liste bölümlere ayrılır", icon: Scissors, renk: "#2563eb" },
+        { ad: "Dağıtık", etiket: "Parçalar farklı bilgisayarda", icon: Share2, renk: "#0ea5e9" },
+        { ad: "Dayanıklı", etiket: "Kaybolan parça geri gelir", icon: Repeat, renk: "#22c55e" },
+      ]}
     />
   ),
 
-  /* ─────────────────  5 · İSMİN AÇILIMI  ───────────────── */
+  /* ─────────────────  2 · GEÇEN HAFTAYA BAĞ (TAHMİN ET)  ───────────────── */
   () => (
-    <SlideShell>
-      <Eyebrow>R · D · D — ismin üç sözü</Eyebrow>
-      <H2>Her harf bir tasarım kararı</H2>
-      <Sub className="mt-3 max-w-3xl">
-        RDD&apos;nin adı tesadüf değil; üç kelime de Spark&apos;ın bir özelliğini
-        tanımlar. Bu üçlüyü anlarsan geri kalan her şey üzerine oturur.
-      </Sub>
+    <Slayt
+      etiket="Sorun"
+      baslik="Geçen hafta oluşturduğumuz liste neydi?"
+      alt="sc.parallelize([3, 8, 12, 5, 20]) yazmıştık. Ortaya çıkan şey sıradan bir Python listesi değildi."
+      soru="Bir Python listesi tek bilgisayara sığmayacak kadar büyürse ne olur?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <TahminKarti
+          soru="Python listesinden farkı ne?"
+          cevap="Python listesi tek bilgisayarda durur. Bu liste parçalara bölünüp kümeye dağıtılır."
+        />
+        <TahminKarti
+          soru="Bir parçası kaybolursa?"
+          cevap="Spark o parçanın nasıl elde edildiğini bilir; tarifi yeniden uygulayıp parçayı geri getirir."
+        />
+        <TahminKarti
+          soru="Bu listenin adı ne?"
+          cevap="RDD (Resilient Distributed Dataset): dayanıklı, dağıtık veri kümesi."
+        />
+      </div>
+    </Slayt>
+  ),
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+  /* ─────────────────  3 · BENZETME  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Benzetme"
+      baslik="RDD, sıralara paylaştırılmış liste gibidir"
+      alt="120 kişilik yoklama listesini tek kişi okumasın diye 4 parçaya böldük ve 4 sıraya verdik."
+      soru="Listeyi tek kişi okusaydı ne kadar sürerdi? Bir sıra kâğıdını kaybederse ne yaparız?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FeatureCard
-          icon={RefreshCw}
-          title="Resilient — Dayanıklı"
-          desc="Bir parça kaybolursa (düğüm çökerse) Spark onu lineage kaydından yeniden hesaplar; veriyi kopyalamaya gerek yoktur."
-          delay={0.0}
-          accent="#22c55e"
+          icon={Scissors}
+          title="Parçalıdır"
+          desc="Liste bölümlere ayrılır. Her bölüme parça (partition) denir."
         />
         <FeatureCard
-          icon={Network}
-          title="Distributed — Dağıtık"
-          desc="Veri tek makineye sığmaz; parçalara bölünüp küme içindeki birden çok düğümün belleğine yayılır."
+          icon={Share2}
+          title="Dağıtıktır"
+          desc="Parçalar kümedeki farklı bilgisayarlarda durur ve aynı anda işlenir."
           delay={0.1}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={Database}
-          title="Dataset — Veri Kümesi"
-          desc="Üzerinde paralel işlem yapılabilen, kayıtlardan oluşan değişmez (immutable) bir koleksiyondur."
-          delay={0.2}
-          accent="#a855f7"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 bvbb-card rounded-xl p-4 flex items-start gap-3"
-      >
-        <Lightbulb className="w-5 h-5 text-[#60a5fa] flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-gray-300">
-          <span className="bvbb-token">Tanım</span> RDD; küme üzerinde paralel
-          işlenebilen, parçalara bölünmüş, hataya dayanıklı ve değişmez bir kayıt
-          koleksiyonudur. Spark&apos;ın 2012&apos;deki orijinal akademik makalesinde
-          tanıtılan çekirdek soyutlamadır.
-        </p>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  6 · DEĞİŞMEZLİK  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Değişmezlik · immutability</Eyebrow>
-      <H2>RDD&apos;yi değiştiremezsin — yenisini üretirsin</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bir RDD bir kez oluştuğunda içeriği asla değişmez. Her transformasyon,
-        mevcut RDD&apos;den <span className="text-white">yeni</span> bir RDD türetir.
-        Bu, paralel ve hataya dayanıklı çalışmayı güvenli kılan kuraldır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#22c55e]">
-            <Check className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Neden işe yarar</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Aynı RDD&apos;yi birden çok görev güvenle paylaşır (kilit yok).</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Kaybolan parça baştan hesaplanabilir; eski hâl bozulmaz.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Sonuç tekrar üretilebilir (deterministik) olur.</li>
-          </ul>
-        </motion.div>
-        <SparkShellWindow title="pyspark — değişmezlik">
-          <div>
-            <span className="bvbb-term-prompt">&gt;&gt;&gt;</span>{" "}
-            <span className="bvbb-term-cmd">sayilar = sc.parallelize([1, 2, 3, 4])</span>
-          </div>
-          <div>
-            <span className="bvbb-term-prompt">&gt;&gt;&gt;</span>{" "}
-            <span className="bvbb-term-cmd">kareler = sayilar.map(lambda x: x * x)</span>
-          </div>
-          <div className="bvbb-term-dim">
-            # sayilar DEĞİŞMEDİ; map yeni bir RDD döndürdü
-          </div>
-          <div>
-            <span className="bvbb-term-prompt">&gt;&gt;&gt;</span>{" "}
-            <span className="bvbb-term-cmd">sayilar.collect()</span>
-          </div>
-          <div className="bvbb-term-val">[1, 2, 3, 4]</div>
-          <div>
-            <span className="bvbb-term-prompt">&gt;&gt;&gt;</span>{" "}
-            <span className="bvbb-term-cmd">kareler.collect()</span>
-          </div>
-          <div className="bvbb-term-val">[1, 4, 9, 16]</div>
-          <div className="mt-1">
-            <span className="bvbb-term-prompt">&gt;&gt;&gt;</span>{" "}
-            <span className="bvbb-term-cmd">_</span>
-            <span className="animate-pulse">█</span>
-          </div>
-        </SparkShellWindow>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  7 · PARÇALANMA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Partitioning · parçalanma</Eyebrow>
-      <H2 className="mb-2">Bir RDD aslında birçok parçadır</H2>
-      <Sub className="max-w-3xl mb-6">
-        RDD mantıksal olarak tek koleksiyon görünür; fiziksel olarak parçalara
-        (partition) bölünür ve bu parçalar düğümlerin belleğine dağılır. Her
-        parça ayrı bir görev olarak paralel işlenir.
-      </Sub>
-      <PartitionDiagram />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  8 · BÖLÜM 2 · İŞLEMLER  ───────────────── */
-  () => (
-    <SectionDivider
-      num="02"
-      total="03"
-      title="Transformasyonlar &amp; Eylemler"
-      subtitle="RDD üzerindeki tüm işlemler iki sınıfa ayrılır. Bu ayrım Spark&apos;ın tembel çalışma modelinin kalbidir."
-      bgGradient="linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)"
-      shadow="0 20px 60px -10px rgba(124, 58, 237, 0.6)"
-      icon={<Workflow className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  9 · TRANSFORMASYON vs EYLEM  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>İki tür işlem</Eyebrow>
-      <H2>Transformasyon mı, eylem mi?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Transformasyon yeni bir RDD tarifi üretir ama hemen çalışmaz (tembel).
-        Eylem ise hesabı tetikler ve bir sonuç (değer veya dosya) döndürür.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-          style={{ borderColor: "#a855f755" }}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ background: "#a855f725", border: "1px solid #a855f766" }}
-            >
-              <Workflow className="w-5 h-5" style={{ color: "#a855f7" }} />
-            </div>
-            <div>
-              <div className="text-base font-bold text-white">Transformasyon</div>
-              <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">RDD → RDD · tembel</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {["map", "filter", "flatMap", "distinct", "union", "reduceByKey", "groupByKey", "join"].map((op) => (
-              <span
-                key={op}
-                className="text-[11px] font-mono px-2 py-1 rounded bg-white/5 text-[#c4b5fd] border border-white/10 text-center"
-              >
-                {op}
-              </span>
-            ))}
-          </div>
-          <p className="text-xs text-gray-500 mt-4 border-t border-white/5 pt-3">
-            Çağrıldığında sadece &ldquo;ne yapılacağını&rdquo; kaydeder; veriye dokunmaz.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card rounded-xl p-6"
-          style={{ borderColor: "#22c55e55" }}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ background: "#22c55e25", border: "1px solid #22c55e66" }}
-            >
-              <Target className="w-5 h-5" style={{ color: "#22c55e" }} />
-            </div>
-            <div>
-              <div className="text-base font-bold text-white">Eylem</div>
-              <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">RDD → sonuç · hesabı tetikler</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {["collect", "count", "first", "take", "reduce", "saveAsTextFile", "foreach", "countByKey"].map((op) => (
-              <span
-                key={op}
-                className="text-[11px] font-mono px-2 py-1 rounded bg-white/5 text-[#86efac] border border-white/10 text-center"
-              >
-                {op}
-              </span>
-            ))}
-          </div>
-          <p className="text-xs text-gray-500 mt-4 border-t border-white/5 pt-3">
-            Çağrıldığında biriken tüm transformasyonlar kümede gerçekten çalışır.
-          </p>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · TEMBEL DEĞERLENDİRME  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Lazy evaluation · tembel değerlendirme</Eyebrow>
-      <H2 className="mb-2">Hesap, eylem çağrılana kadar başlamaz</H2>
-      <Sub className="max-w-3xl mb-6">
-        Transformasyonlar yalnızca bir plan oluşturur. Spark bu planı bir eylem
-        gelene kadar saklar; sonra tümünü <span className="text-white">birlikte
-        optimize ederek</span> tek seferde çalıştırır.
-      </Sub>
-      <SparkShellWindow title="spark-shell — lazy evaluation">
-        <div>
-          <span className="bvbb-term-prompt">scala&gt;</span>{" "}
-          <span className="bvbb-term-cmd">val satirlar = sc.textFile(&quot;s3://veri/logs.txt&quot;)</span>
-        </div>
-        <div className="bvbb-term-dim"># henüz dosya OKUNMADI — sadece tarif</div>
-        <div>
-          <span className="bvbb-term-prompt">scala&gt;</span>{" "}
-          <span className="bvbb-term-cmd">val hatalar = satirlar.filter(_.contains(&quot;ERROR&quot;))</span>
-        </div>
-        <div className="bvbb-term-dim"># filtre de tembel — hâlâ hiçbir şey çalışmadı</div>
-        <div>
-          <span className="bvbb-term-prompt">scala&gt;</span>{" "}
-          <span className="bvbb-term-cmd">hatalar.count()</span>
-        </div>
-        <div className="bvbb-term-warn">[Stage 0:&gt; (0 + 4) / 4] ... çalışıyor</div>
-        <div className="bvbb-term-ok">res0: Long = 1287</div>
-        <div className="bvbb-term-dim"># count() bir EYLEM — işte şimdi tüm zincir çalıştı</div>
-        <div className="mt-1">
-          <span className="bvbb-term-prompt">scala&gt;</span>{" "}
-          <span className="bvbb-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
-        </div>
-      </SparkShellWindow>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  11 · UÇTAN UCA ÖRNEK · WORD COUNT  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Klasik örnek · kelime sayımı</Eyebrow>
-      <H2 className="mb-2">RDD ile &quot;Hello World&quot;: WordCount</H2>
-      <Sub className="max-w-3xl mb-6">
-        Büyük verinin klasik ilk programı. Beş satırlık zincir; sadece son satır
-        (eylem) gerçek hesabı tetikler. Operatörlerin renklerine dikkat edin.
-      </Sub>
-      <SparkShellWindow title="pyspark — wordcount.py">
-        <div>
-          <span className="bvbb-term-dim"># 1) Kaynak: metin dosyasından RDD</span>
-        </div>
-        <div>
-          <span className="bvbb-term-cmd">satirlar = sc.textFile(</span>
-          <span className="bvbb-term-str">&quot;s3://veri/kitap.txt&quot;</span>
-          <span className="bvbb-term-cmd">)</span>
-        </div>
-        <div className="mt-1">
-          <span className="bvbb-term-dim"># 2) Satırı kelimelere böl (flatMap)</span>
-        </div>
-        <div>
-          <span className="bvbb-term-cmd">kelimeler = satirlar.</span>
-          <span className="bvbb-term-val">flatMap</span>
-          <span className="bvbb-term-cmd">(lambda s: s.split())</span>
-        </div>
-        <div className="mt-1">
-          <span className="bvbb-term-dim"># 3) Her kelimeyi (kelime, 1) yap</span>
-        </div>
-        <div>
-          <span className="bvbb-term-cmd">ciftler = kelimeler.</span>
-          <span className="bvbb-term-val">map</span>
-          <span className="bvbb-term-cmd">(lambda k: (k, 1))</span>
-        </div>
-        <div className="mt-1">
-          <span className="bvbb-term-dim"># 4) Anahtara göre topla (reduceByKey)</span>
-        </div>
-        <div>
-          <span className="bvbb-term-cmd">sayim = ciftler.</span>
-          <span className="bvbb-term-val">reduceByKey</span>
-          <span className="bvbb-term-cmd">(lambda a, b: a + b)</span>
-        </div>
-        <div className="mt-1">
-          <span className="bvbb-term-dim"># 5) EYLEM: ilk 3 sonucu getir → zincir burada çalışır</span>
-        </div>
-        <div>
-          <span className="bvbb-term-cmd">print(sayim.</span>
-          <span className="bvbb-term-ok">take</span>
-          <span className="bvbb-term-cmd">(3))</span>
-        </div>
-        <div className="bvbb-term-val">[(&apos;veri&apos;, 412), (&apos;bulut&apos;, 187), (&apos;spark&apos;, 96)]</div>
-      </SparkShellWindow>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  12 · BÖLÜM 3 · DAYANIKLILIK  ───────────────── */
-  () => (
-    <SectionDivider
-      num="03"
-      total="03"
-      title="Dayanıklılık &amp; Lineage"
-      subtitle="RDD&apos;deki &quot;R&quot; harfi: bir düğüm çökse bile veriyi kopyalamadan, soyağacından yeniden inşa ederek hataya dayanmak."
-      bgGradient="linear-gradient(135deg, #16a34a 0%, #22c55e 100%)"
-      shadow="0 20px 60px -10px rgba(34, 197, 94, 0.55)"
-      icon={<RefreshCw className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  13 · LINEAGE DİYAGRAMI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Lineage · soyağacı (DAG)</Eyebrow>
-      <H2 className="mb-2">Spark her RDD&apos;nin nereden geldiğini bilir</H2>
-      <Sub className="max-w-3xl mb-6">
-        Her transformasyon, çıktının hangi RDD&apos;den nasıl üretildiğini bir
-        yönlü çevrimsiz çizgede (DAG) kaydeder. İşte bu kayda lineage denir.
-      </Sub>
-      <LineageDiagram />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  14 · HATA TOLERANSI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Hata toleransı · fault tolerance</Eyebrow>
-      <H2>Bir düğüm çökerse ne olur?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Klasik sistemler veriyi kopyalayarak (replication) korur. RDD bunun
-        yerine kaybolan parçayı lineage&apos;tan yeniden hesaplar — bellek ve ağ
-        açısından çok daha ucuz bir kurtarma.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        {[
-          {
-            n: 1,
-            t: "Düğüm çöker",
-            d: "worker-02 düşer; üzerindeki P2 ve P3 parçaları bellekten kaybolur.",
-            icon: AlertTriangle,
-            color: "#f87171",
-          },
-          {
-            n: 2,
-            t: "Lineage okunur",
-            d: "Spark, kaybolan parçaların hangi adımlardan üretildiğini soyağacından bulur.",
-            icon: GitBranch,
-            color: "#60a5fa",
-          },
-          {
-            n: 3,
-            t: "Yalnızca o parça yeniden hesaplanır",
-            d: "Sağlam parçalara dokunulmaz; sadece eksikler başka düğümde yeniden üretilir.",
-            icon: RefreshCw,
-            color: "#22c55e",
-          },
-        ].map((s, i) => (
-          <motion.div
-            key={s.n}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className="bvbb-card rounded-xl p-6"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: `${s.color}18`, border: `1px solid ${s.color}55` }}
-            >
-              <s.icon className="w-6 h-6" style={{ color: s.color }} />
-            </div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">
-                {s.n}
-              </span>
-              <div className="text-base font-semibold text-white">{s.t}</div>
-            </div>
-            <p className="text-sm text-gray-400 leading-relaxed">{s.d}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Not</span> Lineage zinciri çok uzarsa
-        yeniden hesaplama pahalılaşır; bunu kırmak için <span className="text-white">checkpoint</span> kullanılır.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  15 · PERSIST / CACHE  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>persist · cache · depolama seviyeleri</Eyebrow>
-      <H2>Aynı RDD&apos;yi çok kullanacaksan: önbelleğe al</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bir RDD birden çok eylemde kullanılacaksa her seferinde baştan
-        hesaplanmasını önlemek için <span className="text-white">cache()</span> veya
-        <span className="text-white"> persist()</span> ile bellekte tutarız.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="mt-6 bvbb-card rounded-xl overflow-hidden"
-      >
-        <table className="bvbb-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "26%" }}>Depolama seviyesi</th>
-              <th style={{ width: "30%" }}>Nerede tutulur?</th>
-              <th>Ne zaman?</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span className="font-mono text-[#93c5fd]">MEMORY_ONLY</span></td>
-              <td>Sadece RAM (cache() varsayılanı).</td>
-              <td>Veri belleğe sığıyorsa; en hızlısı.</td>
-            </tr>
-            <tr>
-              <td><span className="font-mono text-[#93c5fd]">MEMORY_AND_DISK</span></td>
-              <td>RAM&apos;e sığmayan parçalar diske taşar.</td>
-              <td>Veri belleğe tam sığmadığında.</td>
-            </tr>
-            <tr>
-              <td><span className="font-mono text-[#93c5fd]">MEMORY_ONLY_SER</span></td>
-              <td>RAM&apos;de serileştirilmiş (daha küçük yer).</td>
-              <td>Bellek darsa, biraz CPU karşılığında.</td>
-            </tr>
-            <tr>
-              <td><span className="font-mono text-[#93c5fd]">DISK_ONLY</span></td>
-              <td>Sadece disk.</td>
-              <td>Yeniden hesaplama çok pahalı ama RAM yoksa.</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono text-center"
-      >
-        <span className="text-[#60a5fa]">rdd.cache()</span> = <span className="text-[#60a5fa]">rdd.persist(StorageLevel.MEMORY_ONLY)</span> · iş bitince <span className="text-[#60a5fa]">unpersist()</span> ile boşalt.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · RDD vs DataFrame  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bağlam · RDD nerede durur?</Eyebrow>
-      <H2>RDD ne zaman, DataFrame ne zaman?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        RDD Spark&apos;ın düşük seviyeli çekirdeğidir; bugün çoğu iş daha üst
-        seviyeli DataFrame/Dataset API&apos;si ile yazılır. Ama ikisi de aynı
-        motorun (RDD) üzerinde çalışır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#93c5fd]">
-            <Layers className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">RDD — düşük seviye</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Yapılandırılmamış veride tam kontrol.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Özel/karmaşık dönüşümler kolay.</li>
-            <li className="flex gap-2"><X className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Otomatik sorgu optimizasyonu yok.</li>
-            <li className="flex gap-2"><X className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Şema/tip güvenliği elle yönetilir.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card-sky rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <Database className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">DataFrame — üst seviye</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Sütun/şema; SQL benzeri sorgular.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Catalyst optimizer ile otomatik hızlandırma.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Yapılandırılmış veride çok daha kısa kod.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#60a5fa] flex-shrink-0" />Modern Spark işlerinin varsayılan tercihi.</li>
-          </ul>
-        </motion.div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-center text-[11px] text-gray-500"
-      >
-        Pratik kural: yapılandırılmış veride DataFrame; düşük seviye kontrol gerektiğinde RDD&apos;ye in.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  17 · UYGULAMALI LAB  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-      <H2>Kendi log dosyanda RDD pipeline&apos;ı</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bulutta (örn. EMR/Dataproc) ya da yerelde kurulu Spark üzerinde
-        pyspark açıp aşağıdaki dört adımı yap; sonraki derse ekran görüntüsüyle gel.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          {
-            icon: HardDrive,
-            title: "Log dosyasından RDD oluştur",
-            desc: "sc.textFile ile bir .log dosyasını oku; count() ile satır sayısını yazdır.",
-            accent: "#60a5fa",
-          },
-          {
-            icon: Filter,
-            title: "ERROR satırlarını filtrele",
-            desc: "filter(lambda s: \"ERROR\" in s) ile hata satırlarını ayıkla; kaç tane olduğunu say.",
-            accent: "#a855f7",
-          },
-          {
-            icon: GitBranch,
-            title: "Saatlere göre grupla",
-            desc: "map ile (saat, 1) çiftleri üret, reduceByKey ile saat başına hata sayısını çıkar.",
-            accent: "#f59e0b",
-          },
-          {
-            icon: Save,
-            title: "Önbellekle ve kaydet",
-            desc: "Filtrelenmiş RDD'yi cache() ile belleğe al, sonucu saveAsTextFile ile diske/S3'e yaz.",
-            accent: "#22c55e",
-          },
-        ].map((t, i) => (
-          <motion.label
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -16 : 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.45, delay: 0.15 + i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5 flex gap-4 cursor-pointer transition-all"
-          >
-            <div className="flex flex-col items-center gap-2">
-              <input type="checkbox" className="w-5 h-5 accent-[#2563eb] rounded" />
-              <span className="text-[10px] font-mono text-gray-500">#{i + 1}</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <t.icon className="w-4 h-4" style={{ color: t.accent }} />
-                <div className="text-base font-semibold text-white">{t.title}</div>
-              </div>
-              <p className="text-xs text-gray-400 leading-relaxed">{t.desc}</p>
-            </div>
-          </motion.label>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">İpucu</span> Spark UI&apos;ı (4040 portu) aç;
-        işin DAG&apos;ını ve oluşan stage/task sayısını gözlemle.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  18 · ÖZET  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu haftanın özeti</Eyebrow>
-      <H2>Aklında kalsın</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Dört cümleyle bu hafta öğrendiklerimiz — sınavda ve labda dönüp dolaşıp bunlara geleceğiz.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: Database, t: "RDD = değişmez, parçalı, dağıtık koleksiyon", d: "Spark'ın çekirdek soyutlaması; bellekte tutulabilir.", color: "#2563eb" },
-          { icon: Workflow, t: "Transformasyon tembel, eylem tetikleyici", d: "Plan birikir; eylem gelene kadar hiçbir şey çalışmaz.", color: "#a855f7" },
-          { icon: GitBranch, t: "Lineage = yeniden inşa tarifi", d: "Kaybolan parça soyağacından yeniden hesaplanır.", color: "#22c55e" },
-          { icon: RefreshCw, t: "cache/persist tekrar kullanımı hızlandırır", d: "Çok kullanılan RDD'yi belleğe al; baştan hesaplama yok.", color: "#f59e0b" },
-        ].map((s, i) => (
-          <motion.div
-            key={s.t}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="bvbb-card rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${s.color}18`, border: `1px solid ${s.color}55` }}
-            >
-              <s.icon className="w-5 h-5" style={{ color: s.color }} />
-            </div>
-            <div>
-              <div className="text-base font-semibold text-white">{s.t}</div>
-              <p className="text-sm text-gray-400 mt-1 leading-relaxed">{s.d}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  19 · SIRADAKİ HAFTA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Hafta 13 Önizleme</Eyebrow>
-      <H2>Bulutta makine öğrenmesi</H2>
-      <Sub className="mt-3 max-w-3xl">
-        RDD ile veriyi paralel işlemeyi gördük. Önümüzdeki hafta bu altyapının
-        üzerinde model eğitiyoruz: Spark MLlib ve bulut ML servisleri.
-      </Sub>
-
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FeatureCard
-          icon={Cpu}
-          title="Spark MLlib"
-          desc="RDD/DataFrame üzerinde ölçeklenebilir sınıflandırma, regresyon ve kümeleme."
-          delay={0.0}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={Cloud}
-          title="Yönetilen ML servisleri"
-          desc="SageMaker, Vertex AI, Azure ML — eğitim, dağıtım ve izleme tek panelden."
-          delay={0.1}
-          accent="#a855f7"
+          accent="#0ea5e9"
         />
         <FeatureCard
           icon={Repeat}
-          title="Pipeline mantığı"
-          desc="Veri hazırlama → özellik çıkarımı → eğitim → değerlendirme zinciri."
+          title="Yeniden üretilir"
+          desc="Bir parça kaybolursa Spark onu tarife bakarak yeniden hesaplar."
           delay={0.2}
           accent="#22c55e"
         />
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 bvbb-card rounded-xl p-5 flex items-center gap-4"
-      >
-        <ListChecks className="w-6 h-6 text-[#60a5fa]" />
-        <div className="flex-1">
-          <div className="text-sm font-semibold text-white">Hazırlık</div>
-          <div className="text-xs text-gray-400 mt-0.5">
-            Lab&apos;da ürettiğin filtrelenmiş RDD&apos;yi getir · Spark MLlib
-            dokümantasyonunun &ldquo;Basic Statistics&rdquo; bölümüne göz at.
-          </div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-gray-500" />
-      </motion.div>
-    </SlideShell>
+    </Slayt>
   ),
 
-  /* ─────────────────  20 · KAPANIŞ  ───────────────── */
+  /* ─────────────────  4 · PARÇALARA BÖL  ───────────────── */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8"
-          style={{
-            background: "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
-            boxShadow: "0 20px 60px -10px rgba(37,99,235,0.6)",
-          }}
-        >
-          <Zap className="w-12 h-12 text-white" />
-        </motion.div>
+    <Slayt
+      etiket="Oyna, gör"
+      baslik="Listeyi kaç parçaya bölelim?"
+      soru="Parça sayısı artınca ne kazanırız? Bilgisayar sayısından fazla parça işe yarar mı?"
+    >
+      <ParcaBol />
+    </Slayt>
+  ),
 
-        <Eyebrow>Hafta 12 · Son</Eyebrow>
-        <H1>
-          <span className="bvbb-shimmer">Teşekkürler!</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          RDD&apos;yi anladıysan Spark&apos;ın geri kalanı çok daha kolay gelecek.
-          Sorular için derslik 7&apos;de buluşuyoruz.
-        </Sub>
+  /* ─────────────────  5 · DEĞİŞMEZLİK  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Adım adım"
+      baslik="RDD değişmez; her işlem yenisini üretir"
+      alt="Fotokopi gibi: asıl kâğıda yazmazsın, yeni bir kâğıt çıkarırsın."
+      soru="Asıl liste her işlemde değişseydi ne sorun çıkardı?"
+    >
+      <AdimAdim
+        adimlar={[
+          {
+            baslik: "sayilar → [1, 2, 3, 4, 5, 6]",
+            metin: "İlk RDD. Buna bir daha dokunulmayacak.",
+          },
+          {
+            baslik: "ciftler = sayilar.filter(çift olanlar) → [2, 4, 6]",
+            metin: "Yeni bir RDD çıktı. sayilar olduğu gibi duruyor.",
+          },
+          {
+            baslik: "onKati = ciftler.map(10 ile çarp) → [20, 40, 60]",
+            metin: "Yine yeni bir RDD. Öncekiler silinmedi, değişmedi.",
+          },
+          {
+            baslik: "Neden böyle?",
+            metin: "Asıl veri hiç değişmediği için, kaybolan parça aynı adımlarla yeniden üretilebilir.",
+          },
+        ]}
+      />
+    </Slayt>
+  ),
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { icon: Target, label: "Ders saati", value: "Çarşamba 09:55 — 12:30" },
-            { icon: Server, label: "Konum", value: "Derslik 7 · MCBÜ MYO" },
-            { icon: Cloud, label: "Ders yöneticisi", value: "Öğr. Gör. Osman Can Çetlenbik" },
-          ].map((c, i) => (
-            <motion.div
-              key={c.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 text-left"
-            >
-              <c.icon className="w-5 h-5 text-[#60a5fa] mb-2" />
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider">{c.label}</div>
-              <div className="text-sm font-semibold text-white mt-1">{c.value}</div>
-            </motion.div>
-          ))}
-        </motion.div>
+  /* ─────────────────  6 · YENİDEN ÜRET  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Oyna, gör"
+      baslik="Kaybolan parça tariften yeniden üretilir"
+      soru="Diğer iki parça neden yeniden hesaplanmadı?"
+    >
+      <YenidenUret />
+    </Slayt>
+  ),
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          BVA 2103 · Büyük Veri İçin Bulut Bilişim · Güz 2026
-        </motion.div>
+  /* ─────────────────  7 · MİNİ SINAV  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Hızlı yoklama"
+      baslik="Buraya kadar anlaştık mı?"
+      soru="Tıklamadan önce el kaldıralım: kim hangi şıkkı seçiyor?"
+    >
+      <MiniSinav
+        s={{
+          soru: "Bir RDD'nin parçası kaybolunca Spark ne yapar?",
+          siklar: [
+            "Bütün işi en baştan başlatır",
+            "O parçayı tariften yeniden hesaplar",
+            "Hata verip durur",
+            "Parçayı boş bırakıp devam eder",
+          ],
+          dogru: 1,
+          aciklama: "Spark her RDD'nin nasıl elde edildiğini bilir; yalnızca eksik parçayı yeniden üretir.",
+        }}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  8 · DÖNÜŞÜM / EYLEM  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Kavram"
+      baslik="Dönüşüm tarif yazar, eylem pişirir"
+      alt="Spark, sonuç istenene kadar hesap yapmaz. Bu bekleme huyuna tembel çalışma (lazy evaluation) denir."
+      soru="Tarif bitmeden ocağı yakar mısın?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FeatureCard
+          icon={ClipboardList}
+          title="Dönüşüm (transformation)"
+          desc="map, filter, flatMap. Yeni bir RDD tarif eder; hesap hemen yapılmaz."
+          accent="#0ea5e9"
+        />
+        <FeatureCard
+          icon={Flame}
+          title="Eylem (action)"
+          desc="count, collect, take. Sonuç ister; Spark tarifin tamamını o anda çalıştırır."
+          delay={0.1}
+          accent="#f59e0b"
+        />
+        <TahminKarti
+          soru="Spark neden hemen hesaplamıyor?"
+          cevap="Tarifin tamamını görünce gereksiz işi atlar. Yalnızca ilk 3 kayıt istenirse hepsini işlemez."
+        />
       </div>
-    </SlideShell>
+    </Slayt>
+  ),
+
+  /* ─────────────────  9 · TARİF Mİ PİŞİRME Mİ  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Sınıf oylaması"
+      baslik="Bu işlem tarif mi, pişirme mi?"
+      soru="Yanlış bildiğin hangisiydi? Neden öyle düşündün?"
+    >
+      <IkiSecenek
+        etiketler={["Tarif", "Pişirme"]}
+        maddeler={[
+          {
+            metin: "map: her elemanı değiştir",
+            dogru: 0,
+            aciklama: "map bir dönüşümdür; yeni RDD tarif eder, hesap yapmaz.",
+          },
+          {
+            metin: "count: kaç eleman var, söyle",
+            dogru: 1,
+            aciklama: "count bir eylemdir; sayıyı bulmak için tarif çalışır.",
+          },
+          {
+            metin: "filter: koşula uyanları seç",
+            dogru: 0,
+            aciklama: "filter bir dönüşümdür; yalnızca tarife bir adım ekler.",
+          },
+          {
+            metin: "collect: sonucu bana getir",
+            dogru: 1,
+            aciklama: "collect bir eylemdir; sonucu getirmek için her şey çalışır.",
+          },
+        ]}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  10 · NOTLAR ÖRNEĞİ  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Kod"
+      baslik="Notlar örneği: 4 satırda tarif ve pişirme"
+      soru="3. ve 4. satırda tarif toplam kaç kez çalıştı?"
+    >
+      <KodSatirlari
+        cikti="4 ve [80, 62, 95, 71]"
+        satirlar={[
+          {
+            kod: "notlar = sc.parallelize([45, 80, 62, 30, 95, 71])",
+            tur: "tarif",
+            aciklama: "Altı sınav notundan bir RDD oluşturur. Liste parçalara bölünür.",
+          },
+          {
+            kod: "gecenler = notlar.filter(lambda n: n >= 50)",
+            tur: "tarif",
+            aciklama:
+              "Tarife yazar: 50 ve üstünü seç. Hesap yok; notlar RDD'si de olduğu gibi duruyor.",
+          },
+          {
+            kod: "print(gecenler.count())",
+            tur: "pisir",
+            aciklama: "İlk eylem: tarif çalışır, geçenler sayılır. Ekrana 4 yazar.",
+          },
+          {
+            kod: "print(gecenler.collect())",
+            tur: "pisir",
+            aciklama: "İkinci eylem: tarif bir kez daha baştan çalışır ve geçen notların listesini getirir.",
+          },
+        ]}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  11 · KELİME SAYMA  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Kod"
+      baslik="Kelime sayma, RDD ile 5 satır"
+      soru="10. haftadaki map, shuffle ve reduce adımları hangi satırlarda?"
+    >
+      <KodSatirlari
+        cikti="[('bulut', 3), ('veri', 4), ('büyük', 2)]"
+        satirlar={[
+          {
+            kod: 'satirlar = sc.textFile("metin.txt")',
+            tur: "tarif",
+            aciklama: "Dosyadan bir RDD tarif eder; her satır bir eleman olur.",
+          },
+          {
+            kod: "kelimeler = satirlar.flatMap(lambda satir: satir.split())",
+            tur: "tarif",
+            aciklama: "Her satırı kelimelere böler. Yeni RDD: kelimelerin listesi.",
+          },
+          {
+            kod: "ciftler = kelimeler.map(lambda kelime: (kelime, 1))",
+            tur: "tarif",
+            aciklama: "Her kelimenin yanına 1 yazar. MapReduce'taki map adımı.",
+          },
+          {
+            kod: "sayim = ciftler.reduceByKey(lambda a, b: a + b)",
+            tur: "tarif",
+            aciklama:
+              "Aynı kelimenin 1'lerini toplar. Adında reduce geçse de bu da bir dönüşümdür; hâlâ hesap yok.",
+          },
+          {
+            kod: "print(sayim.collect())",
+            tur: "pisir",
+            aciklama: "Tek eylem bu satır. Dört adımlık tarifin tamamı şimdi çalışır. Kelime sırası değişebilir.",
+          },
+        ]}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  12 · CACHE  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Oyna, gör"
+      baslik="Çok kullanacaksan bellekte tut"
+      soru="Her bardak için çayı yeniden demler misin, yoksa demlikte hazır mı tutarsın?"
+    >
+      <CacheOyunu />
+    </Slayt>
+  ),
+
+  /* ─────────────────  13 · SINIFTA DENEYELİM  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Sınıfta deneyelim · 10 dk"
+      baslik="Kendi notlarınla bir RDD kur"
+      soru="Yazdığın satırlardan hangisi tarif, hangisi pişirme?"
+    >
+      <AdimAdim
+        adimlar={[
+          {
+            baslik: "Colab'ı aç, Spark'ı başlat",
+            metin: "Geçen haftaki gibi: !pip install pyspark, sonra SparkContext ile sc oluştur.",
+          },
+          {
+            baslik: "Kendi notlarını yaz",
+            metin: "Sınıftan 8 not topla, listeye yaz ve sc.parallelize ile RDD yap.",
+          },
+          {
+            baslik: "Geçenleri say",
+            metin: "filter ile 50 ve üstünü seç, count ile say. Elle saydığınla aynı mı?",
+          },
+          {
+            baslik: "Bir adım ekle",
+            metin: "Geçen notlara map ile 5 puan ekle, collect ile göster. Asıl liste değişti mi?",
+          },
+        ]}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  14 · KENDİNİ DENE  ───────────────── */
+  () => (
+    <Slayt
+      etiket="Kendini dene"
+      baslik="Üç soruda bugünün dersi"
+      soru="Yanlış şıklar neden yanlış? Birini seçip açıklayın."
+    >
+      <KendiniDene
+        sorular={[
+          {
+            soru: "RDD'yi en iyi hangisi anlatır?",
+            siklar: [
+              "Parçalara bölünmüş, kaybolursa yeniden üretilebilen veri listesi",
+              "Tek bilgisayarda duran sıradan bir Python listesi",
+              "Bir bulut depolama hizmeti",
+              "Spark'ın kurulum dosyası",
+            ],
+            dogru: 0,
+            aciklama: "Parçalı, dağıtık ve dayanıklı: RDD'nin üç özelliği.",
+          },
+          {
+            soru: "gecenler = notlar.filter(...) çalışınca notlar RDD'sine ne olur?",
+            siklar: [
+              "Kalan notlar silinir",
+              "notlar ile gecenler birleşir",
+              "Hiçbir şey; RDD değişmez, yeni bir RDD tarif edilir",
+              "notlar diske yazılır",
+            ],
+            dogru: 2,
+            aciklama: "RDD değişmez. Her dönüşüm eskisine dokunmadan yeni bir RDD tarif eder.",
+          },
+          {
+            soru: "Aynı RDD'den art arda üç sonuç isteyeceksen ne yaparsın?",
+            siklar: [
+              "Üç kez parallelize yazarım",
+              "cache ile bellekte tutarım",
+              "Kümeyi kapatıp açarım",
+              "collect yerine filter kullanırım",
+            ],
+            dogru: 1,
+            aciklama: "cache ilk hesaplanan sonucu bellekte tutar; sonraki eylemler tarifi baştan çalıştırmaz.",
+          },
+        ]}
+      />
+    </Slayt>
+  ),
+
+  /* ─────────────────  15 · AKLINDA KALSIN  ───────────────── */
+  () => (
+    <UcSey
+      maddeler={[
+        "RDD, parçalara bölünüp kümeye dağıtılmış bir veri listesidir.",
+        "RDD değişmez; bir parçası kaybolursa Spark onu tariften yeniden üretir.",
+        "Dönüşümler (map, filter) tarif yazar, eylemler (count, collect) pişirir; sık kullanılan RDD cache ile bellekte tutulur.",
+      ]}
+      kopru="Öğrendiğimiz araçları bir araya getiriyoruz: bulutta veri analitiği."
+    />
   ),
 ];
 

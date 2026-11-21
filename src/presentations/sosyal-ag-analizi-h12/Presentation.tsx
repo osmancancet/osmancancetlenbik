@@ -9,31 +9,21 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ShieldAlert,
-  Network,
-  Activity,
-  Target,
-  Dice5,
-  Crosshair,
-  Scissors,
-  TrendingDown,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
   Check,
-  Zap,
-  BarChart3,
+  X,
   Code2,
-  ArrowRight,
-  Calendar,
-  Layers,
-  Droplet,
-  AlertTriangle,
-  Terminal,
-  ListChecks,
-  GitBranch,
+  MousePointerClick,
+  RotateCcw,
+  Unlink,
+  Target,
+  ShieldCheck,
+  Users,
+  Shuffle,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -147,1045 +137,457 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
+/* ============================================================
+   ORTAK YARDIMCILAR — slayt kalıpları ve tıklanabilir bileşenler
+   ============================================================ */
+
+const BTN =
+  "px-5 py-3 rounded-xl border text-base md:text-lg font-semibold transition-colors cursor-pointer";
+const BTN_IDLE =
+  "bg-white/5 border-[#14b8a6]/40 text-gray-100 hover:border-[#5eead4] hover:bg-[#14b8a6]/15";
+const BTN_ON = "bg-[#14b8a6]/30 border-[#5eead4] text-white";
+const BTN_OK = "bg-emerald-500/25 border-emerald-400 text-white";
+const BTN_NO = "bg-red-500/25 border-red-400 text-white";
+
+type CardInfo = { icon: LucideIcon; title: string; desc: string };
+type ListInfo = { label: string; items: string[] };
+type Question = { q: string; options: string[]; correct: number; why: string };
+type GNode = { id: string; x: number; y: number };
+type GEdge = [string, string];
+
+/** Hocanın sınıfa yönelteceği tek soru — her içerik slaydının altında. */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <p className="mt-5 text-sm text-gray-500">
+      <span className="font-mono text-xs uppercase tracking-widest text-[#14b8a6]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </p>
+  );
+}
+
+/** Standart içerik slaydı: üst etiket + cümle başlık + ortada içerik + Sınıfa sor. */
+function Frame({
+  eyebrow,
   title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+  ask,
+  children,
 }: {
-  num: string;
-  total: string;
+  eyebrow: string;
   title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  ask: string;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <SlideShell>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <H2 className="mb-6">{title}</H2>
+      <div className="max-w-4xl mx-auto">
+        {children}
+        <Ask>{ask}</Ask>
       </div>
     </SlideShell>
   );
 }
 
-/* ============================================================
-   TOPIC MOCKUPS
-   ============================================================ */
-
-type GraphNode = {
-  id: string;
-  x: number;
-  y: number;
-  removed?: boolean;
-  hub?: boolean;
-  r?: number;
-};
-
-type GraphEdge = { from: string; to: string };
-
-/* Aynı ağ üç aşamada: sağlam → birkaç düğüm gitti → hub gitti (parçalandı) */
-function ResilienceProgression() {
-  const baseNodes: GraphNode[] = [
-    { id: "h", x: 130, y: 110, hub: true, r: 22 },
-    { id: "a", x: 50, y: 50, r: 13 },
-    { id: "b", x: 50, y: 175, r: 13 },
-    { id: "c", x: 130, y: 30, r: 13 },
-    { id: "d", x: 210, y: 60, r: 13 },
-    { id: "e", x: 215, y: 165, r: 13 },
-    { id: "f", x: 130, y: 195, r: 13 },
-  ];
-  const baseEdges: GraphEdge[] = [
-    { from: "h", to: "a" },
-    { from: "h", to: "b" },
-    { from: "h", to: "c" },
-    { from: "h", to: "d" },
-    { from: "h", to: "e" },
-    { from: "h", to: "f" },
-    { from: "a", to: "c" },
-    { from: "d", to: "e" },
-    { from: "b", to: "f" },
-  ];
-
-  const stages: Array<{
-    label: string;
-    sub: string;
-    removed: string[];
-    color: string;
-  }> = [
-    {
-      label: "Sağlam ağ",
-      sub: "Tek dev bileşen · S = 7/7",
-      removed: [],
-      color: "#5eead4",
-    },
-    {
-      label: "Rastgele kayıp",
-      sub: "2 çevre düğümü gitti · ağ hâlâ bağlı",
-      removed: ["a", "f"],
-      color: "#fbbf24",
-    },
-    {
-      label: "Hedefli saldırı",
-      sub: "Hub gitti · ağ parçalara ayrıldı",
-      removed: ["h"],
-      color: "#f87171",
-    },
-  ];
-
-  const find = (id: string) => baseNodes.find((n) => n.id === id)!;
-
+function Cover({
+  week,
+  title,
+  sub,
+  cards,
+}: {
+  week: string;
+  title: [string, string];
+  sub: string;
+  cards: CardInfo[];
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="grid grid-cols-1 md:grid-cols-3 gap-4"
+    <SlideShell>
+      <div className="text-center">
+        <Eyebrow>BVA 2105 · {week}. Hafta — Sosyal Ağ Analizi</Eyebrow>
+        <H1 className="saa-shimmer">
+          {title[0]}
+          <br />
+          {title[1]}
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{sub}</Sub>
+        <div className="mt-8 max-w-4xl mx-auto text-left">
+          <CardRow cards={cards} />
+        </div>
+      </div>
+    </SlideShell>
+  );
+}
+
+function CardRow({ cards }: { cards: CardInfo[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {cards.map((c, i) => (
+        <FeatureCard
+          key={c.title}
+          icon={c.icon}
+          title={c.title}
+          desc={c.desc}
+          delay={0.15 + i * 0.12}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** Yan yana iki kısa liste (ör. geçen hafta / bu hafta). */
+function TwoLists({ left, right }: { left: ListInfo; right: ListInfo }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {[left, right].map((l, i) => (
+        <motion.div
+          key={l.label}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 + i * 0.15 }}
+          className={`${i === 0 ? "saa-card" : "saa-card-teal"} rounded-xl p-5`}
+        >
+          <div className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-3">
+            {l.label}
+          </div>
+          <ul className="space-y-2.5 text-base md:text-lg text-gray-200">
+            {l.items.map((t) => (
+              <li key={t} className="flex gap-2">
+                <ChevronRight className="w-5 h-5 mt-1 text-[#14b8a6] flex-shrink-0" />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/** Tahmin et → tıkla göster. */
+function Reveal({
+  hint = "Cevabı görmek için tıkla",
+  children,
+}: {
+  hint?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`w-full text-left rounded-xl p-6 transition-colors cursor-pointer ${
+        open ? "saa-card-teal" : "saa-card saa-card-hover"
+      }`}
     >
-      {stages.map((st, si) => {
-        const removedSet = new Set(st.removed);
+      {open ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="block text-lg md:text-xl text-gray-100 leading-relaxed"
+        >
+          {children}
+        </motion.span>
+      ) : (
+        <span className="flex items-center gap-3 text-lg md:text-xl text-[#5eead4]">
+          <MousePointerClick className="w-6 h-6" />
+          {hint}
+        </span>
+      )}
+    </button>
+  );
+}
+
+/** Ön yüzde soru, tıklayınca arka yüzde cevap. */
+function FlipCards({
+  items,
+}: {
+  items: Array<{ tag: string; front: string; back: string }>;
+}) {
+  const [open, setOpen] = useState<number[]>([]);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {items.map((it, i) => {
+        const on = open.includes(i);
         return (
-          <motion.div
-            key={st.label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + si * 0.15 }}
-            className="saa-card rounded-xl p-4"
+          <button
+            key={it.tag}
+            type="button"
+            onClick={() =>
+              setOpen((o) => (o.includes(i) ? o.filter((x) => x !== i) : [...o, i]))
+            }
+            className={`text-left rounded-xl p-5 min-h-[190px] flex flex-col transition-colors cursor-pointer ${
+              on ? "saa-card-teal" : "saa-card saa-card-hover"
+            }`}
           >
-            <div className="flex items-center gap-2 mb-2">
-              <span
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ background: st.color }}
-              />
-              <span className="text-sm font-semibold text-white">
-                {st.label}
+            <span className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-2">
+              {it.tag}
+            </span>
+            <span className="text-lg font-semibold text-white leading-snug">
+              {it.front}
+            </span>
+            {on ? (
+              <motion.span
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 text-base text-[#a7f3d0] leading-relaxed"
+              >
+                {it.back}
+              </motion.span>
+            ) : (
+              <span className="mt-auto pt-3 flex items-center gap-2 text-sm text-gray-500">
+                <MousePointerClick className="w-4 h-4" />
+                tıkla, cevabı gör
               </span>
-            </div>
-            <svg viewBox="0 0 260 220" className="w-full h-auto">
-              {baseEdges.map((e, i) => {
-                const dead =
-                  removedSet.has(e.from) || removedSet.has(e.to);
-                const a = find(e.from);
-                const b = find(e.to);
-                return (
-                  <line
-                    key={`e-${si}-${i}`}
-                    x1={a.x}
-                    y1={a.y}
-                    x2={b.x}
-                    y2={b.y}
-                    stroke={dead ? "#3f3f46" : "#14b8a6"}
-                    strokeWidth={dead ? 1 : 1.6}
-                    strokeOpacity={dead ? 0.3 : 0.6}
-                    strokeDasharray={dead ? "3 3" : undefined}
-                  />
-                );
-              })}
-              {baseNodes.map((n) => {
-                const gone = removedSet.has(n.id);
-                return (
-                  <g key={`${si}-${n.id}`}>
-                    <circle
-                      cx={n.x}
-                      cy={n.y}
-                      r={n.r ?? 13}
-                      fill={
-                        gone
-                          ? "#1f2937"
-                          : n.hub
-                            ? "#0d9488"
-                            : "#1f2937"
-                      }
-                      stroke={
-                        gone ? "#52525b" : n.hub ? "#5eead4" : "#475569"
-                      }
-                      strokeWidth={n.hub ? 2.2 : 1.4}
-                      strokeOpacity={gone ? 0.45 : 1}
-                      strokeDasharray={gone ? "3 3" : undefined}
-                      fillOpacity={gone ? 0.35 : 1}
-                    />
-                    {gone && (
-                      <line
-                        x1={n.x - 8}
-                        y1={n.y - 8}
-                        x2={n.x + 8}
-                        y2={n.y + 8}
-                        stroke="#f87171"
-                        strokeWidth={2}
-                      />
-                    )}
-                  </g>
-                );
-              })}
-            </svg>
-            <div className="mt-1 text-[11px] text-gray-400 text-center">
-              {st.sub}
-            </div>
-          </motion.div>
+            )}
+          </button>
         );
       })}
-    </motion.div>
+    </div>
   );
 }
 
-/* S(f): kaldırılan düğüm oranına karşı dev bileşen büyüklüğü */
-function PercolationChart() {
-  // Şematik eğriler: rastgele (yavaş düşüş) vs hedefli (ani çöküş)
-  const W = 700;
-  const H = 360;
-  const padL = 60;
-  const padB = 50;
-  const padT = 20;
-  const padR = 20;
-  const plotW = W - padL - padR;
-  const plotH = H - padT - padB;
-
-  const xToPx = (f: number) => padL + f * plotW;
-  const yToPx = (s: number) => padT + (1 - s) * plotH;
-
-  // Rastgele başarısızlık: ölçeksiz ağda eşik ~1'e yakın (yavaş, dirençli)
-  const randomPts: Array<[number, number]> = [
-    [0, 1],
-    [0.2, 0.94],
-    [0.4, 0.85],
-    [0.6, 0.7],
-    [0.8, 0.45],
-    [0.95, 0.12],
-    [1, 0],
-  ];
-  // Hedefli saldırı: en yüksek dereceli düğümler önce → erken çöküş
-  const targetedPts: Array<[number, number]> = [
-    [0, 1],
-    [0.05, 0.82],
-    [0.12, 0.55],
-    [0.2, 0.28],
-    [0.3, 0.08],
-    [0.4, 0.02],
-    [1, 0],
-  ];
-
-  const toPath = (pts: Array<[number, number]>) =>
-    pts
-      .map((p, i) => `${i === 0 ? "M" : "L"} ${xToPx(p[0])} ${yToPx(p[1])}`)
-      .join(" ");
-
+/** Mini sınav: doğru şık yeşil, yanlış kırmızı; doğruysa tek cümle açıklama. */
+function Quiz({
+  questions,
+  row = false,
+  unit = "Soru",
+}: {
+  questions: Question[];
+  row?: boolean;
+  unit?: string;
+}) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const cur = questions[idx];
+  const dogru = picked === cur.correct;
+  const son = idx === questions.length - 1;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5"
-    >
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
-        {/* eksenler */}
-        <line x1={padL} y1={padT} x2={padL} y2={padT + plotH} stroke="#475569" strokeWidth={1.5} />
-        <line x1={padL} y1={padT + plotH} x2={padL + plotW} y2={padT + plotH} stroke="#475569" strokeWidth={1.5} />
-
-        {/* yatay ızgara */}
-        {[0.25, 0.5, 0.75, 1].map((g) => (
-          <line
-            key={`g-${g}`}
-            x1={padL}
-            y1={yToPx(g)}
-            x2={padL + plotW}
-            y2={yToPx(g)}
-            stroke="#14b8a6"
-            strokeOpacity={0.08}
-            strokeWidth={1}
-          />
-        ))}
-
-        {/* eğriler */}
-        <path d={toPath(randomPts)} fill="none" stroke="#fbbf24" strokeWidth={3} />
-        <path d={toPath(targetedPts)} fill="none" stroke="#f87171" strokeWidth={3} />
-
-        {/* eksen etiketleri */}
-        <text x={padL + plotW / 2} y={H - 12} textAnchor="middle" fontSize={13} fill="#9ca3af" fontFamily="Inter, sans-serif">
-          Kaldırılan düğüm oranı f
-        </text>
-        <text
-          x={18}
-          y={padT + plotH / 2}
-          textAnchor="middle"
-          fontSize={13}
-          fill="#9ca3af"
-          fontFamily="Inter, sans-serif"
-          transform={`rotate(-90 18 ${padT + plotH / 2})`}
-        >
-          Dev bileşen oranı S
-        </text>
-
-        {/* eksen değerleri */}
-        <text x={padL} y={padT + plotH + 20} textAnchor="middle" fontSize={11} fill="#6b7280">0</text>
-        <text x={padL + plotW} y={padT + plotH + 20} textAnchor="middle" fontSize={11} fill="#6b7280">1</text>
-        <text x={padL - 12} y={yToPx(1) + 4} textAnchor="end" fontSize={11} fill="#6b7280">1</text>
-        <text x={padL - 12} y={yToPx(0) + 4} textAnchor="end" fontSize={11} fill="#6b7280">0</text>
-
-        {/* lejant */}
-        <g transform={`translate(${padL + plotW - 220}, ${padT + 10})`}>
-          <rect x={0} y={0} width={210} height={56} rx={8} fill="#0a0f0e" stroke="#14b8a6" strokeOpacity={0.25} />
-          <line x1={14} y1={20} x2={40} y2={20} stroke="#fbbf24" strokeWidth={3} />
-          <text x={48} y={24} fontSize={12} fill="#d1d5db" fontFamily="Inter, sans-serif">Rastgele başarısızlık</text>
-          <line x1={14} y1={42} x2={40} y2={42} stroke="#f87171" strokeWidth={3} />
-          <text x={48} y={46} fontSize={12} fill="#d1d5db" fontFamily="Inter, sans-serif">Hedefli saldırı</text>
-        </g>
-      </svg>
-      <div className="mt-2 text-xs text-gray-400 text-center">
-        Ölçeksiz ağlar rastgele kayba <span className="text-[#fbbf24] font-semibold">dirençli</span>,
-        hub hedefli saldırıya ise <span className="text-[#f87171] font-semibold">kırılgandır</span> — &quot;sağlam ama kırılgan&quot;.
+    <div className="saa-card rounded-xl p-5">
+      {questions.length > 1 && (
+        <div className="text-xs font-mono uppercase tracking-widest text-[#5eead4] mb-2">
+          {unit} {idx + 1} / {questions.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white mb-4 leading-snug">
+        {cur.q}
       </div>
-    </motion.div>
-  );
-}
-
-function MetricTable() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5 overflow-x-auto"
-    >
-      <table className="saa-table">
-        <thead>
-          <tr>
-            <th style={{ width: "20%" }}>Ölçü</th>
-            <th>Ne ölçer?</th>
-            <th>Yüksek değer ne anlama gelir?</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="saa-row-head">Dev bileşen S</td>
-            <td>En büyük bağlı bileşendeki düğümlerin oranı.</td>
-            <td>Ağın büyük kısmı hâlâ tek parça — iletişim sürüyor.</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Perkolasyon eşiği f<sub>c</sub></td>
-            <td>Dev bileşenin dağıldığı kritik kaldırma oranı.</td>
-            <td>1&apos;e yakınsa ağ çok dayanıklı; düşükse kolay çöker.</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Cebirsel bağlantı λ<sub>2</sub></td>
-            <td>Laplace matrisinin ikinci en küçük öz-değeri (Fiedler).</td>
-            <td>Büyükse ağı ikiye bölmek zor — güçlü bağlı.</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Düğüm/kenar bağlantısı κ</td>
-            <td>Ağı kopartmak için silinmesi gereken en az düğüm/kenar.</td>
-            <td>Yüksekse tek bir noktanın kaybı ağı bölmez.</td>
-          </tr>
-        </tbody>
-      </table>
-    </motion.div>
-  );
-}
-
-function CodeBlock() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          <span>resilience.py · Python 3.12 · NetworkX 3.3</span>
-        </div>
-      </div>
-      <pre className="saa-code p-6 overflow-x-auto m-0">
-        <code>
-          <span className="saa-code-kw">import</span>{" "}
-          <span className="saa-code-fn">networkx</span>{" "}
-          <span className="saa-code-kw">as</span>{" "}
-          <span className="saa-code-fn">nx</span>
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># Ölçeksiz bir test ağı (Barabási–Albert)</span>
-          {"\n"}
-          G = nx.<span className="saa-code-fn">barabasi_albert_graph</span>(
-          <span className="saa-code-num">1000</span>,{" "}
-          <span className="saa-code-num">3</span>)
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># Dev bileşen oranı S = en büyük bileşen / n</span>
-          {"\n"}
-          <span className="saa-code-kw">def</span>{" "}
-          <span className="saa-code-fn">giant_frac</span>(g):
-          {"\n"}
-          {"    "}
-          <span className="saa-code-kw">if</span> g.
-          <span className="saa-code-fn">number_of_nodes</span>() ==
-          <span className="saa-code-num"> 0</span>:
-          <span className="saa-code-kw"> return</span>{" "}
-          <span className="saa-code-num">0.0</span>
-          {"\n"}
-          {"    "}cc =
-          <span className="saa-code-fn"> max</span>(nx.
-          <span className="saa-code-fn">connected_components</span>(g), key=
-          <span className="saa-code-fn">len</span>)
-          {"\n"}
-          {"    "}
-          <span className="saa-code-kw">return</span>{" "}
-          <span className="saa-code-fn">len</span>(cc) / G.
-          <span className="saa-code-fn">number_of_nodes</span>()
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># Hedefli saldırı: en yüksek dereceli düğümü tekrar tekrar sil</span>
-          {"\n"}
-          H = G.<span className="saa-code-fn">copy</span>()
-          {"\n"}
-          <span className="saa-code-kw">for</span> _{" "}
-          <span className="saa-code-kw">in</span>{" "}
-          <span className="saa-code-fn">range</span>(
-          <span className="saa-code-num">50</span>):
-          {"\n"}
-          {"    "}v =
-          <span className="saa-code-fn"> max</span>(H.
-          <span className="saa-code-fn">degree</span>, key=
-          <span className="saa-code-kw">lambda</span> x: x[
-          <span className="saa-code-num">1</span>])[
-          <span className="saa-code-num">0</span>]
-          {"\n"}
-          {"    "}H.<span className="saa-code-fn">remove_node</span>(v)
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-fn">print</span>(
-          <span className="saa-code-str">&quot;S (saldırı sonrası):&quot;</span>,{" "}
-          <span className="saa-code-fn">round</span>(
-          <span className="saa-code-fn">giant_frac</span>(H),{" "}
-          <span className="saa-code-num">3</span>))
-        </code>
-      </pre>
-    </motion.div>
-  );
-}
-
-function AttackTerminal() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <Terminal className="w-3.5 h-3.5" />
-          <span>python resilience.py — saldırı vs rastgele</span>
-        </div>
-      </div>
-      <div className="saa-terminal">
-        <div>
-          <span className="saa-term-prompt">analiz@lab</span>
-          <span className="saa-term-dim">:~$</span>{" "}
-          <span className="saa-term-cmd">python resilience.py</span>
-        </div>
-        <div className="saa-term-dim">Ağ: BA(n=1000, m=3) · kenar=2991 · &lt;k&gt;≈5.98</div>
-        <div className="mt-1 saa-term-warn">f       S_rastgele   S_hedefli</div>
-        <div><span className="saa-term-ok">0.00</span>{"    "}1.000{"        "}1.000</div>
-        <div><span className="saa-term-ok">0.05</span>{"    "}0.982{"        "}<span className="saa-term-err">0.611</span></div>
-        <div><span className="saa-term-ok">0.10</span>{"    "}0.961{"        "}<span className="saa-term-err">0.298</span></div>
-        <div><span className="saa-term-ok">0.20</span>{"    "}0.913{"        "}<span className="saa-term-err">0.041</span></div>
-        <div className="saa-term-dim mt-1">
-          Yorum: %10 hub silinince hedefli S ~0.30&apos;a düşer; rastgelede neredeyse değişmez.
-        </div>
-        <div className="mt-2">
-          <span className="saa-term-prompt">analiz@lab</span>
-          <span className="saa-term-dim">:~$</span>{" "}
-          <span className="saa-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ============================================================
-   SLIDES
-   ============================================================ */
-
-const slides: Array<(active: boolean) => ReactNode> = [
-  /* ─────────────────  AÇILIŞ  ───────────────── */
-
-  // 1 — Kapak
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 2105 · 12. Hafta — Sosyal Ağ Analizi</Eyebrow>
-        <H1 className="saa-shimmer">
-          Ağın Dayanıklılığı
-          <br />
-          ve Esnekliği
-        </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Bir ağ ne zaman ayakta kalır, ne zaman parçalanır? Rastgele kayıp ile
-          hedefli saldırının farkı.
-        </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
-          <FeatureCard
-            icon={Dice5}
-            title="Rastgele Başarısızlık"
-            desc="Düğümler gelişigüzel kaybolur — sosyal ağlar buna genelde dayanıklıdır."
-            delay={0.3}
-            accent="#fbbf24"
-          />
-          <FeatureCard
-            icon={Crosshair}
-            title="Hedefli Saldırı"
-            desc="Önce en merkezi hub&apos;lar gider — ölçeksiz ağların zayıf noktası."
-            delay={0.45}
-            accent="#f87171"
-          />
-          <FeatureCard
-            icon={Droplet}
-            title="Perkolasyon"
-            desc="Dev bileşenin dağıldığı kritik eşik f_c ile dayanıklılığı sayısallaştırırız."
-            delay={0.6}
-            accent="#14b8a6"
-          />
-        </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Cuma · 09:55 – 11:35 · NetworkX ile uygulamalı analiz
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 2 — Geçen haftadan köprü + bu haftanın hedefi
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 11. haftadan 12. haftaya</Eyebrow>
-      <H2>Önce yayılımı konuştuk; şimdi ağın kendisi ayakta kalır mı?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        11. haftada etki maksimizasyonuyla &quot;kimi seçersek mesaj en geniş
-        yayılır?&quot; sorusunu yanıtladık. Bu hafta tersini soruyoruz: düğümler
-        kaybolduğunda ağ ne kadarını korur? Bu, dayanıklılık (robustness) ve
-        esneklik (resilience) sorusudur.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5eead4]">
-            <Network className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Dayanıklılık (robustness)
-            </span>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed">
-            Düğüm/kenar kaybına rağmen ağın yapısını (bağlılığını, kısa
-            yollarını) ne kadar koruduğu. Statik bir ölçüdür: &quot;ne kadar
-            dayanır?&quot;
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5eead4]">
-            <Activity className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Esneklik (resilience)
-            </span>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed">
-            Hasardan sonra ağın kendini toparlama / işlevini sürdürme kapasitesi.
-            Dinamik bir bakış: &quot;kopan bağ yeniden kurulur mu, akış başka
-            yoldan devam eder mi?&quot;
-          </p>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 3 — Bu dersin akışı
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: tehdit türleri → ölçüler → pratik</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce ağı hangi senaryoların yıprattığını ayırıyoruz; sonra dayanıklılığı
-        sayısallaştıran ölçüleri tanımlıyoruz; en son NetworkX ile kendi ağımızı
-        kırmayı deniyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          {
-            range: "01",
-            title: "Kayıp Senaryoları",
-            items: ["Rastgele başarısızlık", "Hedefli saldırı", "Sağlam ama kırılgan"],
-            icon: Crosshair,
-            accent: "#f87171",
-          },
-          {
-            range: "02",
-            title: "Dayanıklılık Ölçüleri",
-            items: ["Dev bileşen S", "Perkolasyon eşiği f_c", "Bağlantı & λ₂"],
-            icon: BarChart3,
-            accent: "#14b8a6",
-          },
-          {
-            range: "03",
-            title: "Pratikte",
-            items: ["NetworkX ile saldırı", "Eğri çizimi", "Bu hafta lab"],
-            icon: Code2,
-            accent: "#fbbf24",
-          },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="saa-card rounded-xl p-6"
+      <div className={row ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-2.5"}>
+        {cur.options.map((o, i) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => setPicked(i)}
+            className={`${BTN} text-left ${
+              picked === i ? (i === cur.correct ? BTN_OK : BTN_NO) : BTN_IDLE
+            }`}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{
-                  background: `${g.accent}18`,
-                  border: `1px solid ${g.accent}55`,
-                }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div
-                  className="text-[10px] font-mono uppercase tracking-widest"
-                  style={{ color: g.accent }}
-                >
-                  Durak {g.range}
-                </div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
+            {o}
+          </button>
+        ))}
+      </div>
+      <div className="mt-4 min-h-[52px] flex items-center justify-between gap-4">
+        <div className="text-base md:text-lg">
+          {picked === null && (
+            <span className="text-gray-500">Bir şıkka tıkla.</span>
+          )}
+          {picked !== null && !dogru && (
+            <span className="text-red-300 flex items-center gap-2">
+              <X className="w-5 h-5" /> Olmadı, bir daha dene.
+            </span>
+          )}
+          {dogru && (
+            <span className="text-emerald-300 flex items-start gap-2">
+              <Check className="w-5 h-5 mt-1 flex-shrink-0" /> {cur.why}
+            </span>
+          )}
+        </div>
+        {questions.length > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              setIdx(son ? 0 : idx + 1);
+              setPicked(null);
+            }}
+            className={`${BTN} ${BTN_IDLE} flex-shrink-0`}
+          >
+            {son ? "Baştan" : "Sıradaki"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Adım adım açılan liste (etkinlik yönergesi). */
+function Steps({ items }: { items: Array<{ t: string; d: string }> }) {
+  const [n, setN] = useState(1);
+  const bitti = n >= items.length;
+  return (
+    <div>
+      <div className="space-y-2.5 min-h-[250px]">
+        {items.slice(0, n).map((it, i) => (
+          <motion.div
+            key={it.t}
+            initial={{ opacity: 0, x: -14 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="saa-card rounded-xl px-4 py-3 flex items-center gap-4"
+          >
+            <div className="saa-tick w-9 h-9 flex items-center justify-center shrink-0 text-lg font-bold">
+              {i + 1}
             </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight
-                    className="w-3.5 h-3.5 mt-0.5 flex-shrink-0"
-                    style={{ color: g.accent }}
-                  />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
+            <div>
+              <div className="text-lg font-semibold text-white">{it.t}</div>
+              <div className="text-sm text-gray-400">{it.d}</div>
+            </div>
           </motion.div>
         ))}
       </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  1. KAYIP SENARYOLARI  ───────────────── */
-
-  // 4 — Section divider 1/3
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Kayıp Senaryoları"
-      subtitle="Bir ağ neden çöker? Rastgele başarısızlık ile hedefli saldırı çok farklı sonuçlar doğurur."
-      bgGradient="linear-gradient(135deg, #f87171, #b91c1c)"
-      shadow="0 20px 60px -10px rgba(248, 113, 113, 0.5)"
-      icon={<ShieldAlert className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 5 — Rastgele vs hedefli karşılaştırma kartları
-  () => (
-    <SlideShell>
-      <Eyebrow>İki temel senaryo</Eyebrow>
-      <H2 className="mb-2">Rastgele başarısızlık ve hedefli saldırı</H2>
-      <Sub className="max-w-3xl mb-8">
-        Aynı sayıda düğümü silersin — ama hangilerini sildiğin sonucu kökten
-        değiştirir. Sosyal ağda &quot;hangi düğüm?&quot; sorusu &quot;kaç
-        düğüm?&quot; sorusundan daha önemlidir.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="saa-card rounded-xl p-6"
-          style={{ borderColor: "rgba(251,191,36,0.4)" }}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <Dice5 className="w-6 h-6 text-[#fbbf24]" />
-            <h3 className="text-xl font-semibold text-white">
-              Rastgele başarısızlık
-            </h3>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed mb-4">
-            Düğümler gelişigüzel kaybolur: kullanıcı hesabını siler, bir röle
-            arızalanır. Ağdaki düğümlerin çoğu düşük dereceli olduğu için
-            silinen de büyük olasılıkla bir çevre düğümüdür.
-          </p>
-          <ul className="text-sm text-gray-400 space-y-1.5">
-            <li>· Hesap silme / pasifleşme dalgaları</li>
-            <li>· Donanım arızaları, kesintiler</li>
-            <li>· Sonuç: ölçeksiz ağ genelde dayanıklı</li>
-          </ul>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-          className="saa-card rounded-xl p-6"
-          style={{ borderColor: "rgba(248,113,113,0.4)" }}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <Crosshair className="w-6 h-6 text-[#f87171]" />
-            <h3 className="text-xl font-semibold text-white">Hedefli saldırı</h3>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed mb-4">
-            En yüksek dereceli / aradalığı yüksek düğümler bilerek seçilip
-            silinir. Birkaç hub yeter — ağ hızla kopuk parçalara ayrılır.
-          </p>
-          <ul className="text-sm text-gray-400 space-y-1.5">
-            <li>· Sahte hesap kampanyalarının elebaşıları</li>
-            <li>· Bot ağında komuta-kontrol düğümleri</li>
-            <li>· Sonuç: ölçeksiz ağ kırılgan</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 6 — Üç aşamalı görsel ilerleme
-  () => (
-    <SlideShell>
-      <Eyebrow>Görsel · aynı ağ, üç senaryo</Eyebrow>
-      <H2 className="mb-2">Hub&apos;ı çekince ağ dağılır</H2>
-      <Sub className="max-w-3xl mb-6">
-        Soldan sağa: sağlam ağ, iki çevre düğümünün rastgele kaybı, ve tek bir
-        hub&apos;ın hedefli kaybı. Aynı &quot;silme sayısı&quot; çok farklı
-        sonuç verir.
-      </Sub>
-      <ResilienceProgression />
-    </SlideShell>
-  ),
-
-  // 7 — Sağlam ama kırılgan (robust yet fragile)
-  () => (
-    <SlideShell>
-      <Eyebrow>Ölçeksiz ağların paradoksu</Eyebrow>
-      <H2 className="mb-2">&quot;Sağlam ama kırılgan&quot;</H2>
-      <Sub className="max-w-3xl mb-8">
-        Çoğu sosyal ağın derece dağılımı kuyrukludur (birkaç çok bağlantılı hub,
-        çok sayıda az bağlantılı düğüm). Bu yapı iki yüzlüdür:
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5eead4]">
-            <Dice5 className="w-5 h-5" />
-            <span className="text-sm font-semibold">Rastgeleye karşı SAĞLAM</span>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed">
-            Rastgele silinen düğüm büyük olasılıkla düşük dereceli bir çevre
-            düğümüdür; ağın iskeletini taşıyan hub&apos;lara dokunmaz. Bu yüzden
-            dev bileşen uzun süre ayakta kalır.
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-          style={{ borderColor: "rgba(248,113,113,0.4)" }}
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#f87171]">
-            <Crosshair className="w-5 h-5" />
-            <span className="text-sm font-semibold">Hedefliye karşı KIRILGAN</span>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed">
-            Saldırgan hub&apos;ları bilerek seçerse ağı taşıyan az sayıdaki
-            yüksek dereceli düğümü kaldırır; kısa yollar uzar, dev bileşen hızla
-            küçülür. Tek noktaya bağımlılık (single point of failure) burada.
-          </p>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2. DAYANIKLILIK ÖLÇÜLERİ  ───────────────── */
-
-  // 8 — Section divider 2/3
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Dayanıklılığı Ölçmek"
-      subtitle="Sezgiyi sayıya çevirelim: dev bileşen, perkolasyon eşiği ve bağlantı temelli ölçüler."
-      bgGradient="linear-gradient(135deg, #14b8a6, #0d9488)"
-      shadow="0 20px 60px -10px rgba(20, 184, 166, 0.6)"
-      icon={<Target className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 9 — Dev bileşen ve perkolasyon eşiği
-  () => (
-    <SlideShell>
-      <Eyebrow>Temel ölçü</Eyebrow>
-      <H2 className="mb-2">Dev bileşen S ve perkolasyon eşiği</H2>
-      <Sub className="max-w-3xl mb-8">
-        Dayanıklılığın ana göstergesi, en büyük bağlı bileşendeki düğümlerin
-        oranı S&apos;tir. Düğümleri sildikçe S düşer; belirli bir kritik oranda
-        ağ aniden &quot;dev bileşensiz&quot; kalır — buna perkolasyon eşiği denir.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-[#5eead4] mb-3">
-            Dev bileşen oranı
-          </div>
-          <div className="saa-card rounded-lg p-4 font-mono text-sm text-[#a7f3d0] text-center">
-            S = |en büyük bileşen| / n
-          </div>
-          <p className="mt-4 text-sm text-gray-300 leading-relaxed">
-            S ≈ 1 → ağın neredeyse tamamı tek parça. S küçüldükçe ağ kopuk
-            adacıklara bölünür; iletişim/yayılım durur.
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-gray-400 mb-3">
-            Perkolasyon eşiği
-          </div>
-          <div className="saa-card rounded-lg p-4 font-mono text-sm text-[#a7f3d0] text-center">
-            f<sub>c</sub> = kritik kaldırma oranı
-          </div>
-          <p className="mt-4 text-sm text-gray-300 leading-relaxed">
-            f &lt; f<sub>c</sub> iken dev bileşen var; f ≥ f<sub>c</sub> olunca
-            yok. f<sub>c</sub> 1&apos;e ne kadar yakınsa ağ o kadar dayanıklıdır.
-          </p>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 10 — Perkolasyon eğrisi grafiği
-  () => (
-    <SlideShell>
-      <Eyebrow>Görsel · S(f) eğrisi</Eyebrow>
-      <H2 className="mb-2">Aynı ağ, iki çok farklı eğri</H2>
-      <Sub className="max-w-3xl mb-6">
-        Yatay eksen kaldırılan düğüm oranı f, dikey eksen dev bileşen oranı
-        S&apos;tir. Hedefli saldırı (kırmızı) çok küçük f&apos;te ağı çökertirken,
-        rastgele kayıp (sarı) yavaş ve geç düşer.
-      </Sub>
-      <PercolationChart />
-    </SlideShell>
-  ),
-
-  // 11 — Ölçüler tablosu
-  () => (
-    <SlideShell>
-      <Eyebrow>Toparlayalım · ölçüler</Eyebrow>
-      <H2 className="mb-2">Dört dayanıklılık ölçüsü yan yana</H2>
-      <Sub className="max-w-3xl mb-6">
-        S anlık durumu, f<sub>c</sub> kritik eşiği, λ<sub>2</sub> bölünmeye
-        direnci, κ ise &quot;kaç düğüm silinirse kopar&quot; sorusunu ölçer.
-      </Sub>
-      <MetricTable />
-    </SlideShell>
-  ),
-
-  // 12 — Esneklik: toparlanma / yeniden yönlendirme
-  () => (
-    <SlideShell>
-      <Eyebrow>Statikten dinamiğe</Eyebrow>
-      <H2 className="mb-2">Esneklik: hasardan sonra ne olur?</H2>
-      <Sub className="max-w-3xl mb-8">
-        Dayanıklılık ölçüleri &quot;ne kadar dayanır&quot;ı verir; esneklik ise
-        kopan bağların yerine ağın nasıl yeni yollar bulduğunu sorar. Sosyal
-        ağlarda esneklik üç mekanizmayla artar:
-      </Sub>
-      <div className="grid md:grid-cols-3 gap-5">
-        <FeatureCard
-          icon={GitBranch}
-          title="Yedek yollar"
-          desc="Yüksek geçişlilik (üçgenler) ve fazla bağlantı, bir kenar koptuğunda akışın başka rotadan devamını sağlar."
-          accent="#14b8a6"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={Zap}
-          title="Yeniden bağlanma"
-          desc="Kullanıcılar kaybolan bağlantı yerine yeni ilişkiler kurar; ağ zamanla kendini yeniden örer."
-          accent="#0d9488"
-          delay={0.25}
-        />
-        <FeatureCard
-          icon={Layers}
-          title="Modüler yapı"
-          desc="Topluluklara bölünmüş ağda bir modüldeki hasar diğerlerine sıçramaz; arıza yerel kalır."
-          accent="#5eead4"
-          delay={0.4}
-        />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3. PRATİKTE  ───────────────── */
-
-  // 13 — Section divider 3/3
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Pratikte"
-      subtitle="NetworkX ile bir ağı kendi elinle kır: hedefli saldırı, rastgele kayıp ve S(f) eğrisi."
-      bgGradient="linear-gradient(135deg, #0d9488, #115e59)"
-      shadow="0 20px 60px -10px rgba(13, 148, 136, 0.6)"
-      icon={<Code2 className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 14 — Python kod örneği
-  () => (
-    <SlideShell>
-      <Eyebrow>Python · NetworkX</Eyebrow>
-      <H2 className="mb-6">Hedefli saldırıyı kodla</H2>
-      <CodeBlock />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-5 text-xs text-gray-500 text-center"
+      <button
+        type="button"
+        onClick={() => setN(bitti ? 1 : n + 1)}
+        className={`${BTN} ${BTN_IDLE} mt-4 inline-flex items-center gap-2`}
       >
-        Barabási–Albert modeli ölçeksiz bir ağ üretir; en yüksek dereceli düğümü
-        tekrar tekrar silmek hedefli saldırının en basit hâlidir.
-      </motion.div>
-    </SlideShell>
-  ),
+        {bitti ? <RotateCcw className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+        {bitti ? "Baştan göster" : `Sonraki adım (${n} / ${items.length})`}
+      </button>
+    </div>
+  );
+}
 
-  // 15 — Terminal çıktısı
-  () => (
-    <SlideShell>
-      <Eyebrow>Canlı çıktı · S(f) tablosu</Eyebrow>
-      <H2 className="mb-2">Rakamlar farkı doğruluyor</H2>
-      <Sub className="max-w-3xl mb-6">
-        Aynı ağda f arttıkça rastgele senaryoda S neredeyse sabit kalırken,
-        hedefli senaryoda %10 düğüm silinince dev bileşen üçte birine iner.
-      </Sub>
-      <AttackTerminal />
-    </SlideShell>
-  ),
+/** Tek, kısa Python örneği. "#" sonrası yorum olarak soluk yazılır. */
+function CodeCard({ file, lines }: { file: string; lines: string[] }) {
+  return (
+    <div className="saa-window-chrome w-full">
+      <div className="saa-window-bar flex items-center gap-2 px-4 py-2">
+        <Code2 className="w-4 h-4 text-[#5eead4]" />
+        <span className="text-xs font-mono text-[#5eead4]">{file}</span>
+      </div>
+      <pre className="saa-code px-6 py-4 overflow-x-auto m-0" style={{ fontSize: 16 }}>
+        <code>
+          {lines.map((ln, i) => {
+            const k = ln.indexOf("#");
+            return (
+              <span key={i}>
+                {k < 0 ? ln : ln.slice(0, k)}
+                {k >= 0 && <span className="saa-code-cmt">{ln.slice(k)}</span>}
+                {"\n"}
+              </span>
+            );
+          })}
+        </code>
+      </pre>
+    </div>
+  );
+}
 
-  // 16 — Bu hafta uygulamalı lab
-  () => {
-    const items: Array<{ t: string; d: string; icon: LucideIcon }> = [
-      {
-        t: "Bir ağ seç ve yükle",
-        d: "nx.karate_club_graph() ya da BA(500, 3). Başlangıç S, n ve <k> değerlerini not et.",
-        icon: Network,
-      },
-      {
-        t: "Rastgele kayıp uygula",
-        d: "Her adımda rastgele bir düğüm sil, S&apos;i kaydet — f = 0&apos;dan 0.5&apos;e kadar.",
-        icon: Dice5,
-      },
-      {
-        t: "Hedefli saldırı uygula",
-        d: "Her adımda en yüksek dereceli düğümü sil, S&apos;i tekrar kaydet.",
-        icon: Scissors,
-      },
-      {
-        t: "İki eğriyi çiz ve yorumla",
-        d: "matplotlib ile S(f) eğrilerini üst üste çiz; eşik farkını 3 cümlede açıkla.",
-        icon: TrendingDown,
-      },
-    ];
-    return (
-      <SlideShell>
-        <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-        <H2 className="mb-8">Kendi ağını kır, eğrisini çiz</H2>
-        <div className="space-y-3">
-          {items.map((it, i) => (
-            <motion.div
-              key={it.t}
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="saa-card saa-card-hover rounded-xl p-4 flex items-center gap-4"
+/** Küçük ağ çizimi (SVG, 640 birim genişlik). Düğümler tıklanabilir olabilir. */
+function Net({
+  nodes,
+  edges,
+  h = 340,
+  fill,
+  radius,
+  edgeColor,
+  edgeWidth,
+  faded,
+  onNode,
+}: {
+  nodes: GNode[];
+  edges: GEdge[];
+  h?: number;
+  fill?: (id: string) => string | undefined;
+  radius?: (id: string) => number;
+  edgeColor?: (a: string, b: string) => string | undefined;
+  edgeWidth?: (a: string, b: string) => number;
+  faded?: (id: string) => boolean;
+  onNode?: (id: string) => void;
+}) {
+  const pos = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <svg viewBox={`0 0 640 ${h}`} className="w-full h-auto max-h-[40vh]">
+      {edges.map(([a, b]) => {
+        const p = pos.get(a);
+        const q = pos.get(b);
+        if (!p || !q) return null;
+        const soluk = Boolean(faded?.(a)) || Boolean(faded?.(b));
+        const renk = edgeColor?.(a, b) ?? "#5eead4";
+        return (
+          <line
+            key={`${a}-${b}`}
+            x1={p.x}
+            y1={p.y}
+            x2={q.x}
+            y2={q.y}
+            stroke={soluk ? "#475569" : renk}
+            strokeWidth={edgeWidth?.(a, b) ?? 2.5}
+            strokeOpacity={soluk ? 0.35 : 0.85}
+            strokeDasharray={soluk ? "4 6" : undefined}
+          />
+        );
+      })}
+      {nodes.map((n) => {
+        const r = radius?.(n.id) ?? 22;
+        const soluk = Boolean(faded?.(n.id));
+        return (
+          <g
+            key={n.id}
+            onClick={onNode ? () => onNode(n.id) : undefined}
+            style={{
+              cursor: onNode ? "pointer" : "default",
+              opacity: soluk ? 0.3 : 1,
+              transition: "opacity 0.3s",
+            }}
+          >
+            <circle cx={n.x} cy={n.y} r={r + 12} fill="transparent" />
+            <circle
+              cx={n.x}
+              cy={n.y}
+              r={r}
+              fill={fill?.(n.id) ?? "#0f2a27"}
+              stroke="#5eead4"
+              strokeWidth={2}
+              style={{ transition: "fill 0.3s" }}
+            />
+            <text
+              x={n.x}
+              y={n.y + r + 17}
+              textAnchor="middle"
+              fontSize={15}
+              fontWeight={600}
+              fill="#e5e7eb"
             >
-              <div className="saa-tick w-9 h-9 rounded-md flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5" strokeWidth={3} />
+              {n.id}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/** Kapanış: Aklında kalsın — 3 şey + gelecek haftaya köprü. */
+function Recap({ items, next }: { items: [string, string, string]; next: string }) {
+  return (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2 className="mb-6">Aklında kalsın: 3 şey</H2>
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-3">
+          {items.map((t, i) => (
+            <motion.div
+              key={t}
+              initial={{ opacity: 0, x: -14 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 + i * 0.15 }}
+              className="saa-card rounded-xl px-5 py-4 flex items-center gap-4"
+            >
+              <div className="saa-tick w-10 h-10 flex items-center justify-center shrink-0 text-xl font-bold">
+                {i + 1}
               </div>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-[#14b8a6]/15 border border-[#14b8a6]/35">
-                <it.icon className="w-4 h-4 text-[#5eead4]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-white">{it.t}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{it.d}</div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-600">
-                #{String(i + 1).padStart(2, "0")}
-              </div>
+              <div className="text-lg md:text-xl text-gray-100">{t}</div>
             </motion.div>
           ))}
         </div>
@@ -1193,133 +595,599 @@ const slides: Array<(active: boolean) => ReactNode> = [
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-6 saa-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
+          className="mt-5 saa-card-teal rounded-xl px-5 py-4 text-base md:text-lg text-gray-200"
         >
-          <AlertTriangle className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-          <span>
-            <span className="text-white">Dikkat:</span> Saldırı simülasyonu
-            yalnızca elindeki veri/model üzerinde bir analizdir — gerçek bir
-            kişiyi veya sistemi hedef alma çağrısı değildir. Etik ve gizlilik 13.
-            haftanın konusu.
-          </span>
+          <span className="text-[#5eead4] font-semibold">Gelecek hafta: </span>
+          {next}
         </motion.div>
-      </SlideShell>
-    );
-  },
+        <Ask>Bugünden aklında kalan tek cümle ne?</Ask>
+      </div>
+    </SlideShell>
+  );
+}
 
-  // 17 — Sıradaki hafta önizleme
-  () => (
-    <SlideShell>
-      <Eyebrow>Sıradaki Hafta</Eyebrow>
-      <H2 className="mb-8">13. Hafta — Veri etiği ve gizlilik</H2>
-      <div className="grid md:grid-cols-3 gap-5">
-        <FeatureCard
-          icon={ListChecks}
-          title="Veri toplama etiği"
-          desc="Rıza, anonimleştirme ve KVKK/GDPR çerçevesinde sosyal ağ verisini sorumlu kullanmak."
-          accent="#14b8a6"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={ShieldAlert}
-          title="Yeniden kimliklendirme"
-          desc="Anonim ağların bile yapı üzerinden nasıl çözülebildiği ve buna karşı önlemler."
-          accent="#0d9488"
-          delay={0.25}
-        />
-        <FeatureCard
-          icon={ArrowRight}
-          title="Projeye köprü"
-          desc="Bu hafta üretilen analizleri 14. haftadaki proje sunumuna taşımak için etik kontrol listesi."
-          accent="#5eead4"
-          delay={0.4}
+/* ============================================================
+   12. HAFTA — dayanıklılık: veri ve etkileşimli bileşenler
+   ============================================================ */
+
+/** Kalan düğümleri birbirine ulaşabilen parçalara ayırır (büyükten küçüğe). */
+function parcalar(dugumler: string[], baglar: GEdge[]): string[][] {
+  const gorulen = new Set<string>();
+  const sonuc: string[][] = [];
+  for (const d of dugumler) {
+    if (gorulen.has(d)) continue;
+    const parca: string[] = [];
+    const sira = [d];
+    gorulen.add(d);
+    while (sira.length > 0) {
+      const x = sira.pop() as string;
+      parca.push(x);
+      for (const [a, b] of baglar) {
+        const k = a === x ? b : b === x ? a : null;
+        if (k !== null && dugumler.includes(k) && !gorulen.has(k)) {
+          gorulen.add(k);
+          sira.push(k);
+        }
+      }
+    }
+    sonuc.push(parca);
+  }
+  return sonuc.sort((p, q) => q.length - p.length);
+}
+
+const PARCA_RENK = ["#14b8a6", "#fbbf24", "#a78bfa", "#f472b6", "#60a5fa"];
+
+const D_KISI: GNode[] = [
+  { id: "Ali", x: 70, y: 70 },
+  { id: "Ayşe", x: 70, y: 235 },
+  { id: "Can", x: 190, y: 150 },
+  { id: "Deniz", x: 320, y: 150 },
+  { id: "Elif", x: 450, y: 150 },
+  { id: "Mert", x: 570, y: 70 },
+  { id: "Naz", x: 570, y: 235 },
+  { id: "Ozan", x: 440, y: 290 },
+];
+const D_BAG: GEdge[] = [
+  ["Ali", "Ayşe"],
+  ["Ali", "Can"],
+  ["Ayşe", "Can"],
+  ["Can", "Deniz"],
+  ["Deniz", "Elif"],
+  ["Elif", "Mert"],
+  ["Elif", "Naz"],
+  ["Mert", "Naz"],
+  ["Naz", "Ozan"],
+];
+const YEDEK: GEdge = ["Ayşe", "Ozan"];
+
+/** Düğüme tıkla: ağdan çıkar. Tekrar tıkla: geri gelir. Parçalar renklenir. */
+function RemoveDemo({ yedekSecimi = false }: { yedekSecimi?: boolean }) {
+  const [cikan, setCikan] = useState<string[]>([]);
+  const [yedek, setYedek] = useState(false);
+  const baglar = yedek ? [...D_BAG, YEDEK] : D_BAG;
+  const kalan = D_KISI.map((n) => n.id).filter((id) => !cikan.includes(id));
+  const parca = parcalar(kalan, baglar);
+  const bolundu = parca.length > 1;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+      <div className="md:col-span-3 saa-card rounded-xl p-2">
+        <Net
+          nodes={D_KISI}
+          edges={baglar}
+          faded={(id) => cikan.includes(id)}
+          fill={(id) => {
+            const i = parca.findIndex((p) => p.includes(id));
+            return bolundu && i >= 0 ? PARCA_RENK[i % PARCA_RENK.length] : undefined;
+          }}
+          edgeColor={(a, b) => (a === YEDEK[0] && b === YEDEK[1] ? "#fbbf24" : undefined)}
+          onNode={(id) =>
+            setCikan((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]))
+          }
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="mt-10 saa-card-teal rounded-xl p-5 text-center"
-      >
-        <div className="text-sm text-gray-300">
-          Hazırlık:{" "}
-          <span className="text-[#5eead4] font-semibold">
-            bu haftaki S(f) eğrilerini ve kodunu
-          </span>{" "}
-          yanında getir — gelecek hafta bu analizin etik sınırlarını
-          tartışacağız.
+      <div className="md:col-span-2">
+        <div className="saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200 min-h-[140px]">
+          <div
+            className="font-semibold mb-1"
+            style={{ color: bolundu ? "#fbbf24" : "#5eead4" }}
+          >
+            {parca.length} parça · en büyüğü {parca[0]?.length ?? 0} kişi
+          </div>
+          {cikan.length === 0 && (
+            <span className="flex items-start gap-2">
+              <MousePointerClick className="w-6 h-6 flex-shrink-0 text-[#5eead4]" />
+              Bir kişiye tıkla: ağdan çıksın. Tekrar tıkla: geri gelsin.
+            </span>
+          )}
+          {cikan.length > 0 &&
+            (bolundu
+              ? `Ağ bölündü. Çıkan: ${cikan.join(", ")}. Farklı renkler birbirine ulaşamıyor.`
+              : `Çıkan: ${cikan.join(", ")}. Kalanlar hâlâ birbirine ulaşabiliyor.`)}
         </div>
-      </motion.div>
-    </SlideShell>
+        <div className="mt-3 flex flex-wrap gap-2.5">
+          {yedekSecimi && (
+            <button
+              type="button"
+              onClick={() => setYedek((y) => !y)}
+              className={`${BTN} ${yedek ? BTN_ON : BTN_IDLE}`}
+            >
+              Yedek bağ: Ayşe–Ozan {yedek ? "(açık)" : "(kapalı)"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setCikan([])}
+            className={`${BTN} ${BTN_IDLE} inline-flex items-center gap-2`}
+          >
+            <RotateCcw className="w-5 h-5" /> Herkes geri gelsin
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const S_SEHIR: GNode[] = [
+  { id: "İstanbul", x: 230, y: 150 },
+  { id: "Ankara", x: 420, y: 150 },
+  { id: "İzmir", x: 325, y: 255 },
+  { id: "Antalya", x: 95, y: 285 },
+  { id: "Trabzon", x: 70, y: 85 },
+  { id: "Adana", x: 55, y: 195 },
+  { id: "Samsun", x: 230, y: 32 },
+  { id: "Van", x: 585, y: 80 },
+  { id: "Erzurum", x: 470, y: 32 },
+  { id: "Gaziantep", x: 570, y: 240 },
+];
+const S_HAT: GEdge[] = [
+  ["İstanbul", "Ankara"],
+  ["İstanbul", "İzmir"],
+  ["İstanbul", "Antalya"],
+  ["İstanbul", "Trabzon"],
+  ["İstanbul", "Adana"],
+  ["İstanbul", "Samsun"],
+  ["Ankara", "İzmir"],
+  ["Ankara", "Van"],
+  ["Ankara", "Erzurum"],
+  ["Ankara", "Gaziantep"],
+];
+const hatSayisi = (id: string, acik: string[]) =>
+  S_HAT.filter((e) => e.includes(id) && acik.includes(e[0]) && acik.includes(e[1])).length;
+
+/** Hayali hat haritası: rastgele arıza ile hedefli saldırıyı karşılaştır. */
+function AttackDemo() {
+  const [kapali, setKapali] = useState<string[]>([]);
+  const [son, setSon] = useState("Henüz hiçbir havalimanı kapanmadı.");
+  const tum = S_SEHIR.map((n) => n.id);
+  const acik = tum.filter((id) => !kapali.includes(id));
+  const parca = parcalar(acik, S_HAT);
+  const enBuyuk = parca[0] ?? [];
+
+  function rastgele() {
+    const secilen = acik[Math.floor(Math.random() * acik.length)];
+    setKapali([...kapali, secilen]);
+    setSon(`Rastgele arıza: ${secilen} kapandı.`);
+  }
+  function hedefli() {
+    const secilen = [...acik].sort((a, b) => hatSayisi(b, acik) - hatSayisi(a, acik))[0];
+    setKapali([...kapali, secilen]);
+    setSon(`Hedefli saldırı: en çok hattı olan ${secilen} kapandı.`);
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+      <div className="md:col-span-3 saa-card rounded-xl p-2">
+        <Net
+          nodes={S_SEHIR}
+          edges={S_HAT}
+          radius={(id) => 14 + 2 * hatSayisi(id, tum)}
+          faded={(id) => kapali.includes(id)}
+          fill={(id) => (enBuyuk.includes(id) && enBuyuk.length > 1 ? "#14b8a6" : undefined)}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <div className="saa-card-teal rounded-xl p-4 text-base md:text-lg text-gray-200 min-h-[128px]">
+          <div className="font-semibold text-[#5eead4] mb-1">
+            Birbirine uçulabilen en büyük grup: {enBuyuk.length} / {tum.length} şehir
+          </div>
+          {son}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2.5">
+          <button
+            type="button"
+            onClick={rastgele}
+            disabled={acik.length === 0}
+            className={`${BTN} ${BTN_IDLE} disabled:opacity-30 inline-flex items-center gap-2`}
+          >
+            <Shuffle className="w-5 h-5" /> Rastgele arıza
+          </button>
+          <button
+            type="button"
+            onClick={hedefli}
+            disabled={acik.length === 0}
+            className={`${BTN} ${BTN_IDLE} disabled:opacity-30 inline-flex items-center gap-2`}
+          >
+            <Target className="w-5 h-5" /> Hedefli saldırı
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setKapali([]);
+              setSon("Henüz hiçbir havalimanı kapanmadı.");
+            }}
+            className={`${BTN} ${BTN_IDLE} inline-flex items-center gap-2`}
+          >
+            <RotateCcw className="w-5 h-5" /> Sıfırla
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const TUR = ["Rastgele arıza", "Hedefli saldırı"];
+
+/* ============================================================
+   SLIDES — BVA 2105 · 12. Hafta · Ağ Dayanıklılığı
+   ============================================================ */
+
+const slides: Array<(active: boolean) => ReactNode> = [
+  // 1 — Kapak
+  () => (
+    <Cover
+      week="12"
+      title={["Ağın Dayanıklılığı", "ve Esnekliği"]}
+      sub="Bir düğüm giderse ağ ayakta kalır mı? Hangisi giderse ağ ikiye bölünür?"
+      cards={[
+        { icon: Unlink, title: "Kritik düğüm", desc: "Çıkınca ağı parçalara ayıran düğüm." },
+        { icon: Target, title: "Arıza mı, saldırı mı?", desc: "Rastgele bozulma ile seçerek vurma aynı değildir." },
+        { icon: ShieldCheck, title: "Yedek yol", desc: "Tek bir ek bağ, ağı kopmaktan kurtarabilir." },
+      ]}
+    />
   ),
 
-  // 18 — Kapanış
+  // 2 — Köprü
   () => (
-    <SlideShell>
-      <div className="text-center max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: "linear-gradient(135deg, #14b8a6, #0d9488)",
-            boxShadow: "0 20px 60px -10px rgba(20, 184, 166, 0.6)",
-          }}
-        >
-          <Network className="w-12 h-12 text-white" />
-        </motion.div>
-        <H1 className="saa-shimmer-teal">Özet</H1>
-        <Sub className="mt-6">
-          Rastgele kayıp ağı yorar, hedefli saldırı çökertir —{" "}
-          <span className="text-[#5eead4]">hub&apos;ı koru, eşiği bil.</span>
-        </Sub>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 text-left"
-        >
-          <div className="saa-card rounded-xl p-5">
-            <Crosshair className="w-5 h-5 text-[#5eead4] mb-3" />
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
-              Tehdit
-            </div>
-            <div className="text-sm font-semibold text-white">
-              Rastgele vs hedefli
-            </div>
-            <div className="text-xs text-gray-400">aynı sayı, farklı sonuç</div>
-          </div>
-          <div className="saa-card rounded-xl p-5">
-            <BarChart3 className="w-5 h-5 text-[#5eead4] mb-3" />
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
-              Ölçü
-            </div>
-            <div className="text-sm font-semibold text-white">
-              S · f_c · λ₂ · κ
-            </div>
-            <div className="text-xs text-gray-400">dayanıklılığı sayar</div>
-          </div>
-          <div className="saa-card rounded-xl p-5">
-            <Code2 className="w-5 h-5 text-[#5eead4] mb-3" />
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
-              Pratik
-            </div>
-            <div className="text-sm font-semibold text-white">NetworkX labı</div>
-            <div className="text-xs text-gray-400">S(f) eğrisini çiz</div>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-10 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Keyboard className="w-3.5 h-3.5" />
-          BVA 2105 · Sosyal Ağ Analizi · 12. Hafta
-        </motion.div>
+    <Frame
+      eyebrow="11. haftadan 12. haftaya"
+      title="Geçen hafta aşıladık; bu hafta düğümü çıkarıyoruz"
+      ask="Bir kişi gruptan tamamen çıksa ne değişir?"
+    >
+      <TwoLists
+        left={{
+          label: "Geçen hafta",
+          items: [
+            "Haber ve hastalık bağların üzerinden yayılır.",
+            "Ortadaki kişi en hızlı yayar.",
+            "Ortadaki kişi aşılanınca salgın durdu.",
+          ],
+        }}
+        right={{
+          label: "Bu hafta",
+          items: [
+            "Bir düğüm ağdan tamamen çıkarsa ne olur?",
+            "Her düğümün çıkması aynı zararı vermez.",
+            "Ağı nasıl daha sağlam yaparız?",
+          ],
+        }}
+      />
+    </Frame>
+  ),
+
+  // 3 — El kaldır
+  () => (
+    <Frame
+      eyebrow="El kaldır"
+      title="O gelmeyince buluşma iptal olur mu?"
+      ask="O kişi grupta ne iş görüyor: herkesi o mu topluyor?"
+    >
+      <div className="saa-card rounded-xl p-5 mb-4 text-lg md:text-xl text-gray-200">
+        Kaçınızın arkadaş grubunda, o gelmeyince buluşmanın iptal olduğu biri var?
       </div>
-    </SlideShell>
+      <Reveal hint="Eller kalktı mı? Yorumu görmek için tıkla">
+        O kişi grubu bir arada tutuyor. Ağlarda da böyle düğümler vardır: çıkınca ağ
+        parçalanır. Bazı düğümleri gitse de çalışmaya devam eden ağa{" "}
+        <span className="text-[#5eead4] font-semibold">dayanıklı ağ</span> diyoruz.
+      </Reveal>
+    </Frame>
+  ),
+
+  // 4 — Oyna-gör: düğüm çıkar
+  () => (
+    <Frame
+      eyebrow="Oyna-gör"
+      title="Hangi düğümü çıkarırsan ağ ikiye bölünür?"
+      ask="Tıklamadan önce: sence hangisi? Neden o?"
+    >
+      <RemoveDemo />
+    </Frame>
+  ),
+
+  // 5 — Kavram
+  () => (
+    <Frame
+      eyebrow="Kavram"
+      title="Dayanıklı ağ, parça kaybetse de çalışır"
+      ask="Ali çıkınca neden hiçbir şey olmadı da Deniz çıkınca ağ bölündü?"
+    >
+      <CardRow
+        cards={[
+          {
+            icon: ShieldCheck,
+            title: "Dayanıklılık",
+            desc: "Bazı düğümler gitse de kalanların birbirine ulaşabilmesi.",
+          },
+          {
+            icon: Unlink,
+            title: "Kritik düğüm",
+            desc: "Çıkınca ağı bölen düğüm. Örnekte Deniz: iki grubun arasındaki tek yol.",
+          },
+          {
+            icon: Users,
+            title: "En büyük parça",
+            desc: "Hâlâ birbirine ulaşabilen en kalabalık grup. Ne kadar büyükse ağ o kadar ayakta.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 6 — Gerçek ağlar
+  () => (
+    <Frame
+      eyebrow="Tahmin et"
+      title="Gerçek ağlarda kritik düğüm neresi?"
+      ask="Manisa için kritik bir yol ya da kavşak söyleyebilir misin?"
+    >
+      <FlipCards
+        items={[
+          {
+            tag: "Elektrik şebekesi",
+            front: "Bir mahallenin elektriği hangi noktadan geçer?",
+            back: "Trafo merkezinden. O durursa ona bağlı bütün sokaklar karanlıkta kalır.",
+          },
+          {
+            tag: "Havayolu",
+            front: "Aktarmalı uçuşların çoğu nereden geçer?",
+            back: "Büyük aktarma merkezinden. Orası kapanırsa birçok şehir arasında uçulamaz.",
+          },
+          {
+            tag: "Kargo",
+            front: "Kargon sana gelmeden önce nereye uğrar?",
+            back: "Aktarma merkezine. Orada sorun çıkarsa birçok ilin kargosu gecikir.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 7 — Rastgele vs hedefli
+  () => (
+    <Frame
+      eyebrow="Oyna-gör · hayali bir hat haritası"
+      title="Rastgele arıza mı, hedefli saldırı mı?"
+      ask="Rastgele arızada neden çoğu zaman pek bir şey olmuyor?"
+    >
+      <AttackDemo />
+    </Frame>
+  ),
+
+  // 8 — Sonuç
+  () => (
+    <Frame
+      eyebrow="Sonuç"
+      title="Merkezli ağ: arızaya dayanıklı, saldırıya kırılgan"
+      ask="Bu iyi haber mi, kötü haber mi?"
+    >
+      <TwoLists
+        left={{
+          label: "Rastgele arıza",
+          items: [
+            "Düğümlerin çoğu az bağlantılıdır.",
+            "Rastgele bozulan, büyük ihtimalle onlardan biridir.",
+            "Ağın geri kalanı çalışmaya devam eder.",
+          ],
+        }}
+        right={{
+          label: "Hedefli saldırı",
+          items: [
+            "Saldırgan en çok bağlantılı düğümü seçer.",
+            "Tek hamlede birçok bağ birden gider.",
+            "Ağ küçük parçalara ayrılır.",
+          ],
+        }}
+      />
+    </Frame>
+  ),
+
+  // 9 — Ayırt et
+  () => (
+    <Frame
+      eyebrow="Oyna-gör"
+      title="Rastgele mi, hedefli mi?"
+      ask="Kendi çevrenden bir rastgele arıza örneği ver."
+    >
+      <Quiz
+        row
+        unit="Örnek"
+        questions={[
+          {
+            q: "Fırtınada bir sokağın elektrik direği devrildi.",
+            options: TUR,
+            correct: 0,
+            why: "Kimse seçmedi; hangi direğin devrileceği tesadüf.",
+          },
+          {
+            q: "Bilgisayar korsanları, en çok siteyi barındıran veri merkezini seçip çökertti.",
+            options: TUR,
+            correct: 1,
+            why: "En çok bağlantısı olan düğüm bilerek seçildi.",
+          },
+          {
+            q: "Sınıf grubundan biri telefonunu kaybetti ve gruptan düştü.",
+            options: TUR,
+            correct: 0,
+            why: "Kimin telefonunu kaybedeceği tesadüf.",
+          },
+          {
+            q: "Polis, çetede herkesle görüşen elebaşını yakaladı.",
+            options: TUR,
+            correct: 1,
+            why: "Ağı dağıtmak için en merkezdeki kişi seçildi.",
+          },
+          {
+            q: "Bir şehir içi otobüs yolda arıza yaptı.",
+            options: TUR,
+            correct: 0,
+            why: "Hangi otobüsün bozulacağı önceden seçilmedi.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 10 — Mini sınav
+  () => (
+    <Frame
+      eyebrow="Mini sınav"
+      title="Sınırlı paranla neyi korursun?"
+      ask="Peki ya saldırgan da hangi düğümün kritik olduğunu biliyorsa?"
+    >
+      <Quiz
+        questions={[
+          {
+            q: "Bir ağı korumak için paran yalnızca iki düğüme yetiyor. Hangilerini korursun?",
+            options: [
+              "Rastgele seçtiğim iki düğümü",
+              "En çok bağlantılı ve gruplar arasında köprü olan düğümleri",
+              "En az bağlantılı iki düğümü",
+            ],
+            correct: 1,
+            why: "Ağı en çok onların kaybı parçalar; önce onlar korunur.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 11 — Yedek bağ
+  () => (
+    <Frame
+      eyebrow="Oyna-gör · esneklik"
+      title="Tek bir yedek bağ, ağı kopmaktan kurtarır"
+      ask="Yedek bağı sen olsan nereye koyardın?"
+    >
+      <RemoveDemo yedekSecimi />
+    </Frame>
+  ),
+
+  // 12 — Kod
+  () => (
+    <Frame
+      eyebrow="Python · NetworkX"
+      title="Bir düğümü çıkar: ağ hâlâ tek parça mı?"
+      ask="İkinci print neden False yazdı?"
+    >
+      <CodeCard
+        file="dayaniklilik.py"
+        lines={[
+          "import networkx as nx",
+          "",
+          'G = nx.Graph([("Ali", "Can"), ("Can", "Deniz"), ("Deniz", "Elif")])',
+          "print(nx.is_connected(G))                  # True: herkes birbirine ulaşır",
+          "",
+          'G.remove_node("Deniz")                     # aradaki kişiyi çıkar',
+          "print(nx.is_connected(G))                  # False: ağ bölündü",
+          "print(nx.number_connected_components(G))   # 2 parça",
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 13 — Sınıfta deneyelim
+  () => (
+    <Frame
+      eyebrow="Sınıfta deneyelim · 10 dakika · kağıt ve kalem"
+      title="Arkadaşının ağını kopar, sonra onar"
+      ask="Tek bir çizgiyle ağını kim kurtarabildi?"
+    >
+      <Steps
+        items={[
+          {
+            t: "Defterine 8 düğümlü bir ağ çiz",
+            d: "Düğümlere isim ver, aralarına 9-10 çizgi koy.",
+          },
+          {
+            t: "Defterini yanındakiyle değiştir",
+            d: "Şimdi sen saldırgansın.",
+          },
+          {
+            t: "Tek bir düğümü karala",
+            d: "Amaç: ağı en çok parçaya ayırmak. Kaç parça oldu, yanına yaz.",
+          },
+          {
+            t: "Defterini geri al ve tek bir çizgi ekle",
+            d: "Öyle bir bağ ekle ki o düğüm gitse de ağ tek parça kalsın.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 14 — Kendini dene
+  () => (
+    <Frame
+      eyebrow="Kendini dene"
+      title="Üç soruda bu hafta"
+      ask="Hangi soruda kararsız kaldın?"
+    >
+      <Quiz
+        questions={[
+          {
+            q: "Dayanıklı ağ ne demektir?",
+            options: [
+              "Hiçbir düğümü asla bozulmayan ağ",
+              "Bazı düğümleri gitse de çalışmaya devam eden ağ",
+              "En çok düğümü olan ağ",
+            ],
+            correct: 1,
+            why: "Önemli olan, kalanların hâlâ birbirine ulaşabilmesidir.",
+          },
+          {
+            q: "Birkaç büyük merkezi olan bir ağ için hangisi doğrudur?",
+            options: [
+              "Rastgele arızaya dayanıklı, hedefli saldırıya kırılgandır",
+              "Her ikisine de aynı ölçüde dayanıklıdır",
+              "Rastgele arızada hemen çöker",
+            ],
+            correct: 0,
+            why: "Rastgele arıza çoğunlukla küçük düğüme denk gelir; saldırı merkezi seçer.",
+          },
+          {
+            q: "Bir ağı daha dayanıklı yapmanın en basit yolu hangisidir?",
+            options: [
+              "Bütün bağları tek bir merkezden geçirmek",
+              "Az bağlantılı düğümleri silmek",
+              "Yedek yol olacak yeni bağlar eklemek",
+            ],
+            correct: 2,
+            why: "Yedek yol varsa bir düğüm gitse de kalanlar başka yoldan ulaşır.",
+          },
+        ]}
+      />
+    </Frame>
+  ),
+
+  // 15 — Özet
+  () => (
+    <Recap
+      items={[
+        "Her düğüm aynı değildir: bazıları çıkınca ağ ikiye bölünür.",
+        "Merkezli ağlar rastgele arızaya dayanıklı, hedefli saldırıya kırılgandır.",
+        "Yedek bağ eklemek ağı sağlamlaştırır: bir yol kapanırsa diğeri kalır.",
+      ]}
+      next="Gerçek ağlar çok büyüktür, tamamına bakamayız. Küçük bir parçasını seçip bütünü anlamaya çalışacağız: ağ örnekleme."
+    />
   ),
 ];
 

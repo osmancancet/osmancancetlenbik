@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Fragment,
   useCallback,
   useEffect,
   useRef,
@@ -11,7 +10,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
-  AlertTriangle,
   ChevronRight,
   ChevronLeft,
   Maximize2,
@@ -19,24 +17,25 @@ import {
   Keyboard,
   Check,
   X,
-  Wand2,
-  Hash,
-  Image as ImageIcon,
-  Type,
-  Code2,
-  Search,
-  Eye,
-  Network,
+  MousePointerClick,
+  RotateCcw,
   ArrowRight,
-  ArrowLeftRight,
-  ScanSearch,
-  Calendar,
-  Target,
-  BookOpen,
-  Gauge,
-  Crop,
-  Tags,
-  Boxes,
+  AlertTriangle,
+  Image as ImageIcon,
+  Mic,
+  Video,
+  Music,
+  MessageSquare,
+  Palette,
+  Wand2,
+  Camera,
+  LayoutTemplate,
+  Smartphone,
+  Search,
+  PenLine,
+  Clapperboard,
+  RefreshCw,
+  Scissors,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -77,19 +76,6 @@ function Eyebrow({ children }: { children: ReactNode }) {
       <span className="w-8 h-px" style={{ background: ACCENT_SOFT }} />
       {children}
     </motion.div>
-  );
-}
-
-function H1({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <motion.h1
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] text-white ${className}`}
-    >
-      {children}
-    </motion.h1>
   );
 }
 
@@ -154,219 +140,574 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
-}: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
-}) {
-  return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 uyz-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
-      </div>
-    </SlideShell>
-  );
-}
-
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   ETKİLEŞİM BİLEŞENLERİ
    ============================================================ */
 
-/* CLIP benzerlik tablosu — bir görsele karşı birden çok metin */
-function ClipMatch({
-  rows,
-}: {
-  rows: Array<{ label: string; sim: number; best?: boolean }>;
-}) {
-  return (
-    <div className="space-y-3">
-      {rows.map((r, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 + i * 0.15 }}
-          className="flex items-center gap-4"
-        >
-          <div
-            className={`w-56 text-right font-mono text-xs md:text-sm ${
-              r.best ? "text-white font-semibold" : "text-gray-400"
-            }`}
-          >
-            {r.label}
-          </div>
-          <div className="uyz-sim-track">
-            <motion.div
-              className={r.best ? "uyz-sim-fill" : "uyz-sim-fill-dim"}
-              initial={{ width: 0 }}
-              animate={{ width: `${r.sim}%` }}
-              transition={{ duration: 0.8, delay: 0.4 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-            />
-          </div>
-          <div
-            className={`w-14 font-mono text-sm ${
-              r.best ? "text-violet-300 font-semibold" : "text-gray-500"
-            }`}
-          >
-            {(r.sim / 100).toFixed(2)}
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-/* DALL·E prompt → görüntü penceresi */
-function DalleWindow({
-  prompt,
-  model = "dall-e-3",
-  size = "1024×1024",
-  note,
-}: {
-  prompt: string;
-  model?: string;
-  size?: string;
-  note?: string;
-}) {
+/* Hocanın sınıfa yönelteceği tek soru — her içerik slaydının altında */
+function AskLine({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="uyz-window-chrome w-full"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.6 }}
+      className="mt-5 text-sm text-gray-500"
     >
-      <div className="uyz-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0314", color: ACCENT_SOFT }}
-        >
-          <span className="w-5 h-5 rounded-sm uyz-ai-tile flex items-center justify-center text-[11px]">
-            <Wand2 className="w-3 h-3" />
-          </span>
-          <span>DALL·E · Metinden Görüntüye</span>
-        </div>
-      </div>
-
-      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch" style={{ background: "#0a0414" }}>
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2 mb-3">
-            <Type className="w-4 h-4" style={{ color: ACCENT_SOFT }} />
-            <div className="text-[11px] font-mono uppercase tracking-wider text-gray-500">
-              Prompt (metin)
-            </div>
-          </div>
-          <div
-            className="rounded-lg p-4 font-mono text-sm text-gray-200 leading-relaxed flex-1"
-            style={{ background: "#0d0314", border: "1px solid rgba(168,85,247,0.2)" }}
-          >
-            <span style={{ color: ACCENT_SOFT }}>&gt;</span> {prompt}
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-mono">
-            <span className="px-2 py-1 rounded" style={{ background: `${ACCENT}22`, color: ACCENT_SOFT }}>
-              model: {model}
-            </span>
-            <span className="px-2 py-1 rounded" style={{ background: "#ffffff10", color: "#9ca3af" }}>
-              size: {size}
-            </span>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.45 }}
-          className="rounded-xl uyz-ai-canvas relative min-h-[230px] flex items-end"
-          style={{ border: "1px solid rgba(168,85,247,0.3)" }}
-        >
-          <div
-            className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-mono flex items-center gap-1.5"
-            style={{
-              background: "rgba(0,0,0,0.6)",
-              color: ACCENT_SOFT,
-              border: "1px solid rgba(168,85,247,0.4)",
-              backdropFilter: "blur(6px)",
-            }}
-          >
-            <Sparkles className="w-3 h-3" />
-            AI üretti
-          </div>
-          <div className="relative z-10 p-5 text-white">
-            <div className="text-[11px] font-mono opacity-70 uppercase tracking-wider">
-              Çıktı · {size}
-            </div>
-            <div className="text-sm opacity-80 mt-1">{note}</div>
-          </div>
-        </motion.div>
-      </div>
+      <span
+        className="font-mono text-[11px] uppercase tracking-wider mr-2"
+        style={{ color: "rgba(192,132,252,0.7)" }}
+      >
+        Sınıfa sor:
+      </span>
+      {children}
     </motion.div>
   );
 }
 
-/* Diffusion gürültü giderme adımları */
-function DenoiseStrip() {
-  const steps = [
-    { cls: "uyz-noise-100", label: "t=1000", caption: "Saf gürültü" },
-    { cls: "uyz-noise-66", label: "t=600", caption: "Kaba şekiller" },
-    { cls: "uyz-noise-33", label: "t=200", caption: "Detaylar oturuyor" },
-    { cls: "uyz-noise-0", label: "t=0", caption: "Temiz görüntü" },
-  ];
+function TapHint({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center gap-2 md:gap-4">
-      {steps.map((s, i) => (
-        <div key={s.label} className="flex items-center gap-2 md:gap-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 + i * 0.2 }}
-            className="text-center"
-          >
-            <div className={`uyz-noise-tile ${s.cls} w-24 h-24 md:w-32 md:h-32`} />
-            <div className="text-[11px] font-mono mt-2" style={{ color: ACCENT_SOFT }}>
-              {s.label}
-            </div>
-            <div className="text-[10px] text-gray-500 mt-0.5">{s.caption}</div>
-          </motion.div>
-          {i < steps.length - 1 && (
-            <ArrowRight className="w-5 h-5 shrink-0" style={{ color: "#4b5563" }} />
-          )}
+    <span
+      className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider"
+      style={{ color: ACCENT_SOFT }}
+    >
+      <MousePointerClick className="w-3.5 h-3.5" />
+      {children}
+    </span>
+  );
+}
+
+/* Tahmin et → tıkla göster kartı */
+function Reveal({
+  question,
+  tone = "neutral",
+  children,
+}: {
+  question: ReactNode;
+  tone?: "neutral" | "good" | "bad";
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const openCls =
+    tone === "good" ? "uyz-flag-good" : tone === "bad" ? "uyz-flag-bad" : "uyz-card-violet";
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      aria-expanded={open}
+      className={`${open ? openCls : "uyz-card uyz-tap"} w-full h-full text-left rounded-xl p-5 transition-all cursor-pointer`}
+    >
+      <span className="block text-base font-semibold text-white leading-snug">{question}</span>
+      {open ? (
+        <motion.span
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="block mt-3 text-sm text-gray-200 leading-relaxed"
+        >
+          {children}
+        </motion.span>
+      ) : (
+        <span className="block mt-3">
+          <TapHint>cevap için tıkla</TapHint>
+        </span>
+      )}
+    </button>
+  );
+}
+
+/* Mini sınav — şıkka tıkla: doğru yeşil, yanlış kırmızı, tek cümle açıklama */
+type QuizItem = { q: string; options: string[]; correct: number; why: string };
+
+function Quiz({ items, cols = 2 }: { items: QuizItem[]; cols?: 2 | 3 }) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const item = items[idx];
+  const answered = picked !== null;
+  const last = idx === items.length - 1;
+  return (
+    <div className="max-w-4xl mx-auto uyz-card rounded-2xl p-6">
+      {items.length > 1 && (
+        <div className="text-[11px] font-mono uppercase tracking-wider text-gray-500 mb-2">
+          Soru {idx + 1} / {items.length}
         </div>
-      ))}
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white leading-snug mb-4">{item.q}</div>
+      <div className={`grid grid-cols-1 gap-3 ${cols === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+        {item.options.map((o, i) => {
+          const isCorrect = i === item.correct;
+          const cls = !answered
+            ? "uyz-card uyz-tap cursor-pointer"
+            : isCorrect
+              ? "uyz-flag-good"
+              : i === picked
+                ? "uyz-flag-bad"
+                : "uyz-card opacity-40";
+          return (
+            <button
+              key={o}
+              type="button"
+              disabled={answered}
+              onClick={() => setPicked(i)}
+              className={`${cls} rounded-xl px-4 py-3 text-left text-base text-white flex items-center gap-3 transition-all`}
+            >
+              <span className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center text-xs font-mono shrink-0">
+                {answered && isCorrect ? (
+                  <Check className="w-4 h-4 text-emerald-400" />
+                ) : answered && i === picked ? (
+                  <X className="w-4 h-4 text-red-400" />
+                ) : (
+                  String.fromCharCode(65 + i)
+                )}
+              </span>
+              <span className="leading-snug">{o}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[52px] flex items-center justify-between gap-4">
+        {answered ? (
+          <motion.p
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-sm text-gray-200 leading-relaxed"
+          >
+            <span
+              className={`font-semibold ${picked === item.correct ? "text-emerald-400" : "text-red-400"}`}
+            >
+              {picked === item.correct ? "Doğru. " : "Doğrusu yeşil olan. "}
+            </span>
+            {item.why}
+          </motion.p>
+        ) : (
+          <TapHint>sınıfa sor, sonra bir şıkka tıkla</TapHint>
+        )}
+        {answered && (
+          <button
+            type="button"
+            className="uyz-btn shrink-0"
+            onClick={() => {
+              setIdx(last ? 0 : idx + 1);
+              setPicked(null);
+            }}
+          >
+            {last ? (
+              <>
+                <RotateCcw className="w-4 h-4" /> Baştan
+              </>
+            ) : (
+              <>
+                Sonraki soru <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
+
+/* Adım adım ilerleyen şema — "İleri" ile adımlar tek tek açılır */
+type Step = { icon: LucideIcon; title: string; desc: string };
+
+function Stepper({ steps }: { steps: Step[] }) {
+  const [shown, setShown] = useState(1);
+  const done = shown >= steps.length;
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div
+        className={`grid grid-cols-1 gap-3 ${steps.length === 4 ? "md:grid-cols-4" : "md:grid-cols-3"}`}
+      >
+        {steps.map((s, i) => {
+          const visible = i < shown;
+          return (
+            <div
+              key={s.title}
+              className={`rounded-xl p-4 min-h-[160px] transition-all ${
+                visible ? "uyz-card-violet" : "uyz-card opacity-40"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-mono text-white"
+                  style={{ background: visible ? ACCENT : "rgba(255,255,255,0.08)" }}
+                >
+                  {i + 1}
+                </span>
+                {visible && <s.icon className="w-5 h-5" style={{ color: ACCENT_SOFT }} />}
+              </div>
+              {visible ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <h3 className="text-base font-semibold text-white mb-1.5 leading-snug">{s.title}</h3>
+                  <p className="text-sm text-gray-300 leading-relaxed">{s.desc}</p>
+                </motion.div>
+              ) : (
+                <div className="text-3xl font-mono text-gray-600">?</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-4 flex justify-center">
+        <button
+          type="button"
+          className="uyz-btn"
+          onClick={() => setShown(done ? 1 : shown + 1)}
+        >
+          {done ? (
+            <>
+              <RotateCcw className="w-4 h-4" /> Baştan
+            </>
+          ) : (
+            <>
+              İleri: {shown + 1}. adım <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* Numaralı kısa kart — özet ve etkinlik slaytlarında */
+function NumCard({ n, title, desc, delay = 0 }: { n: number; title: string; desc: string; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay }}
+      className="uyz-card rounded-xl p-5"
+    >
+      <div
+        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-mono font-bold text-white mb-3"
+        style={{ background: ACCENT }}
+      >
+        {n}
+      </div>
+      <h3 className="text-base font-semibold text-white mb-1.5 leading-snug">{title}</h3>
+      <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+    </motion.div>
+  );
+}
+
+/* ============================================================
+   HAFTAYA ÖZEL BİLEŞENLER
+   ============================================================ */
+
+/* Oyna-gör: istem parçalarını aç/kapa, istem metni ve temsilî çizim değişsin */
+const PARTS = [
+  { id: "stil", label: "Stil", text: "suluboya tarzında" },
+  { id: "isik", label: "Işık", text: "gün batımı ışığında" },
+  { id: "kadraj", label: "Kadraj", text: "yakın çekim" },
+  { id: "oran", label: "Oran", text: "yatay (16:9)" },
+] as const;
+
+type PartId = (typeof PARTS)[number]["id"];
+
+function PromptBuilder() {
+  const [on, setOn] = useState<Record<PartId, boolean>>({
+    stil: false,
+    isik: false,
+    kadraj: false,
+    oran: false,
+  });
+  const toggle = (id: PartId) => setOn((p) => ({ ...p, [id]: !p[id] }));
+  const tea = on.stil ? "#fca5a5" : "#b45309";
+  return (
+    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="uyz-chip uyz-chip-on" style={{ cursor: "default" }}>
+            <Check className="w-4 h-4" /> Konu
+          </span>
+          {PARTS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              aria-pressed={on[p.id]}
+              onClick={() => toggle(p.id)}
+              className={`uyz-chip ${on[p.id] ? "uyz-chip-on" : ""}`}
+            >
+              {on[p.id] ? <Check className="w-4 h-4" /> : <span className="w-4 text-center">+</span>}
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <div
+          className="rounded-lg p-4 font-mono text-sm leading-relaxed min-h-[112px]"
+          style={{ background: "#0d0314", border: "1px solid rgba(168,85,247,0.2)" }}
+        >
+          <span style={{ color: ACCENT_SOFT }}>&gt; </span>
+          <span className="text-white">masada ince belli bardakta çay</span>
+          {PARTS.filter((p) => on[p.id]).map((p) => (
+            <span key={p.id} style={{ color: ACCENT_SOFT }}>
+              , {p.text}
+            </span>
+          ))}
+        </div>
+        <div className="mt-3">
+          <TapHint>parçalara tıkla, resmi izle</TapHint>
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-center h-[236px]">
+          <motion.div
+            animate={{ width: on.oran ? 400 : 230, height: on.oran ? 225 : 230 }}
+            transition={{ duration: 0.4 }}
+            className="relative rounded-xl overflow-hidden"
+            style={{
+              background: on.isik
+                ? "linear-gradient(180deg, #fb923c 0%, #f472b6 60%, #7c2d12 100%)"
+                : "linear-gradient(180deg, #3f3f46 0%, #27272a 100%)",
+              border: "1px solid rgba(168,85,247,0.4)",
+            }}
+          >
+            <div
+              className="absolute left-0 right-0 bottom-0 h-[18%]"
+              style={{ background: on.isik ? "#7c2d12" : "#52525b" }}
+            />
+            <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full" aria-hidden="true">
+              <defs>
+                <filter id="uyz-suluboya">
+                  <feGaussianBlur stdDeviation="1.8" />
+                </filter>
+              </defs>
+              <g
+                transform={on.kadraj ? "translate(100 125) scale(1.7) translate(-100 -125)" : undefined}
+                filter={on.stil ? "url(#uyz-suluboya)" : undefined}
+                opacity={on.stil ? 0.85 : 1}
+              >
+                {on.isik && <circle cx="158" cy="62" r="20" fill="#fde68a" />}
+                <ellipse cx="100" cy="166" rx="36" ry="7" fill={on.stil ? "#c4b5fd" : "#e5e7eb"} />
+                <path
+                  d="M82 82 Q76 110 88 124 Q98 138 86 162 L114 162 Q102 138 112 124 Q124 110 118 82 Z"
+                  fill={tea}
+                  stroke={on.stil ? "none" : "#f5f5f4"}
+                  strokeWidth="2"
+                />
+                <path d="M82 82 L118 82" stroke="#f5f5f4" strokeWidth="2" />
+              </g>
+            </svg>
+          </motion.div>
+        </div>
+        <div className="mt-2 text-center text-[11px] text-gray-500">
+          Temsilî çizim; gerçek bir aracın çıktısı değildir.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Oyna-gör: fotoğraf türünü seç, soru ve örnek cevabı gör */
+const PHOTO_CASES = [
+  {
+    id: "tablo",
+    label: "Tablo fotoğrafı",
+    lines: ["Ali ...... 70", "Elif ..... 85", "Can ...... 60"],
+    lineCls: "font-mono not-italic",
+    ask: "Bu tabloda en yüksek notu kim almış?",
+    answer: "En yüksek not 85 ile Elif’te. Tabloda üç kişi var: Ali 70, Elif 85, Can 60.",
+    check: "Rakamları tabloyla karşılaştır; benzer rakamlar karışabilir.",
+  },
+  {
+    id: "elyazisi",
+    label: "El yazısı not",
+    lines: ["Perşembe 15.20", "Amfi 1", "sunum taslağını getir"],
+    lineCls: "font-serif italic",
+    ask: "Bu notu yazıya çevir.",
+    answer: "“Perşembe 15.20, Amfi 1. Sunum taslağını getir.”",
+    check: "Okunaksız kelimeyi tahmin eder; isim ve saatlere tekrar bak.",
+  },
+  {
+    id: "etiket",
+    label: "Ürün etiketi",
+    lines: ["İÇİNDEKİLER", "buğday unu, şeker,", "bitkisel yağ, tuz"],
+    lineCls: "font-sans not-italic uppercase tracking-wide",
+    ask: "Bu etikette ne yazıyor, sade anlat.",
+    answer: "İçinde buğday unu, şeker, bitkisel yağ ve tuz var. Buğday unu olduğu için gluten içerir.",
+    check: "Alerji ya da sağlık söz konusuysa etiketi kendin de oku.",
+  },
+] as const;
+
+function PhotoAsk() {
+  const [sel, setSel] = useState(0);
+  const c = PHOTO_CASES[sel];
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        {PHOTO_CASES.map((p, i) => (
+          <button
+            key={p.id}
+            type="button"
+            aria-pressed={i === sel}
+            onClick={() => setSel(i)}
+            className={`uyz-chip ${i === sel ? "uyz-chip-on" : ""}`}
+          >
+            <Camera className="w-4 h-4" />
+            {p.label}
+          </button>
+        ))}
+        <span className="ml-2">
+          <TapHint>fotoğraf seç</TapHint>
+        </span>
+      </div>
+      <motion.div
+        key={c.id}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-5 items-center"
+      >
+        <div
+          className="rounded-lg p-4 h-[150px] flex flex-col justify-center gap-1.5 text-sm text-zinc-800"
+          style={{ background: "#f5f5f4", transform: "rotate(-2deg)", boxShadow: "0 12px 30px rgba(0,0,0,0.5)" }}
+        >
+          {c.lines.map((l) => (
+            <div key={l} className={c.lineCls}>
+              {l}
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col gap-2.5">
+          <div className="flex justify-end">
+            <div className="uyz-bubble-user px-4 py-2.5 text-sm max-w-[85%]">{c.ask}</div>
+          </div>
+          <div className="flex justify-start">
+            <div className="uyz-bubble-ai px-4 py-2.5 text-sm max-w-[90%]">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500 mb-1">
+                Örnek cevap (temsilî)
+              </div>
+              {c.answer}
+            </div>
+          </div>
+          <div className="uyz-flag-bad rounded-lg px-4 py-2 text-sm text-gray-200 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+            <span>
+              <span className="font-semibold text-white">Kontrol et:</span> {c.check}
+            </span>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ============================================================
+   SINAV VE OYUN VERİLERİ
+   ============================================================ */
+
+const TOOL_TYPES = [
+  "Görsel üreten araç",
+  "Fotoğrafı okuyan asistan",
+  "Ses ve müzik aracı",
+  "Video aracı",
+  "Sunum aracı",
+];
+
+const QUIZ_ISTEM: QuizItem[] = [
+  {
+    q: "Kantin için afiş görseli istiyorsun. Hangi istem en iyi sonucu verir?",
+    options: [
+      "Güzel bir afiş yap",
+      "Kantin afişi, çok güzel olsun",
+      "Tost ve çay olan kantin afişi, çizgi film tarzı, canlı renkler, dikey",
+    ],
+    correct: 2,
+    why: "Konu, stil ve oran belli; araç tahmin yürütmek zorunda kalmaz.",
+  },
+];
+
+const QUIZ_ARAC: QuizItem[] = [
+  {
+    q: "Kantin için indirim afişine bir resim lazım.",
+    options: TOOL_TYPES,
+    correct: 0,
+    why: "Resim üretmek görsel aracının işi: ChatGPT, Gemini, Canva gibi.",
+  },
+  {
+    q: "Tahtadaki notun fotoğrafını yazıya çevirmek istiyorsun.",
+    options: TOOL_TYPES,
+    correct: 1,
+    why: "Fotoğrafı sohbet asistanına yükleyip “yazıya çevir” demen yeter.",
+  },
+  {
+    q: "Hazırladığın videoya anlatıcı sesi eklemek istiyorsun.",
+    options: TOOL_TYPES,
+    correct: 2,
+    why: "Yazıyı sese çeviren araçlar bunun için var; örnek: ElevenLabs.",
+  },
+  {
+    q: "Ürün tanıtımı için birkaç saniyelik hareketli bir klip lazım.",
+    options: TOOL_TYPES,
+    correct: 3,
+    why: "Hareketli görüntü video aracının işi: Sora, Veo, Runway, Kling gibi.",
+  },
+  {
+    q: "Yarınki ödev sunumunun ilk taslağını çıkarmak istiyorsun.",
+    options: TOOL_TYPES,
+    correct: 4,
+    why: "Gamma ya da Canva konudan slayt taslağı çıkarır; içeriği sen düzeltirsin.",
+  },
+];
+
+const QUIZ_SON: QuizItem[] = [
+  {
+    q: "Görsel isteminde “gün batımı ışığında” sözü hangi parçadır?",
+    options: ["Konu", "Stil", "Işık", "Oran"],
+    correct: 2,
+    why: "Sahnenin nasıl aydınlandığını söyler; resmin havasını değiştirir.",
+  },
+  {
+    q: "Asistan, not fotoğrafını yazıya çevirdi. Sıradaki işin ne?",
+    options: [
+      "Hemen arkadaşlara göndermek",
+      "Rakam ve isimleri asıl notla karşılaştırmak",
+      "Fotoğrafı silmek",
+      "Aynı fotoğrafı tekrar yüklemek",
+    ],
+    correct: 1,
+    why: "YZ yazıyı yanlış okuyabilir; en çok rakam ve özel isimlerde hata yapar.",
+  },
+  {
+    q: "Kusursuz görünen, şaşırtıcı bir fotoğraf gördün. İlk neye bakarsın?",
+    options: [
+      "Beğeni sayısına",
+      "Fotoğrafın renklerine",
+      "Kaynağına: kim, nerede paylaşmış?",
+      "Yorumlara",
+    ],
+    correct: 2,
+    why: "Yeni araçlar hata bırakmıyor; en sağlam ipucu görselin kaynağıdır.",
+  },
+];
+
+const VIDEO_STEPS: Step[] = [
+  {
+    icon: PenLine,
+    title: "Sahneyi yaz",
+    desc: "Ne oluyor, nerede, kamera nasıl hareket ediyor?",
+  },
+  {
+    icon: Clapperboard,
+    title: "Araç klibi üretir",
+    desc: "Çoğu zaman birkaç saniyelik kısa bir klip çıkar; biraz beklersin.",
+  },
+  {
+    icon: RefreshCw,
+    title: "Tarifi düzelt",
+    desc: "İlk klip taslaktır. Olmayan yeri söyle, yeniden üret.",
+  },
+  {
+    icon: Scissors,
+    title: "Klipleri birleştir",
+    desc: "Uzun video, kısa kliplerin arka arkaya eklenmesiyle olur.",
+  },
+];
 
 /* ============================================================
    SLIDES
@@ -384,38 +725,34 @@ const slides: Array<(active: boolean) => ReactNode> = [
           transition={{ duration: 0.7 }}
           className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.04]"
         >
-          <span className="uyz-shimmer">Görüntüden Metne,</span>
+          <span className="uyz-shimmer">Görsel, Ses ve Video</span>
           <br />
-          <span className="uyz-shimmer">Metinden Görüntüye</span>
+          <span className="uyz-shimmer">Üreten Araçlar</span>
         </motion.h1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Multimodal modeller: DALL·E ve CLIP.
-          <br />
-          <span className="text-gray-500 text-base">
-            İki ayrı dünyayı — pikselleri ve kelimeleri — aynı uzayda buluşturan modeller.
-          </span>
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Geçen hafta yazıyla istedik, yazı aldık. Bu hafta yazıyla isteyip resim, ses ve video alıyoruz.
         </Sub>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto text-left">
           <FeatureCard
-            icon={Type}
-            title="Metin → Görüntü"
-            desc="DALL·E gibi modeller bir cümleyi alıp daha önce var olmayan bir görsel üretir."
-            delay={0.3}
+            icon={ImageIcon}
+            title="Görsel"
+            desc="Tarif et, araç çizsin. Fotoğraf yükle, araç okusun."
+            delay={0.4}
             accent="#a855f7"
           />
           <FeatureCard
-            icon={ScanSearch}
-            title="Görüntü → Metin"
-            desc="CLIP bir görseli ve bir metni karşılaştırır; hangi açıklama daha uygun, onu söyler."
-            delay={0.45}
+            icon={Mic}
+            title="Ses ve müzik"
+            desc="Yazıyı seslendir, kısa bir şarkı üret, sesli sohbet et."
+            delay={0.55}
             accent="#ec4899"
           />
           <FeatureCard
-            icon={Network}
-            title="Ortak Gömme Uzayı"
-            desc="Her iki modalite aynı vektör uzayında temsil edilir — köprü tam burada kurulur."
-            delay={0.6}
+            icon={Video}
+            title="Video ve sunum"
+            desc="Kısa klip ve sunum taslağı dakikalar içinde hazır."
+            delay={0.7}
             accent="#3b82f6"
           />
         </div>
@@ -424,721 +761,351 @@ const slides: Array<(active: boolean) => ReactNode> = [
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 1 }}
-          className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-widest"
+          className="mt-6 text-[11px] font-mono text-gray-600 uppercase tracking-widest"
         >
-          MCBÜ MYO · BVA 1203 · Per 15:20 – 17:00 · Amfi 1
+          Müfredat konusu: Görüntüden metne, metinden görüntüye · Per 15:20 – 17:00 · Amfi 1
         </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
+  /* ─────────────────  2 · KÖPRÜ + EL KALDIR  ───────────────── */
   () => (
     <SlideShell>
       <Eyebrow>Köprü · 10. haftadan 11. haftaya</Eyebrow>
-      <H2>Tek modaliteden çok modaliteye</H2>
+      <H2>Geçen hafta yazı yazdırdık, bu hafta resim</H2>
       <Sub className="mt-3 max-w-3xl">
-        Şimdiye kadar modeller tek bir &ldquo;dil&rdquo; konuşuyordu: ya metin (LLM) ya da
-        görsel (diffusion). Bu hafta iki dünyayı birbirine bağlayan modelleri inceliyoruz.
+        İyi istem (prompt) yazmayı öğrendik. Aynı beceri görsel, ses ve videoda da işe yarar. Önce
+        el kaldıralım.
       </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="uyz-card rounded-2xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3" style={{ color: ACCENT_SOFT }}>
-            <BookOpen className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bildiğimiz yer</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT_SOFT }} />Token, olasılık, sonraki kelime tahmini (LLM&apos;ler).</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT_SOFT }} />Gürültüden görsel üreten diffusion modelleri.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT_SOFT }} />Prompt mühendisliğinin temel prensipleri.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-          className="uyz-card-violet rounded-2xl p-6"
-          style={{ boxShadow: "0 0 40px rgba(168,85,247,0.18)" }}
-        >
-          <div className="flex items-center gap-2 mb-3" style={{ color: ACCENT_SOFT }}>
-            <Target className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bu haftanın hedefi</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT_SOFT }} />&ldquo;Multimodal&rdquo; ne demek, neden önemli?</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT_SOFT }} />CLIP nasıl metin ve görseli aynı uzayda eşler?</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT_SOFT }} />DALL·E metinden görüntüyü nasıl üretir?</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT_SOFT }} />Bu modeller nerede kullanılır, sınırları nedir?</li>
-          </ul>
-        </motion.div>
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <Reveal question="Kaçınız YZ ile bir görsel üretti?">
+          Ürettiysen bugün daha iyisini üreteceksin. Üretmediysen dersin sonunda ilkini üretmiş
+          olacaksın.
+        </Reveal>
+        <Reveal question="Kaçınız bir fotoğraf çekip YZ’ye soru sordu?">
+          Tablo, el yazısı, etiket: asistanlar fotoğrafı okuyabiliyor. Birazdan deneyeceğiz.
+        </Reveal>
+        <Reveal question="Kaçınız YZ sesiyle anlatılan bir video izledi?">
+          Büyük olasılıkla çoğunuz. Kısa videolardaki anlatıcı sesleri sık sık YZ ile üretiliyor.
+        </Reveal>
       </div>
+      <AskLine>Kartlardaki soruları sırayla sor, elleri say, sonra karta tıkla.</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  3 · DIVIDER 1/3 — CLIP  ───────────────── */
-  () => (
-    <SectionDivider
-      num="01"
-      total="03"
-      title="CLIP — İki Dünyayı Eşle"
-      subtitle="Bir görseli ve bir metni aynı uzaya yerleştirip &ldquo;ne kadar birbirine ait?&rdquo; sorusunu sayıyla cevaplayan model."
-      bgGradient="linear-gradient(135deg, #a855f7 0%, #6d28d9 100%)"
-      shadow="0 0 80px rgba(168, 85, 247, 0.55)"
-      icon={<ScanSearch className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  4 · ORTAK GÖMME UZAYI  ───────────────── */
+  /* ─────────────────  3 · BENZETME  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>CLIP · 1/3 · temel fikir</Eyebrow>
-      <H2 className="mb-2">İki kodlayıcı, tek uzay</H2>
-      <Sub className="max-w-3xl mb-8">
-        CLIP&apos;in iki ayrı ağı vardır: biri görseli, diğeri metni bir vektöre (gömme) çevirir.
-        Eğitimin amacı, <span className="text-white">eşleşen çift</span> birbirine yakın,
-        eşleşmeyen çift uzak olsun diye bu iki vektörü aynı uzayda hizalamaktır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
-        <div className="md:col-span-2 space-y-3">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="uyz-card rounded-xl p-4 flex items-center gap-3"
-          >
-            <ImageIcon className="w-6 h-6 shrink-0" style={{ color: "#ec4899" }} />
-            <div className="text-sm text-gray-300">
-              <span className="text-white font-semibold">Görüntü kodlayıcı</span>
-              <div className="text-xs text-gray-500 font-mono">ViT / ResNet → 512 boyutlu vektör</div>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.35 }}
-            className="uyz-card rounded-xl p-4 flex items-center gap-3"
-          >
-            <Type className="w-6 h-6 shrink-0" style={{ color: "#a855f7" }} />
-            <div className="text-sm text-gray-300">
-              <span className="text-white font-semibold">Metin kodlayıcı</span>
-              <div className="text-xs text-gray-500 font-mono">Transformer → 512 boyutlu vektör</div>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="rounded-xl p-4 flex items-start gap-2"
-            style={{ background: `${ACCENT}14`, border: `1px solid ${ACCENT}40` }}
-          >
-            <ArrowLeftRight className="w-5 h-5 shrink-0 mt-0.5" style={{ color: ACCENT_SOFT }} />
-            <div className="text-sm text-gray-300">
-              İki vektör aynı uzayda olduğu için <span className="text-white">kosinüs benzerliği</span> ile
-              doğrudan karşılaştırılır.
-            </div>
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="md:col-span-3 uyz-embed-space h-72 relative"
-        >
-          {[
-            { x: 30, y: 35, c: "#ec4899", label: "🐱 görsel" },
-            { x: 38, y: 45, c: "#a855f7", label: "&ldquo;bir kedi&rdquo;" },
-            { x: 72, y: 30, c: "#ec4899", label: "🚗 görsel" },
-            { x: 78, y: 40, c: "#a855f7", label: "&ldquo;bir araba&rdquo;" },
-            { x: 55, y: 75, c: "#3b82f6", label: "&ldquo;Spil Dağı&rdquo;" },
-          ].map((d, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.6 + i * 0.12 }}
-              className="uyz-embed-dot flex items-center"
-              style={{ left: `${d.x}%`, top: `${d.y}%`, width: 12, height: 12, background: d.c, color: d.c }}
-            >
-              <span
-                className="ml-3 text-[10px] font-mono whitespace-nowrap text-gray-300"
-                dangerouslySetInnerHTML={{ __html: d.label }}
-              />
-            </motion.div>
-          ))}
-          <div className="absolute bottom-2 left-3 text-[10px] font-mono text-gray-500">
-            Ortak gömme uzayı (2B&apos;ye indirgenmiş gösterim)
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  5 · KONTRASTİF EĞİTİM  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>CLIP · 2/3 · nasıl eğitilir</Eyebrow>
-      <H2 className="mb-2">Kontrastif öğrenme: doğru çifti yakınlaştır</H2>
-      <Sub className="max-w-3xl mb-8">
-        CLIP, internetten toplanan <span className="text-white">(görsel, açıklama)</span> çiftleriyle eğitilir.
-        Bir grupta N görsel ve N metin verilir; model, doğru eşleşmelerin benzerliğini artırırken
-        yanlış eşleşmelerinkini düşürmeyi öğrenir. Hiç etiket (&ldquo;sınıf 7&rdquo;) gerekmez.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="uyz-card rounded-2xl p-6"
-        >
-          <div className="text-xs font-mono uppercase tracking-wider mb-4" style={{ color: ACCENT_SOFT }}>
-            Benzerlik matrisi (4 çift)
-          </div>
-          <div className="grid grid-cols-5 gap-1.5 text-[11px] font-mono">
-            <div />
-            {["T1", "T2", "T3", "T4"].map((t) => (
-              <div key={t} className="text-center text-gray-400">{t}</div>
-            ))}
-            {["G1", "G2", "G3", "G4"].map((g, r) => (
-              <Fragment key={g}>
-                <div className="text-gray-400 flex items-center">{g}</div>
-                {[0, 1, 2, 3].map((c) => {
-                  const diag = r === c;
-                  return (
-                    <div
-                      key={`${r}-${c}`}
-                      className="aspect-square rounded flex items-center justify-center"
-                      style={{
-                        background: diag ? `${ACCENT}55` : "#ffffff08",
-                        border: diag ? `1px solid ${ACCENT}` : "1px solid #ffffff10",
-                        color: diag ? "#fff" : "#6b7280",
-                      }}
-                    >
-                      {diag ? "↑" : "↓"}
-                    </div>
-                  );
-                })}
-              </Fragment>
-            ))}
-          </div>
-          <div className="text-xs text-gray-500 mt-4">
-            Köşegen (Gi–Ti) = doğru çift → <span className="text-white">benzerliği yükselt</span>.
-            Diğer her şey = yanlış çift → <span className="text-white">benzerliği düşür</span>.
-          </div>
-        </motion.div>
-
-        <div className="space-y-4">
-          <FeatureCard
-            icon={Boxes}
-            title="Ölçek = güç"
-            desc="CLIP yüz milyonlarca (görsel, metin) çiftiyle eğitildi. Bu devasa, çeşitli veri sayesinde tek bir kategoriye sıkışmaz."
-            delay={0.3}
-            accent="#a855f7"
-          />
-          <FeatureCard
-            icon={Gauge}
-            title="Çıktı bir skor"
-            desc="Eğitim bittiğinde model her (görsel, metin) ikilisine -1 ile 1 arası bir benzerlik verir. Yüksek skor = uyumlu."
-            delay={0.45}
-            accent="#ec4899"
-          />
-        </div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  6 · ZERO-SHOT SINIFLANDIRMA (DEMO)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>CLIP · 3/3 · uygulamada</Eyebrow>
-      <H2 className="mb-2">Zero-shot: eğitmeden sınıflandır</H2>
-      <Sub className="max-w-3xl mb-8">
-        Tek bir görsel ver, birden çok aday metni karşılaştır — en yüksek benzerliğe sahip metin
-        &ldquo;cevap&rdquo; olur. Modeli o kategoriler için ayrıca <span className="text-white">eğitmeye gerek yoktur</span>;
-        buna sıfır-örnek (zero-shot) sınıflandırma denir.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="md:col-span-2"
-        >
-          <div className="uyz-ai-canvas rounded-xl h-56 relative flex items-end" style={{ border: "1px solid rgba(168,85,247,0.3)" }}>
-            <div className="relative z-10 p-4 text-white">
-              <div className="text-[11px] font-mono opacity-70 uppercase tracking-wider">Girdi görseli</div>
-              <div className="text-sm opacity-80 mt-1">Spil Dağı manzarası (örnek)</div>
-            </div>
-          </div>
-          <div className="mt-4 font-mono text-xs text-gray-500 leading-relaxed">
-            <span style={{ color: ACCENT_SOFT }}>Adaylar:</span><br />
-            &ldquo;bir dağ manzarası&rdquo;<br />
-            &ldquo;bir şehir caddesi&rdquo;<br />
-            &ldquo;bir tabak yemek&rdquo;<br />
-            &ldquo;bir kedi&rdquo;
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-          className="md:col-span-3 uyz-card rounded-2xl p-6"
-        >
-          <div className="text-xs font-mono uppercase tracking-wider mb-5" style={{ color: ACCENT_SOFT }}>
-            Kosinüs benzerliği (görsel ↔ her metin)
-          </div>
-          <ClipMatch
-            rows={[
-              { label: "&ldquo;bir dağ manzarası&rdquo;", sim: 91, best: true },
-              { label: "&ldquo;bir şehir caddesi&rdquo;", sim: 34 },
-              { label: "&ldquo;bir tabak yemek&rdquo;", sim: 18 },
-              { label: "&ldquo;bir kedi&rdquo;", sim: 12 },
-            ]}
-          />
-          <div className="mt-5 pt-4 border-t border-white/5 text-xs text-gray-500 flex items-center gap-2">
-            <Check className="w-3.5 h-3.5" style={{ color: ACCENT_SOFT }} />
-            En yüksek skor seçilir. Skorlar softmax&apos;tan geçirilirse olasılığa dönüşür.
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  7 · DIVIDER 2/3 — DALL·E  ───────────────── */
-  () => (
-    <SectionDivider
-      num="02"
-      total="03"
-      title="DALL·E — Metinden Görüntüye"
-      subtitle="Bir cümleyi alıp, daha önce hiç var olmamış bir görseli adım adım gürültüden inşa eden üretken model."
-      bgGradient="linear-gradient(135deg, #ec4899 0%, #be185d 100%)"
-      shadow="0 0 80px rgba(236, 72, 153, 0.5)"
-      icon={<Wand2 className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  8 · DALL·E DEMO  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>DALL·E · demo</Eyebrow>
-      <H2 className="mb-2">Bir cümle, bir görsel</H2>
-      <Sub className="max-w-3xl mb-6">
-        Sol tarafta açıklama yazıyorsun; sağ tarafta saniyeler içinde, daha önce var olmayan
-        bir görüntü ortaya çıkıyor. Prompt ne kadar somut olursa çıktı o kadar tahmin edilebilir.
-      </Sub>
-      <DalleWindow
-        prompt="Mor gökyüzü altında, Spil Dağı eteğinde minik bir kütüphane; sıcak pencere ışığı, sulu boya tarzı, yumuşak gölgeler."
-        model="dall-e-3"
-        size="1024×1024"
-        note="Açıklamadaki her öğe (mor gök, kütüphane, sulu boya) görselde izlenebilir."
-      />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  9 · DIFFUSION — GÜRÜLTÜ GİDERME  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>DALL·E · nasıl çalışır · 1/2</Eyebrow>
-      <H2 className="mb-2">Görsel, gürültüden geri kazanılır</H2>
-      <Sub className="max-w-3xl mb-8">
-        Modern DALL·E&apos;nin altında bir <span className="text-white">diffusion</span> süreci vardır.
-        Eğitimde görsellere kademeli gürültü eklenir; model bunu <span className="text-white">tersine çevirmeyi</span> öğrenir.
-        Üretimde saf gürültüyle başlar ve adım adım temizleyerek görseli ortaya çıkarır.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="uyz-card rounded-2xl p-6 flex justify-center"
-      >
-        <DenoiseStrip />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1 }}
-        className="mt-6 text-center text-sm text-gray-500"
-      >
-        Her adımda metin prompt&apos;u rehberlik eder — model &ldquo;hangi temizleme prompt&apos;a daha uygun?&rdquo;
-        sorusunu sorar. Bu rehberin adı: <span className="text-white">CLIP yönlendirmesi</span>.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · METİN → GÖRÜNTÜ HATTI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>DALL·E · nasıl çalışır · 2/2</Eyebrow>
-      <H2 className="mb-2">Hattın bütünü: prompt&apos;tan piksele</H2>
-      <Sub className="max-w-3xl mb-8">
-        CLIP burada da işin içinde: prompt önce bir <span className="text-white">metin gömmesine</span> çevrilir,
-        bu gömme diffusion sürecini yönlendirir. Yani CLIP yalnızca eşleştirmez, üretimi de hizalar.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-        {[
-          {
-            n: "01",
-            icon: Type,
-            title: "Prompt → metin gömmesi",
-            desc: "Metin kodlayıcı (CLIP/Transformer) cümleyi bir vektöre çevirir. Anlam buraya sıkışır.",
-            accent: "#a855f7",
-          },
-          {
-            n: "02",
-            icon: Wand2,
-            title: "Gömme → diffusion",
-            desc: "Model saf gürültüden başlar; her adımda metin gömmesine uyacak şekilde gürültüyü azaltır.",
-            accent: "#ec4899",
-          },
-          {
-            n: "03",
-            icon: ImageIcon,
-            title: "Çözücü → piksel",
-            desc: "Gizli (latent) temsil, yüksek çözünürlüklü bir görüntüye açılır. Çıktı hazırdır.",
-            accent: "#3b82f6",
-          },
-        ].map((step, i) => (
-          <motion.div
-            key={step.n}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 + i * 0.2 }}
-            className="relative uyz-card rounded-2xl p-6"
-          >
-            <div
-              className="absolute -top-3 left-6 px-3 py-1 rounded-full text-[10px] font-mono font-bold"
-              style={{ background: step.accent, color: "#fff", boxShadow: `0 0 20px ${step.accent}55` }}
-            >
-              {step.n}
-            </div>
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 mt-2"
-              style={{ background: `${step.accent}1f`, border: `1px solid ${step.accent}55` }}
-            >
-              <step.icon className="w-6 h-6" style={{ color: step.accent }} />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">{step.desc}</p>
-
-            {i < 2 && (
-              <div className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full items-center justify-center" style={{ background: "#0a0414", border: "1px solid rgba(168,85,247,0.3)" }}>
-                <ChevronRight className="w-4 h-4" style={{ color: ACCENT_SOFT }} />
-              </div>
-            )}
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  11 · CLIP vs DALL·E KARŞILAŞTIRMA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Toparlama · iki yön</Eyebrow>
-      <H2>CLIP anlar, DALL·E üretir</H2>
+      <Eyebrow>Benzetme · ressama sipariş</Eyebrow>
+      <H2>Görsel üretmek, ressama sipariş vermektir</H2>
       <Sub className="mt-3 max-w-3xl">
-        İkisi de metin ile görseli aynı uzayda buluşturur — ama farklı yöne akarlar.
-        Aynı CLIP metin kodlayıcısı her iki modelde de köprü görevi görür.
+        Ressam aklını okuyamaz. &ldquo;Güzel bir resim yap&rdquo; dersen kafasına göre çizer.
       </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="mt-6 uyz-card rounded-xl overflow-hidden"
-      >
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left" style={{ background: "#ffffff08" }}>
-              <th className="px-5 py-3 text-gray-400 font-mono text-xs uppercase tracking-wider" style={{ width: "22%" }}>Özellik</th>
-              <th className="px-5 py-3 font-mono text-xs uppercase tracking-wider" style={{ color: "#c084fc", width: "39%" }}>CLIP</th>
-              <th className="px-5 py-3 font-mono text-xs uppercase tracking-wider" style={{ color: "#f472b6", width: "39%" }}>DALL·E</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-300">
-            {[
-              ["Temel görev", "Görsel ve metni eşleştirir (skor)", "Metinden yeni görsel üretir"],
-              ["Yön", "Görüntü ↔ metin (anlama)", "Metin → görüntü (üretim)"],
-              ["Çıktı", "Bir benzerlik sayısı", "Bir piksel görseli"],
-              ["Çekirdek yöntem", "Kontrastif öğrenme", "Diffusion + metin yönlendirme"],
-              ["Tipik kullanım", "Arama, sınıflandırma, filtreleme", "Tasarım, illüstrasyon, taslak"],
-            ].map((row, i) => (
-              <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                <td className="px-5 py-3 text-white font-semibold">{row[0]}</td>
-                <td className="px-5 py-3">{row[1]}</td>
-                <td className="px-5 py-3">{row[2]}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  12 · DIVIDER 3/3 — KULLANIM & SINIRLAR  ───────────────── */
-  () => (
-    <SectionDivider
-      num="03"
-      total="03"
-      title="Kullanım Alanları ve Sınırlar"
-      subtitle="Multimodal modeller nerede gerçekten işe yarıyor, nerede yanılıyor ve nelere dikkat etmeliyiz?"
-      bgGradient="linear-gradient(135deg, #f59e0b 0%, #b45309 100%)"
-      shadow="0 0 80px rgba(245, 158, 11, 0.55)"
-      icon={<Boxes className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  13 · KULLANIM ALANLARI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Pratik · nerede kullanılır</Eyebrow>
-      <H2>Multimodal modeller sahada</H2>
-      <Sub className="mt-3 mb-8 max-w-3xl">
-        CLIP ve DALL·E ailesi tek başına bir ürün değil; çoğu zaman daha büyük sistemlerin
-        içinde bir parça olarak çalışırlar.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         <FeatureCard
-          icon={Search}
-          title="Anlamsal görsel arama"
-          desc="CLIP ile bir cümle yazıp eşleşen görselleri bulmak — etiket aramak yerine anlamla arama."
+          icon={PenLine}
+          title="Sen tarif edersin"
+          desc="Ne olsun, nasıl görünsün? Bu tarife görsel istemi diyoruz."
           delay={0.15}
-          accent="#a855f7"
         />
         <FeatureCard
-          icon={Tags}
-          title="Otomatik etiketleme & moderasyon"
-          desc="Bir görselin içeriğini metinle eşleştirip kategorize etmek veya uygunsuz içeriği filtrelemek."
+          icon={Palette}
+          title="Araç çizer"
+          desc="Tarifine uyan yeni bir resim üretir. Hazır bir resmi bulup getirmez."
           delay={0.3}
-          accent="#3b82f6"
-        />
-        <FeatureCard
-          icon={Wand2}
-          title="Tasarım & taslak üretimi"
-          desc="DALL·E ile konsept görsel, illüstrasyon, sunum görseli veya hızlı fikir taslağı üretmek."
-          delay={0.45}
           accent="#ec4899"
         />
         <FeatureCard
-          icon={Crop}
-          title="Görsel düzenleme (inpainting)"
-          desc="Bir görselin bir bölgesini maskeleyip prompt&apos;la yeniden üretmek — nesne ekleme/çıkarma."
-          delay={0.6}
-          accent="#22c55e"
-        />
-        <FeatureCard
-          icon={Eye}
-          title="Erişilebilirlik"
-          desc="Görseli metne çevirip görme engelli kullanıcılar için açıklama (alt text) üretmek."
-          delay={0.75}
-          accent="#a855f7"
-        />
-        <FeatureCard
-          icon={Code2}
-          title="Veri seti süzme"
-          desc="CLIP skoruyla, metin-görsel uyumu düşük eğitim örneklerini ayıklayıp veriyi temizlemek."
-          delay={0.9}
+          icon={RefreshCw}
+          title="Beğenmezsen düzeltirsin"
+          desc="İlk sonuç taslaktır. Tarifi değiştir, yeniden iste."
+          delay={0.45}
           accent="#3b82f6"
         />
       </div>
+      <AskLine>Bir ressama yalnızca &ldquo;güzel bir resim yap&rdquo; desen sence ne çizer?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  14 · SINIRLAR  ───────────────── */
+  /* ─────────────────  4 · GÖRSEL ARAÇLARI  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Sınırlar · eleştirel bakış</Eyebrow>
-      <H2>Güçlü ama kusursuz değil</H2>
-      <Sub className="mt-3 mb-8 max-w-3xl">
-        Bu modeller etkileyici sonuçlar verir; ama nasıl çalıştıklarını bildiğimizde
-        nerede yanılacaklarını da kestirebiliriz.
+      <Eyebrow>Araçlar · görsel üretimi</Eyebrow>
+      <H2>Görsel araçları üç yerde karşına çıkar</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Hepsinin mantığı aynı: tarifi yaz, görseli al. Ücretsiz planlarda günlük sınır olur.
       </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {[
-          {
-            icon: Hash,
-            title: "Metin ve sayma zorluğu",
-            desc: "Üretilen görsellerde yazılar çoğu zaman bozuk çıkar; &ldquo;tam 5 elma&rdquo; gibi sayı isteklerine güvenilmez.",
-          },
-          {
-            icon: ScanSearch,
-            title: "Kompozisyon karışması",
-            desc: "&ldquo;Mavi küpün üstünde kırmızı top&rdquo; gibi ilişkilerde renk/nesne yerini şaşırabilir (binding problemi).",
-          },
-          {
-            icon: AlertTriangle,
-            title: "Bias ve temsil",
-            desc: "Eğitim verisi internetten geldiği için meslek, cinsiyet, kültür önyargılarını yansıtır ve pekiştirebilir.",
-          },
-          {
-            icon: BookOpen,
-            title: "Telif ve veri kaynağı",
-            desc: "Modeller izinsiz toplanmış görsellerle eğitilmiş olabilir; üretilen içeriğin telif durumu hâlâ tartışmalı.",
-          },
-        ].map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 + i * 0.1 }}
-            className="uyz-card rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}
-            >
-              <item.icon className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
-            </div>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={MessageSquare}
+          title="Sohbet asistanının içinde"
+          desc="ChatGPT ve Gemini: sohbet ederken “şunu çiz” demen yeter. Başlamak için en kolayı."
+          delay={0.15}
+        />
+        <FeatureCard
+          icon={Wand2}
+          title="Görsele özel araçlar"
+          desc="Midjourney, Ideogram, Leonardo: yalnızca görsel üretir. Ideogram görsele yazı eklemede iyidir."
+          delay={0.3}
+          accent="#ec4899"
+        />
+        <FeatureCard
+          icon={LayoutTemplate}
+          title="Tasarım programının içinde"
+          desc="Canva ve Adobe Firefly: afiş ya da gönderi hazırlarken görseli orada üretirsin."
+          delay={0.45}
+          accent="#3b82f6"
+        />
       </div>
+      <AskLine>Bu araçlardan hangisi şu an telefonunda var?</AskLine>
+    </SlideShell>
+  ),
 
+  /* ─────────────────  5 · İSTEM KURUCU  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · istem kurucu</Eyebrow>
+      <H2>Görsel istemi beş parçadan oluşur</H2>
+      <Sub className="mt-3 mb-6 max-w-3xl">
+        Konu + stil + ışık + kadraj (ne kadar yakından) + oran (yatay mı dikey mi).
+      </Sub>
+      <PromptBuilder />
+      <AskLine>Hangi parçayı eklemek resmi en çok değiştirdi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  6 · MİNİ SINAV  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Mini sınav · iyi istem</Eyebrow>
+      <H2 className="mb-6">Hangi istem daha iyi afiş çıkarır?</H2>
+      <Quiz items={QUIZ_ISTEM} cols={3} />
+      <AskLine>Tıklamadan önce: hangi şık, neden?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  7 · GÖRSELİ ANLAYAN YZ  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · fotoğraf yükle, sor</Eyebrow>
+      <H2>YZ fotoğrafa bakıp soruna cevap verir</H2>
+      <Sub className="mt-3 mb-5 max-w-3xl">
+        Sohbet asistanına fotoğraf yükle, altına sorunu yaz. Çizmenin tersi: bu kez o okuyor.
+      </Sub>
+      <PhotoAsk />
+      <AskLine>En son neyin fotoğrafını çektin? YZ&apos;ye onunla ilgili ne sorardın?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  8 · SES VE MÜZİK  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Araçlar · ses ve müzik</Eyebrow>
+      <H2>Yazıdan ses ve müzik de üretilir</H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <FeatureCard
+          icon={Mic}
+          title="Seslendirme"
+          desc="Yazdığın metni insan sesi gibi okur. Örnek araç: ElevenLabs."
+          delay={0.15}
+        />
+        <FeatureCard
+          icon={Music}
+          title="Müzik"
+          desc="“Hareketli bir doğum günü şarkısı” yazarsın, kısa bir şarkı çıkar. Örnek araç: Suno."
+          delay={0.3}
+          accent="#ec4899"
+        />
+        <FeatureCard
+          icon={MessageSquare}
+          title="Sesli sohbet"
+          desc="Asistanla yazmadan, konuşarak sohbet edersin. Dil pratiği için işe yarar."
+          delay={0.45}
+          accent="#3b82f6"
+        />
+      </div>
+      <div className="max-w-4xl mx-auto mt-4">
+        <Reveal question="Tahmin et: Birinin sesini taklit etmek için saatlerce kayıt gerekir mi?" tone="bad">
+          Hayır. Kısa bir ses kaydı bile yetebiliyor. Bu yüzden başkasının sesini izinsiz
+          kullanmak ciddi bir sorun; gelecek hafta bunu konuşacağız.
+        </Reveal>
+      </div>
+      <AskLine>Karta tıklamadan önce sınıfın tahminini al.</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  9 · VİDEO  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Adım adım · video</Eyebrow>
+      <H2>Video araçları kısa klip üretir</H2>
+      <Sub className="mt-3 mb-5 max-w-3xl">
+        Sora, Veo, Runway, Kling: sahneyi yazarsın, klip gelir. Ücretsiz kullanım çoğunda çok
+        sınırlıdır.
+      </Sub>
+      <Stepper steps={VIDEO_STEPS} />
+      <AskLine>Bu yolla neyin tanıtım videosunu yapmak isterdin?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  10 · SUNUM VE TASARIM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Araçlar · sunum ve tasarım</Eyebrow>
+      <H2>Sunumun ilk taslağını YZ çıkarır</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Boş sayfayla başlamak zordur. Araç taslağı verir, işi sen bitirirsin.
+      </Sub>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={LayoutTemplate}
+          title="Gamma"
+          desc="Konuyu yazarsın, başlıkları ve slaytları olan bir sunum taslağı çıkarır."
+          delay={0.15}
+        />
+        <FeatureCard
+          icon={Palette}
+          title="Canva"
+          desc="Hazır şablon seçersin; metni ve görseli içindeki YZ ile üretirsin."
+          delay={0.3}
+          accent="#ec4899"
+        />
+        <FeatureCard
+          icon={Search}
+          title="Senin işin"
+          desc="Bilgileri kontrol et, fazlalığı at, kendi cümlelerinle düzelt."
+          delay={0.45}
+          accent="#22c55e"
+        />
+      </div>
+      <AskLine>YZ&apos;nin hazırladığı sunumu hiç değiştirmeden sunar mısın? Neden?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  11 · HANGİ ARAÇ? OYUNU  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyun · hangi iş için hangi araç?</Eyebrow>
+      <H2 className="mb-6">İşe göre doğru araç türünü seç</H2>
+      <Quiz items={QUIZ_ARAC} cols={3} />
+      <AskLine>Her görevde önce sınıf karar versin, sonra tıkla.</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  12 · GERÇEK Mİ, YZ Mİ?  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Tahmin et · gerçek mi, YZ mi?</Eyebrow>
+      <H2>Sahte görselde önce kaynağa bak</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Üç fotoğraf tarifi. Her biri için karar ver: gerçek mi, YZ üretimi mi?
+      </Sub>
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <Reveal question="Düğün fotoğrafı: gelinin elinde altı parmak, arkadaki tabelada anlamsız harfler." tone="bad">
+          Şüpheli. El ve yazı hataları YZ görsellerinde sık görülen ipuçlarıdır.
+        </Reveal>
+        <Reveal question="Ünlü bir futbolcunun olay fotoğrafı: yalnızca adı duyulmamış bir hesapta var." tone="bad">
+          Şüpheli. Görüntü düzgün olsa da kaynağı yok. Hiçbir haber sitesinde yoksa inanma.
+        </Reveal>
+        <Reveal question="Bir manzara fotoğrafı: ne kadar bakarsan bak hiçbir hata göremiyorsun.">
+          Bilemezsin. Yeni araçlar hata bırakmıyor. Gözüne değil kaynağa güven.
+        </Reveal>
+      </div>
+      <AskLine>Her kart için: gerçek diyenler, YZ diyenler el kaldırsın.</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  13 · SINIFTA DENEYELİM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sınıfta deneyelim · 10 dakika · telefonla</Eyebrow>
+      <H2>10 dakikada bir afiş görseli üret</H2>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+        <NumCard
+          n={1}
+          title="Asistanı aç"
+          desc="ChatGPT ya da Gemini. Hesabın yoksa yanındakiyle çalış."
+          delay={0.1}
+        />
+        <NumCard
+          n={2}
+          title="Beş parçalı istem yaz"
+          desc="Konu: MYO bahar şenliği afişi. Stil, ışık, kadraj ve oranı sen seç."
+          delay={0.2}
+        />
+        <NumCard
+          n={3}
+          title="Üret ve karşılaştır"
+          desc="Sonucu yanındakine göster. Kimin görseli tarifine daha çok uydu?"
+          delay={0.3}
+        />
+        <NumCard
+          n={4}
+          title="Tek parçayı değiştir"
+          desc="Yalnızca stili değiştir, yeniden üret. Ne değişti?"
+          delay={0.4}
+        />
+      </div>
+      <div className="mt-5 uyz-card rounded-lg px-4 py-3 text-sm text-gray-400 flex items-center gap-3">
+        <Smartphone className="w-4 h-4 shrink-0" style={{ color: ACCENT_SOFT }} />
+        <span>
+          Ücretsiz planda günlük görsel sınırı olabilir. Sınırın dolduysa istemini yaz, arkadaşının
+          telefonunda dene.
+        </span>
+      </div>
+      <AskLine>Kimin görseli tarifine en çok benzedi? İstemini okusun.</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  14 · KENDİNİ DENE  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Kendini dene · 3 soru</Eyebrow>
+      <H2 className="mb-6">Bugünden aklında ne kaldı?</H2>
+      <Quiz items={QUIZ_SON} />
+    </SlideShell>
+  ),
+
+  /* ─────────────────  15 · AKLINDA KALSIN + KÖPRÜ  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>11. hafta özeti</Eyebrow>
+      <H2>
+        <span className="uyz-shimmer">Aklında kalsın: 3 şey</span>
+      </H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <NumCard
+          n={1}
+          title="Net tarif, isabetli görsel"
+          desc="Konu, stil, ışık, kadraj, oran. Parça ekledikçe sonuç istediğine yaklaşır."
+          delay={0.1}
+        />
+        <NumCard
+          n={2}
+          title="İşe göre araç seç"
+          desc="Görsel, ses, video, sunum: her işin aracı ayrı. İlk sonuç her zaman taslaktır."
+          delay={0.2}
+        />
+        <NumCard
+          n={3}
+          title="Göze değil kaynağa güven"
+          desc="YZ fotoğrafı yanlış okuyabilir, sahte görsel gerçek gibi durabilir. Kontrol et."
+          delay={0.3}
+        />
+      </div>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.7 }}
-        className="mt-6 uyz-warn-row rounded-lg px-4 py-3 text-xs flex items-center gap-2"
+        transition={{ duration: 0.6, delay: 0.6 }}
+        className="mt-6 uyz-card rounded-lg px-5 py-4 text-base text-gray-300 flex items-center gap-3"
       >
-        <AlertTriangle className="w-4 h-4 shrink-0" />
-        <span className="text-gray-300">
-          Kural: üretilen görseli <span className="text-white">olduğu gibi yayımlamadan önce</span> içeriğini,
-          metnini ve telif durumunu kontrol et.
+        <Sparkles className="w-5 h-5 shrink-0" style={{ color: ACCENT_SOFT }} />
+        <span>
+          <span className="text-white font-semibold">Gelecek hafta:</span> Bu araçlar kandırmak için
+          de kullanılabiliyor. YZ&apos;yi güvenli ve dürüst kullanmayı konuşacağız.
         </span>
       </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  15 · UYGULAMALI MİNİ LAB  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı mini lab</Eyebrow>
-      <H2>Dört adımda multimodal deneyim</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Lab tamamen tarayıcı/ücretsiz araçlarla yapılabilir. Sonraki derse bu dördünü yapmış ve
-        kısa bir not düşmüş gelmen bekleniyor.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          {
-            icon: Wand2,
-            title: "Aynı prompt, üç varyant",
-            desc: "Bir metinden görsel üreten araçta tek prompt&apos;u çalıştır; üç farklı çıktı al ve farkları yaz.",
-            accent: "#ec4899",
-          },
-          {
-            icon: Crop,
-            title: "Prompt&apos;u somutlaştır",
-            desc: "Aynı sahneye stil, ışık ve açı ekle (&ldquo;sulu boya, sıcak ışık, geniş açı&rdquo;). Çıktının nasıl değiştiğini gözlemle.",
-            accent: "#a855f7",
-          },
-          {
-            icon: ScanSearch,
-            title: "CLIP ile eşleştir",
-            desc: "Bir görsele 3-4 aday açıklama yaz; bir CLIP demosunda hangisinin en yüksek skoru aldığını not et.",
-            accent: "#3b82f6",
-          },
-          {
-            icon: X,
-            title: "Bir kusur yakala",
-            desc: "Bilerek zor bir prompt dene (yazı, sayma veya nesne ilişkisi). Modelin nerede hata yaptığını kaydet.",
-            accent: "#f59e0b",
-          },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 + i * 0.1 }}
-            className="uyz-card uyz-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: `${t.accent}1f`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white">{t.title}</h3>
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed">{t.desc}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8 uyz-pulse"
-          style={{
-            background: "linear-gradient(135deg, #a855f7, #6d28d9)",
-            boxShadow: "0 0 60px rgba(168,85,247,0.5)",
-          }}
-        >
-          <Sparkles className="w-12 h-12 text-white" />
-        </motion.div>
-
-        <Eyebrow>11. hafta tamamlandı · sıradaki: ses &amp; müzik üretimi</Eyebrow>
-        <H1>
-          <span className="uyz-shimmer">Köprü kuruldu.</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta metin ile görseli aynı uzayda buluşturduk. 12. haftada üçüncü modaliteye —
-          sese — geçiyoruz: konuşma sentezi ve müzik üretimi.
-        </Sub>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto text-left">
-          <div className="uyz-card rounded-xl p-5">
-            <ScanSearch className="w-5 h-5 mb-2" style={{ color: ACCENT_SOFT }} />
-            <div className="text-xs text-gray-500 font-mono uppercase tracking-wider mb-1">Akılda kalan</div>
-            <div className="text-white text-sm">CLIP eşler, DALL·E üretir</div>
-          </div>
-          <div className="uyz-card rounded-xl p-5">
-            <Network className="w-5 h-5 mb-2" style={{ color: ACCENT_SOFT }} />
-            <div className="text-xs text-gray-500 font-mono uppercase tracking-wider mb-1">Anahtar fikir</div>
-            <div className="text-white text-sm">Ortak gömme uzayı</div>
-          </div>
-          <div className="uyz-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 mb-2" style={{ color: ACCENT_SOFT }} />
-            <div className="text-xs text-gray-500 font-mono uppercase tracking-wider mb-1">Hazırlık</div>
-            <div className="text-white text-sm">Mini lab notların</div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1 }}
-          className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-widest"
-        >
-          BVA 1203 · Üretken Yapay Zekalar · MCBÜ Manisa Meslek Yüksekokulu
-        </motion.div>
-      </div>
     </SlideShell>
   ),
 ];
@@ -1229,7 +1196,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div style={{ color: "rgba(192,132,252,0.7)" }}>
-          BVA 1203 · 11. Hafta · Multimodal Modeller (DALL·E, CLIP)
+          BVA 1203 · 11. Hafta · Görsel, Ses ve Video Üreten Araçlar
         </div>
         <div className="flex items-center gap-3">
           <div style={{ color: "rgba(192,132,252,0.5)" }}>

@@ -9,28 +9,21 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Grid3x3,
-  Table2,
-  Rows3,
-  Columns3,
-  Layers,
-  Brackets,
-  Hash,
-  Repeat,
-  Target,
-  Lightbulb,
-  AlertTriangle,
-  CheckCircle2,
-  Check,
-  Sigma,
-  Image as ImageIcon,
-  Map as MapIcon,
-  Gamepad2,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
+  Check,
+  MousePointerClick,
+  RotateCcw,
+  AlertTriangle,
+  Table,
+  Gamepad2,
+  Image,
+  Layers,
+  Grid3x3,
+  Repeat,
   type LucideIcon,
 } from "lucide-react";
 import { CodeEditor } from "../_shared/code/CodeEditor";
@@ -63,7 +56,7 @@ function Eyebrow({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="inline-flex items-center gap-3 mb-6 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
+      className="inline-flex items-center gap-3 mb-4 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
     >
       <span className="w-8 h-px bg-[#5fa8e0]" />
       {children}
@@ -90,7 +83,7 @@ function H2({ children, className = "" }: { children: ReactNode; className?: str
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className={`text-3xl md:text-5xl font-semibold tracking-tight text-white ${className}`}
+      className={`text-3xl md:text-4xl font-semibold tracking-tight text-white ${className}`}
     >
       {children}
     </motion.h2>
@@ -139,838 +132,953 @@ function FeatureCard({
       >
         <Icon className="w-6 h-6" style={{ color: accent }} />
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+      <p className="text-base text-gray-400 leading-relaxed">{desc}</p>
     </motion.div>
   );
 }
 
-/* ---- Code Editor Mockup (VS Code style) ---------------------- */
+/* ---- Anlatım yardımcıları ------------------------------------ */
 
-type CodeLine = ReactNode;
-
-// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
-// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
-// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
-
-
-/* ---- Matris ızgarası (satır × sütun) ------------------------- */
-
-function MatrixGrid({
-  data,
-  highlight,
-  showIndices = true,
-  delay = 0,
-}: {
-  data: (number | string)[][];
-  highlight?: [number, number];
-  showIndices?: boolean;
-  delay?: number;
-}) {
-  const cols = data[0]?.length ?? 0;
+/** Hocanın sınıfa yönelteceği tek soru (slaydın altında, soluk). */
+function Ask({ children }: { children: ReactNode }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="prog-flow-bg p-6 inline-block"
+    <div className="mt-5 text-sm text-gray-500">
+      <span className="font-mono uppercase tracking-widest text-[11px] text-[#5fa8e0]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </div>
+  );
+}
+
+/** Standart içerik slaydı: üst etiket + cümle başlık + içerik + "Sınıfa sor". */
+function Frame({
+  eyebrow,
+  title,
+  ask,
+  children,
+}: {
+  eyebrow: string;
+  title: ReactNode;
+  ask: string;
+  children: ReactNode;
+}) {
+  return (
+    <SlideShell>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <H2>{title}</H2>
+      {/* Dar orta sütun: tıklanabilir öğeler kenar geçiş alanlarının (%12) dışında kalır. */}
+      <div className="mt-6 max-w-4xl mx-auto">{children}</div>
+      <Ask>{ask}</Ask>
+    </SlideShell>
+  );
+}
+
+/** Büyük, belirgin düğme. Tıklamadan sonra odağı bırakır; böylece boşluk
+ *  tuşu düğmeyi yeniden tetiklemez, yalnızca slaydı ilerletir. */
+function Btn({
+  onClick,
+  children,
+  active = false,
+  disabled = false,
+  mono = false,
+}: {
+  onClick: () => void;
+  children: ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+  mono?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={(e) => {
+        onClick();
+        e.currentTarget.blur();
+      }}
+      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-base border transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+        mono ? "font-mono" : "font-semibold"
+      }`}
+      style={
+        active
+          ? { background: "rgba(255,212,59,0.18)", borderColor: "#ffd43b", color: "#ffe169" }
+          : { background: "rgba(55,118,171,0.14)", borderColor: "rgba(95,168,224,0.5)", color: "#e5e7eb" }
+      }
     >
-      <div className="inline-block">
-        {showIndices && (
-          <div className="flex mb-2 ml-10">
-            {Array.from({ length: cols }).map((_, c) => (
-              <div key={c} className="w-12 text-center prog-index">
-                [{c}]
-              </div>
-            ))}
-          </div>
+      {children}
+    </button>
+  );
+}
+
+/** Tahmin et → tıkla göster. */
+function Reveal({
+  label = "Cevabı görmek için tıkla",
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        setOpen((o) => !o);
+        e.currentTarget.blur();
+      }}
+      className="w-full text-left rounded-xl p-5 prog-card prog-card-hover transition-all"
+      style={open ? { borderColor: "rgba(134,239,172,0.55)" } : { borderStyle: "dashed" }}
+    >
+      {open ? (
+        <div className="text-lg text-gray-200 leading-relaxed">{children}</div>
+      ) : (
+        <div className="flex items-center gap-3 text-[#ffd43b]">
+          <MousePointerClick className="w-5 h-5 shrink-0" />
+          <span className="text-lg font-semibold">{label}</span>
+        </div>
+      )}
+    </button>
+  );
+}
+
+/** Mini sınav: şıkka tıkla; doğru yeşil, yanlış kırmızı, altında açıklama. */
+function Quiz({
+  q,
+  code,
+  options,
+  correct,
+  why,
+}: {
+  q: string;
+  code?: string;
+  options: string[];
+  correct: number;
+  why: string;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div className="prog-card rounded-xl p-5">
+      <div className="text-lg text-white font-semibold">{q}</div>
+      {code && (
+        <pre className="prog-editor rounded-lg px-4 py-2 mt-3 text-[15px] whitespace-pre-wrap">
+          {code}
+        </pre>
+      )}
+      <div className="grid grid-cols-2 gap-2 mt-4">
+        {options.map((o, i) => {
+          const shown = picked !== null && (i === picked || i === correct);
+          const ok = i === correct;
+          return (
+            <button
+              key={o}
+              type="button"
+              onClick={(e) => {
+                setPicked(i);
+                e.currentTarget.blur();
+              }}
+              className="text-left rounded-lg px-4 py-3 text-base font-mono border transition-colors"
+              style={
+                shown
+                  ? {
+                      background: ok ? "rgba(134,239,172,0.14)" : "rgba(252,165,165,0.14)",
+                      borderColor: ok ? "#86efac" : "#fca5a5",
+                      color: ok ? "#86efac" : "#fca5a5",
+                    }
+                  : { borderColor: "rgba(95,168,224,0.4)", color: "#e5e7eb" }
+              }
+            >
+              <span className="text-gray-500 mr-3">{"ABCD"[i]}</span>
+              {o}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 text-base min-h-[3rem] text-gray-300">
+        {picked === null ? (
+          <span className="text-gray-600">Bir şıkka tıkla.</span>
+        ) : (
+          <>
+            <span className={picked === correct ? "text-[#86efac]" : "text-[#fca5a5]"}>
+              {picked === correct ? "Doğru. " : "Olmadı. "}
+            </span>
+            {why}
+          </>
         )}
-        {data.map((row, r) => (
-          <div key={r} className="flex items-center mb-2">
-            {showIndices && (
-              <div className="w-10 prog-index text-right pr-2">[{r}]</div>
-            )}
-            {row.map((val, c) => {
-              const isHi = highlight && highlight[0] === r && highlight[1] === c;
-              return (
-                <div
-                  key={c}
-                  className={`w-12 h-12 mr-0 text-sm ${
-                    isHi ? "prog-cell prog-cell-active" : "prog-cell"
-                  }`}
-                  style={{ marginRight: 8 }}
-                >
-                  {val}
-                </div>
-              );
-            })}
+      </div>
+    </div>
+  );
+}
+
+/** Adım adım kod izleme: İleri/Geri ile satır satır, değişkenler yanında. */
+type TraceStep = { line: number; vars: string; note: string; hi?: number };
+
+function Trace({
+  code,
+  steps,
+  render,
+}: {
+  code: string[];
+  steps: TraceStep[];
+  render?: (hi: number | undefined) => ReactNode;
+}) {
+  const [i, setI] = useState(0);
+  const s = steps[i];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+      <div className="prog-editor rounded-xl p-4 text-[16px]">
+        {code.map((l, n) => (
+          <div
+            key={n}
+            className="px-2 rounded whitespace-pre"
+            style={
+              n === s.line
+                ? { background: "rgba(255,212,59,0.16)", color: "#ffe169" }
+                : undefined
+            }
+          >
+            {l || " "}
           </div>
         ))}
       </div>
-    </motion.div>
+      <div className="prog-card rounded-xl p-5 flex flex-col">
+        {render && <div className="mb-4">{render(s.hi)}</div>}
+        <div className="font-mono text-lg text-[#9cdcfe]">{s.vars}</div>
+        <div className="text-base text-gray-300 mt-2 flex-1">{s.note}</div>
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+          <Btn onClick={() => setI((v) => Math.max(v - 1, 0))} disabled={i === 0}>
+            Geri
+          </Btn>
+          <Btn
+            onClick={() => setI((v) => Math.min(v + 1, steps.length - 1))}
+            disabled={i === steps.length - 1}
+            active={i < steps.length - 1}
+          >
+            İleri
+          </Btn>
+          <Btn onClick={() => setI(0)} disabled={i === 0}>
+            <RotateCcw className="w-4 h-4" />
+            Baştan
+          </Btn>
+          <span className="ml-auto font-mono text-sm text-gray-500">
+            Adım {i + 1} / {steps.length}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  glowClass,
-  icon,
+/** Önce tahmin et, sonra çalıştır: solda gerçek Python çalıştırıcısı. */
+function PredictRun({
+  file,
+  code,
+  question,
+  answer,
+  note,
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  glowClass: string;
-  icon: ReactNode;
+  file: string;
+  code: string;
+  question: string;
+  answer: string[];
+  note: string;
 }) {
   return (
-    <SlideShell bgPattern={false}>
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-start">
+      <div className="md:col-span-3">
+        <CodeEditor
+          title={`${file} — Visual Studio Code`}
+          tabs={[file]}
+          activeTab={file}
+          code={code}
+        />
+      </div>
+      <div className="md:col-span-2 space-y-3">
+        <div className="prog-card-yellow rounded-xl p-4">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#ffd43b] mb-1">
+            1 · Önce tahmin et
+          </div>
+          <div className="text-lg text-white">{question}</div>
+        </div>
+        <Reveal label="2 · Tahminler tamam mı? Çıktıyı göster">
+          <div className="font-mono text-[#86efac]">
+            {answer.map((l, n) => (
+              <div key={n}>{l}</div>
+            ))}
+          </div>
+          <div className="text-base text-gray-400 mt-2">{note}</div>
+        </Reveal>
+        <div className="text-base text-gray-400 px-1">
+          3 · Şimdi <span className="text-white font-semibold">Çalıştır</span>&apos;a bas,
+          tahminle karşılaştır.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Sınıfta deneyelim: solda tıklayıp işaretlenen adımlar, sağda çalıştırıcı. */
+function Activity({
+  file,
+  code,
+  steps,
+}: {
+  file: string;
+  code: string;
+  steps: string[];
+}) {
+  const [done, setDone] = useState<number[]>([]);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-start">
+      <div className="md:col-span-2 space-y-2">
+        {steps.map((t, i) => {
+          const ok = done.includes(i);
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={(e) => {
+                setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
+                e.currentTarget.blur();
+              }}
+              className="w-full flex items-center gap-3 text-left rounded-lg px-4 py-3 border transition-colors"
+              style={
+                ok
+                  ? { background: "rgba(134,239,172,0.12)", borderColor: "#86efac", color: "#86efac" }
+                  : { background: "rgba(55,118,171,0.08)", borderColor: "rgba(95,168,224,0.4)", color: "#e5e7eb" }
+              }
+            >
+              <span className="w-7 h-7 shrink-0 rounded-full border border-current flex items-center justify-center font-mono text-sm">
+                {ok ? <Check className="w-4 h-4" /> : i + 1}
+              </span>
+              <span className="text-base">{t}</span>
+            </button>
+          );
+        })}
+        <div className="text-xs text-gray-600 px-1">Biten adıma tıkla, işaretlensin.</div>
+      </div>
+      <div className="md:col-span-3">
+        <CodeEditor
+          title={`${file} — Visual Studio Code`}
+          tabs={[file]}
+          activeTab={file}
+          code={code}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Kapak slaydı. */
+function Cover({
+  week,
+  title,
+  second,
+  sub,
+  tags,
+}: {
+  week: string;
+  title: string;
+  second: string;
+  sub: string;
+  tags: { tag: string; name: string; desc: string; color: string }[];
+}) {
+  return (
+    <SlideShell>
       <div className="text-center">
+        <Eyebrow>BVA 1101 · {week}</Eyebrow>
+        <H1>
+          <span className="prog-shimmer">{title}</span>
+          <br />
+          <span className="text-white/90">{second}</span>
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{sub}</Sub>
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className={`inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 prog-pulse ${glowClass}`}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="grid grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto"
         >
-          {icon}
+          {tags.map((l) => (
+            <div
+              key={l.name}
+              className="prog-card rounded-xl p-5"
+              style={{ borderColor: `${l.color}55` }}
+            >
+              <div
+                className="h-10 px-3 rounded-lg mx-auto mb-3 inline-flex items-center justify-center text-sm font-mono font-bold"
+                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
+              >
+                {l.tag}
+              </div>
+              <div className="text-white font-semibold">{l.name}</div>
+              <div className="text-sm text-gray-500 mt-1">{l.desc}</div>
+            </div>
+          ))}
         </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+        <div className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]">
+          Programlama Temelleri · MCBÜ Manisa Teknik Bilimler MYO
+        </div>
+      </div>
+    </SlideShell>
+  );
+}
+
+/** Kapanış: "Aklında kalsın: 3 şey" + gelecek haftaya köprü. */
+function Closing({
+  items,
+  bridge,
+}: {
+  items: { icon: LucideIcon; title: string; desc: string; accent: string }[];
+  bridge: string;
+}) {
+  return (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2>Aklında kalsın: 3 şey</H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        {items.map((it, i) => (
+          <FeatureCard
+            key={it.title}
+            icon={it.icon}
+            title={it.title}
+            desc={it.desc}
+            accent={it.accent}
+            delay={0.1 + i * 0.1}
+          />
+        ))}
+      </div>
+      <div className="prog-card-yellow rounded-xl px-6 py-4 mt-6 text-lg text-gray-200">
+        <span className="font-mono uppercase tracking-widest text-xs text-[#ffd43b] mr-3">
+          Gelecek hafta
+        </span>
+        {bridge}
       </div>
     </SlideShell>
   );
 }
 
 /* ============================================================
+   H10 ETKİLEŞİMLİ BİLEŞENLER
+   ============================================================ */
+
+/** Satır ve sütun numaralı tablo. */
+function Grid({
+  rows,
+  hi = null,
+  onPick,
+  cell = "w-20 h-14 text-base",
+}: {
+  rows: string[][];
+  hi?: [number, number] | null;
+  onPick?: (r: number, c: number) => void;
+  cell?: string;
+}) {
+  return (
+    <div className="inline-flex flex-col gap-2">
+      <div className="flex gap-2 items-center">
+        <div className="w-20 text-right text-[11px] font-mono text-gray-500 pr-1">sütun →</div>
+        {rows[0].map((_, c) => (
+          <div key={c} className={`${cell} prog-index text-center`} style={{ height: 20 }}>
+            [{c}]
+          </div>
+        ))}
+      </div>
+      {rows.map((row, r) => (
+        <div key={r} className="flex gap-2 items-center">
+          <div className="w-20 text-right prog-index pr-1">satır [{r}]</div>
+          {row.map((v, c) => {
+            const on = hi !== null && hi[0] === r && hi[1] === c;
+            const cls = `${cell} prog-cell font-semibold ${on ? "prog-cell-active" : ""}`;
+            return onPick ? (
+              <button
+                key={c}
+                type="button"
+                onClick={(e) => {
+                  onPick(r, c);
+                  e.currentTarget.blur();
+                }}
+                className={`${cls} cursor-pointer hover:border-[#ffd43b]`}
+              >
+                {v}
+              </button>
+            ) : (
+              <div key={c} className={cls}>
+                {v}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Sinema salonu: koltuğa tıkla, adresini (satır, sütun) gör. */
+function SeatGrid() {
+  const salon = [
+    ["Ali", "Ece", "Can", "Naz"],
+    ["Efe", "Su", "Mert", "Elif"],
+    ["Deniz", "Ada", "Bora", "Ilgın"],
+  ];
+  const [sec, setSec] = useState<[number, number] | null>(null);
+  return (
+    <div className="prog-flow-bg p-6 text-center">
+      <div className="mx-auto mb-4 h-2 w-80 rounded-full bg-white/30" />
+      <div className="text-[11px] font-mono uppercase tracking-widest text-gray-500 mb-3">
+        Perde
+      </div>
+      <Grid rows={salon} hi={sec} onPick={(r, c) => setSec([r, c])} cell="w-24 h-14 text-base" />
+      <div className="mt-5 font-mono text-xl min-h-[4rem]">
+        {sec === null ? (
+          <span className="text-[#ffd43b] text-lg font-sans">Bir koltuğa tıkla.</span>
+        ) : (
+          <>
+            <div>
+              <span className="text-[#9cdcfe]">
+                salon[{sec[0]}][{sec[1]}]
+              </span>
+              <span className="text-gray-500"> → </span>
+              <span className="text-[#ce9178]">&quot;{salon[sec[0]][sec[1]]}&quot;</span>
+            </div>
+            <div className="text-base text-gray-400 font-sans mt-1">
+              Önce satır ({sec[0]}), sonra o satırdaki koltuk ({sec[1]}).
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** XOX: kareye tıkla, tahta[satır][sütun] = "X" ataması canlı görünür. */
+function XoxBoard() {
+  const bos = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
+  ];
+  const [tahta, setTahta] = useState<string[][]>(bos);
+  const [sira, setSira] = useState<"X" | "O">("X");
+  const [son, setSon] = useState<string | null>(null);
+  const [hi, setHi] = useState<[number, number] | null>(null);
+  return (
+    <div className="prog-flow-bg p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div className="text-center">
+        <Grid
+          rows={tahta.map((s) => s.map((v) => v || "·"))}
+          hi={hi}
+          cell="w-16 h-16 text-2xl"
+          onPick={(r, c) => {
+            if (tahta[r][c] !== "") return;
+            setTahta((t) => t.map((s, i) => s.map((v, j) => (i === r && j === c ? sira : v))));
+            setSon(`tahta[${r}][${c}] = "${sira}"`);
+            setHi([r, c]);
+            setSira((s) => (s === "X" ? "O" : "X"));
+          }}
+        />
+      </div>
+      <div>
+        <div className="text-[11px] font-mono uppercase tracking-widest text-gray-500 mb-1">
+          Az önce çalışan satır
+        </div>
+        <div className="font-mono text-xl text-[#ffe169] min-h-[2rem]">
+          {son ?? <span className="text-[#ffd43b] text-lg font-sans">Boş bir kareye tıkla.</span>}
+        </div>
+        <div className="text-[11px] font-mono uppercase tracking-widest text-gray-500 mt-4 mb-1">
+          Python&apos;daki hâli
+        </div>
+        <pre className="prog-editor rounded-lg px-4 py-3 text-[16px]">
+          {`tahta = [\n${tahta
+            .map((s) => `    [${s.map((v) => `"${v || " "}"`).join(", ")}],`)
+            .join("\n")}\n]`}
+        </pre>
+        <div className="mt-4 flex items-center gap-3">
+          <Btn
+            onClick={() => {
+              setTahta(bos);
+              setSira("X");
+              setSon(null);
+              setHi(null);
+            }}
+          >
+            <RotateCcw className="w-4 h-4" />
+            Tahtayı temizle
+          </Btn>
+          <span className="text-base text-gray-400">
+            Sıra: <span className="font-mono text-white">{sira}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ORNEK_SALON = [
+  ["Ali", "Ece", "Can"],
+  ["Naz", "Efe", "Su"],
+];
+
+/* ============================================================
    SLIDES
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
-  /* ─────────────────  1 · KAPAK  ───────────────── */
+  /* 1 · KAPAK */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 1101 · 10. Hafta · Bahar Dönemi</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Çok Boyutlu Diziler</span>
-          <br />
-          <span className="text-white/90">ve Matrisler</span>
-        </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Tek satır listeden ızgaraya geçiyoruz: satır ve sütunla düşünmek, iç içe
-          döngüyle gezmek.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="grid grid-cols-3 gap-4 mt-14 max-w-3xl mx-auto"
-        >
-          {[
-            { name: "Liste içinde liste", tag: "[[ ]]", color: "#3776ab", desc: "matris[satır][sütun]" },
-            { name: "İç içe döngü", tag: "for·for", color: "#ffd43b", desc: "satırı, sonra sütunu gez" },
-            { name: "Uygulama", tag: "grid", color: "#4ec9b0", desc: "tablo · görüntü · oyun" },
-          ].map((l, i) => (
-            <motion.div
-              key={l.name}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.1 }}
-              className="prog-card rounded-xl p-5"
-              style={{ borderColor: `${l.color}55` }}
-            >
-              <div
-                className="w-12 h-10 rounded-lg mx-auto mb-3 flex items-center justify-center text-[11px] font-mono font-bold"
-                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
-              >
-                {l.tag}
-              </div>
-              <div className="text-white font-semibold text-sm">{l.name}</div>
-              <div className="text-[11px] text-gray-500 mt-1">{l.desc}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
-        >
-          Öğr. Gör. · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 9. haftadan 10. haftaya</Eyebrow>
-      <H2>Tek boyutlu listeyi biliyoruz — peki ya tablo?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        9. hafta diziyi/listeyi tek bir sırada öğrendik:{" "}
-        <span className="font-mono text-[#5fa8e0]">notlar[3]</span> dördüncü elemanı verir.
-        Ama bir sınıf çizelgesi, satranç tahtası ya da Excel sayfası tek sıra değil —
-        satır <span className="text-white">ve</span> sütundan oluşur. Bu hafta o ikinci ekseni ekliyoruz.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5fa8e0]">
-            <Brackets className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Tek boyut · 1B</span>
-          </div>
-          <div className="font-mono text-sm text-gray-300 bg-black/30 rounded px-3 py-2 mb-3">
-            notlar = [70, 85, 90, 60]
-          </div>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />Tek indis: <span className="font-mono text-white ml-1">notlar[2]</span> &rarr; 90</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />Bir <span className="text-white">for</span> döngüsü gezmeye yeter.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#ffd43b]">
-            <Grid3x3 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">İki boyut · 2B</span>
-          </div>
-          <div className="font-mono text-sm text-gray-300 bg-black/30 rounded px-3 py-2 mb-3">
-            tablo = [[70, 85], [90, 60]]
-          </div>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#ffd43b] flex-shrink-0" />İki indis: <span className="font-mono text-white ml-1">tablo[1][0]</span> &rarr; 90</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#ffd43b] flex-shrink-0" />İç içe <span className="text-white">for</span> ister: satır, sonra sütun.</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3 · BU HAFTANIN HEDEFİ / AKIŞ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: kavram &rarr; gezinti &rarr; uygulama</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce iki boyutlu dizinin ne olduğunu ve nasıl oluşturulduğunu görüyoruz; sonra
-        iç içe döngüyle gezmeyi öğreniyoruz; en sonda gerçek kullanım alanlarına ve bir
-        alıştırmaya geçiyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "Kavram & Tanım", items: ["Liste içinde liste", "Satır × sütun mantığı", "matris[i][j] erişimi"], icon: Grid3x3, accent: "#3776ab" },
-          { range: "02", title: "İç İçe Döngü", items: ["Dış döngü = satır", "İç döngü = sütun", "Toplama / arama / dönüştürme"], icon: Repeat, accent: "#ffd43b" },
-          { range: "03", title: "Uygulama", items: ["Tablo & not çizelgesi", "Görüntü pikselleri", "Oyun tahtası (XOX)"], icon: Gamepad2, accent: "#4ec9b0" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="prog-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  4 · SECTION 1/3 · KAVRAM  ───────────────── */
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Matris Nedir?"
-      subtitle="İki boyutlu dizi = listeyi eleman olarak tutan bir liste. Satır ve sütunla adreslenen bir ızgara."
-      glowClass="prog-glow-blue"
-      icon={<Grid3x3 className="w-14 h-14 text-white" />}
+    <Cover
+      week="10. Hafta"
+      title="Tablolar"
+      second="Satır ve sütun"
+      sub="Tek sıra liste yetmediğinde listeleri alt alta dizeriz: sinema salonu, oturma planı, XOX tahtası."
+      tags={[
+        { tag: "[[ ]]", name: "Tablo kur", desc: "Liste içinde liste", color: "#3776ab" },
+        { tag: "[s][k]", name: "Hücreye ulaş", desc: "Önce satır, sonra sütun", color: "#5fa8e0" },
+        { tag: "for for", name: "Hepsini gez", desc: "İç içe iki döngü", color: "#ffd43b" },
+      ]}
     />
   ),
 
-  /* ─────────────────  5 · SATIR × SÜTUN / İNDİS  ───────────────── */
+  /* 2 · SORUN */
   () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · Kavram</Eyebrow>
-      <H2>Satır, sütun ve iki indis</H2>
-      <Sub className="mt-3 max-w-3xl">
-        İki boyutlu bir dizide her hücreye <span className="text-white font-semibold">iki</span>{" "}
-        sayıyla ulaşırsın: önce satır (i), sonra sütun (j). İndis her zaman{" "}
-        <span className="font-mono text-[#5fa8e0]">0</span>&apos;dan başlar.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 items-center">
-        <div className="flex justify-center">
-          <MatrixGrid
-            data={[
-              [12, 7, 3],
-              [9, 25, 6],
-              [4, 18, 11],
-            ]}
-            highlight={[1, 1]}
-            delay={0.2}
-          />
+    <Frame
+      eyebrow="Sorun"
+      title="Sınıfı tek sıra listeye yazarsak kim kimin arkasında, bilemeyiz"
+      ask="Bu sınıfı kâğıda çizseydin nasıl çizerdin?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="prog-card rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-3 text-[#fca5a5]">
+            <AlertTriangle className="w-5 h-5" />
+            <span className="text-xs font-mono uppercase tracking-widest">Tek liste</span>
+          </div>
+          <pre className="prog-editor rounded-lg px-4 py-3 text-[16px] whitespace-pre-wrap">{`sinif = ["Ali", "Ece", "Can",
+         "Naz", "Efe", "Su"]`}</pre>
+          <div className="text-base text-gray-400 mt-3">
+            Altı isim var. Ama kaç sıra var, Efe hangi sırada oturuyor?
+          </div>
         </div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="text-xs font-mono uppercase tracking-widest text-[#5fa8e0] mb-4">
-            3 × 3 matris · erişim
+        <div className="space-y-4">
+          <div className="prog-card-yellow rounded-xl p-5 text-lg text-white">
+            Sıraları kaybetmeden yazmanın bir yolu var mı?
           </div>
-          <div className="space-y-3 font-mono text-sm">
-            <div className="bg-black/30 rounded px-3 py-2 text-gray-300">
-              <span className="text-[#9cdcfe]">m</span>[<span className="text-[#b5cea8]">1</span>][<span className="text-[#b5cea8]">1</span>] &rarr; <span className="text-[#ffe169]">25</span>
-            </div>
-            <div className="bg-black/30 rounded px-3 py-2 text-gray-300">
-              <span className="text-[#9cdcfe]">m</span>[<span className="text-[#b5cea8]">0</span>][<span className="text-[#b5cea8]">2</span>] &rarr; <span className="text-white">3</span> <span className="text-gray-500"># 1. satır, 3. sütun</span>
-            </div>
-            <div className="bg-black/30 rounded px-3 py-2 text-gray-300">
-              <span className="text-[#9cdcfe]">m</span>[<span className="text-[#b5cea8]">2</span>][<span className="text-[#b5cea8]">0</span>] &rarr; <span className="text-white">4</span>
-            </div>
-          </div>
-          <div className="mt-4 text-xs text-gray-500 leading-relaxed">
-            Sarı hücre <span className="font-mono text-[#ffe169]">m[1][1]</span> &mdash;
-            ikinci satır (i=1) ile ikinci sütunun (j=1) kesişimi.
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  6 · OLUŞTURMA YÖNTEMLERİ (KOD)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · Oluşturma</Eyebrow>
-      <H2 className="mb-2">İki boyutlu dizi nasıl oluşturulur?</H2>
-      <Sub className="max-w-3xl">
-        Python&apos;da ayrı bir &quot;matris&quot; tipi yoktur; bir listenin içine satırları liste
-        olarak koyarsın. Boş ızgarayı <span className="text-white">döngüyle</span> üretmek en güvenli yöntemdir.
-      </Sub>
-
-      <div className="mt-6">
-        <CodeEditor
-          title="matris_olustur.py — Visual Studio Code"
-          tabs={["matris_olustur.py", "README.md"]}
-          activeTab="matris_olustur.py"
-          code={`# 1) doğrudan yazarak (3 satır, 3 sütun)
-m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-
-# 2) sıfırlarla doldurulmuş 3x3 boş ızgara
-satir, sutun = 3, 3
-grid = [[0] * sutun for _ in range(satir)]
-
-print(grid)`}
-          terminal={
-            <div className="leading-relaxed">
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="prog-terminal-out">python matris_olustur.py</span>
-              </div>
-              <div className="prog-terminal-out">[[0, 0, 0], [0, 0, 0], [0, 0, 0]]</div>
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="animate-pulse">▌</span>
-              </div>
-            </div>
-          }
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 prog-card-yellow rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <AlertTriangle className="w-4 h-4 text-[#ffd43b] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Tuzak:</span>{" "}
-          <span className="font-mono">[[0]*3]*3</span> yazma! Bu, aynı satır listesini üç kez
-          paylaştırır; bir hücreyi değiştirince üç satır birden değişir. Yukarıdaki{" "}
-          <span className="font-mono text-[#ffd43b]">for</span>&apos;lu yöntem her satırı ayrı oluşturur.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  7 · DÜZ vs DÜZENSİZ / SHAPE  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · Boyut bilgisi</Eyebrow>
-      <H2>Boyutu öğrenmek &amp; düzenli olmak</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bir matrisin kaç satır kaç sütun olduğunu <span className="font-mono text-[#5fa8e0]">len()</span> ile
-        ölçersin. &quot;Düzenli&quot; matriste her satır aynı uzunlukta olmalı; aksi halde indis hatası
-        kaçınılmazdır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#4ec9b0]">
-            <Rows3 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Boyutu ölçmek</span>
-          </div>
-          <div className="space-y-2 font-mono text-[13px]">
-            <div className="bg-black/30 rounded px-3 py-2 text-gray-300">
-              <span className="text-[#9cdcfe]">satir_sayisi</span> = <span className="text-[#4ec9b0]">len</span>(m) <span className="text-gray-500"># 3</span>
-            </div>
-            <div className="bg-black/30 rounded px-3 py-2 text-gray-300">
-              <span className="text-[#9cdcfe]">sutun_sayisi</span> = <span className="text-[#4ec9b0]">len</span>(m[<span className="text-[#b5cea8]">0</span>]) <span className="text-gray-500"># 3</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 mt-4">
-            <Columns3 className="w-5 h-5 text-[#5fa8e0]" />
-            <div className="text-xs text-gray-400">
-              <span className="text-white">len(m)</span> satır sayısını,{" "}
-              <span className="text-white">len(m[0])</span> ilk satırın sütun sayısını verir.
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#ffd43b]">
-            <Table2 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Düzenli mi?</span>
-          </div>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[#4ec9b0] mt-0.5 flex-shrink-0" />
-              <div className="text-gray-300">
-                <span className="font-mono text-[#86efac]">[[1,2,3],[4,5,6]]</span>
-                <div className="text-xs text-gray-500">Her satır 3 eleman &mdash; düzenli (2×3).</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#f87171] mt-0.5 flex-shrink-0" />
-              <div className="text-gray-300">
-                <span className="font-mono text-[#fca5a5]">[[1,2,3],[4,5]]</span>
-                <div className="text-xs text-gray-500">Satırlar farklı uzunlukta &mdash; düzensiz; m[1][2] hata verir.</div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  8 · SECTION 2/3 · İÇ İÇE DÖNGÜ  ───────────────── */
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="İç İçe Döngüyle Gezmek"
-      subtitle="Dış döngü satırı, iç döngü sütunu dolaşır. Her hücreye tam bir kez uğramanın standart deseni."
-      glowClass="prog-glow-yellow"
-      icon={<Repeat className="w-14 h-14 text-[#1a1a1a]" />}
-    />
-  ),
-
-  /* ─────────────────  9 · İÇ İÇE DÖNGÜ DESENİ (KOD)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · Standart desen</Eyebrow>
-      <H2 className="mb-2">Satır satır, hücre hücre</H2>
-      <Sub className="max-w-3xl">
-        Bir matrisin tamamını gezmek için iki döngü iç içe girer: dıştaki <span className="text-white">i</span>{" "}
-        satırı, içteki <span className="text-white">j</span> sütunu sayar. İçteki gövde her hücre için bir kez çalışır.
-      </Sub>
-
-      <div className="mt-6">
-        <CodeEditor
-          title="gezinti.py — Visual Studio Code"
-          tabs={["gezinti.py"]}
-          activeTab="gezinti.py"
-          code={`m = [[1, 2], [3, 4], [5, 6]]
-
-for i in range(len(m)):          # satırlar
-    for j in range(len(m[i])):   # sütunlar
-        print(f"m[{i}][{j}] = {m[i][j]}")`}
-          terminal={
-            <div className="leading-relaxed">
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="prog-terminal-out">python gezinti.py</span>
-              </div>
-              <div className="prog-terminal-out">m[0][0] = 1</div>
-              <div className="prog-terminal-out">m[0][1] = 2</div>
-              <div className="prog-terminal-out">m[1][0] = 3</div>
-              <div className="prog-terminal-out">m[1][1] = 4</div>
-              <div className="prog-terminal-out">m[2][0] = 5</div>
-              <div className="prog-terminal-out">m[2][1] = 6</div>
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="animate-pulse">▌</span>
-              </div>
-            </div>
-          }
-        />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · TOPLAM HESAPLAMA (KOD + GRID)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · İşlem örneği</Eyebrow>
-      <H2 className="mb-2">Tüm elemanların toplamı</H2>
-      <Sub className="max-w-3xl mb-6">
-        Klasik bir görev: matristeki bütün sayıları topla. Bir <span className="font-mono text-[#5fa8e0]">toplam</span>{" "}
-        değişkeni tut, her hücrede üzerine ekle. Aşağıdaki ızgaranın toplamı{" "}
-        <span className="text-white font-semibold">45</span>.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div className="flex justify-center">
-          <MatrixGrid
-            data={[
-              [1, 2, 3],
-              [4, 5, 6],
-              [7, 8, 9],
-            ]}
-            showIndices={false}
-            delay={0.2}
-          />
+          <Reveal label="Fikirleri dinle, sonra tıkla">
+            Her sırayı <span className="text-white font-semibold">ayrı bir liste</span> yap, sonra
+            bu listeleri bir listeye koy. Liste içinde liste ={" "}
+            <span className="text-[#86efac] font-semibold">tablo</span>.
+          </Reveal>
         </div>
-        <CodeEditor
-          title="toplam.py"
-          tabs={["toplam.py"]}
-          activeTab="toplam.py"
-          code={`toplam = 0
-for satir in m:
-    for deger in satir:
-        toplam += deger
-
-print(toplam)  # 45`}
-          setup={`m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]`}
-          terminal={
-            <div className="leading-relaxed">
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="prog-terminal-out">python toplam.py</span>
-              </div>
-              <div className="prog-terminal-out">45</div>
-            </div>
-          }
-        />
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-xs text-gray-500 text-center font-mono"
-      >
-        İndise ihtiyacın yoksa <span className="text-[#5fa8e0]">for satir in m</span> doğrudan satırları,
-        içteki döngü değerleri verir &mdash; daha okunaklı.
-      </motion.div>
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  11 · OPERASYONLAR TABLOSU  ───────────────── */
+  /* 3 · BENZETME */
   () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · Sık işlemler</Eyebrow>
-      <H2>Matrisle ne yapabilirsin?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Aynı iç içe döngü deseniyle çok farklı işler çözülür. En sık karşına çıkacak beş tanesi:
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl overflow-hidden"
-      >
-        <table className="prog-compare">
-          <thead>
-            <tr>
-              <th>İşlem</th>
-              <th>Ne yapar?</th>
-              <th>Anahtar fikir</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="font-semibold text-white">Toplam / ortalama</td>
-              <td>Tüm hücreleri tek değere indirger</td>
-              <td>Bir biriktirici değişken + iç içe döngü</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Eleman arama</td>
-              <td>Bir değeri ve konumunu (i, j) bulur</td>
-              <td>Eşleşince satır/sütunu yazdır veya döndür</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Satır / sütun toplamı</td>
-              <td>Her satırın veya sütunun toplamını alır</td>
-              <td>Sütun için indisleri ters kullan: m[i][j]</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Transpoze</td>
-              <td>Satırları sütunlarla yer değiştirir</td>
-              <td>yeni[j][i] = m[i][j]</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Matris toplama</td>
-              <td>Aynı boyutta iki matrisi hücre hücre toplar</td>
-              <td>C[i][j] = A[i][j] + B[i][j]</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-    </SlideShell>
+    <Frame
+      eyebrow="Benzetme · sinema salonu"
+      title="Sinema biletinde iki numara yazar: sıra ve koltuk"
+      ask="En öndeki sıranın numarası kaç çıktı? Peki ilk koltuğun?"
+    >
+      <SeatGrid />
+    </Frame>
   ),
 
-  /* ─────────────────  12 · SECTION 3/3 · UYGULAMA  ───────────────── */
+  /* 4 · KAVRAM */
   () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Gerçek Hayatta Matrisler"
-      subtitle="Tablolar, dijital görüntüler, oyun tahtaları, harita ızgaraları — hepsi içeride iki boyutlu dizidir."
-      glowClass="prog-glow-purple"
-      icon={<Layers className="w-14 h-14 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  13 · KULLANIM ALANLARI (KARTLAR + XOX)  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 3 · Nerede karşına çıkar?</Eyebrow>
-      <H2 className="mb-2">Matris her yerde</H2>
-      <Sub className="max-w-3xl mb-6">
-        Bir ekran görüntüsü, bir Excel sayfası ya da bir satranç tahtası &mdash; hepsi bellekte
-        satır × sütun ızgarasıdır. Sağda klasik bir XOX (tic-tac-toe) tahtası, bir 3×3 matrisle saklanır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div className="grid grid-cols-1 gap-4">
-          <FeatureCard
-            icon={Table2}
-            title="Tablolar & çizelgeler"
-            desc="Öğrenci × ders not tablosu; satır bir öğrenci, sütun bir ders."
-            accent="#3776ab"
-            delay={0.1}
-          />
-          <FeatureCard
-            icon={ImageIcon}
-            title="Dijital görüntüler"
-            desc="Bir resim piksel ızgarasıdır; her hücre bir gri ton ya da renk değeri tutar."
-            accent="#ffd43b"
-            delay={0.2}
-          />
-          <FeatureCard
-            icon={MapIcon}
-            title="Harita & oyun tahtası"
-            desc="Labirent, kâğıt-üzeri oyunlar, satranç: konum = (satır, sütun)."
-            accent="#4ec9b0"
-            delay={0.3}
-          />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex flex-col items-center"
-        >
-          <div className="prog-flow-bg p-6">
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                ["X", "O", "X"],
-                ["O", "X", " "],
-                [" ", "O", "X"],
-              ].flat().map((c, i) => (
-                <div
-                  key={i}
-                  className={`w-16 h-16 text-2xl font-bold ${c.trim() ? "prog-cell prog-cell-active" : "prog-cell"}`}
-                >
-                  {c}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4 font-mono text-xs text-gray-400 text-center">
-            tahta[<span className="text-[#5fa8e0]">0</span>][<span className="text-[#5fa8e0]">0</span>] = <span className="text-[#ffe169]">&quot;X&quot;</span>
-            {"   "}·{"   "}
-            tahta[<span className="text-[#5fa8e0]">1</span>][<span className="text-[#5fa8e0]">2</span>] = <span className="text-white">&quot; &quot;</span> (boş)
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  14 · UYGULAMALI ALIŞTIRMA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı alıştırma</Eyebrow>
-      <H2>Kendi makinende dört görev</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bu haftanın deseni iç içe döngüdür &mdash; pekişmesi için kod yazmak şart. Aşağıdaki dördünü
-        tamamlayıp sonraki derse <span className="text-white">çıktının ekran görüntüsüyle</span> gel.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl p-6 max-w-3xl mx-auto"
-      >
-        <div className="text-xs uppercase tracking-wider text-[#5fa8e0] mb-4 font-mono flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" />
-          Görev listesi · Hafta 10
-        </div>
+    <Frame
+      eyebrow="Kavram"
+      title="Tablo (matris), listelerden oluşan bir listedir"
+      ask="Bu tabloda kaç tane liste görüyorsun?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+        <pre className="prog-editor rounded-xl px-5 py-4 text-[18px]">{`salon = [
+    ["Ali", "Ece", "Can"],
+    ["Naz", "Efe", "Su"],
+]`}</pre>
         <div className="space-y-3">
           {[
-            { t: "3×3 matrisi düzgün yazdır", d: "İç içe döngüyle her satırı alt alta, hücreleri yan yana bas." },
-            { t: "En büyük elemanı bul", d: "Tüm hücreleri gez; en büyük değeri ve konumunu (i, j) yazdır." },
-            { t: "Satır toplamlarını çıkar", d: "Her satır için ayrı toplam hesapla, satır indisiyle birlikte yazdır." },
-            { t: "Matrisin transpozunu al", d: "yeni[j][i] = m[i][j] ile satır-sütun yer değiştir; sonucu yazdır." },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.08 }}
-              className="flex items-start gap-3 bg-black/30 rounded-lg p-3"
-            >
-              <div className="w-6 h-6 rounded-md border border-[#5fa8e0]/60 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check className="w-3.5 h-3.5 text-[#5fa8e0]" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm text-white font-medium">{item.t}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{item.d}</div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-600 mt-1">
-                {String(i + 1).padStart(2, "0")}
-              </div>
-            </motion.div>
+            { ad: "Satır", ne: "Yatay sıra. Her satır kendi başına bir listedir.", renk: "#5fa8e0" },
+            { ad: "Sütun", ne: "Satırın içindeki sıra numarası: kaçıncı koltuk.", renk: "#ffd43b" },
+            { ad: "Hücre", ne: "Satır ile sütunun kesiştiği tek kutu.", renk: "#86efac" },
+          ].map((k) => (
+            <div key={k.ad} className="prog-card rounded-xl px-5 py-3">
+              <span className="text-lg font-semibold" style={{ color: k.renk }}>
+                {k.ad}
+              </span>
+              <span className="text-base text-gray-300"> · {k.ne}</span>
+            </div>
           ))}
         </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-4 text-xs text-gray-500 text-center font-mono flex items-center justify-center gap-2"
-      >
-        <Lightbulb className="w-3.5 h-3.5 text-[#ffd43b]" />
-        İpucu: önce 9. slayttaki gezinti desenini kopyala, sonra gövdeyi göreve göre değiştir.
-      </motion.div>
-    </SlideShell>
+      </div>
+    </Frame>
   ),
 
-  /* ─────────────────  15 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
+  /* 5 · KOD 1 */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8 prog-glow-blue"
-        >
-          <Sigma className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>10. hafta tamamlandı · sıradaki: Fonksiyonlar</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Kodu Parçalara Böl</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta iç içe döngüleri tekrar tekrar yazdık. 11. haftada bu tekrarı bir{" "}
-          <span className="text-white">fonksiyona</span> sarıp tek bir isimle çağırmayı öğreneceğiz:
-          parametre, dönüş değeri ve yeniden kullanım.
-        </Sub>
+    <Frame
+      eyebrow="Kod · önce tahmin et"
+      title="Salonu yazalım, önce bir sırayı sonra bir koltuğu okuyalım"
+      ask="salon[0] tek bir kişi mi verir, bütün sırayı mı?"
+    >
+      <PredictRun
+        file="salon.py"
+        code={`salon = [
+    ["Ali", "Ece", "Can"],
+    ["Naz", "Efe", "Su"],
+]
+print(salon[0])
+print(salon[1][2])`}
+        question="İki satır çıkacak. Birincisi bir liste mi, bir isim mi? İkincisi kim?"
+        answer={["['Ali', 'Ece', 'Can']", "Su"]}
+        note="Tek numara bütün satırı verir. İki numara tek bir hücreyi verir."
+      />
+    </Frame>
+  ),
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <FeatureCard
-            icon={Hash}
-            title="def ile tanım"
-            desc="Bir işi adlandır; matris_topla(m) gibi tekrar tekrar çağır."
-            accent="#3776ab"
-            delay={0.1}
-          />
-          <FeatureCard
-            icon={Brackets}
-            title="Parametre & return"
-            desc="Fonksiyona matris ver, sonucu geri al; kod kısalır ve okunur."
-            accent="#ffd43b"
-            delay={0.2}
-          />
-          <FeatureCard
-            icon={Target}
-            title="Yeniden kullanım"
-            desc="Bu haftanın transpoze / toplam kodunu fonksiyona taşı."
-            accent="#4ec9b0"
-            delay={0.3}
-          />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
-        >
-          BVA 1101 · Programlama Temelleri · Bahar 2026
-        </motion.div>
+  /* 6 · TUZAK · MİNİ SINAV */
+  () => (
+    <Frame
+      eyebrow="Klasik tuzak · mini sınav"
+      title="Önce satır, sonra sütun; ikisi de 0&apos;dan başlar"
+      ask="tablo[0][1] yazsaydık cevap ne olurdu?"
+    >
+      <div className="max-w-3xl mx-auto">
+        <Quiz
+          q="Bu kod ekrana ne yazar?"
+          code={`tablo = [
+    [1, 2, 3],
+    [4, 5, 6],
+]
+print(tablo[1][0])`}
+          options={["1", "2", "4", "5"]}
+          correct={2}
+          why="[1] ikinci satırdır: [4, 5, 6]. O satırın [0] numaralı elemanı 4."
+        />
       </div>
-    </SlideShell>
+    </Frame>
+  ),
+
+  /* 7 · XOX */
+  () => (
+    <Frame
+      eyebrow="Dene gör · XOX"
+      title="Bir hücreyi değiştirmek için adresini yazıp değer atarız"
+      ask="Tam ortadaki karenin adresi nedir?"
+    >
+      <XoxBoard />
+    </Frame>
+  ),
+
+  /* 8 · BOYUT */
+  () => (
+    <Frame
+      eyebrow="Tahmin et"
+      title="Kaç satır, kaç sütun? len&apos;e iki ayrı soru sorarız"
+      ask="Salona üçüncü bir sıra eklersek hangi cevap değişir?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+        <div className="prog-flow-bg p-5 text-center">
+          <Grid rows={ORNEK_SALON} />
+        </div>
+        <div className="space-y-4">
+          <Reveal label="len(salon) kaçtır? Tıkla">
+            <span className="font-mono text-[#86efac]">2</span> · Dıştaki listede iki liste var:
+            satır sayısı.
+          </Reveal>
+          <Reveal label="len(salon[0]) kaçtır? Tıkla">
+            <span className="font-mono text-[#86efac]">3</span> · İlk satırda üç koltuk var: sütun
+            sayısı.
+          </Reveal>
+        </div>
+      </div>
+    </Frame>
+  ),
+
+  /* 9 · ADIM ADIM İÇ İÇE DÖNGÜ */
+  () => (
+    <Frame
+      eyebrow="Adım adım"
+      title="İç içe döngü tabloyu sıra sıra, koltuk koltuk gezer"
+      ask="İçteki döngü toplam kaç kez baştan başladı?"
+    >
+      <Trace
+        code={[
+          "notlar = [[70, 80], [90, 60]]",
+          "toplam = 0",
+          "for satir in notlar:",
+          "    for n in satir:",
+          "        toplam = toplam + n",
+          "print(toplam)",
+        ]}
+        steps={[
+          { line: 1, vars: "toplam = 0", note: "Toplam sıfırdan başlıyor." },
+          { line: 2, vars: "satir = [70, 80]", note: "Dış döngü ilk satırı aldı." },
+          { line: 3, vars: "n = 70", note: "İç döngü bu satırın ilk hücresinde.", hi: 0 },
+          { line: 4, vars: "n = 70 · toplam = 70", note: "0 + 70 = 70.", hi: 0 },
+          { line: 3, vars: "n = 80", note: "Aynı satırın ikinci hücresi.", hi: 1 },
+          { line: 4, vars: "n = 80 · toplam = 150", note: "70 + 80 = 150.", hi: 1 },
+          { line: 2, vars: "satir = [90, 60]", note: "Satır bitti. Dış döngü ikinci satıra geçti." },
+          { line: 3, vars: "n = 90", note: "İç döngü baştan başladı: ilk hücre.", hi: 2 },
+          { line: 4, vars: "n = 90 · toplam = 240", note: "150 + 90 = 240.", hi: 2 },
+          { line: 3, vars: "n = 60", note: "İkinci hücre.", hi: 3 },
+          { line: 4, vars: "n = 60 · toplam = 300", note: "240 + 60 = 300.", hi: 3 },
+          { line: 5, vars: "toplam = 300", note: "Satır kalmadı. Ekrana 300 yazılır." },
+        ]}
+        render={(hi) => (
+          <div className="text-center">
+            <Grid
+              rows={[
+                ["70", "80"],
+                ["90", "60"],
+              ]}
+              hi={hi === undefined ? null : [Math.floor(hi / 2), hi % 2]}
+              cell="w-16 h-11 text-base"
+            />
+          </div>
+        )}
+      />
+    </Frame>
+  ),
+
+  /* 10 · KOD 2 */
+  () => (
+    <Frame
+      eyebrow="Kod · önce tahmin et"
+      title="Kantinin iki günlük satış tablosunu toplayalım"
+      ask="Yalnızca ilk günün toplamını istesek neyi değiştirirdik?"
+    >
+      <PredictRun
+        file="kantin.py"
+        code={`# Her iç liste bir gün: tost, çay, simit adedi
+satis = [[3, 5, 2], [4, 1, 5]]
+toplam = 0
+for gun in satis:
+    for adet in gun:
+        toplam = toplam + adet
+print(toplam)`}
+        question="İki günde toplam kaç ürün satılmış? Kafadan topla."
+        answer={["20"]}
+        note="İlk gün 10, ikinci gün 10. Döngü altı hücrenin hepsine uğradı."
+      />
+    </Frame>
+  ),
+
+  /* 11 · NEREDE */
+  () => (
+    <Frame
+      eyebrow="Nerede karşıma çıkar?"
+      title="Satır ve sütun gördüğün her yerde bir tablo vardır"
+      ask="Telefonunda tablo gibi çalışan başka hangi uygulama var?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FeatureCard
+          icon={Table}
+          title="Not çizelgesi"
+          desc="Her satır bir öğrenci, her sütun bir sınav. Excel tam olarak budur."
+          accent="#3776ab"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={Gamepad2}
+          title="Oyun tahtası"
+          desc="XOX, satranç, mayın tarlası: her kare bir hücre."
+          accent="#ffd43b"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={Image}
+          title="Fotoğraf"
+          desc="Ekrandaki resim, renkli noktalardan (piksel) oluşan dev bir tablodur."
+          accent="#86efac"
+          delay={0.3}
+        />
+      </div>
+      <div className="mt-4">
+        <Reveal label="El kaldır: otobüs sefer saatleri de tablo mu? Tıkla">
+          Evet. Satırlar hatlar, sütunlar kalkış saatleri. Hat ve saat seçince tek bir hücreye
+          bakarsın.
+        </Reveal>
+      </div>
+    </Frame>
+  ),
+
+  /* 12 · SINIFTA DENEYELİM */
+  () => (
+    <Frame
+      eyebrow="Sınıfta deneyelim · 10 dakika"
+      title="Kendi sıranın oturma planını tabloya dök"
+      ask="Senin koltuğunun adresi ne çıktı?"
+    >
+      <Activity
+        file="plan.py"
+        code={`# Sınıfın ilk iki sırası
+plan = [
+    ["Ali", "Ece", "Can"],
+    ["Naz", "Efe", "Su"],
+]
+print(plan[0][1])`}
+        steps={[
+          "İsimleri kendi sıranla ve arkandaki sırayla değiştir.",
+          "Kendi adını satır ve sütun numarasıyla yazdır.",
+          "Bir koltuğa başka birini oturt: plan[1][2] = ...",
+          "İç içe iki for ile herkesi tek tek yazdır.",
+        ]}
+      />
+    </Frame>
+  ),
+
+  /* 13 · KENDİNİ DENE */
+  () => (
+    <Frame
+      eyebrow="Kendini dene"
+      title="İki soru: boyut ve adres"
+      ask="İkinci soruda en çok hangi yanlış şık seçildi, neden?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Quiz
+          q="len(t) kaçtır?"
+          code={`t = [[1, 2], [3, 4], [5, 6]]`}
+          options={["2", "3", "6", "5"]}
+          correct={1}
+          why="Dıştaki listede üç liste var. len satırları sayar."
+        />
+        <Quiz
+          q="6 değerini hangisi verir?"
+          code={`tablo = [[1, 2, 3], [4, 5, 6]]`}
+          options={["tablo[2][3]", "tablo[2][1]", "tablo[1][2]", "tablo[6]"]}
+          correct={2}
+          why="6, ikinci satırın üçüncü elemanı. 0'dan sayınca: satır 1, sütun 2."
+        />
+      </div>
+    </Frame>
+  ),
+
+  /* 14 · ÖZET + KÖPRÜ */
+  () => (
+    <Closing
+      items={[
+        {
+          icon: Layers,
+          title: "Tablo = liste içinde liste",
+          desc: "Her satır bir listedir; satırlar da tek bir listenin içinde durur.",
+          accent: "#3776ab",
+        },
+        {
+          icon: Grid3x3,
+          title: "Önce satır, sonra sütun",
+          desc: "tablo[satır][sütun]. İki numara da 0'dan başlar.",
+          accent: "#ffd43b",
+        },
+        {
+          icon: Repeat,
+          title: "İç içe iki for",
+          desc: "Dıştaki döngü satırları, içteki döngü o satırın hücrelerini gezer.",
+          accent: "#86efac",
+        },
+      ]}
+      bridge="Listeyi ve tabloyu tanıdık. Sırada onlarla gerçek sorular çözmek var: ortalama, en büyük, arama."
+    />
   ),
 ];
 
@@ -1060,7 +1168,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#5fa8e0]/70">
-          BVA 1101 · 10. Hafta · Çok Boyutlu Diziler &amp; Matrisler
+          BVA 1101 · 10. Hafta · Tablolar (Matris)
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#5fa8e0]/50">

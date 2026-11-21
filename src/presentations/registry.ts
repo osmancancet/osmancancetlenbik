@@ -296,7 +296,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "buyuk-veri-icin-bulut-bilisim-h09",
       title: "Hadoop: Mimarisi ve Bileşenleri (BVA 2103 · 9. Hafta)",
-      description: "Hadoop'un mimarisini ve üç çekirdek bileşenini (HDFS, YARN, MapReduce) anlatan 20 slaytlık React sunum: master/worker diyagramı, NameNode-DataNode blok ve replikasyon görseli, hdfs dfs terminal mockup'ı, YARN iş akışı, MapReduce WordCount akışı, Hadoop ekosistemi ve bulutta tek düğümlü WordCount uygulamalı labı.",
+      description: "BVA 2103 9. hafta — Hadoop: büyük dosyayı böl, dağıt, kopyala; etkileşimli ve sade anlatım",
     },
     Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h09/Presentation"), {
       ssr: false,
@@ -306,7 +306,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "buyuk-veri-icin-bulut-bilisim-h10",
       title: "Hadoop MapReduce Programlama (BVA 2103 · 10. Hafta)",
-      description: "Map/Shuffle/Reduce modeli, WordCount veri akışı diyagramı, Mapper/Reducer/Driver Java kodu, YARN yürütme topolojisi, Combiner ve Partitioner ile sık hatalar tablosu ve uygulamalı lab içeren 18 slaytlık ders sunumu.",
+      description: "BVA 2103 10. hafta — MapReduce: sınıfta oy sayımı benzetmesi ve adım adım kelime sayma canlandırması",
     },
     Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h10/Presentation"), {
       ssr: false,
@@ -316,7 +316,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "buyuk-veri-icin-bulut-bilisim-h11",
       title: "Apache Spark: Tanıtım ve Temel Kavramlar (BVA 2103 · 11. Hafta)",
-      description: "18 slaytlık Apache Spark giriş sunumu: MapReduce'tan bellek-içi işlemeye köprü, disk-vs-RAM görseli, cluster mimarisi (Driver/Manager/Executor) SVG diyagramı, RDD ve DAG ile tembel değerlendirme, Transformation-vs-Action, birleşik ekosistem (Spark SQL/MLlib/Streaming/GraphX), canlı PySpark shell mockup'ı ve AWS EMR üzerinde uygulamalı lab.",
+      description: "BVA 2103 11. hafta — Apache Spark: aynı iş bellekte ve hızlı; dönüşüm ile eylem farkı",
     },
     Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h11/Presentation"), {
       ssr: false,
@@ -326,7 +326,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "buyuk-veri-icin-bulut-bilisim-h12",
       title: "Spark RDD'leri — Dayanıklı Dağıtık Veri Kümeleri (BVA 2103 · 12. Hafta)",
-      description: "Apache Spark'ın çekirdek soyutlaması RDD'yi anlatan 20 slaytlık sunum: ismin açılımı (Resilient/Distributed/Dataset), değişmezlik ve parçalanma, transformasyon-eylem ayrımı ile tembel değerlendirme, WordCount örneği, lineage tabanlı hata toleransı, persist/cache depolama seviyeleri, RDD vs DataFrame karşılaştırması ve uygulamalı bir pyspark log-analizi labı. pyspark/spark-shell terminal mockup'ları, lineage ve partition diyagramları içerir.",
+      description: "BVA 2103 12. hafta — Spark RDD: parçalara bölünmüş, kaybolursa yeniden üretilen veri listesi",
     },
     Component: dynamic(() => import("./buyuk-veri-icin-bulut-bilisim-h12/Presentation"), {
       ssr: false,
@@ -706,7 +706,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "siber-guvenlik-ve-bilisim-hukuku-h09",
       title: "Penetrasyon testi metodolojisi (BVA 2205 · 9. Hafta)",
-      description: "BVA 2205 9. hafta ders sunumu — Penetrasyon testi metodolojisi (PTES); Kali Linux + Metasploit ile sızma testi labı",
+      description: "BVA 2205 9. hafta — Sızma testi: izinli güvenlik denetimi, aşamaları ve hukuki sınırı",
     },
     Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h09/Presentation"), {
       ssr: false,
@@ -716,7 +716,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "siber-guvenlik-ve-bilisim-hukuku-h10",
       title: "Bulut güvenliği (BVA 2205 · 10. Hafta)",
-      description: "BVA 2205 10. hafta ders sunumu — Bulut güvenliği: AWS IAM, S3 yanlış yapılandırma, security groups, GuardDuty",
+      description: "BVA 2205 10. hafta — Bulut güvenliği: paylaşılan sorumluluk, yanlış ayar, MFA ve en az yetki",
     },
     Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h10/Presentation"), {
       ssr: false,
@@ -726,7 +726,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "siber-guvenlik-ve-bilisim-hukuku-h11",
       title: "SOC & SIEM (BVA 2205 · 11. Hafta)",
-      description: "BVA 2205 11. hafta ders sunumu — SOC & SIEM: Wazuh kurulumu, log toplama, alarm kuralları, dashboard",
+      description: "BVA 2205 11. hafta — SOC ve SIEM: kayıtları tek ekranda toplamak, alarm ve öncelik",
     },
     Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h11/Presentation"), {
       ssr: false,
@@ -736,7 +736,7 @@ export const presentations: Record<string, Entry> = {
     meta: {
       slug: "siber-guvenlik-ve-bilisim-hukuku-h12",
       title: "Olay müdahalesi & DFIR (BVA 2205 · 12. Hafta)",
-      description: "BVA 2205 12. hafta ders sunumu — Olay müdahalesi & DFIR (Digital Forensics & Incident Response); chain of custody; log analiz",
+      description: "BVA 2205 12. hafta — Olay müdahalesi: altı adım, ilk hamleler ve delil bütünlüğü",
     },
     Component: dynamic(() => import("./siber-guvenlik-ve-bilisim-hukuku-h12/Presentation"), {
       ssr: false,
@@ -1205,8 +1205,8 @@ export const presentations: Record<string, Entry> = {
   "uretken-yapay-zekalar-h10": {
     meta: {
       slug: "uretken-yapay-zekalar-h10",
-      title: "Metin üretimi ve doğal dil işleme uygulamaları (BVA 1203 · 10. Hafta)",
-      description: "BVA 1203 10. hafta — Metin üretimi ve doğal dil işleme uygulamaları",
+      title: "İyi prompt (istem) nasıl yazılır? (BVA 1203 · 10. Hafta)",
+      description: "BVA 1203 10. hafta — Rol, bağlam, görev, biçim ve örnekle istem yazma; etkileşimli istem kurucu (müfredat konusu: metin üretimi ve doğal dil işleme uygulamaları)",
     },
     Component: dynamic(() => import("./uretken-yapay-zekalar-h10/Presentation"), {
       ssr: false,
@@ -1215,8 +1215,8 @@ export const presentations: Record<string, Entry> = {
   "uretken-yapay-zekalar-h11": {
     meta: {
       slug: "uretken-yapay-zekalar-h11",
-      title: "Görüntüden metne ve metinden görüntüye (BVA 1203 · 11. Hafta)",
-      description: "BVA 1203 11. hafta — Görüntüden metne ve metinden görüntüye: multimodal modeller (DALL·E, CLIP)",
+      title: "Görsel, ses ve video üreten araçlar (BVA 1203 · 11. Hafta)",
+      description: "BVA 1203 11. hafta — Görsel istemi yazma, fotoğrafı okuyan asistanlar, ses, müzik ve video araçları (müfredat konusu: görüntüden metne ve metinden görüntüye)",
     },
     Component: dynamic(() => import("./uretken-yapay-zekalar-h11/Presentation"), {
       ssr: false,
@@ -1225,8 +1225,8 @@ export const presentations: Record<string, Entry> = {
   "uretken-yapay-zekalar-h12": {
     meta: {
       slug: "uretken-yapay-zekalar-h12",
-      title: "Etik, güvenlik ve yanıltıcı içerikler (BVA 1203 · 12. Hafta)",
-      description: "BVA 1203 12. hafta — Etik, güvenlik ve yanıltıcı içerikler",
+      title: "YZ'yi güvenli ve dürüst kullanmak (BVA 1203 · 12. Hafta)",
+      description: "BVA 1203 12. hafta — Uydurma bilgi ve doğrulama, deepfake, kişisel veri, telif, ödevde YZ (müfredat konusu: etik, güvenlik ve yanıltıcı içerikler)",
     },
     Component: dynamic(() => import("./uretken-yapay-zekalar-h12/Presentation"), {
       ssr: false,

@@ -9,28 +9,21 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FileText,
-  Sigma,
-  Brain,
-  Target,
-  Lightbulb,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
   Check,
+  MousePointerClick,
+  RotateCcw,
   AlertTriangle,
-  Hash,
-  CheckCircle2,
-  Layers,
-  Database,
-  Calendar,
+  Hand,
   Boxes,
+  Hash,
+  Ruler,
   ListOrdered,
   Repeat,
-  Ruler,
-  ArrowRightLeft,
   type LucideIcon,
 } from "lucide-react";
 import { CodeEditor } from "../_shared/code/CodeEditor";
@@ -63,7 +56,7 @@ function Eyebrow({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="inline-flex items-center gap-3 mb-6 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
+      className="inline-flex items-center gap-3 mb-4 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
     >
       <span className="w-8 h-px bg-[#5fa8e0]" />
       {children}
@@ -90,7 +83,7 @@ function H2({ children, className = "" }: { children: ReactNode; className?: str
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className={`text-3xl md:text-5xl font-semibold tracking-tight text-white ${className}`}
+      className={`text-3xl md:text-4xl font-semibold tracking-tight text-white ${className}`}
     >
       {children}
     </motion.h2>
@@ -139,115 +132,643 @@ function FeatureCard({
       >
         <Icon className="w-6 h-6" style={{ color: accent }} />
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+      <p className="text-base text-gray-400 leading-relaxed">{desc}</p>
     </motion.div>
   );
 }
 
-/* ---- Code Editor Mockup (VS Code style) ---------------------- */
+/* ---- Anlatım yardımcıları ------------------------------------ */
 
-type CodeLine = ReactNode;
+/** Hocanın sınıfa yönelteceği tek soru (slaydın altında, soluk). */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-5 text-sm text-gray-500">
+      <span className="font-mono uppercase tracking-widest text-[11px] text-[#5fa8e0]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </div>
+  );
+}
 
-// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
-// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
-// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
-
-
-/* ---- Array memory diagram ------------------------------------ */
-
-function ArrayDiagram({
-  name,
-  cells,
-  activeIndex,
-  delay = 0,
+/** Standart içerik slaydı: üst etiket + cümle başlık + içerik + "Sınıfa sor". */
+function Frame({
+  eyebrow,
+  title,
+  ask,
+  children,
 }: {
-  name: string;
-  cells: string[];
-  activeIndex?: number;
-  delay?: number;
+  eyebrow: string;
+  title: ReactNode;
+  ask: string;
+  children: ReactNode;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay }}
-      className="prog-flow-bg p-6 w-full"
-    >
-      <div className="flex items-center gap-3 mb-5">
-        <span className="font-mono text-sm text-[#9cdcfe]">{name}</span>
-        <span className="text-[11px] font-mono text-gray-500">
-          uzunluk = {cells.length}
-        </span>
-      </div>
+    <SlideShell>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <H2>{title}</H2>
+      {/* Dar orta sütun: tıklanabilir öğeler kenar geçiş alanlarının (%12) dışında kalır. */}
+      <div className="mt-6 max-w-4xl mx-auto">{children}</div>
+      <Ask>{ask}</Ask>
+    </SlideShell>
+  );
+}
 
-      <div className="flex items-end gap-2 overflow-x-auto pb-2">
-        {cells.map((val, i) => (
-          <div key={i} className="flex flex-col items-center gap-2 flex-shrink-0">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: delay + 0.1 + i * 0.07 }}
-              className={`prog-arr-cell w-16 h-16 rounded-lg text-base ${
-                i === activeIndex ? "prog-arr-cell-active" : ""
-              }`}
+/** Büyük, belirgin düğme. Tıklamadan sonra odağı bırakır; böylece boşluk
+ *  tuşu düğmeyi yeniden tetiklemez, yalnızca slaydı ilerletir. */
+function Btn({
+  onClick,
+  children,
+  active = false,
+  disabled = false,
+  mono = false,
+}: {
+  onClick: () => void;
+  children: ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+  mono?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={(e) => {
+        onClick();
+        e.currentTarget.blur();
+      }}
+      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-base border transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+        mono ? "font-mono" : "font-semibold"
+      }`}
+      style={
+        active
+          ? { background: "rgba(255,212,59,0.18)", borderColor: "#ffd43b", color: "#ffe169" }
+          : { background: "rgba(55,118,171,0.14)", borderColor: "rgba(95,168,224,0.5)", color: "#e5e7eb" }
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Tahmin et → tıkla göster. */
+function Reveal({
+  label = "Cevabı görmek için tıkla",
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        setOpen((o) => !o);
+        e.currentTarget.blur();
+      }}
+      className="w-full text-left rounded-xl p-5 prog-card prog-card-hover transition-all"
+      style={open ? { borderColor: "rgba(134,239,172,0.55)" } : { borderStyle: "dashed" }}
+    >
+      {open ? (
+        <div className="text-lg text-gray-200 leading-relaxed">{children}</div>
+      ) : (
+        <div className="flex items-center gap-3 text-[#ffd43b]">
+          <MousePointerClick className="w-5 h-5 shrink-0" />
+          <span className="text-lg font-semibold">{label}</span>
+        </div>
+      )}
+    </button>
+  );
+}
+
+/** Mini sınav: şıkka tıkla; doğru yeşil, yanlış kırmızı, altında açıklama. */
+function Quiz({
+  q,
+  code,
+  options,
+  correct,
+  why,
+}: {
+  q: string;
+  code?: string;
+  options: string[];
+  correct: number;
+  why: string;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div className="prog-card rounded-xl p-5">
+      <div className="text-lg text-white font-semibold">{q}</div>
+      {code && (
+        <pre className="prog-editor rounded-lg px-4 py-2 mt-3 text-[15px] whitespace-pre-wrap">
+          {code}
+        </pre>
+      )}
+      <div className="grid grid-cols-2 gap-2 mt-4">
+        {options.map((o, i) => {
+          const shown = picked !== null && (i === picked || i === correct);
+          const ok = i === correct;
+          return (
+            <button
+              key={o}
+              type="button"
+              onClick={(e) => {
+                setPicked(i);
+                e.currentTarget.blur();
+              }}
+              className="text-left rounded-lg px-4 py-3 text-base font-mono border transition-colors"
+              style={
+                shown
+                  ? {
+                      background: ok ? "rgba(134,239,172,0.14)" : "rgba(252,165,165,0.14)",
+                      borderColor: ok ? "#86efac" : "#fca5a5",
+                      color: ok ? "#86efac" : "#fca5a5",
+                    }
+                  : { borderColor: "rgba(95,168,224,0.4)", color: "#e5e7eb" }
+              }
             >
-              {val}
-            </motion.div>
-            <div className="prog-arr-index">[{i}]</div>
+              <span className="text-gray-500 mr-3">{"ABCD"[i]}</span>
+              {o}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 text-base min-h-[3rem] text-gray-300">
+        {picked === null ? (
+          <span className="text-gray-600">Bir şıkka tıkla.</span>
+        ) : (
+          <>
+            <span className={picked === correct ? "text-[#86efac]" : "text-[#fca5a5]"}>
+              {picked === correct ? "Doğru. " : "Olmadı. "}
+            </span>
+            {why}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Adım adım kod izleme: İleri/Geri ile satır satır, değişkenler yanında. */
+type TraceStep = { line: number; vars: string; note: string; hi?: number };
+
+function Trace({
+  code,
+  steps,
+  render,
+}: {
+  code: string[];
+  steps: TraceStep[];
+  render?: (hi: number | undefined) => ReactNode;
+}) {
+  const [i, setI] = useState(0);
+  const s = steps[i];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+      <div className="prog-editor rounded-xl p-4 text-[16px]">
+        {code.map((l, n) => (
+          <div
+            key={n}
+            className="px-2 rounded whitespace-pre"
+            style={
+              n === s.line
+                ? { background: "rgba(255,212,59,0.16)", color: "#ffe169" }
+                : undefined
+            }
+          >
+            {l || " "}
           </div>
         ))}
       </div>
-
-      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-[11px] font-mono text-gray-500">
-        <span>
-          İlk eleman: <span className="text-[#5fa8e0]">{name}[0]</span>
-        </span>
-        <span>
-          Son eleman:{" "}
-          <span className="text-[#5fa8e0]">
-            {name}[{cells.length - 1}]
-          </span>{" "}
-          ya da <span className="text-[#5fa8e0]">{name}[-1]</span>
-        </span>
+      <div className="prog-card rounded-xl p-5 flex flex-col">
+        {render && <div className="mb-4">{render(s.hi)}</div>}
+        <div className="font-mono text-lg text-[#9cdcfe]">{s.vars}</div>
+        <div className="text-base text-gray-300 mt-2 flex-1">{s.note}</div>
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+          <Btn onClick={() => setI((v) => Math.max(v - 1, 0))} disabled={i === 0}>
+            Geri
+          </Btn>
+          <Btn
+            onClick={() => setI((v) => Math.min(v + 1, steps.length - 1))}
+            disabled={i === steps.length - 1}
+            active={i < steps.length - 1}
+          >
+            İleri
+          </Btn>
+          <Btn onClick={() => setI(0)} disabled={i === 0}>
+            <RotateCcw className="w-4 h-4" />
+            Baştan
+          </Btn>
+          <span className="ml-auto font-mono text-sm text-gray-500">
+            Adım {i + 1} / {steps.length}
+          </span>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  glowClass,
-  icon,
+/** Önce tahmin et, sonra çalıştır: solda gerçek Python çalıştırıcısı. */
+function PredictRun({
+  file,
+  code,
+  question,
+  answer,
+  note,
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  glowClass: string;
-  icon: ReactNode;
+  file: string;
+  code: string;
+  question: string;
+  answer: string[];
+  note: string;
 }) {
   return (
-    <SlideShell bgPattern={false}>
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-start">
+      <div className="md:col-span-3">
+        <CodeEditor
+          title={`${file} — Visual Studio Code`}
+          tabs={[file]}
+          activeTab={file}
+          code={code}
+        />
+      </div>
+      <div className="md:col-span-2 space-y-3">
+        <div className="prog-card-yellow rounded-xl p-4">
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#ffd43b] mb-1">
+            1 · Önce tahmin et
+          </div>
+          <div className="text-lg text-white">{question}</div>
+        </div>
+        <Reveal label="2 · Tahminler tamam mı? Çıktıyı göster">
+          <div className="font-mono text-[#86efac]">
+            {answer.map((l, n) => (
+              <div key={n}>{l}</div>
+            ))}
+          </div>
+          <div className="text-base text-gray-400 mt-2">{note}</div>
+        </Reveal>
+        <div className="text-base text-gray-400 px-1">
+          3 · Şimdi <span className="text-white font-semibold">Çalıştır</span>&apos;a bas,
+          tahminle karşılaştır.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Sınıfta deneyelim: solda tıklayıp işaretlenen adımlar, sağda çalıştırıcı. */
+function Activity({
+  file,
+  code,
+  steps,
+}: {
+  file: string;
+  code: string;
+  steps: string[];
+}) {
+  const [done, setDone] = useState<number[]>([]);
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-start">
+      <div className="md:col-span-2 space-y-2">
+        {steps.map((t, i) => {
+          const ok = done.includes(i);
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={(e) => {
+                setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
+                e.currentTarget.blur();
+              }}
+              className="w-full flex items-center gap-3 text-left rounded-lg px-4 py-3 border transition-colors"
+              style={
+                ok
+                  ? { background: "rgba(134,239,172,0.12)", borderColor: "#86efac", color: "#86efac" }
+                  : { background: "rgba(55,118,171,0.08)", borderColor: "rgba(95,168,224,0.4)", color: "#e5e7eb" }
+              }
+            >
+              <span className="w-7 h-7 shrink-0 rounded-full border border-current flex items-center justify-center font-mono text-sm">
+                {ok ? <Check className="w-4 h-4" /> : i + 1}
+              </span>
+              <span className="text-base">{t}</span>
+            </button>
+          );
+        })}
+        <div className="text-xs text-gray-600 px-1">Biten adıma tıkla, işaretlensin.</div>
+      </div>
+      <div className="md:col-span-3">
+        <CodeEditor
+          title={`${file} — Visual Studio Code`}
+          tabs={[file]}
+          activeTab={file}
+          code={code}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Kapak slaydı. */
+function Cover({
+  week,
+  title,
+  second,
+  sub,
+  tags,
+}: {
+  week: string;
+  title: string;
+  second: string;
+  sub: string;
+  tags: { tag: string; name: string; desc: string; color: string }[];
+}) {
+  return (
+    <SlideShell>
       <div className="text-center">
+        <Eyebrow>BVA 1101 · {week}</Eyebrow>
+        <H1>
+          <span className="prog-shimmer">{title}</span>
+          <br />
+          <span className="text-white/90">{second}</span>
+        </H1>
+        <Sub className="mt-6 max-w-2xl mx-auto">{sub}</Sub>
         <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className={`inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 prog-pulse ${glowClass}`}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="grid grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto"
         >
-          {icon}
+          {tags.map((l) => (
+            <div
+              key={l.name}
+              className="prog-card rounded-xl p-5"
+              style={{ borderColor: `${l.color}55` }}
+            >
+              <div
+                className="h-10 px-3 rounded-lg mx-auto mb-3 inline-flex items-center justify-center text-sm font-mono font-bold"
+                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
+              >
+                {l.tag}
+              </div>
+              <div className="text-white font-semibold">{l.name}</div>
+              <div className="text-sm text-gray-500 mt-1">{l.desc}</div>
+            </div>
+          ))}
         </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+        <div className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]">
+          Programlama Temelleri · MCBÜ Manisa Teknik Bilimler MYO
+        </div>
       </div>
     </SlideShell>
+  );
+}
+
+/** Kapanış: "Aklında kalsın: 3 şey" + gelecek haftaya köprü. */
+function Closing({
+  items,
+  bridge,
+}: {
+  items: { icon: LucideIcon; title: string; desc: string; accent: string }[];
+  bridge: string;
+}) {
+  return (
+    <SlideShell>
+      <Eyebrow>Özet</Eyebrow>
+      <H2>Aklında kalsın: 3 şey</H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        {items.map((it, i) => (
+          <FeatureCard
+            key={it.title}
+            icon={it.icon}
+            title={it.title}
+            desc={it.desc}
+            accent={it.accent}
+            delay={0.1 + i * 0.1}
+          />
+        ))}
+      </div>
+      <div className="prog-card-yellow rounded-xl px-6 py-4 mt-6 text-lg text-gray-200">
+        <span className="font-mono uppercase tracking-widest text-xs text-[#ffd43b] mr-3">
+          Gelecek hafta
+        </span>
+        {bridge}
+      </div>
+    </SlideShell>
+  );
+}
+
+/** Numaralı kutu sırası: her kutunun altında indeksi yazar. */
+function Cells({
+  items,
+  hi = [],
+  dim = [],
+  onPick,
+  size = "w-16 h-16 text-lg",
+}: {
+  items: string[];
+  hi?: number[];
+  dim?: number[];
+  onPick?: (i: number) => void;
+  size?: string;
+}) {
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      {items.map((v, i) => {
+        const box = `${size} rounded-lg font-mono font-semibold flex items-center justify-center border transition-all`;
+        const style = hi.includes(i)
+          ? {
+              background: "linear-gradient(180deg, #3776ab, #2c5d88)",
+              borderColor: "#5fa8e0",
+              color: "#ffffff",
+              boxShadow: "0 0 18px -2px rgba(95,168,224,0.6)",
+            }
+          : {
+              background: "#111827",
+              borderColor: "rgba(55,118,171,0.45)",
+              color: dim.includes(i) ? "#4b5563" : "#ffffff",
+            };
+        return (
+          <div key={i} className="flex flex-col items-center gap-1">
+            {onPick ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  onPick(i);
+                  e.currentTarget.blur();
+                }}
+                className={`${box} cursor-pointer hover:border-[#ffd43b]`}
+                style={style}
+              >
+                {v}
+              </button>
+            ) : (
+              <div className={box} style={style}>
+                {v}
+              </div>
+            )}
+            <div className="font-mono text-xs text-[#5fa8e0]">[{i}]</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ============================================================
+   H09 ETKİLEŞİMLİ BİLEŞENLER
+   ============================================================ */
+
+/** Numaralı dolaplar: tıklanan dolap açılır, Python karşılığı altında yazar. */
+function LockerRow() {
+  const esyalar = ["kalem", "defter", "silgi", "cetvel", "boya"];
+  const [acik, setAcik] = useState<number[]>([]);
+  const [son, setSon] = useState<number | null>(null);
+  return (
+    <div className="prog-flow-bg p-6">
+      <Cells
+        items={esyalar.map((e, i) => (acik.includes(i) ? e : "?"))}
+        hi={son === null ? [] : [son]}
+        size="w-28 h-20 text-lg"
+        onPick={(i) => {
+          setAcik((a) => (a.includes(i) ? a : [...a, i]));
+          setSon(i);
+        }}
+      />
+      <div className="mt-5 flex items-center justify-between gap-4">
+        <div className="font-mono text-xl text-white min-h-[2rem]">
+          {son === null ? (
+            <span className="text-[#ffd43b] text-lg">Bir dolaba tıkla, açılsın.</span>
+          ) : (
+            <>
+              <span className="text-[#9cdcfe]">dolap[{son}]</span>
+              <span className="text-gray-500"> → </span>
+              <span className="text-[#ce9178]">&quot;{esyalar[son]}&quot;</span>
+            </>
+          )}
+        </div>
+        <Btn
+          onClick={() => {
+            setAcik([]);
+            setSon(null);
+          }}
+          disabled={acik.length === 0}
+        >
+          <RotateCcw className="w-4 h-4" />
+          Dolapları kapat
+        </Btn>
+      </div>
+    </div>
+  );
+}
+
+/** İndeks dene: geçerli indeks değeri getirir, olmayan indeks hata verir. */
+function IndexProbe() {
+  const notlar = [70, 85, 60, 90, 75];
+  const secenekler = [0, 2, 4, 5, 7, -1];
+  const [idx, setIdx] = useState<number | null>(null);
+  const gercek = idx === null ? null : idx < 0 ? notlar.length + idx : idx;
+  const gecerli = gercek !== null && gercek >= 0 && gercek < notlar.length;
+  return (
+    <div className="prog-flow-bg p-6">
+      <div className="font-mono text-sm text-[#9cdcfe] mb-3 text-center">
+        notlar = [70, 85, 60, 90, 75]
+      </div>
+      <Cells items={notlar.map(String)} hi={gecerli && gercek !== null ? [gercek] : []} />
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        {secenekler.map((s) => (
+          <Btn key={s} mono active={idx === s} onClick={() => setIdx(s)}>
+            notlar[{s}]
+          </Btn>
+        ))}
+      </div>
+      <div className="mt-4 text-center text-lg min-h-[3.5rem]">
+        {idx === null && <span className="text-[#ffd43b]">Bir indeks seç, ne olacağını gör.</span>}
+        {idx !== null && gecerli && gercek !== null && (
+          <span className="text-[#86efac] font-mono">
+            {notlar[gercek]}
+            {idx < 0 && (
+              <span className="text-gray-400 font-sans text-base">
+                {" "}
+                · -1 &ldquo;sondan birinci&rdquo; demektir
+              </span>
+            )}
+          </span>
+        )}
+        {idx !== null && !gecerli && (
+          <div>
+            <div className="text-[#fca5a5] font-mono">IndexError: list index out of range</div>
+            <div className="text-gray-400 text-base">
+              Türkçesi: böyle bir dolap yok. Son dolabın numarası 4.
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Liste laboratuvarı: düzelt, sona ekle, sondan çıkar; uzunluk anında değişir. */
+function ListLab() {
+  const ilk = [70, 85, 60];
+  const [liste, setListe] = useState<number[]>(ilk);
+  const [son, setSon] = useState("Bir düğmeye bas, listeyi izle.");
+  return (
+    <div className="prog-flow-bg p-6">
+      <div className="min-h-[6rem]">
+        <Cells items={liste.map(String)} />
+      </div>
+      <div className="mt-3 text-center font-mono text-lg">
+        <span className="text-[#9cdcfe]">notlar</span>
+        <span className="text-gray-500"> = </span>
+        <span className="text-white">[{liste.join(", ")}]</span>
+        <span className="text-gray-500"> · </span>
+        <span className="text-[#ffd43b]">len(notlar) = {liste.length}</span>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <Btn
+          mono
+          disabled={liste.length < 3}
+          onClick={() => {
+            setListe((l) => l.map((v, i) => (i === 2 ? 65 : v)));
+            setSon("2 numaralı dolaptaki not 65 oldu. Uzunluk değişmedi.");
+          }}
+        >
+          notlar[2] = 65
+        </Btn>
+        <Btn
+          mono
+          disabled={liste.length >= 7}
+          onClick={() => {
+            setListe((l) => [...l, 90]);
+            setSon("append sona yeni bir dolap ekledi. Uzunluk 1 arttı.");
+          }}
+        >
+          notlar.append(90)
+        </Btn>
+        <Btn
+          mono
+          disabled={liste.length === 0}
+          onClick={() => {
+            setListe((l) => l.slice(0, -1));
+            setSon("pop son dolabı kaldırdı. Uzunluk 1 azaldı.");
+          }}
+        >
+          notlar.pop()
+        </Btn>
+        <Btn
+          onClick={() => {
+            setListe(ilk);
+            setSon("Liste başa döndü.");
+          }}
+        >
+          <RotateCcw className="w-4 h-4" />
+          Sıfırla
+        </Btn>
+      </div>
+      <div className="mt-3 text-center text-base text-gray-300">{son}</div>
+    </div>
   );
 }
 
@@ -256,836 +777,318 @@ function SectionDivider({
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
-  /* ─────────────────  1 · KAPAK  ───────────────── */
+  /* 1 · KAPAK */
   () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>BVA 1101 · 9. Hafta · Bahar Dönemi</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Diziler</span>
-          <br />
-          <span className="text-white/90">Tek Boyutlu Diziler</span>
-        </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Tek bir isim altında çok sayıda değer. Dizi tanımı, indeksleme ve tek
-          boyutlu dizilerle çalışmanın temelleri.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="grid grid-cols-3 gap-4 mt-14 max-w-3xl mx-auto"
-        >
-          {[
-            { name: "Tanım", tag: "[]", color: "#3776ab", desc: "Diziyi oluşturmak" },
-            { name: "İndeks", tag: "[i]", color: "#5fa8e0", desc: "Elemana erişmek" },
-            { name: "Döngü", tag: "for", color: "#ffd43b", desc: "Tüm elemanları gezmek" },
-          ].map((l, i) => (
-            <motion.div
-              key={l.name}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.1 }}
-              className="prog-card rounded-xl p-5"
-              style={{ borderColor: `${l.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg mx-auto mb-3 flex items-center justify-center text-[11px] font-mono font-bold"
-                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
-              >
-                {l.tag}
-              </div>
-              <div className="text-white font-semibold text-sm">{l.name}</div>
-              <div className="text-[11px] text-gray-500 mt-1">{l.desc}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
-        >
-          Öğr. Gör. · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 7. haftadan 9. haftaya</Eyebrow>
-      <H2>Döngüyü öğrendik; şimdi döngüye verecek veri lazım</H2>
-      <Sub className="mt-3 max-w-3xl">
-        7. haftada <span className="text-white font-semibold">for</span> ve{" "}
-        <span className="text-white font-semibold">while</span> döngülerini gördük.
-        Ama 100 öğrencinin notunu 100 ayrı değişkende tutamayız. Bu hafta o değerleri{" "}
-        <span className="text-white font-semibold">tek bir dizide</span> toplayıp döngüyle gezeceğiz.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#fca5a5]">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Dizi olmadan</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px]">
-            <div>
-              <span className="tok-var">not1</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-number">75</span>
-            </div>
-            <div>
-              <span className="tok-var">not2</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-number">90</span>
-            </div>
-            <div>
-              <span className="tok-var">not3</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-number">60</span>
-            </div>
-            <div className="tok-comment"># ...not100&apos;e kadar?</div>
-          </div>
-          <div className="text-[11px] text-gray-500 mt-3">
-            Yüz değişken, yüz satır. Ortalamayı almak kâbus.
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Dizi ile</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px]">
-            <div>
-              <span className="tok-var">notlar</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-punct">[</span>
-              <span className="tok-number">75</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">90</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">60</span>
-              <span className="tok-punct">, ...]</span>
-            </div>
-            <div className="tok-comment"># tek isim, yüz değer</div>
-            <div>
-              <span className="tok-builtin">sum</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">notlar</span>
-              <span className="tok-punct">) / </span>
-              <span className="tok-builtin">len</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">notlar</span>
-              <span className="tok-punct">)</span>
-            </div>
-          </div>
-          <div className="text-[11px] text-gray-500 mt-3">
-            Tek değişken, döngüyle gezilir, ortalama tek satır.
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3 · BU DERSİN AKIŞI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: kavram → tanımlama → erişim ve gezinme</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce dizinin ne olduğunu ve neden gerektiğini görüyoruz; sonra tek boyutlu
-        bir diziyi nasıl tanımladığımıza bakıyoruz; en son indeks ve döngüyle
-        elemanlara erişiyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "Dizi Nedir?", items: ["Tanım ve gerekçe", "Bellekte ardışık hücreler", "Eleman, indeks, uzunluk"], icon: Boxes, accent: "#3776ab" },
-          { range: "02", title: "Tek Boyutlu Tanım", items: ["Python listesi []", "Farklı dillerde söz dizimi", "Sabit ve dinamik boyut"], icon: ListOrdered, accent: "#ffd43b" },
-          { range: "03", title: "Erişim & Gezinme", items: ["İndeksle okuma/yazma", "for döngüsüyle dolaşma", "len() ve sınır taşması"], icon: Repeat, accent: "#86efac" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="prog-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  4 · BÖLÜM 1 · DİZİ NEDİR  ───────────────── */
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Dizi Nedir?"
-      subtitle="Aynı türden çok sayıda değeri, tek bir isim altında ardışık olarak tutan veri yapısı."
-      glowClass="prog-glow-blue"
-      icon={<Boxes className="w-14 h-14 text-white" />}
+    <Cover
+      week="9. Hafta"
+      title="Listeler"
+      second="Tek isim, çok değer"
+      sub="Otuz notu otuz ayrı değişkende tutmak yerine hepsini tek bir listeye koymayı öğreniyoruz."
+      tags={[
+        { tag: "[ ]", name: "Tanımla", desc: "Listeyi oluştur", color: "#3776ab" },
+        { tag: "[0]", name: "Numarayla ulaş", desc: "Oku, değiştir, ekle", color: "#5fa8e0" },
+        { tag: "for", name: "Sırayla gez", desc: "Hepsini dolaş", color: "#ffd43b" },
+      ]}
     />
   ),
 
-  /* ─────────────────  5 · DİZİ TANIMI  ───────────────── */
+  /* 2 · SORUN */
   () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · Dizi Nedir?</Eyebrow>
-      <H2>Tek isim, çok değer</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Dizi (array); aynı türden birden çok değeri{" "}
-        <span className="text-white font-semibold">ardışık bellek hücrelerinde</span> saklayan,
-        her hücresine bir sayısal <span className="text-white font-semibold">indeks</span> ile
-        ulaşabildiğimiz veri yapısıdır. Bir apartmandaki numaralı daireler gibi düşün.
-      </Sub>
-
-      <div className="mt-8 max-w-4xl mx-auto">
-        <ArrayDiagram
-          name="notlar"
-          cells={["75", "90", "60", "85", "100"]}
-          activeIndex={2}
-          delay={0.3}
-        />
+    <Frame
+      eyebrow="Sorun"
+      title="30 öğrencinin notu için 30 değişken mi açacağız?"
+      ask="Sınıf 30 değil 300 kişi olsaydı ne yapardık?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="prog-card rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-3 text-[#fca5a5]">
+            <AlertTriangle className="w-5 h-5" />
+            <span className="text-xs font-mono uppercase tracking-widest">Bildiğimiz yol</span>
+          </div>
+          <pre className="prog-editor rounded-lg px-4 py-3 text-[16px]">{`not1 = 75
+not2 = 90
+not3 = 60
+# ... not30'a kadar?`}</pre>
+          <div className="text-base text-gray-400 mt-3">
+            Her not için ayrı isim, ayrı satır.
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="prog-card-yellow rounded-xl p-5">
+            <div className="flex items-center gap-2 text-[#ffd43b] mb-1">
+              <Hand className="w-5 h-5" />
+              <span className="text-xs font-mono uppercase tracking-widest">El kaldır</span>
+            </div>
+            <div className="text-lg text-white">
+              Bu yolla 30 notun ortalamasını almak için kaç değişken yazarız?
+            </div>
+          </div>
+          <Reveal label="Tahminler alındı mı? Tıkla, göster">
+            30 değişken, 30 satır ve upuzun bir toplama. Çözüm:{" "}
+            <span className="font-mono text-[#86efac]">notlar = [75, 90, 60]</span> gibi{" "}
+            <span className="text-white font-semibold">tek bir liste</span>.
+          </Reveal>
+        </div>
       </div>
+    </Frame>
+  ),
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+  /* 3 · BENZETME */
+  () => (
+    <Frame
+      eyebrow="Benzetme · okul dolapları"
+      title="Liste, yan yana duran numaralı dolaplar gibidir"
+      ask="İlk dolabın numarası kaç çıktı? Beklediğiniz bu muydu?"
+    >
+      <LockerRow />
+    </Frame>
+  ),
+
+  /* 4 · KAVRAM */
+  () => (
+    <Frame
+      eyebrow="Kavram"
+      title="Bir listede üç şey vardır: eleman, indeks, uzunluk"
+      ask="Sınıf listesi bir Python listesi olsaydı senin indeksin kaç olurdu?"
+    >
+      <pre className="prog-editor rounded-lg px-5 py-3 text-[18px] mb-5">{`dolap = ["kalem", "defter", "silgi"]`}</pre>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FeatureCard
+          icon={Boxes}
+          title="Eleman"
+          desc="Dolabın içindeki şey. Burada: kalem, defter, silgi."
+          accent="#3776ab"
+          delay={0.1}
+        />
         <FeatureCard
           icon={Hash}
-          title="Eleman"
-          desc="Dizinin içindeki her bir değer. Yukarıda 75, 90, 60... her biri bir elemandır."
-          delay={0.4}
-          accent="#3776ab"
-        />
-        <FeatureCard
-          icon={Target}
-          title="İndeks"
-          desc="Bir elemanın sırasıdır ve çoğu dilde 0&apos;dan başlar. notlar[2] üçüncü elemandır: 60."
-          delay={0.5}
-          accent="#5fa8e0"
+          title="İndeks (sıra numarası)"
+          desc="Dolabın kapısındaki numara. 0'dan başlar: 0, 1, 2."
+          accent="#ffd43b"
+          delay={0.2}
         />
         <FeatureCard
           icon={Ruler}
           title="Uzunluk"
-          desc="Dizideki eleman sayısı. Burada 5; geçerli indeksler 0 ile 4 arasındadır."
-          delay={0.6}
-          accent="#ffd43b"
-        />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  6 · NEDEN 0'DAN BAŞLAR  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · İndeksleme</Eyebrow>
-      <H2>İndeks neden 0&apos;dan başlar?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        İndeks aslında &ldquo;dizinin başından kaç eleman uzakta&rdquo; demektir.
-        İlk eleman başlangıçtan <span className="text-white font-semibold">0</span> uzaklıkta
-        olduğu için indeksi 0&apos;dır. Bu yüzden 5 elemanlı dizide son indeks{" "}
-        <span className="text-white font-semibold">4</span>&apos;tür, 5 değil.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl p-5"
-      >
-        <div className="text-xs uppercase tracking-wider text-[#5fa8e0] mb-3 font-mono">
-          harfler = [&apos;A&apos;, &apos;B&apos;, &apos;C&apos;, &apos;D&apos;]
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          {[
-            { i: "0", v: "A", note: "ilk eleman" },
-            { i: "1", v: "B", note: "ikinci" },
-            { i: "2", v: "C", note: "üçüncü" },
-            { i: "3", v: "D", note: "son eleman" },
-          ].map((c, k) => (
-            <motion.div
-              key={c.i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + k * 0.08 }}
-              className="prog-card rounded-lg p-4 text-center"
-            >
-              <div className="prog-arr-cell w-14 h-14 rounded-lg mx-auto text-lg">
-                {c.v}
-              </div>
-              <div className="prog-arr-index mt-2">indeks {c.i}</div>
-              <div className="text-[11px] text-gray-500 mt-1">{c.note}</div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-6 prog-card-yellow rounded-xl p-5 flex items-center gap-4"
-      >
-        <Lightbulb className="w-7 h-7 text-[#ffd43b] flex-shrink-0" />
-        <div className="text-sm text-gray-300">
-          <span className="text-white font-semibold">Kural:</span> n elemanlı bir
-          dizide geçerli indeksler 0&apos;dan n-1&apos;e kadardır. Python&apos;da ayrıca
-          negatif indeks de vardır: <span className="font-mono text-[#5fa8e0]">harfler[-1]</span>{" "}
-          son elemanı (&apos;D&apos;) verir.
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  7 · BÖLÜM 2 · TANIMLAMA  ───────────────── */
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Tek Boyutlu Dizi Tanımlama"
-      subtitle="Diziyi oluşturmanın söz dizimi: köşeli parantezler, eleman sayısı ve dilden dile değişen kurallar."
-      glowClass="prog-glow-yellow"
-      icon={<ListOrdered className="w-14 h-14 text-[#1a1a1a]" />}
-    />
-  ),
-
-  /* ─────────────────  8 · PYTHON'DA TANIMLAMA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · Python listesi</Eyebrow>
-      <H2 className="mb-2">Python&apos;da tek boyutlu dizi tanımlama</H2>
-      <Sub className="max-w-3xl">
-        Python&apos;da tek boyutlu diziyi <span className="text-white font-semibold">liste (list)</span> ile
-        tutarız. Köşeli parantez içine elemanları virgülle yazarız. Boyut sabit
-        değildir; sonradan eleman eklenip çıkarılabilir.
-      </Sub>
-
-      <div className="mt-6">
-        <CodeEditor
-          title="diziler.py — Visual Studio Code"
-          tabs={["diziler.py", "README.md"]}
-          activeTab="diziler.py"
-          code={`# 1) Doğrudan değerlerle tanımlama
-notlar = [75, 90, 60, 85]
-
-# 2) Boş dizi (sonradan doldurulacak)
-isimler = []
-
-# 3) Sabit değerle, belirli boyutta
-sifirlar = [0] * 5  # [0, 0, 0, 0, 0]
-
-print(len(notlar), notlar[0])`}
-          terminal={
-            <div className="leading-relaxed">
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="prog-terminal-out">python diziler.py</span>
-              </div>
-              <div className="prog-terminal-out">4 75</div>
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="animate-pulse">▌</span>
-              </div>
-            </div>
-          }
-        />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  9 · DİLLERDE SÖZ DİZİMİ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · Karşılaştırma</Eyebrow>
-      <H2>Aynı dizi, farklı dillerde tanım</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Mantık her dilde aynı: bir isim, bir tür ve elemanlar. Fark söz diziminde
-        ve boyutun sabit olup olmamasında. Üç tam sayılık bir dizi:
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl overflow-hidden"
-      >
-        <table className="prog-compare">
-          <thead>
-            <tr>
-              <th>Dil</th>
-              <th>Tanımlama söz dizimi</th>
-              <th>Boyut</th>
-              <th>İlk elemana erişim</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="font-semibold text-white">Python</td>
-              <td><span className="font-mono text-[#9cdcfe]">sayilar = [10, 20, 30]</span></td>
-              <td>Dinamik (büyür/küçülür)</td>
-              <td><span className="font-mono text-[#5fa8e0]">sayilar[0]</span></td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">C</td>
-              <td><span className="font-mono text-[#9cdcfe]">int sayilar[3] = {"{10, 20, 30}"};</span></td>
-              <td>Sabit (tanımda belli)</td>
-              <td><span className="font-mono text-[#5fa8e0]">sayilar[0]</span></td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Java</td>
-              <td><span className="font-mono text-[#9cdcfe]">int[] sayilar = {"{10, 20, 30}"};</span></td>
-              <td>Sabit (oluşunca belli)</td>
-              <td><span className="font-mono text-[#5fa8e0]">sayilar[0]</span></td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">JavaScript</td>
-              <td><span className="font-mono text-[#9cdcfe]">let sayilar = [10, 20, 30];</span></td>
-              <td>Dinamik</td>
-              <td><span className="font-mono text-[#5fa8e0]">sayilar[0]</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono"
-      >
-        Ortak nokta: tüm dillerde indeks 0&apos;dan başlar ve elemana köşeli parantezle erişilir.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · SABİT vs DİNAMİK  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 2 · Boyut</Eyebrow>
-      <H2>Sabit boyut vs dinamik boyut</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Klasik diziler (C, Java) bir kez tanımlanınca boyutu sabittir. Python listesi
-        gibi dinamik yapılarsa çalışma anında büyüyüp küçülebilir. İkisinin de yeri vardır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-[#ffd43b]/20 border border-[#ffd43b]/50 flex items-center justify-center">
-              <Layers className="w-5 h-5 text-[#ffd43b]" />
-            </div>
-            <div>
-              <div className="text-white font-semibold">Sabit boyut</div>
-              <div className="text-[10px] font-mono text-[#ffd43b] uppercase">C · Java dizileri</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-[11px] mt-2">
-            <div className="text-[#86efac]">+ Bellek önceden ayrılır</div>
-            <div className="text-[#fca5a5]">– Sonradan büyüyemez</div>
-            <div className="text-[#86efac]">+ Erişim çok hızlı</div>
-            <div className="text-[#fca5a5]">– Boyutu baştan bilmek gerek</div>
-          </div>
-          <div className="mt-4 text-xs text-gray-500 font-mono">
-            Örnek: aylık 12 sıcaklık ölçümü gibi sayısı belli veriler.
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-[#3776ab]/20 border border-[#3776ab]/50 flex items-center justify-center">
-              <ArrowRightLeft className="w-5 h-5 text-[#5fa8e0]" />
-            </div>
-            <div>
-              <div className="text-white font-semibold">Dinamik boyut</div>
-              <div className="text-[10px] font-mono text-[#5fa8e0] uppercase">Python listesi</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-[11px] mt-2">
-            <div className="text-[#86efac]">+ append ile eleman ekle</div>
-            <div className="text-[#fca5a5]">– Biraz daha fazla bellek</div>
-            <div className="text-[#86efac]">+ Boyutu önceden bilmek şart değil</div>
-            <div className="text-[#fca5a5]">– Erişim genelde biraz yavaş</div>
-          </div>
-          <div className="mt-4 text-xs text-gray-500 font-mono">
-            Örnek: kullanıcıdan kaç tane geleceği belli olmayan girişler.
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  11 · BÖLÜM 3 · ERİŞİM  ───────────────── */
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Erişim ve Gezinme"
-      subtitle="İndeksle eleman okumak/yazmak, döngüyle tüm diziyi dolaşmak ve sınır taşması hatalarından kaçınmak."
-      glowClass="prog-glow-purple"
-      icon={<Repeat className="w-14 h-14 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  12 · İNDEKSLE OKUMA/YAZMA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 3 · Erişim</Eyebrow>
-      <H2 className="mb-2">İndeksle okuma ve değiştirme</H2>
-      <Sub className="max-w-3xl mb-6">
-        Bir elemanı okumak ve değiştirmek aynı söz dizimini kullanır:{" "}
-        <span className="font-mono text-[#5fa8e0]">dizi[indeks]</span>. Sağ tarafta
-        olunca okur, sol tarafta olunca o hücreye yeni değer yazar.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <CodeEditor
-          title="erisim.py"
-          tabs={["erisim.py"]}
-          activeTab="erisim.py"
-          code={`renkler = ["kırmızı", "yeşil", "mavi"]
-
-# okuma
-print(renkler[0])   # kırmızı
-print(renkler[-1])  # mavi
-
-# yazma (değiştirme)
-renkler[1] = "sarı"
-print(renkler)`}
-          terminal={
-            <div className="leading-relaxed">
-              <div className="prog-terminal-out">kırmızı</div>
-              <div className="prog-terminal-out">mavi</div>
-              <div className="prog-terminal-out">
-                [&apos;kırmızı&apos;, &apos;sarı&apos;, &apos;mavi&apos;]
-              </div>
-            </div>
-          }
-        />
-
-        <ArrayDiagram
-          name="renkler"
-          cells={["kırmızı", "sarı", "mavi"]}
-          activeIndex={1}
+          desc="Kaç dolap olduğu. len(dolap) yazarsın, 3 cevabını alırsın."
+          accent="#86efac"
           delay={0.3}
         />
       </div>
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  13 · DÖNGÜYLE GEZİNME  ───────────────── */
+  /* 5 · TUZAK · MİNİ SINAV */
   () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 3 · Dizi + döngü</Eyebrow>
-      <H2 className="mb-2">Tüm diziyi for döngüsüyle dolaşmak</H2>
-      <Sub className="max-w-3xl mb-6">
-        Dizinin asıl gücü döngüyle ortaya çıkar. İki yaygın yol var: doğrudan
-        elemanlar üzerinde gezmek, ya da indeksler üzerinde gezmek. İkisiyle de
-        notların toplamını ve ortalamasını alalım.
-      </Sub>
+    <Frame
+      eyebrow="Klasik tuzak · mini sınav"
+      title="Python saymaya 1&apos;den değil 0&apos;dan başlar"
+      ask="Üç elemanlı bu listede en büyük indeks kaç?"
+    >
+      <div className="max-w-3xl mx-auto">
+        <Quiz
+          q="Bu kod ekrana ne yazar?"
+          code={`meyveler = ["elma", "armut", "kiraz"]
+print(meyveler[1])`}
+          options={["elma", "armut", "kiraz", "Hata verir"]}
+          correct={1}
+          why="İndeks 0'dan başlar: [0] elma, [1] armut, [2] kiraz."
+        />
+      </div>
+    </Frame>
+  ),
 
-      <CodeEditor
-        title="dongu.py — Visual Studio Code"
-        tabs={["dongu.py"]}
-        activeTab="dongu.py"
-        code={`notlar = [75, 90, 60, 85]
-toplam = 0
-
-# yol 1: elemanların üzerinde gez
-for n in notlar:
-    toplam += n
-
-# yol 2: indekslerin üzerinde gez
-for i in range(len(notlar)):
-    print(i, notlar[i])
-
-ortalama = toplam / len(notlar)   # 77.5`}
-        terminal={
-          <div className="leading-relaxed">
-            <div className="prog-terminal-out">0 75</div>
-            <div className="prog-terminal-out">1 90</div>
-            <div className="prog-terminal-out">2 60</div>
-            <div className="prog-terminal-out">3 85</div>
-            <div className="prog-terminal-out">
-              toplam=310 · ortalama=<span className="prog-terminal-user">77.5</span>
-            </div>
-          </div>
-        }
+  /* 6 · KOD 1 */
+  () => (
+    <Frame
+      eyebrow="Kod · önce tahmin et"
+      title="Sepetten numarayla eleman okuyalım"
+      ask="sepet[3] yazsaydık ne olurdu?"
+    >
+      <PredictRun
+        file="sepet.py"
+        code={`sepet = ["elma", "armut", "kiraz"]
+print(sepet[0])
+print(sepet[2])
+print(len(sepet))`}
+        question="Ekrana alt alta üç satır çıkacak. Sırayla ne yazar?"
+        answer={["elma", "kiraz", "3"]}
+        note="Uzunluk 3, ama son indeks 2. Bu ikisi hep 1 farklıdır."
       />
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  14 · SINIR TAŞMASI  ───────────────── */
+  /* 7 · OLMAYAN DOLAP */
   () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 3 · Sık yapılan hata</Eyebrow>
-      <H2>Sınır taşması: en sık görülen dizi hatası</H2>
-      <Sub className="mt-3 max-w-3xl">
-        n elemanlı dizide geçerli indeksler 0 ile n-1 arasındadır. Olmayan bir
-        indekse erişmeye çalışmak hatadır. Bu &ldquo;bir fazla&rdquo; hatasına
-        (off-by-one) çok dikkat etmek gerekir.
-      </Sub>
+    <Frame
+      eyebrow="Klasik tuzak · dene gör"
+      title="Olmayan dolabı açmak istersen Python hata verir"
+      ask="5 elemanlı listede notlar[5] neden yok?"
+    >
+      <IndexProbe />
+    </Frame>
+  ),
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#fca5a5]">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Yanlış</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px]">
-            <div>
-              <span className="tok-var">dizi</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-punct">[</span>
-              <span className="tok-number">10</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">20</span>
-              <span className="tok-punct">, </span>
-              <span className="tok-number">30</span>
-              <span className="tok-punct">]</span>
-            </div>
-            <div className="tok-comment"># uzunluk 3, geçerli indeks 0..2</div>
-            <div>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">dizi</span>
-              <span className="tok-punct">[</span>
-              <span className="tok-number">3</span>
-              <span className="tok-punct">])</span>
-            </div>
-          </div>
-          <div className="mt-3 prog-terminal rounded-lg px-3 py-2 text-[11px]">
-            <span className="text-[#fca5a5]">
-              IndexError: list index out of range
-            </span>
-          </div>
-        </motion.div>
+  /* 8 · DEĞİŞTİR, EKLE */
+  () => (
+    <Frame
+      eyebrow="Dene gör"
+      title="Liste değişebilir: düzelt, sona ekle, sondan çıkar"
+      ask="append yeni elemanı başa mı koydu, sona mı?"
+    >
+      <ListLab />
+    </Frame>
+  ),
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.45 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Doğru</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px]">
-            <div>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">dizi</span>
-              <span className="tok-punct">[</span>
-              <span className="tok-builtin">len</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">dizi</span>
-              <span className="tok-punct">) - </span>
-              <span className="tok-number">1</span>
-              <span className="tok-punct">])</span>
-            </div>
-            <div className="tok-comment"># son eleman: 30</div>
-            <div>
-              <span className="tok-builtin">print</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-var">dizi</span>
-              <span className="tok-punct">[-</span>
-              <span className="tok-number">1</span>
-              <span className="tok-punct">])</span>
-              {"  "}
-              <span className="tok-comment"># aynı sonuç: 30</span>
-            </div>
-          </div>
-          <div className="text-[11px] text-gray-500 mt-3">
-            Son elemana güvenle <span className="font-mono text-[#5fa8e0]">len(dizi) - 1</span> ya da
-            Python&apos;da <span className="font-mono text-[#5fa8e0]">[-1]</span> ile eriş.
-          </div>
-        </motion.div>
+  /* 9 · KOD 2 */
+  () => (
+    <Frame
+      eyebrow="Kod · önce tahmin et"
+      title="Yanlış girilen notu düzeltip yeni not ekleyelim"
+      ask="Bu koddan sonra notlar[3] kaçtır?"
+    >
+      <PredictRun
+        file="notlar.py"
+        code={`notlar = [70, 85, 60]
+notlar[2] = 65       # 2 numaralı notu düzelt
+notlar.append(90)    # sona yeni not ekle
+print(notlar)
+print(len(notlar))`}
+        question="Liste son hâliyle nasıl görünür? Uzunluğu kaç olur?"
+        answer={["[70, 85, 65, 90]", "4"]}
+        note="60 gitti, yerine 65 geldi; 90 en sona eklendi."
+      />
+    </Frame>
+  ),
+
+  /* 10 · ADIM ADIM FOR */
+  () => (
+    <Frame
+      eyebrow="Adım adım"
+      title="for döngüsü dolapları sırayla, tek tek açar"
+      ask="toplam neden 0 ile başlıyor?"
+    >
+      <Trace
+        code={[
+          "harcama = [40, 25, 35]",
+          "toplam = 0",
+          "for h in harcama:",
+          "    toplam = toplam + h",
+          "print(toplam)",
+        ]}
+        steps={[
+          { line: 1, vars: "toplam = 0", note: "Kumbara boş başlıyor." },
+          { line: 2, vars: "h = 40 · toplam = 0", note: "Döngü ilk dolabı açtı: h artık 40.", hi: 0 },
+          { line: 3, vars: "h = 40 · toplam = 40", note: "0 + 40 = 40.", hi: 0 },
+          { line: 2, vars: "h = 25 · toplam = 40", note: "Sıradaki dolap: h artık 25.", hi: 1 },
+          { line: 3, vars: "h = 25 · toplam = 65", note: "40 + 25 = 65.", hi: 1 },
+          { line: 2, vars: "h = 35 · toplam = 65", note: "Son dolap: h artık 35.", hi: 2 },
+          { line: 3, vars: "h = 35 · toplam = 100", note: "65 + 35 = 100.", hi: 2 },
+          { line: 4, vars: "toplam = 100", note: "Dolap kalmadı, döngü bitti. Ekrana 100 yazılır." },
+        ]}
+        render={(hi) => (
+          <Cells items={["40", "25", "35"]} hi={hi === undefined ? [] : [hi]} />
+        )}
+      />
+    </Frame>
+  ),
+
+  /* 11 · KOD 3 */
+  () => (
+    <Frame
+      eyebrow="Kod · önce tahmin et"
+      title="Notların ortalamasını listeyi gezerek bulalım"
+      ask="Listeye beşinci bir not eklersek kodun hangi satırı değişir?"
+    >
+      <PredictRun
+        file="ortalama.py"
+        code={`notlar = [70, 80, 60, 90]
+toplam = 0
+for n in notlar:
+    toplam = toplam + n
+print(toplam / len(notlar))`}
+        question="Ekrana tek bir sayı çıkacak. Kaç? (İpucu: toplam 300.)"
+        answer={["75.0"]}
+        note="300 / 4 = 75. Python bölme sonucunu hep ondalıklı yazar: 75.0."
+      />
+    </Frame>
+  ),
+
+  /* 12 · SINIFTA DENEYELİM */
+  () => (
+    <Frame
+      eyebrow="Sınıfta deneyelim · 8 dakika"
+      title="Kendi haftalık harcama listeni yaz"
+      ask="En çok hangi gün harcamışsın? Listenin kaçıncı indeksi?"
+    >
+      <Activity
+        file="harcama.py"
+        code={`# Bu hafta 5 günde harcadıkların (TL)
+harcama = [120, 80, 0, 150, 60]
+print(harcama[0])`}
+        steps={[
+          "Sayıları kendi harcamalarınla değiştir, çalıştır.",
+          "Son günün harcamasını yazdır.",
+          "append ile 6. günü ekle, len ile kontrol et.",
+          "for ile hepsini topla, toplamı yazdır.",
+        ]}
+      />
+    </Frame>
+  ),
+
+  /* 13 · KENDİNİ DENE */
+  () => (
+    <Frame
+      eyebrow="Kendini dene"
+      title="İki soru: indeks ve uzunluk"
+      ask="Yanlış şıkkı seçenler neyi karıştırmış olabilir?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Quiz
+          q="Son elemanın (40) indeksi kaçtır?"
+          code={`sayilar = [10, 20, 30, 40]`}
+          options={["4", "3", "40", "1"]}
+          correct={1}
+          why="4 eleman var; indeksler 0, 1, 2, 3. Son indeks = uzunluk - 1."
+        />
+        <Quiz
+          q="Ekrana ne yazar?"
+          code={`liste = [5, 8]
+liste.append(1)
+print(len(liste))`}
+          options={["2", "1", "3", "14"]}
+          correct={2}
+          why="append sona bir eleman ekler: [5, 8, 1]. Uzunluk 3 olur."
+        />
       </div>
-    </SlideShell>
+    </Frame>
   ),
 
-  /* ─────────────────  15 · UYGULAMALI ALIŞTIRMA  ───────────────── */
+  /* 14 · ÖZET + KÖPRÜ */
   () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı alıştırma</Eyebrow>
-      <H2>Kendi makinende beş adım</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Diziler ancak elle yazınca oturur. Aşağıdaki beş görevi tek bir{" "}
-        <span className="font-mono text-[#5fa8e0]">diziler_lab.py</span> dosyasında
-        yapıp sonraki derse getir.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl p-6 max-w-3xl mx-auto"
-      >
-        <div className="text-xs uppercase tracking-wider text-[#5fa8e0] mb-4 font-mono flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" />
-          Görev listesi · Hafta 09
-        </div>
-        <div className="space-y-3">
-          {[
-            { t: "5 elemanlı bir sayı dizisi tanımla", d: "sayilar = [4, 8, 15, 16, 23] gibi köşeli parantezle oluştur" },
-            { t: "İlk ve son elemanı yazdır", d: "sayilar[0] ve sayilar[-1] (ya da sayilar[len(sayilar)-1])" },
-            { t: "Diziyi for döngüsüyle gez", d: "her elemanı tek tek ekrana yazdır" },
-            { t: "Toplamı ve ortalamayı hesapla", d: "döngüde toplam biriktir, sonra len() ile böl" },
-            { t: "En büyük elemanı bul", d: "ilk elemanı &apos;en büyük&apos; varsay, döngüde karşılaştırarak güncelle" },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.08 }}
-              className="flex items-start gap-3 bg-black/30 rounded-lg p-3"
-            >
-              <div className="w-6 h-6 rounded-md border border-[#5fa8e0]/60 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check className="w-3.5 h-3.5 text-[#5fa8e0]" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm text-white font-medium">{item.t}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{item.d}</div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-600 mt-1">
-                {String(i + 1).padStart(2, "0")}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
-  () => (
-    <SlideShell>
-      <div className="text-center max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8 prog-glow-blue"
-        >
-          <Sigma className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>9. hafta tamamlandı · sıradaki: 10. hafta</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Çok Boyutlu Diziler</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta tek satırlık dizileri gördük. 10. haftada satır ve sütunu olan{" "}
-          <span className="text-white">çok boyutlu dizilere</span> (matris/tablo)
-          geçiyoruz: iç içe döngüler ve tablo verisi.
-        </Sub>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-          <FeatureCard
-            icon={Layers}
-            title="İki boyutlu dizi"
-            desc="Satır ve sütundan oluşan tablo: dizi[satır][sütun] biçiminde erişim."
-            accent="#3776ab"
-            delay={0.1}
-          />
-          <FeatureCard
-            icon={Repeat}
-            title="İç içe döngü"
-            desc="Bir döngü satırları, içteki döngü sütunları gezerek tüm tabloyu dolaşır."
-            accent="#5fa8e0"
-            delay={0.2}
-          />
-          <FeatureCard
-            icon={Database}
-            title="Pratik kullanım"
-            desc="Sınav not tablosu, oyun tahtası, görüntü pikselleri gibi gerçek veriler."
-            accent="#ffd43b"
-            delay={0.3}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="prog-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#5fa8e0] mb-3" />
-            <div className="text-[10px] uppercase tracking-widest text-gray-500 font-mono mb-1">Ders saati</div>
-            <div className="text-white font-semibold">Perşembe</div>
-            <div className="text-sm text-gray-400">09:55 — 12:30</div>
-          </div>
-          <div className="prog-card rounded-xl p-5">
-            <Brain className="w-5 h-5 text-[#86efac] mb-3" />
-            <div className="text-[10px] uppercase tracking-widest text-gray-500 font-mono mb-1">Hazırlık</div>
-            <div className="text-white font-semibold">Lab&apos;ı bitir</div>
-            <div className="text-sm text-gray-400">diziler_lab.py</div>
-          </div>
-          <div className="prog-card rounded-xl p-5">
-            <FileText className="w-5 h-5 text-[#5fa8e0] mb-3" />
-            <div className="text-[10px] uppercase tracking-widest text-gray-500 font-mono mb-1">Sonraki hafta</div>
-            <div className="text-white font-semibold">H10</div>
-            <div className="text-sm text-gray-400">Çok boyutlu diziler</div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
-        >
-          BVA 1101 · Programlama Temelleri · Bahar 2026
-        </motion.div>
-      </div>
-    </SlideShell>
+    <Closing
+      items={[
+        {
+          icon: ListOrdered,
+          title: "Tek isim, çok değer",
+          desc: "Liste köşeli parantezle yazılır: notlar = [70, 85, 60].",
+          accent: "#3776ab",
+        },
+        {
+          icon: Hash,
+          title: "Saymaya 0'dan başla",
+          desc: "İlk eleman [0]. Son indeks, uzunluktan 1 eksiktir.",
+          accent: "#ffd43b",
+        },
+        {
+          icon: Repeat,
+          title: "for hepsini gezer",
+          desc: "Döngü elemanları sırayla verir; toplamı, ortalamayı böyle buluruz.",
+          accent: "#86efac",
+        },
+      ]}
+      bridge="Tek sıra dolap yetmeyince ne olur? Satırı ve sütunu olan tablolara geçiyoruz."
+    />
   ),
 ];
 
@@ -1175,7 +1178,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#5fa8e0]/70">
-          BVA 1101 · 9. Hafta · Tek Boyutlu Diziler
+          BVA 1101 · 9. Hafta · Listeler
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#5fa8e0]/50">

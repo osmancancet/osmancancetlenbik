@@ -9,32 +9,30 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Shield,
-  ShieldCheck,
-  Crosshair,
+  FileSignature,
   Search,
-  Target,
   Bug,
-  Terminal,
-  Layers,
-  ListChecks,
+  ShieldCheck,
   FileText,
-  ScrollText,
-  Server,
-  KeyRound,
-  Lock,
-  Network,
-  Zap,
-  ArrowRight,
-  ArrowUpCircle,
-  Footprints,
-  ClipboardList,
-  Eye,
-  AlertTriangle,
+  DoorOpen,
+  ListChecks,
   Scale,
-  Calendar,
-  Brain,
-  Sparkles,
+  Building2,
+  Handshake,
+  Ban,
+  CreditCard,
+  Wrench,
+  ClipboardCheck,
+  RefreshCw,
+  Cloud,
+  MousePointerClick,
+  Hand,
+  Minus,
+  Plus,
+  Circle,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
   ChevronRight,
   ChevronLeft,
   Maximize2,
@@ -150,216 +148,628 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
-}: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
-}) {
+
+/* ============================================================
+   ETKİLEŞİM BİLEŞENLERİ (tahmin et · tıkla · karar ver)
+   ============================================================ */
+
+const OK = "#34d399";
+const BAD = "#f87171";
+
+/* Tıklanabilir içerik ortada kalsın: kenar geçiş alanlarına (%12) taşmaz. */
+function Mid({ children }: { children: ReactNode }) {
+  return <div className="max-w-4xl mx-auto w-full">{children}</div>;
+}
+
+function AskLine({ children }: { children: ReactNode }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 sgbh-pulse"
-          style={{ background: bgGradient, boxShadow: shadow }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
-      </div>
-    </SlideShell>
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6, duration: 0.5 }}
+      className="mt-5 text-sm text-gray-500"
+    >
+      <span className="font-mono uppercase tracking-widest text-[11px] text-[#06b6d4]/60 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.p>
   );
 }
 
-/* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
-   ============================================================ */
+function TapHint({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#67e8f9]/70">
+      <MousePointerClick className="w-4 h-4" />
+      {children}
+    </span>
+  );
+}
 
-function TerminalWindow({
-  title,
+/* El kaldır: hoca sayar, sonra yorumu açar. */
+function Poll({ question, comment }: { question: string; comment: string }) {
+  const [count, setCount] = useState(0);
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="sgbh-card rounded-xl p-6">
+      <div className="flex items-start gap-4">
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: "#fbbf2418", border: "1px solid #fbbf2455" }}
+        >
+          <Hand className="w-6 h-6 text-[#fbbf24]" />
+        </div>
+        <div className="text-2xl font-semibold text-white leading-snug">{question}</div>
+      </div>
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          aria-label="Bir azalt"
+          onClick={() => setCount((c) => Math.max(0, c - 1))}
+          className="w-12 h-12 rounded-lg sgbh-card sgbh-card-hover flex items-center justify-center text-white"
+        >
+          <Minus className="w-5 h-5" />
+        </button>
+        <div className="w-16 text-center text-4xl font-bold font-mono text-[#67e8f9]">{count}</div>
+        <button
+          type="button"
+          aria-label="Bir artır"
+          onClick={() => setCount((c) => c + 1)}
+          className="w-12 h-12 rounded-lg sgbh-card sgbh-card-hover flex items-center justify-center text-white"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
+        <span className="text-sm text-gray-400">el kalktı</span>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="ml-auto px-5 py-3 rounded-lg text-sm font-semibold text-white transition-colors"
+          style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+        >
+          {open ? "Yorumu gizle" : "Saydık — yorumu aç"}
+        </button>
+      </div>
+      {open ? (
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-5 text-lg text-[#67e8f9] leading-relaxed"
+        >
+          {comment}
+        </motion.p>
+      ) : (
+        <div className="mt-5">
+          <TapHint>Elleri say, + ile gir, sonra yorumu aç</TapHint>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Tahmin et → tıkla göster. */
+function Reveal({
+  question,
+  answer,
+  accent = "#06b6d4",
+}: {
+  question: string;
+  answer: string;
+  accent?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className="sgbh-card sgbh-card-hover rounded-xl p-5 text-left w-full transition-all block"
+      style={open ? { borderColor: `${accent}90` } : undefined}
+    >
+      <div className="text-lg font-semibold text-white leading-snug">{question}</div>
+      {open ? (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 text-base leading-relaxed"
+          style={{ color: accent }}
+        >
+          {answer}
+        </motion.div>
+      ) : (
+        <div className="mt-3">
+          <TapHint>Önce tahmin et, sonra tıkla</TapHint>
+        </div>
+      )}
+    </button>
+  );
+}
+
+/* Mini sınav: tek ya da birkaç soru. */
+type QuizQuestion = { q: string; options: string[]; correct: number; why: string[] };
+
+function Quiz({ questions }: { questions: QuizQuestion[] }) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const item = questions[idx];
+  const go = (to: number) => {
+    setIdx(to);
+    setPicked(null);
+  };
+  return (
+    <div>
+      {questions.length > 1 && (
+        <div className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-2">
+          Soru {idx + 1} / {questions.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white leading-snug mb-4">{item.q}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {item.options.map((text, i) => {
+          const color = picked === i ? (i === item.correct ? OK : BAD) : undefined;
+          return (
+            <button
+              type="button"
+              key={text}
+              onClick={() => setPicked(i)}
+              className="sgbh-card sgbh-card-hover rounded-xl px-4 py-3 text-left text-base text-gray-200 transition-all flex items-center gap-3"
+              style={color ? { borderColor: color, background: `${color}18` } : undefined}
+            >
+              <span
+                className="w-8 h-8 rounded-lg flex items-center justify-center font-mono text-sm flex-shrink-0"
+                style={{
+                  background: `${color ?? "#06b6d4"}25`,
+                  color: color ?? "#67e8f9",
+                }}
+              >
+                {"ABCD"[i]}
+              </span>
+              <span className="leading-snug">{text}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[3.5rem] flex items-start justify-between gap-4">
+        <div className="text-base leading-relaxed">
+          {picked === null ? (
+            <TapHint>Sınıf karar versin, sonra şıkka tıkla</TapHint>
+          ) : (
+            <motion.span
+              key={`${idx}-${picked}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ color: picked === item.correct ? OK : BAD }}
+            >
+              {picked === item.correct ? "Doğru. " : "Olmadı. "}
+              {item.why[picked]}
+            </motion.span>
+          )}
+        </div>
+        {questions.length > 1 && (
+          <div className="flex gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => go(idx - 1)}
+              disabled={idx === 0}
+              className="px-4 py-2 rounded-lg text-sm text-gray-300 sgbh-card sgbh-card-hover disabled:opacity-30"
+            >
+              Önceki soru
+            </button>
+            <button
+              type="button"
+              onClick={() => go(idx + 1)}
+              disabled={idx === questions.length - 1}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-30"
+              style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+            >
+              Sonraki soru
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Adım adım açılan süreç. */
+type StepItem = {
+  title: string;
+  desc: string;
+  extraLabel: string;
+  extra: string;
+  icon: LucideIcon;
+  color: string;
+};
+
+function Stepper({ steps }: { steps: StepItem[] }) {
+  const [shown, setShown] = useState(1);
+  const cur = steps[shown - 1];
+  const CurIcon = cur.icon;
+  return (
+    <div>
+      <div className="flex items-stretch gap-2">
+        {steps.map((s, i) => {
+          const open = i < shown;
+          return (
+            <button
+              type="button"
+              key={s.title}
+              onClick={() => setShown(i + 1)}
+              className="flex-1 min-w-0 rounded-lg px-2 py-2.5 text-center transition-all"
+              style={{
+                border: `1px solid ${open ? `${s.color}80` : "rgba(255,255,255,0.1)"}`,
+                background: i === shown - 1 ? `${s.color}25` : open ? `${s.color}0d` : "transparent",
+              }}
+            >
+              <div className="text-[11px] font-mono" style={{ color: open ? s.color : "#6b7280" }}>
+                {i + 1}. adım
+              </div>
+              <div className={`text-sm font-semibold leading-tight mt-0.5 ${open ? "text-white" : "text-gray-600"}`}>
+                {open ? s.title : "?"}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <motion.div
+        key={shown}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="sgbh-card rounded-xl p-5 mt-3 flex gap-4 min-h-[9.5rem]"
+        style={{ borderColor: `${cur.color}60` }}
+      >
+        <div
+          className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: `${cur.color}18`, border: `1px solid ${cur.color}55` }}
+        >
+          <CurIcon className="w-6 h-6" style={{ color: cur.color }} />
+        </div>
+        <div>
+          <div className="text-xl font-semibold text-white">
+            {shown}. {cur.title}
+          </div>
+          <p className="text-base text-gray-300 leading-relaxed mt-1">{cur.desc}</p>
+          <p className="text-base leading-relaxed mt-2" style={{ color: cur.color }}>
+            <span className="font-semibold">{cur.extraLabel}</span> {cur.extra}
+          </p>
+        </div>
+      </motion.div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShown((n) => Math.max(1, n - 1))}
+          disabled={shown === 1}
+          className="px-4 py-2.5 rounded-lg text-sm text-gray-300 sgbh-card sgbh-card-hover disabled:opacity-30"
+        >
+          Geri
+        </button>
+        <button
+          type="button"
+          onClick={() => setShown((n) => (n === steps.length ? 1 : n + 1))}
+          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
+          style={{ background: "#06b6d430", border: "1px solid #06b6d480" }}
+        >
+          {shown === steps.length ? "Baştan başla" : "Sonraki adımı aç"}
+        </button>
+        <TapHint>
+          {shown} / {steps.length}
+        </TapHint>
+      </div>
+    </div>
+  );
+}
+
+/* İki seçenekli karar kartları. */
+type ClassifyItem = { text: string; answer: 0 | 1; why: string };
+
+function Classify({ items, labels }: { items: ClassifyItem[]; labels: [string, string] }) {
+  const [picks, setPicks] = useState<Record<number, 0 | 1>>({});
+  const [last, setLast] = useState<number | null>(null);
+  const right = items.filter((it, i) => picks[i] === it.answer).length;
+  const answered = Object.keys(picks).length;
+  return (
+    <div>
+      <div className="space-y-2">
+        {items.map((it, i) => {
+          const p = picks[i];
+          const done = p !== undefined;
+          const good = done && p === it.answer;
+          return (
+            <div
+              key={it.text}
+              className="sgbh-card rounded-lg px-4 py-2 flex items-center gap-3"
+              style={done ? { borderColor: `${good ? OK : BAD}80` } : undefined}
+            >
+              <span className="flex-shrink-0">
+                {!done ? (
+                  <Circle className="w-5 h-5 text-gray-600" />
+                ) : good ? (
+                  <CheckCircle2 className="w-5 h-5" style={{ color: OK }} />
+                ) : (
+                  <XCircle className="w-5 h-5" style={{ color: BAD }} />
+                )}
+              </span>
+              <span className="flex-1 text-[15px] text-gray-200 leading-snug">{it.text}</span>
+              {labels.map((label, b) => {
+                const mine = p === b;
+                const c = mine ? (good ? OK : BAD) : undefined;
+                return (
+                  <button
+                    type="button"
+                    key={label}
+                    onClick={() => {
+                      setPicks((prev) => ({ ...prev, [i]: b as 0 | 1 }));
+                      setLast(i);
+                    }}
+                    className="w-28 py-2 rounded-lg text-sm font-semibold transition-all flex-shrink-0"
+                    style={{
+                      border: `1px solid ${c ?? "rgba(6,182,212,0.35)"}`,
+                      background: c ? `${c}25` : "rgba(6,182,212,0.06)",
+                      color: c ?? "#e5e7eb",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[3rem] flex items-start justify-between gap-4">
+        <div className="text-base leading-snug">
+          {last === null ? (
+            <TapHint>Her satır için sınıfa sor, sonra düğmeye tıkla</TapHint>
+          ) : (
+            <motion.span
+              key={`${last}-${picks[last]}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ color: picks[last] === items[last].answer ? OK : BAD }}
+            >
+              {picks[last] === items[last].answer ? "Doğru. " : "Tekrar düşün. "}
+              {items[last].why}
+            </motion.span>
+          )}
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className="text-sm font-mono text-gray-400">
+            Doğru: {right} / {items.length}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setPicks({});
+              setLast(null);
+            }}
+            disabled={answered === 0}
+            aria-label="Sıfırla"
+            className="p-2 rounded-lg sgbh-card sgbh-card-hover text-gray-300 disabled:opacity-30"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Sınıf etkinliği: biten adımı tıkla, işaretle. */
+function Checklist({ steps }: { steps: string[] }) {
+  const [done, setDone] = useState<boolean[]>(() => steps.map(() => false));
+  const count = done.filter(Boolean).length;
+  return (
+    <div>
+      <div className="space-y-2">
+        {steps.map((s, i) => (
+          <button
+            type="button"
+            key={s}
+            onClick={() => setDone((d) => d.map((v, j) => (j === i ? !v : v)))}
+            className="sgbh-card sgbh-card-hover rounded-lg px-4 py-2.5 w-full text-left flex items-center gap-3 transition-all"
+            style={done[i] ? { borderColor: `${OK}80`, background: `${OK}10` } : undefined}
+          >
+            {done[i] ? (
+              <CheckCircle2 className="w-6 h-6 flex-shrink-0" style={{ color: OK }} />
+            ) : (
+              <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono flex-shrink-0 text-[#67e8f9] border border-[#06b6d4]/50">
+                {i + 1}
+              </span>
+            )}
+            <span className={`text-base leading-snug ${done[i] ? "text-gray-400" : "text-gray-200"}`}>{s}</span>
+          </button>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <TapHint>Biten adıma tıkla</TapHint>
+        <span className="text-sm font-mono text-gray-400">
+          {count} / {steps.length} adım tamam
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* Kısa başlık + ipucu satırı olan bilgi kartı (tıklanmaz). */
+function Note({
+  icon: Icon,
+  color,
+  label,
   children,
 }: {
-  title: string;
+  icon: LucideIcon;
+  color: string;
+  label: string;
   children: ReactNode;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full"
-    >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
-        >
-          <span
-            className="w-5 h-5 rounded-sm flex items-center justify-center text-[11px]"
-            style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", color: "white" }}
-          >
-            $_
-          </span>
-          <span>{title}</span>
-        </div>
-      </div>
-      <div className="sgbh-terminal">{children}</div>
-    </motion.div>
-  );
-}
-
-function PtesFlow() {
-  const steps = [
-    { n: "01", name: "Pre-engagement", tr: "Sözleşme & kapsam", color: "#a78bfa" },
-    { n: "02", name: "Intelligence", tr: "İstihbarat (OSINT)", color: "#06b6d4" },
-    { n: "03", name: "Threat Modeling", tr: "Tehdit modelleme", color: "#22d3ee" },
-    { n: "04", name: "Vuln Analysis", tr: "Zafiyet analizi", color: "#67e8f9" },
-    { n: "05", name: "Exploitation", tr: "İstismar", color: "#fbbf24" },
-    { n: "06", name: "Post-exploit", tr: "Sonrası & kalıcılık", color: "#f87171" },
-    { n: "07", name: "Reporting", tr: "Raporlama", color: "#34d399" },
-  ];
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="sgbh-flow mt-2"
+      transition={{ delay: 0.3, duration: 0.5 }}
+      className="sgbh-card rounded-xl p-5"
+      style={{ borderColor: `${color}55` }}
     >
-      {steps.map((s, i) => (
-        <motion.div
-          key={s.n}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 + i * 0.08 }}
-          className="sgbh-flow-step flex flex-col"
-          style={{ borderColor: `${s.color}55`, background: `${s.color}0d` }}
-        >
-          <span className="sgbh-flow-num" style={{ color: s.color }}>
-            {s.n}
-          </span>
-          <div className="text-[12px] font-semibold text-white mt-1 leading-tight">
-            {s.name}
-          </div>
-          <div className="text-[10px] text-gray-400 mt-1 leading-snug">{s.tr}</div>
-          {i < steps.length - 1 && (
-            <ArrowRight
-              className="w-3.5 h-3.5 absolute -right-[11px] top-1/2 -translate-y-1/2 z-10"
-              style={{ color: `${s.color}` }}
-            />
-          )}
-        </motion.div>
-      ))}
+      <div className="flex items-center gap-2 mb-2" style={{ color }}>
+        <Icon className="w-5 h-5" />
+        <span className="text-xs font-mono uppercase tracking-widest">{label}</span>
+      </div>
+      <div className="text-base text-gray-200 leading-relaxed">{children}</div>
     </motion.div>
   );
 }
 
-function MsfSearchTable() {
-  const rows = [
-    {
-      no: 0,
-      mod: "exploit/windows/smb/ms17_010_eternalblue",
-      rank: "average",
-      cls: "sgbh-msf-rank-gr",
-      desc: "MS17-010 EternalBlue SMBv1",
-    },
-    {
-      no: 1,
-      mod: "exploit/multi/http/struts2_content_type_ognl",
-      rank: "excellent",
-      cls: "sgbh-msf-rank-ex",
-      desc: "Apache Struts2 CVE-2017-5638",
-    },
-    {
-      no: 2,
-      mod: "exploit/unix/ftp/vsftpd_234_backdoor",
-      rank: "excellent",
-      cls: "sgbh-msf-rank-ex",
-      desc: "vsftpd 2.3.4 arka kapı (smiley)",
-      sel: true,
-    },
-    {
-      no: 3,
-      mod: "auxiliary/scanner/smb/smb_ms17_010",
-      rank: "normal",
-      cls: "sgbh-msf-rank-gr",
-      desc: "MS17-010 zafiyet tarayıcı (sadece tespit)",
-    },
-  ];
+function Bullets({ items, color = "#06b6d4" }: { items: string[]; color?: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full"
-    >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] flex-1 max-w-md mx-auto text-center justify-center font-mono"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
-        >
-          <Terminal className="w-3.5 h-3.5" />
-          <span>msf6 &gt; search type:exploit vsftpd</span>
-        </div>
-      </div>
-      <table className="sgbh-msf">
-        <thead>
-          <tr>
-            <th style={{ width: "5%" }}>#</th>
-            <th style={{ width: "52%" }}>Module</th>
-            <th style={{ width: "13%" }}>Rank</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.no} className={r.sel ? "sgbh-msf-sel" : undefined}>
-              <td className="text-gray-500">{r.no}</td>
-              <td className="text-gray-200">{r.mod}</td>
-              <td className={r.cls}>{r.rank}</td>
-              <td className="text-gray-400">{r.desc}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="px-4 py-2 text-[10px] font-mono text-gray-500 border-t border-white/5">
-        Seçili: #2 · Rank = istismarın güvenilirlik/etki derecesi · excellent en güvenli, hedefi
-        çökertme olasılığı düşük
-      </div>
-    </motion.div>
+    <ul className="space-y-2.5">
+      {items.map((it) => (
+        <li key={it} className="flex gap-2 text-base text-gray-300 leading-snug">
+          <ChevronRight className="w-4 h-4 mt-1 flex-shrink-0" style={{ color }} />
+          <span>{it}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
 /* ============================================================
    SLIDES
    ============================================================ */
+
+const ASAMALAR: StepItem[] = [
+  {
+    title: "Kapsam ve izin",
+    desc: "Neye bakılacak, ne zaman, neye dokunulmayacak? Hepsi yazılır ve imzalanır. İmza yoksa hiçbir şey başlamaz.",
+    extraLabel: "Savunan ne yapar:",
+    extra: "Sistemlerini listeler, sınırı çizer, ulaşılacak kişiyi belirler.",
+    icon: FileSignature,
+    color: "#a78bfa",
+  },
+  {
+    title: "Keşif",
+    desc: "Usta binanın çevresinde dolaşır: kaç kapı var, hangi pencere sokağa bakıyor? Kurumun dışarıdan görünen yüzü çıkarılır.",
+    extraLabel: "Savunan ne yapar:",
+    extra: "Dışarıdan görünen bilgiyi azaltır; gereksiz açık kapıyı kapatır.",
+    icon: Search,
+    color: "#06b6d4",
+  },
+  {
+    title: "Zafiyet bulma",
+    desc: "Hangi kilit eski, hangi pencere tam kapanmıyor? Olası zayıf noktaların listesi çıkarılır.",
+    extraLabel: "Savunan ne yapar:",
+    extra: "Güncellemeleri yapar; eski ve kullanılmayan sistemleri kaldırır.",
+    icon: Bug,
+    color: "#22d3ee",
+  },
+  {
+    title: "Doğrulama",
+    desc: "Listede yazan açık gerçekten açık mı? Uzman, zarar vermeden ve izin sınırı içinde bunu gösterir.",
+    extraLabel: "Savunan ne yapar:",
+    extra: "Kayıtlarına bakar: bu denemeyi biz fark edebildik mi?",
+    icon: ShieldCheck,
+    color: "#fbbf24",
+  },
+  {
+    title: "Raporlama",
+    desc: "Ne bulundu, ne kadar tehlikeli, nasıl kapatılır? Hepsi kurumun anlayacağı dille yazılır.",
+    extraLabel: "Savunan ne yapar:",
+    extra: "Açıkları önem sırasına göre kapatır, sonra yeniden test ettirir.",
+    icon: FileText,
+    color: "#34d399",
+  },
+];
+
+const IZIN_KARTLARI: ClassifyItem[] = [
+  {
+    text: "Bir şirket, güvenlik firmasıyla sözleşme imzalayıp kendi sitesini test ettiriyor.",
+    answer: 0,
+    why: "Sistemin sahibi istedi, yazılı izin ve kapsam var.",
+  },
+  {
+    text: "Arkadaşının sosyal medya şifresini şaka olsun diye tahmin edip hesabına giriyorsun.",
+    answer: 1,
+    why: "Hesap senin değil, izin yok. Şaka olması durumu değiştirmez (TCK 243).",
+  },
+  {
+    text: "Kendi bilgisayarına kurduğun deneme ortamında alıştırma yapıyorsun.",
+    answer: 0,
+    why: "Sistem senin; kimsenin verisine ya da cihazına dokunmuyorsun.",
+  },
+  {
+    text: "Okulun not sisteminde bir açık fark ettin; yardım etmek için içeri girip bakıyorsun.",
+    answer: 1,
+    why: "İyi niyet izin yerine geçmez. Doğrusu: içeri girmeden yetkiliye haber vermek.",
+  },
+  {
+    text: "Sözleşmede yalnız web sitesi yazıyor; uzman muhasebe sunucusuna da bakıyor.",
+    answer: 1,
+    why: "Kapsamın dışına çıkmak, izinsiz iş yapmaktır.",
+  },
+];
+
+const ARA_SORU: QuizQuestion[] = [
+  {
+    q: "Sızma testini gerçek bir saldırıdan ayıran en önemli şey nedir?",
+    options: [
+      "Kullanılan programlar",
+      "Sistem sahibinin yazılı izni ve belirlenen kapsam",
+      "Testi yapan kişinin iyi niyeti",
+      "İşin mesai saatinde yapılması",
+    ],
+    correct: 1,
+    why: [
+      "Aynı programları saldırgan da kullanabilir; fark programda değil.",
+      "İzin ve kapsam yoksa yapılan iş test değil, izinsiz erişimdir.",
+      "Niyet tek başına yetmez; izin yazılı olmalı.",
+      "Saat, izni olmayan bir işi izinli yapmaz.",
+    ],
+  },
+];
+
+const KAPANIS_SORULARI: QuizQuestion[] = [
+  {
+    q: "Sızma testinde ilk aşama hangisidir?",
+    options: ["Keşif", "Raporlama", "Kapsam ve yazılı izin", "Zafiyet bulma"],
+    correct: 2,
+    why: [
+      "Keşif ikinci adım; ondan önce imza gerekir.",
+      "Raporlama en son adımdır.",
+      "Önce neye bakılacağı yazılır ve imzalanır.",
+      "Zafiyet bulma, izin ve keşiften sonra gelir.",
+    ],
+  },
+  {
+    q: "Uzman, sözleşmede olmayan bir sunucuda açık fark etti. Ne yapmalı?",
+    options: [
+      "Hazır bulmuşken onu da test eder",
+      "Dokunmaz, kurumu bilgilendirir",
+      "Kimseye söylemez",
+      "Açığı sosyal medyada paylaşır",
+    ],
+    correct: 1,
+    why: [
+      "Kapsam dışına çıkmak izinsiz erişimdir.",
+      "Kapsam dışındaki sisteme dokunulmaz; kuruma haber verilir, isterse kapsamı genişletir.",
+      "Susmak kurumu açıkta bırakır.",
+      "Paylaşmak hem kuruma zarar verir hem de sözleşmeye aykırıdır.",
+    ],
+  },
+  {
+    q: "Sızma testinin kuruma teslim edilen asıl ürünü nedir?",
+    options: [
+      "Ele geçirilen şifreler",
+      "Kullanılan programların listesi",
+      "Bulguları ve çözüm önerilerini anlatan rapor",
+      "Sistemin yedeği",
+    ],
+    correct: 2,
+    why: [
+      "Amaç şifre toplamak değil, açığı gösterip kapattırmak.",
+      "Program listesi kuruma açığını nasıl kapatacağını söylemez.",
+      "Kurum raporla neyi, hangi sırayla düzelteceğini öğrenir.",
+      "Yedek almak sızma testinin işi değil.",
+    ],
+  },
+];
 
 const slides: Array<(active: boolean) => ReactNode> = [
   /* ───── 1. Kapak ───── */
@@ -368,751 +778,368 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <div className="text-center">
         <Eyebrow>BVA 2205 · 9. Hafta · Güz Dönemi</Eyebrow>
         <H1>
-          <span className="sgbh-shimmer">Sızma Testi Metodolojisi</span>
+          <span className="sgbh-shimmer">Sızma Testi</span>
           <br />
-          <span className="text-white/90">PTES &amp; Metasploit</span>
+          <span className="text-white/90">İzinli Güvenlik Denetimi</span>
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Dağınık komutlar değil, yedi fazlı bir süreç. Kali + Metasploit ile keşiften
-          rapora kontrollü bir sızma testi.
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Kurum, açığını saldırgandan önce bulmak için kendi kapısını bir uzmana denetletir.
+          Bugün bu işin nasıl ve hangi sınırlar içinde yapıldığına bakıyoruz.
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto text-left">
           <FeatureCard
-            icon={Layers}
-            title="PTES Süreci"
-            desc="Yedi faz: kapsamdan istismara, istismardan rapora; standart bir metodoloji."
+            icon={DoorOpen}
+            title="Ne ve neden?"
+            desc="Binanın kapı-pencere kontrolünü yaptırmak gibi."
             delay={0.3}
             accent="#06b6d4"
           />
           <FeatureCard
-            icon={Terminal}
-            title="Kali Linux"
-            desc="Pentest dağıtımı: nmap, Nessus/OpenVAS, Metasploit, Burp tek yerde."
+            icon={ListChecks}
+            title="Hangi aşamalar?"
+            desc="İzinden rapora beş adım; her adımda savunan ne yapar?"
             delay={0.45}
             accent="#fbbf24"
           />
           <FeatureCard
-            icon={Bug}
-            title="Metasploit"
-            desc="Modül, payload, listener, session; istismarı düzenli yöneten çatı."
+            icon={Scale}
+            title="Sınır nerede?"
+            desc="İzin varsa denetim, izin yoksa suç."
             delay={0.6}
             accent="#f87171"
           />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Çarşamba 13:30 — 17:00 · Uygulamalı lab (Kali + Metasploitable)
-        </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ───── 2. Köprü: geçen hafta → bu hafta ───── */
+  /* ───── 2. Sorun: el kaldır ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · keşiften saldırıya</Eyebrow>
-      <H2>Açıkları bulduk; bu hafta o açıklardan içeri giriyoruz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önceki haftalarda ağı haritaladık (Nmap) ve zafiyetleri tespit ettik. Bir zafiyetin
-        &quot;var olduğunu&quot; göstermek ile onu &quot;istismar edip&quot; etkisini kanıtlamak farklıdır.
-        Sızma testi tam da bu farkı, izinli ve raporlanabilir bir süreçle kurar.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#67e8f9]">
-            <Search className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Zafiyet taraması</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Otomatik araç; &quot;bu sürümde şu CVE olabilir&quot; der.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Yanlış pozitif çoktur; istismar denenmez.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Çıktı: olası bulgu listesi.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#f87171]">
-            <Crosshair className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Sızma testi</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />İnsan eliyle zafiyeti gerçekten istismar eder.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Etkiyi kanıtlar: erişim, veri, hak yükseltme.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Çıktı: doğrulanmış bulgu + iş etkisi + öneri.</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 3. Bu dersin akışı ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: metodoloji → laboratuvar → istismar</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce neden bir metodoloji (PTES) kullandığımızı; sonra Kali laboratuvarını kurmayı;
-        en son Metasploit ile uçtan uca tek bir istismarı işliyoruz. Sonunda uygulamalı lab.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "PTES Metodolojisi", items: ["Neden süreç gerekli?", "Yedi faz", "Kapsam & kurallar (RoE)"], icon: Layers, accent: "#06b6d4" },
-          { range: "02", title: "Kali Lab Kurulumu", items: ["İzole sanal ağ", "Saldırgan + hedef VM", "Araç envanteri"], icon: Terminal, accent: "#fbbf24" },
-          { range: "03", title: "Metasploit İstismar", items: ["Modül & payload", "Meterpreter session", "Post-exploit & rapor"], icon: Bug, accent: "#f87171" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="sgbh-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 4. Bölüm 1 — PTES ───── */
-  () => (
-    <SectionDivider
-      num="01"
-      total="03"
-      title="PTES — Metodoloji"
-      subtitle="Penetration Testing Execution Standard. Sızma testini rastgele araç denemesi olmaktan çıkarıp tekrarlanabilir, kapsamı belli bir sürece dönüştüren yedi faz."
-      bgGradient="linear-gradient(135deg,#06b6d4,#0e7490)"
-      shadow="0 30px 80px -20px rgba(6,182,212,0.6)"
-      icon={<Layers className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 5. PTES yedi faz şeridi ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>PTES · yedi faz</Eyebrow>
-      <H2 className="mb-2">Süreç soldan sağa akar</H2>
-      <Sub className="max-w-3xl mb-8">
-        Her faz bir sonrakini besler: önce kapsam ve izin, sonra istihbarat ve tehdit modeli,
-        ardından istismar ve sonrası, en sonunda rapor. İstismar (faz 5) tek başına değil, bu
-        zincirin yalnızca bir halkasıdır.
-      </Sub>
-      <PtesFlow />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        className="mt-8 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl"
-      >
-        <ScrollText className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          PTES bir kontrol listesi değil, bir iskelettir. OWASP WSTG, NIST SP 800-115 ve OSSTMM
-          gibi diğer metodolojiler de benzer fazları farklı ayrıntıyla tanımlar.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 6. Pre-engagement & RoE ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Faz 1 · pre-engagement</Eyebrow>
-      <H2 className="mb-2">Tek bir komut yazmadan önce: kapsam ve izin</H2>
-      <Sub className="max-w-3xl mb-6">
-        Sızma testini meslek yapan, suçtan ayıran şey burada belirlenir. Yazılı izin ve net
-        kurallar (Rules of Engagement) olmadan hiçbir paket gönderilmez.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#a78bfa]">
-            <ClipboardList className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Sözleşmede netleşmesi gereken</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Kapsam: hangi IP/alan adı/uygulama dahil, hangisi hariç.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Zaman penceresi ve test türü (black/gray/white-box).</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />İzin verilen teknikler: DoS, sosyal mühendislik dahil mi?</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Acil durum iletişimi ve &quot;dur&quot; (stop) prosedürü.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card-warn rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#f87171]">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Olmazsa olmaz</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Yetkili imzalı yazılı izin (authorization letter).</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Üçüncü taraf varlıklar (bulut sağlayıcı vb.) için ayrı izin.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Bulunan veriyi koruma ve sözleşme sonunda imha taahhüdü.</li>
-          </ul>
-          <p className="text-xs text-gray-500 mt-4 border-t border-white/5 pt-3">
-            Kapsam dışı bir sisteme erişim, yazılı izin olsa bile TCK 243 kapsamına girebilir.
-          </p>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 7. Test türleri (box) ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bilgi seviyesi · üç kutu</Eyebrow>
-      <H2 className="mb-2">Saldırgan ne kadar biliyor?</H2>
-      <Sub className="max-w-3xl mb-8">
-        Teste başlarken ekibe verilen bilgi miktarı, hem süreyi hem gerçekçiliği belirler.
-        Hiçbiri diğerinden &quot;daha iyi&quot; değildir; amaca göre seçilir.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { box: "Black-box", color: "#f87171", icon: Eye, what: "Sıfır bilgi; dışarıdan bir saldırgan gibi.", mean: "En gerçekçi ama en uzun; çok zaman keşfe gider." },
-          { box: "Gray-box", color: "#fbbf24", icon: Shield, what: "Kısmi bilgi: bir kullanıcı hesabı, ağ şeması.", mean: "İçeriden tehdit / yetkili kullanıcı senaryosu; dengeli." },
-          { box: "White-box", color: "#34d399", icon: FileText, what: "Tam bilgi: kaynak kod, mimari, kimlik bilgileri.", mean: "En derin kapsama; kısa sürede en çok bulgu." },
-        ].map((p, i) => (
-          <motion.div
-            key={p.box}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className="sgbh-card rounded-xl p-6"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: `${p.color}18`, border: `1px solid ${p.color}55` }}
-            >
-              <p.icon className="w-6 h-6" style={{ color: p.color }} />
-            </div>
-            <div className="font-mono text-lg font-bold mb-2" style={{ color: p.color }}>{p.box}</div>
-            <p className="text-sm text-gray-300 mb-3">{p.what}</p>
-            <p className="text-xs text-gray-500 border-t border-white/5 pt-3">{p.mean}</p>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 8. Bölüm 2 — Kali Lab ───── */
-  () => (
-    <SectionDivider
-      num="02"
-      total="03"
-      title="Kali Linux — Laboratuvar"
-      subtitle="Sızma testi araçlarının paketlendiği dağıtım ve onu güvenle çalıştıracağın izole laboratuvar. İnternete açık değil, kendine ait."
-      bgGradient="linear-gradient(135deg,#f59e0b,#b45309)"
-      shadow="0 30px 80px -20px rgba(245,158,11,0.55)"
-      icon={<Terminal className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 9. İzole lab mimarisi ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Lab mimarisi · host-only ağ</Eyebrow>
-      <H2 className="mb-2">Saldırgan ve hedef, dış dünyadan kopuk</H2>
-      <Sub className="max-w-3xl mb-6">
-        Lab tamamen izole bir sanal ağda kurulur (VirtualBox/VMware host-only). Saldırgan Kali,
-        hedef ise kasıtlı zafiyetli bir VM&apos;dir. Köprü/NAT yoktur; kimse yanlışlıkla gerçek bir
-        sisteme paket gönderemez.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="sgbh-card rounded-xl p-6"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-          <div className="rounded-lg p-5 text-center" style={{ background: "#06b6d40d", border: "1px solid #06b6d455" }}>
-            <Terminal className="w-8 h-8 mx-auto mb-2 text-[#67e8f9]" />
-            <div className="text-white font-semibold">Kali Linux</div>
-            <div className="text-[11px] font-mono text-gray-400 mt-1">192.168.56.10 · saldırgan</div>
-          </div>
-          <div className="flex flex-col items-center justify-center text-center">
-            <Network className="w-7 h-7 text-[#a78bfa] mb-2" />
-            <div className="text-[11px] font-mono text-[#c4b5fd]">vboxnet0 · host-only</div>
-            <div className="text-[11px] font-mono text-gray-500">192.168.56.0/24</div>
-            <div className="flex items-center gap-2 mt-2 text-gray-600">
-              <ArrowRight className="w-4 h-4" />
-              <ArrowRight className="w-4 h-4 rotate-180" />
-            </div>
-          </div>
-          <div className="rounded-lg p-5 text-center" style={{ background: "#f871710d", border: "1px solid #f8717155" }}>
-            <Server className="w-8 h-8 mx-auto mb-2 text-[#f87171]" />
-            <div className="text-white font-semibold">Metasploitable 2</div>
-            <div className="text-[11px] font-mono text-gray-400 mt-1">192.168.56.101 · hedef</div>
-          </div>
+      <Mid>
+        <Eyebrow>Isınma · el kaldır</Eyebrow>
+        <H2 className="md:!text-4xl">Kapını hırsızdan önce sen dene</H2>
+        <div className="mt-6">
+          <Poll
+            question="Kaçınız evden çıkarken kapıyı kilitledikten sonra kolu bir kez yoklar?"
+            comment="Kolu yoklamak küçük bir testtir: kilit gerçekten tutuyor mu? Kurumlar da aynısını bilgisayar sistemleri için yapar. Buna sızma testi denir."
+          />
         </div>
-        <div className="mt-5 flex items-center gap-2 text-[11px] text-gray-500 font-mono justify-center">
-          <Lock className="w-3.5 h-3.5 text-[#34d399]" />
-          NAT / Bridged KAPALI · sadece host-only · dış ağa çıkış yok
-        </div>
-      </motion.div>
+        <AskLine>Kapı açık kalsa bunu senden önce kim fark eder?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 10. Kali araç envanteri ───── */
+  /* ───── 3. Tanım ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Kali · araç envanteri</Eyebrow>
-      <H2>Her faza karşılık gelen araç</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Kali, yüzlerce aracı PTES fazlarına yayar. İstenirse her biri ayrı kurulabilir; Kali bu
-        derlemeyi tek dağıtımda hazır sunar.
+      <Eyebrow>Benzetme · kapı-pencere kontrolü</Eyebrow>
+      <H2>Sızma testi, izinli bir güvenlik denetimidir</H2>
+      <Sub className="mt-3 max-w-4xl">
+        Bina sahibi bir ustayı çağırır: &ldquo;Kapılara, pencerelere bak; hırsız nereden girer, bana söyle.&rdquo;
+        Sızma testi (penetration test) bunun bilgisayar sistemleri için yapılanıdır.
       </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="mt-6 sgbh-card rounded-xl p-1"
-      >
-        <table className="sgbh-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "24%" }}>Faz</th>
-              <th style={{ width: "30%" }}>Tipik araç</th>
-              <th>Ne işe yarar?</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="text-white font-semibold">İstihbarat (OSINT)</td>
-              <td><span className="font-mono text-[#67e8f9]">theHarvester · Recon-ng · Maltego</span></td>
-              <td>Açık kaynaktan e-posta, alt alan adı, çalışan bilgisi toplar.</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">Tarama & keşif</td>
-              <td><span className="font-mono text-[#67e8f9]">nmap · masscan</span></td>
-              <td>Açık port, servis ve sürüm tespiti; ağ haritası.</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">Zafiyet analizi</td>
-              <td><span className="font-mono text-[#67e8f9]">OpenVAS · Nessus · nikto</span></td>
-              <td>Bilinen CVE&apos;lerle eşleştirip aday zafiyet listesi çıkarır.</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">İstismar</td>
-              <td><span className="font-mono text-[#f87171]">Metasploit Framework · sqlmap</span></td>
-              <td>Zafiyeti gerçekten kullanır; erişim/oturum elde eder.</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">Web uygulaması</td>
-              <td><span className="font-mono text-[#67e8f9]">Burp Suite · OWASP ZAP</span></td>
-              <td>HTTP isteklerini durdurur, değiştirir; web zafiyeti avlar.</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">Parola saldırısı</td>
-              <td><span className="font-mono text-[#67e8f9]">Hydra · John · Hashcat</span></td>
-              <td>Zayıf parolayı kaba kuvvet / sözlük / hash kırma ile bulur.</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 11. nmap keşif terminali ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Lab · keşif ile başlar</Eyebrow>
-      <H2 className="mb-2">Hedef VM&apos;de hangi kapı açık?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Metasploit&apos;e geçmeden önce hedefi haritalarız. Aşağıdaki çıktıda
-        <span className="text-red-400 font-mono"> vsftpd 2.3.4</span> bilinen bir arka kapıya sahip;
-        bir sonraki adımda tam olarak bunu istismar edeceğiz.
-      </Sub>
-      <TerminalWindow title="kali@pentest:~ — nmap -sV">
-        <div>
-          <span className="sgbh-term-prompt">kali@pentest</span>
-          <span className="sgbh-term-dim">:~$</span>{" "}
-          <span className="sgbh-term-cmd">sudo nmap -sS -sV -p- 192.168.56.101</span>
-        </div>
-        <div className="sgbh-term-dim">Starting Nmap 7.94 ( https://nmap.org )</div>
-        <div className="sgbh-term-dim">Nmap scan report for <span className="sgbh-term-ip">192.168.56.101</span></div>
-        <div className="sgbh-term-dim">Host is up (0.00038s latency).</div>
-        <div className="mt-1"><span className="sgbh-term-warn">PORT      STATE  SERVICE   VERSION</span></div>
-        <div><span className="sgbh-term-err">21/tcp    open   ftp</span>{" "}<span className="sgbh-term-err">vsftpd 2.3.4 (bilinen arka kapı)</span></div>
-        <div><span className="sgbh-term-ok">22/tcp    open   ssh</span>{" "}<span className="sgbh-term-dim">OpenSSH 4.7p1 (protocol 2.0)</span></div>
-        <div><span className="sgbh-term-ok">80/tcp    open   http</span>{" "}<span className="sgbh-term-dim">Apache httpd 2.2.8</span></div>
-        <div><span className="sgbh-term-err">139/tcp   open   smb</span>{" "}<span className="sgbh-term-err">Samba 3.0.20 (CVE riski)</span></div>
-        <div><span className="sgbh-term-err">3306/tcp  open   mysql</span>{" "}<span className="sgbh-term-err">MySQL 5.0.51a (eski)</span></div>
-        <div className="sgbh-term-dim mt-1">Service detection performed. 5 services, 3 with known issues.</div>
-        <div className="mt-2">
-          <span className="sgbh-term-prompt">kali@pentest</span>
-          <span className="sgbh-term-dim">:~$</span>{" "}
-          <span className="sgbh-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
-        </div>
-      </TerminalWindow>
-    </SlideShell>
-  ),
-
-  /* ───── 12. Bölüm 3 — Metasploit ───── */
-  () => (
-    <SectionDivider
-      num="03"
-      total="03"
-      title="Metasploit — İstismar"
-      subtitle="Zafiyeti tek tek elle yazmak yerine modüllerle yönetmek. Exploit + payload + oturum yönetimini tek çatıda toplayan sektör standardı framework."
-      bgGradient="linear-gradient(135deg,#ef4444,#7f1d1d)"
-      shadow="0 30px 80px -20px rgba(239,68,68,0.55)"
-      icon={<Bug className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 13. Metasploit anatomisi ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Metasploit · dört kavram</Eyebrow>
-      <H2 className="mb-2">Modül · Payload · Listener · Session</H2>
-      <Sub className="max-w-3xl mb-6">
-        Komutları ezberlemeden önce dört temel kavramı oturtmak gerekir; geri kalan her şey
-        bu dördünün bir kombinasyonudur.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { icon: Layers, name: "Modül", color: "#06b6d4", desc: "exploit / auxiliary / payload / post. Belirli bir işi yapan kod birimi." },
-          { icon: Zap, name: "Payload", color: "#fbbf24", desc: "Zafiyet açıldıktan sonra hedefte çalışacak kod — örn. reverse shell, Meterpreter." },
-          { icon: Network, name: "Listener", color: "#a78bfa", desc: "Hedeften gelecek bağlantıyı bekleyen handler (LHOST/LPORT)." },
-          { icon: Server, name: "Session", color: "#34d399", desc: "Başarılı istismar sonucu açılan etkileşimli oturum; hedefi yönetirsin." },
-        ].map((c, i) => (
-          <motion.div
-            key={c.name}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 + i * 0.1 }}
-            className="sgbh-card rounded-xl p-5"
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center mb-3"
-              style={{ background: `${c.color}18`, border: `1px solid ${c.color}55` }}
-            >
-              <c.icon className="w-5 h-5" style={{ color: c.color }} />
-            </div>
-            <div className="text-base font-semibold text-white mb-1.5">{c.name}</div>
-            <p className="text-xs text-gray-400 leading-relaxed">{c.desc}</p>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={Building2}
+          title="Kim ister?"
+          desc="Sistemin sahibi olan kurum. Kendi isteğiyle, kendi sistemi için."
+          accent="#06b6d4"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={Handshake}
+          title="Kim yapar?"
+          desc="Sözleşme imzalamış güvenlik uzmanı. Ne yapacağı baştan bellidir."
+          accent="#fbbf24"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={FileText}
+          title="Sonunda ne çıkar?"
+          desc="Bir rapor: hangi açıklar bulundu ve nasıl kapatılır."
+          accent="#34d399"
+          delay={0.3}
+        />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card rounded-lg px-5 py-4 max-w-4xl"
-      >
-        <div className="text-[10px] font-mono uppercase tracking-widest text-[#fbbf24] mb-2">Reverse vs bind payload</div>
-        <div className="flex items-center gap-2 text-xs text-gray-300 flex-wrap font-mono">
-          <span className="px-2 py-1 rounded bg-black/40 text-[#34d399]">reverse</span>
-          <span className="text-gray-500">hedef &rarr; saldırgana bağlanır (firewall&apos;ı daha kolay aşar)</span>
-          <span className="text-gray-600 mx-2">·</span>
-          <span className="px-2 py-1 rounded bg-black/40 text-[#67e8f9]">bind</span>
-          <span className="text-gray-500">hedef bir port açar, saldırgan bağlanır</span>
+      <AskLine>Bir kurum kendi sistemini neden para verip başkasına denetletir?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 4. Tarama ≠ sızma testi ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Karıştırma · iki ayrı iş</Eyebrow>
+      <H2>Tarama listeler, sızma testi doğrular</H2>
+      <Sub className="mt-3 max-w-4xl">
+        Zafiyet (vulnerability), sistemdeki güvenlik açığı demek: kırık kilit, aralık pencere.
+      </Sub>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
+        <Note icon={Search} color="#67e8f9" label="Zafiyet taraması">
+          <Bullets
+            items={[
+              "Bir program otomatik bakar.",
+              "“Bu pencere açık olabilir” der; emin değildir.",
+              "Çıktısı: olası açıkların listesi.",
+            ]}
+          />
+        </Note>
+        <Note icon={ShieldCheck} color="#fbbf24" label="Sızma testi">
+          <Bullets
+            color="#fbbf24"
+            items={[
+              "Bir uzman, izinle ve elle bakar.",
+              "Pencere gerçekten açılıyor mu, dener ve gösterir.",
+              "Çıktısı: doğrulanmış açık ve çözüm önerisi.",
+            ]}
+          />
+        </Note>
+      </div>
+      <AskLine>Listede 100 olası açık var. Hangisinin gerçek olduğunu nasıl anlarız?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 5. Beş aşama (adım adım) ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Süreç · adım adım aç</Eyebrow>
+        <H2 className="md:!text-4xl">Test beş aşamada ilerler</H2>
+        <div className="mt-5">
+          <Stepper steps={ASAMALAR} />
         </div>
-      </motion.div>
+        <AskLine>Sence en çok zaman hangi aşamaya gider? Neden?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 14. msfconsole search tablosu ───── */
+  /* ───── 6. Yazılı izin ───── */
   () => (
     <SlideShell>
-      <Eyebrow>msfconsole · modül arama</Eyebrow>
-      <H2 className="mb-2">Doğru modülü seçmek</H2>
-      <Sub className="max-w-3xl mb-6">
-        <span className="font-mono text-white">search</span> ile zafiyete uygun modülü buluruz.
-        <span className="font-mono text-[#34d399]"> Rank</span> sütunu istismarın güvenilirliğini
-        gösterir; <span className="text-[#86efac]">excellent</span> hedefi çökertme olasılığı en düşük
-        olandır. Burada vsftpd arka kapısını seçiyoruz.
-      </Sub>
-      <MsfSearchTable />
-    </SlideShell>
-  ),
-
-  /* ───── 15. msfconsole istismar terminali ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>msfconsole · uçtan uca istismar</Eyebrow>
-      <H2 className="mb-2">use → set → exploit → session</H2>
-      <Sub className="max-w-3xl mb-6">
-        Akış her zaman aynıdır: modülü seç, hedef ve dinleyici parametrelerini gir, çalıştır,
-        açılan oturumu yönet. Bu örnek vsftpd 2.3.4 arka kapısını kullanır.
-      </Sub>
-      <TerminalWindow title="msf6 — exploit/unix/ftp/vsftpd_234_backdoor">
-        <div><span className="sgbh-term-msf">msf6</span> <span className="sgbh-term-dim">&gt;</span> <span className="sgbh-term-cmd">use exploit/unix/ftp/vsftpd_234_backdoor</span></div>
-        <div><span className="sgbh-term-msf">msf6 exploit(vsftpd_234_backdoor)</span> <span className="sgbh-term-dim">&gt;</span> <span className="sgbh-term-cmd">set RHOSTS 192.168.56.101</span></div>
-        <div className="sgbh-term-dim">RHOSTS =&gt; 192.168.56.101</div>
-        <div><span className="sgbh-term-msf">msf6 exploit(vsftpd_234_backdoor)</span> <span className="sgbh-term-dim">&gt;</span> <span className="sgbh-term-cmd">exploit</span></div>
-        <div className="mt-1"><span className="sgbh-term-ok">[*]</span> <span className="sgbh-term-dim">192.168.56.101:21 - Banner: 220 (vsFTPd 2.3.4)</span></div>
-        <div><span className="sgbh-term-ok">[+]</span> <span className="sgbh-term-dim">192.168.56.101:21 - Backdoor service has been spawned, handling...</span></div>
-        <div><span className="sgbh-term-ok">[+]</span> <span className="sgbh-term-dim">192.168.56.101:21 - UID: uid=0(<span className="sgbh-term-err">root</span>) gid=0(root)</span></div>
-        <div><span className="sgbh-term-ok">[*]</span> <span className="sgbh-term-dim">Command shell session 1 opened (192.168.56.10:44321 -&gt; 192.168.56.101:6200)</span></div>
-        <div className="mt-2"><span className="sgbh-term-prompt">whoami</span></div>
-        <div className="sgbh-term-err">root</div>
-        <div><span className="sgbh-term-prompt">hostname</span></div>
-        <div className="sgbh-term-dim">metasploitable</div>
-        <div className="mt-2">
-          <span className="sgbh-term-prompt">$</span>{" "}
-          <span className="sgbh-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
+      <Mid>
+        <Eyebrow>1. aşama · en önemlisi</Eyebrow>
+        <H2 className="md:!text-4xl">Yazılı izin yoksa test de yok</H2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <Note icon={FileSignature} color="#a78bfa" label="Sözleşmede yazanlar">
+            <Bullets
+              color="#a78bfa"
+              items={[
+                "Kapsam: hangi sistemlere bakılacak?",
+                "Zaman: hangi gün ve saatlerde?",
+                "Yasak bölge: neye dokunulmayacak?",
+                "Sorun çıkarsa kim aranacak?",
+              ]}
+            />
+          </Note>
+          <Reveal
+            accent="#fbbf24"
+            question="Bir çalışan sana &ldquo;şirketin sitesini bir dene bakalım&rdquo; dedi. Bu izin yeter mi?"
+            answer="Yetmez. İzni sistemin sahibi olan kurumun yetkilisi verir ve izin yazılı olur. Sözlü bir &ldquo;bak bakalım&rdquo; seni korumaz."
+          />
         </div>
-      </TerminalWindow>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono"
-      >
-        Sonuç: <span className="text-[#f87171]">root</span> kabuğu. Bulgu kanıtlandı — bir ekran görüntüsü
-        rapora gider, hedefte hiçbir kalıcı değişiklik bırakılmaz.
-      </motion.div>
+        <AskLine>Sözlü &ldquo;bir bakıver&rdquo; neden yetmez? Sorun çıkarsa kim kimi suçlar?</AskLine>
+      </Mid>
     </SlideShell>
   ),
 
-  /* ───── 16. Post-exploitation ───── */
+  /* ───── 7. İzinli mi, izinsiz mi? ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Faz 6 · post-exploitation</Eyebrow>
-      <H2 className="mb-2">İçeri girdik — peki ya sonra?</H2>
-      <Sub className="max-w-3xl mb-8">
-        Tek bir kabuk başlangıçtır, hedef değil. Post-exploit, erişimin gerçek iş etkisini
-        ölçer: ne kadar derine inilebilir, hangi veriye ulaşılır? Hepsi kapsam ve izin dahilinde.
+      <Mid>
+        <Eyebrow>Oyna-gör · karar ver</Eyebrow>
+        <H2 className="md:!text-4xl">İzinli mi, izinsiz mi? Birlikte karar verelim</H2>
+        <div className="mt-5">
+          <Classify items={IZIN_KARTLARI} labels={["İzinli", "İzinsiz"]} />
+        </div>
+        <AskLine>İyi niyet, izin yerine geçer mi?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 8. TCK 243–245 ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Hukuk · Türk Ceza Kanunu</Eyebrow>
+      <H2>Kanun açık: izinsiz girmek suçtur</H2>
+      <Sub className="mt-3 max-w-4xl">
+        Kapı açık diye başkasının evine girilmez. Bilgisayar sistemi için de kural aynı.
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          { icon: ArrowUpCircle, title: "Hak yükseltme", desc: "Sınırlı kullanıcıdan root/SYSTEM&apos;e geçiş (yerel zafiyet, yanlış yapılandırma).", accent: "#fbbf24" },
-          { icon: Footprints, title: "Kalıcılık", desc: "Yeniden başlatmada erişimi koruma (lab&apos;da gösterilir, gerçek testte kapsam izniyle).", accent: "#a78bfa" },
-          { icon: Network, title: "Yanal hareket (pivoting)", desc: "Ele geçirilen makineyi atlama taşı yapıp iç ağdaki diğer sistemlere ulaşma.", accent: "#06b6d4" },
-          { icon: KeyRound, title: "Veri & kimlik toplama", desc: "Parola hash&apos;leri, anahtarlar, hassas dosyalar; etkiyi kanıtlamak için kanıt.", accent: "#34d399" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="sgbh-card sgbh-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-white mb-1" dangerouslySetInnerHTML={{ __html: t.title }} />
-              <p className="text-sm text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.desc }} />
-            </div>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={DoorOpen}
+          title="TCK 243 · izinsiz girmek"
+          desc="Bir bilişim sistemine izinsiz girmek ya da orada kalmak. Hiçbir şeye dokunmasan da suçtur."
+          accent="#f87171"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={Ban}
+          title="TCK 244 · bozmak, silmek"
+          desc="Sistemi çalışmaz hâle getirmek; verileri bozmak, silmek ya da değiştirmek."
+          accent="#fbbf24"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={CreditCard}
+          title="TCK 245 · kart kötüye kullanımı"
+          desc="Başkasının banka ya da kredi kartını izinsiz kullanmak."
+          accent="#a78bfa"
+          delay={0.3}
+        />
       </div>
+      <AskLine>&ldquo;Sadece baktım, bir şey yapmadım&rdquo; geçerli bir savunma olur mu?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 17. Raporlama ───── */
+  /* ───── 9. Mini sınav ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Faz 7 · raporlama</Eyebrow>
-      <H2 className="mb-2">Asıl ürün rapordur</H2>
-      <Sub className="max-w-3xl mb-6">
-        Müşteri root kabuğu için değil, anlaşılır ve önceliklendirilmiş bir rapor için ödeme yapar.
-        Her bulgu kanıt, etki ve çözümle birlikte sunulur; her zafiyet bir CVSS skoruyla
-        önceliklendirilir.
+      <Mid>
+        <Eyebrow>Mini sınav · dersin ortası</Eyebrow>
+        <H2 className="md:!text-4xl">Buraya kadar anlaştık mı?</H2>
+        <div className="mt-6">
+          <Quiz questions={ARA_SORU} />
+        </div>
+        <AskLine>Şıkka tıklamadan önce: neden o şık?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 10. Rapor ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>5. aşama · raporlama</Eyebrow>
+        <H2 className="md:!text-4xl">Asıl ürün rapordur</H2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <Note icon={FileText} color="#34d399" label="İyi bir rapor üç şey söyler">
+            <Bullets
+              color="#34d399"
+              items={[
+                "Ne bulundu? (sade bir dille)",
+                "Ne kadar tehlikeli? (düşük, orta, yüksek)",
+                "Nasıl kapatılır? (çözüm önerisi)",
+              ]}
+            />
+          </Note>
+          <Reveal
+            accent="#fbbf24"
+            question="İki bulgu var. A: Yemek listesi sayfası bazen hata veriyor. B: Öğrenci bilgilerine şifresiz ulaşılabiliyor. Önce hangisi kapatılır?"
+            answer="B. Kişisel veri açıkta; zararı çok daha büyük. Rapor bulguları bu yüzden önem sırasına dizer."
+          />
+        </div>
+        <AskLine>Rapor yazılmasaydı yapılan test kurumun ne işine yarardı?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 11. Rapor sonrası ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Savunan taraf · rapordan sonra</Eyebrow>
+      <H2>Rapor gelince savunanın işi başlar</H2>
+      <Sub className="mt-3 max-w-4xl">
+        Araç muayenesi gibi: eksik çıkar, tamir ettirirsin, yeniden muayeneye girersin.
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#34d399]">
-            <FileText className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bir bulgu kaydında olması gereken</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Başlık, etkilenen varlık ve zafiyet türü.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />CVSS skoru &amp; önem (kritik/yüksek/orta/düşük).</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Yeniden üretme adımları + ekran görüntüsü kanıtı.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />İş etkisi ve somut çözüm önerisi.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="text-xs font-mono uppercase tracking-widest text-[#06b6d4] mb-3">CVSS önem seviyeleri</div>
-          <table className="sgbh-tbl">
-            <thead>
-              <tr>
-                <th style={{ width: "34%" }}>Skor</th>
-                <th>Önem</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td className="font-mono">9.0 – 10.0</td><td><span className="sgbh-pill" style={{ background: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.35)" }}>Kritik</span></td></tr>
-              <tr><td className="font-mono">7.0 – 8.9</td><td><span className="sgbh-pill" style={{ background: "rgba(251,146,60,0.15)", color: "#fdba74", border: "1px solid rgba(251,146,60,0.35)" }}>Yüksek</span></td></tr>
-              <tr><td className="font-mono">4.0 – 6.9</td><td><span className="sgbh-pill" style={{ background: "rgba(251,191,36,0.15)", color: "#fde047", border: "1px solid rgba(251,191,36,0.35)" }}>Orta</span></td></tr>
-              <tr><td className="font-mono">0.1 – 3.9</td><td><span className="sgbh-pill sgbh-pill-a">Düşük</span></td></tr>
-            </tbody>
-          </table>
-          <p className="text-[11px] text-gray-500 mt-3">Aralıklar CVSS v3.1 niteliksel ölçeğine göredir.</p>
-        </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={Wrench}
+          title="1 · Kapat"
+          desc="En tehlikeli açıktan başla: güncelle, ayarı düzelt, gereksiz olanı kaldır."
+          accent="#06b6d4"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={ClipboardCheck}
+          title="2 · Yeniden test ettir"
+          desc="Kapattım demek yetmez; gerçekten kapandığını uzman doğrular."
+          accent="#fbbf24"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={RefreshCw}
+          title="3 · Düzenli tekrarla"
+          desc="Sistem değişir, yeni açıklar çıkar. Test bir kez yapılıp bırakılmaz."
+          accent="#34d399"
+          delay={0.3}
+        />
       </div>
+      <AskLine>Açığı kapattık. Yeniden test ettirmek neden gerekli?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 18. Uygulamalı lab ───── */
+  /* ───── 12. Sınıfta deneyelim ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-      <H2>Kendi izole laboratuvarında beş adım</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Lab tamamen kendi host-only ağında (Kali + Metasploitable 2). Sonraki derse bu beşi
-        yapmış, ekran görüntülerini almış ve mini bir bulgu kaydı yazmış gelmen bekleniyor.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: Network, title: "Lab&apos;ı kur ve doğrula", desc: "Kali + Metasploitable 2&apos;yi host-only ağda kur; karşılıklı ping ile bağlantıyı doğrula.", accent: "#a78bfa" },
-          { icon: Search, title: "Hedefi tara", desc: "sudo nmap -sV -p- ile açık portları ve sürümleri listele; çıktıyı kaydet.", accent: "#fbbf24" },
-          { icon: Bug, title: "Bir modül seç ve istismar et", desc: "msfconsole&apos;da vsftpd_234_backdoor modülünü kullan; RHOSTS ayarla, exploit ile kabuk al.", accent: "#f87171" },
-          { icon: Terminal, title: "Erişimi kanıtla", desc: "Açılan oturumda whoami ve hostname çalıştır; root erişimini ekran görüntüsüyle belgele.", accent: "#06b6d4" },
-          { icon: FileText, title: "Bir bulgu kaydı yaz", desc: "Zafiyet, etki, kanıt ve çözüm önerisini içeren tek sayfalık mini rapor hazırla.", accent: "#34d399" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.12 + i * 0.08 }}
-            className="sgbh-card sgbh-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white" dangerouslySetInnerHTML={{ __html: t.title }} />
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.desc }} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <Scale className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Yalnızca kendi laboratuvarında.</span> Sana ait olmayan bir sisteme
-          izinsiz erişim/istismar TCK 243-245 kapsamında suçtur. Yazılı izin ve kapsam = sınırı çizen tek şey.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 19. Sıradaki hafta + kapanış ───── */
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8"
-          style={{ background: "linear-gradient(135deg,#06b6d4,#0e7490)", boxShadow: "0 30px 80px -20px rgba(6,182,212,0.6)" }}
-        >
-          <ShieldCheck className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>9. hafta tamamlandı · sıradaki: Olay Müdahalesi &amp; SIEM</Eyebrow>
-        <H1>
-          <span className="sgbh-shimmer-soft">Saldırdık · şimdi tespit edeceğiz</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta saldırgan gibi düşünüp izinli bir istismar yaptık. Hafta 10&apos;da masanın diğer
-          tarafına geçiyoruz: log toplama, SIEM korelasyonu ve olay müdahale yaşam döngüsü ile bu
-          saldırıyı nasıl yakalarız?
+      <Mid>
+        <Eyebrow>Sınıfta deneyelim · 10 dakika · 3–4 kişilik grup</Eyebrow>
+        <H2 className="md:!text-4xl">Laboratuvarın kapı-pencere kontrolü</H2>
+        <Sub className="mt-2 !text-base">
+          Yalnız gözle bakıyoruz: hiçbir cihaza, hesaba ya da dosyaya dokunmak yok.
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-10 max-w-4xl mx-auto">
-          <FeatureCard icon={ListChecks} title="Log toplama" desc="Sistem, ağ ve uygulama loglarını merkezde toplama." accent="#06b6d4" delay={0.1} />
-          <FeatureCard icon={Eye} title="SIEM" desc="Korelasyon kuralları ve alarmla anormali yakalama." accent="#fbbf24" delay={0.18} />
-          <FeatureCard icon={Crosshair} title="Tespit" desc="Bu haftaki istismarın hangi izleri bıraktığını okuma." accent="#f87171" delay={0.26} />
-          <FeatureCard icon={ShieldCheck} title="Müdahale" desc="Hazırlık → tespit → kapsama → kurtarma döngüsü." accent="#34d399" delay={0.34} />
+        <div className="mt-4">
+          <Checklist
+            steps={[
+              "İzin ve kapsam: hocadan izin al. Sınır: yalnız bu sınıf, yalnız gözlem.",
+              "Keşif: 5 dakika dolaş. Açık kalmış oturum, kilitsiz ekran var mı?",
+              "Zafiyet bulma: şifre yazılı not, sahipsiz USB bellek, açık dolap gördün mü?",
+              "Rapor: 3 bulgu yaz; her birinin yanına bir çözüm önerisi ekle.",
+              "Sunum: grubun en önemli bulgusunu sınıfa oku.",
+            ]}
+          />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="sgbh-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#06b6d4] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Ders saati</div>
-            <div className="text-white font-semibold">Çarşamba</div>
-            <div className="text-sm text-gray-400">13:30 — 17:00</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Target className="w-5 h-5 text-[#a78bfa] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Hazırlık</div>
-            <div className="text-white font-semibold">Kali + Metasploitable</div>
-            <div className="text-sm text-gray-400">labı kurulu getir</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Brain className="w-5 h-5 text-[#34d399] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Teslim</div>
-            <div className="text-white font-semibold">Lab raporu</div>
-            <div className="text-sm text-gray-400">5 adım + bulgu kaydı</div>
-          </div>
+        <AskLine>Gruplarda en çok hangi bulgu çıktı? Kapatması en kolay olan hangisi?</AskLine>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 13. Kendini dene ───── */
+  () => (
+    <SlideShell>
+      <Mid>
+        <Eyebrow>Kendini dene · 3 soru</Eyebrow>
+        <H2 className="md:!text-4xl">Dersten çıkmadan son kontrol</H2>
+        <div className="mt-6">
+          <Quiz questions={KAPANIS_SORULARI} />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-10 text-xs font-mono text-gray-600 flex items-center justify-center gap-2"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>İzinsiz test yok · yazılı izin + kapsam + yalnızca kendi labın</span>
-        </motion.div>
+      </Mid>
+    </SlideShell>
+  ),
+
+  /* ───── 14. Aklında kalsın ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Özet · 9. hafta</Eyebrow>
+      <H2>
+        Aklında kalsın: <span className="sgbh-shimmer-soft">3 şey</span>
+      </H2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={DoorOpen}
+          title="1 · İzinli denetim"
+          desc="Sızma testi, kurumun kendi isteğiyle yaptırdığı kapı-pencere kontrolüdür."
+          accent="#06b6d4"
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={ListChecks}
+          title="2 · Beş aşama"
+          desc="Kapsam ve izin, keşif, zafiyet bulma, doğrulama, raporlama."
+          accent="#fbbf24"
+          delay={0.2}
+        />
+        <FeatureCard
+          icon={Scale}
+          title="3 · İzin yoksa suç"
+          desc="Yazılı izin ve kapsam olmadan yapılan her deneme TCK 243–245 kapsamına girebilir."
+          accent="#f87171"
+          delay={0.3}
+        />
+      </div>
+      <div className="mt-6">
+        <Note icon={Cloud} color="#a78bfa" label="Gelecek hafta">
+          Dosyalarımız başkasının binasında, yani bulutta duruyorsa güvenlik kimin işi?
+        </Note>
       </div>
     </SlideShell>
   ),
@@ -1204,7 +1231,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#06b6d4]/70">
-          BVA 2205 · 9. Hafta · Sızma Testi (PTES &amp; Metasploit)
+          BVA 2205 · 9. Hafta · Sızma Testi: İzinli Güvenlik Denetimi
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#06b6d4]/50">
