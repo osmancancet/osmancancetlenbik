@@ -1195,8 +1195,8 @@ export const presentations: Record<string, Entry> = {
   "uretken-yapay-zekalar-h09": {
     meta: {
       slug: "uretken-yapay-zekalar-h09",
-      title: "Büyük dil modelleri (BVA 1203 · 9. Hafta)",
-      description: "BVA 1203 9. hafta — Büyük dil modelleri (LLM): GPT, BERT, T5",
+      title: "Sohbet eden yapay zekâlar (BVA 1203 · 9. Hafta)",
+      description: "BVA 1203 9. hafta — ChatGPT, Claude, Gemini, Copilot ve diğerleri: nasıl çalışır, ne yapar, ne yapamaz (müfredat konusu: büyük dil modelleri)",
     },
     Component: dynamic(() => import("./uretken-yapay-zekalar-h09/Presentation"), {
       ssr: false,
@@ -1235,8 +1235,8 @@ export const presentations: Record<string, Entry> = {
   "uretken-yapay-zekalar-h13": {
     meta: {
       slug: "uretken-yapay-zekalar-h13",
-      title: "Yapay zekâda bilgi gösterimi (BVA 1203 · 13. Hafta)",
-      description: "BVA 1203 13. hafta — Yapay zekâda bilgi gösterimi",
+      title: "Bilgiyle çalışan YZ: araştırma ve belge araçları (BVA 1203 · 13. Hafta)",
+      description: "BVA 1203 13. hafta — Dosya yükleyip soru sorma, NotebookLM, web aramalı asistanlar, derin araştırma ve kaynak kontrolü (müfredat konusu: yapay zekâda bilgi gösterimi)",
     },
     Component: dynamic(() => import("./uretken-yapay-zekalar-h13/Presentation"), {
       ssr: false,
@@ -1245,8 +1245,8 @@ export const presentations: Record<string, Entry> = {
   "uretken-yapay-zekalar-h14": {
     meta: {
       slug: "uretken-yapay-zekalar-h14",
-      title: "Yapay zekâ dilleri ve bilgi tabanı oluşturma (BVA 1203 · 14. Hafta)",
-      description: "BVA 1203 14. hafta — Yapay zekâ dilleri ve bilgi tabanı oluşturma",
+      title: "Kendi asistanını kur ve veri işinde YZ (BVA 1203 · 14. Hafta)",
+      description: "BVA 1203 14. hafta — Özel asistanlar (GPT'ler, Gem'ler, Projeler), tabloda YZ, grafik ve kod yazdırma (müfredat konusu: yapay zekâ dilleri ve bilgi tabanı oluşturma)",
     },
     Component: dynamic(() => import("./uretken-yapay-zekalar-h14/Presentation"), {
       ssr: false,
@@ -1255,8 +1255,8 @@ export const presentations: Record<string, Entry> = {
   "uretken-yapay-zekalar-h15": {
     meta: {
       slug: "uretken-yapay-zekalar-h15",
-      title: "Üretken yapay zekâların Ar-Ge ve endüstriyel uygulamaları (BVA 1203 · 15. Hafta)",
-      description: "BVA 1203 15. hafta — Üretken yapay zekâların Ar-Ge ve endüstriyel uygulamaları",
+      title: "İş hayatında YZ ve ajanlar (BVA 1203 · 15. Hafta)",
+      description: "BVA 1203 15. hafta — Sektörlerde YZ, ajanlar ve otomasyon, araç haritası ve dönem tekrarı (müfredat konusu: Ar-Ge ve endüstriyel uygulamalar)",
     },
     Component: dynamic(() => import("./uretken-yapay-zekalar-h15/Presentation"), {
       ssr: false,

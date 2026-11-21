@@ -222,55 +222,165 @@
 .uyz-brand-anthropic { background: linear-gradient(135deg, #d97757 0%, #b45f3f 100%); }
 .uyz-brand-google { background: linear-gradient(135deg, #4285f4 0%, #34a853 33%, #fbbc04 66%, #ea4335 100%); }
 
+
 /* ============================================================
-   HAFTA 15 — Ar-Ge & endüstri yardımcı sınıfları
+   Etkileşim sınıfları (tıkla-göster, mini sınav, adım adım, çipler)
    ============================================================ */
 
-/* Terminal / kod mockup gövdesi */
-.uyz-terminal {
-  background: #07030f;
-  padding: 18px 20px;
+/* Tıklanabilir kart */
+.uyz-tap {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.07) 0%,
+    rgba(168, 85, 247, 0.02) 100%
+  );
+  border: 1px dashed rgba(168, 85, 247, 0.55);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.uyz-tap:hover {
+  border-color: rgba(192, 132, 252, 0.95);
+  background: rgba(168, 85, 247, 0.12);
+  transform: translateY(-1px);
+}
+
+.uyz-tap-open {
+  border-style: solid;
+  border-color: rgba(168, 85, 247, 0.6);
+  background: rgba(168, 85, 247, 0.12);
+}
+
+.uyz-tap-done {
+  border-style: solid;
+  border-color: rgba(74, 222, 128, 0.55);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+/* Sınav / karar şıkkı */
+.uyz-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  background: rgba(168, 85, 247, 0.06);
+  color: #e5e7eb;
+  font-size: 16px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+}
+
+.uyz-opt:hover {
+  border-color: rgba(192, 132, 252, 0.9);
+  background: rgba(168, 85, 247, 0.14);
+}
+
+.uyz-opt-letter {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   font-family: "JetBrains Mono", "Consolas", monospace;
   font-size: 13px;
-  line-height: 1.7;
-  color: #cbd5e1;
-  min-height: 220px;
+  font-weight: 700;
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
 }
-.uyz-term-prompt { color: #c084fc; font-weight: 700; }
-.uyz-term-dim { color: #6b7280; }
-.uyz-term-cmd { color: #e5e7eb; }
-.uyz-term-ok { color: #4ade80; }
-.uyz-term-warn { color: #fbbf24; }
-.uyz-term-err { color: #f87171; }
-.uyz-term-key { color: #60a5fa; }
 
-/* Karşılaştırma / endüstri tablosu */
-.uyz-tbl {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+.uyz-opt-ok,
+.uyz-opt-ok:hover {
+  border-color: rgba(74, 222, 128, 0.75);
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+  cursor: default;
 }
-.uyz-tbl th {
-  text-align: left;
-  padding: 10px 14px;
+
+.uyz-opt-bad,
+.uyz-opt-bad:hover {
+  border-color: rgba(248, 113, 113, 0.75);
+  background: rgba(239, 68, 68, 0.16);
+  color: #fecaca;
+  cursor: default;
+}
+
+.uyz-opt-dim,
+.uyz-opt-dim:hover {
+  opacity: 0.4;
+  border-color: rgba(168, 85, 247, 0.2);
+  background: rgba(168, 85, 247, 0.03);
+  cursor: default;
+}
+
+/* Ana eylem düğmesi (İleri, Sonraki soru…) */
+.uyz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  box-shadow: 0 8px 24px -10px rgba(168, 85, 247, 0.7);
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+  white-space: nowrap;
+}
+
+.uyz-btn:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+/* Seçenek çipi (aç/kapa, sekme) */
+.uyz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #c4b5fd;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  background: rgba(168, 85, 247, 0.06);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uyz-chip:hover {
+  border-color: rgba(192, 132, 252, 0.9);
+}
+
+.uyz-chip-on,
+.uyz-chip-on:hover {
+  color: #ffffff;
+  border-color: #a855f7;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.55), rgba(124, 58, 237, 0.55));
+  box-shadow: 0 0 20px -6px rgba(168, 85, 247, 0.8);
+}
+
+/* Henüz açılmamış adım */
+.uyz-step-hidden {
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+/* "Örnek cevap" etiketi — temsilî çıktı */
+.uyz-sample-tag {
+  display: inline-block;
   font-family: "JetBrains Mono", "Consolas", monospace;
   font-size: 10px;
-  text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #c084fc;
-  border-bottom: 1px solid rgba(168, 85, 247, 0.25);
-}
-.uyz-tbl td {
-  padding: 11px 14px;
-  color: #d1d5db;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  vertical-align: top;
-}
-.uyz-tbl tr:last-child td { border-bottom: none; }
-.uyz-tbl tr:hover td { background: rgba(168, 85, 247, 0.04); }
-
-/* Pipeline / diyagram düğümü kenarı */
-.uyz-pipe-node {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(168, 85, 247, 0.02));
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-bottom: 6px;
 }
