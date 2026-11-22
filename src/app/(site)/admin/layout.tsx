@@ -13,6 +13,7 @@ import {
   Radio,
   Users,
   LogOut,
+  MessageCircle,
   ExternalLink,
 } from "lucide-react";
 
@@ -20,6 +21,7 @@ const links = [
   { href: "/admin", label: "Panel", icon: LayoutDashboard },
   { href: "/admin/dersler", label: "Derslerim", icon: BookOpen },
   { href: "/admin/canli", label: "Canlı Ders", icon: Radio },
+  { href: "/admin/sohbet", label: "Sohbet", icon: MessageCircle },
   { href: "/admin/yazilar", label: "Yazılarım", icon: FileText },
   { href: "/admin/konferanslar", label: "Konferanslarım", icon: Mic },
   { href: "/admin/basin", label: "Basın", icon: Newspaper },

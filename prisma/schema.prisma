@@ -282,3 +282,40 @@ model ScamReport {
   @@index([plate])
   @@index([createdAt])
 }
+
+/// Site sohbeti: ziyaretçi köşedeki pencereden yazar, mesaj Telegram'a düşer,
+/// Telegram'da verilen yanıt aynı pencerede görünür.
+model ChatThread {
+  id             String   @id @default(cuid())
+  /// Ziyaretçinin tarayıcısında saklanan gizli anahtar; konuşmayı o açar.
+  key            String   @unique
+  name           String
+  blocked        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  lastActivityAt DateTime @default(now())
+
+  messages ChatMessage[]
+
+  @@index([lastActivityAt])
+}
+
+model ChatMessage {
+  id          String     @id @default(cuid())
+  threadId    String
+  thread      ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  /// VISITOR | OWNER
+  sender      String
+  text        String
+  /// Telegram'a iletilen kopyanın mesaj numarası; yanıt bununla eşleşir.
+  tgMessageId Int?
+  createdAt   DateTime   @default(now())
+
+  @@index([threadId, createdAt])
+  @@index([tgMessageId])
+}
+
+/// Küçük anahtar-değer ayarları (ör. sohbetin bağlı olduğu Telegram sohbeti).
+model SiteSetting {
+  key   String @id
+  value String
+}
