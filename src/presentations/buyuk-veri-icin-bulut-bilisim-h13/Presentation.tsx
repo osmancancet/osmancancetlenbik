@@ -9,10 +9,6 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Cloud,
-  Database,
-  Globe,
-  Layers,
   ChevronRight,
   ChevronLeft,
   Maximize2,
@@ -20,25 +16,19 @@ import {
   Keyboard,
   Check,
   X,
-  Zap,
-  Target,
-  Lightbulb,
+  MousePointerClick,
+  RotateCcw,
+  Smartphone,
+  HelpCircle,
+  Database,
   BarChart3,
-  Search,
+  ShoppingCart,
   HardDrive,
-  Box,
-  Package,
-  Filter,
-  Code,
-  Terminal,
-  Workflow,
-  GitBranch,
-  Gauge,
-  DollarSign,
+  Search,
+  Warehouse,
+  Waves,
   Table,
-  LineChart,
-  Calendar,
-  Brain,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -195,261 +185,593 @@ function SectionDivider({
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   ETKİLEŞİM PARÇALARI
    ============================================================ */
 
-/* Bulut analitik mimarisi: ingest → store → process → serve */
-function AnalyticsPipeline() {
-  const stages = [
-    {
-      icon: Workflow,
-      title: "Ingest",
-      label: "Veri toplama",
-      color: "#06b6d4",
-      ex: "Kinesis · Pub/Sub · Event Hubs",
-    },
-    {
-      icon: HardDrive,
-      title: "Store",
-      label: "Veri gölü",
-      color: "#22c55e",
-      ex: "S3 · GCS · ADLS (Parquet)",
-    },
-    {
-      icon: Filter,
-      title: "Process",
-      label: "Dönüştürme & sorgu",
-      color: "#a855f7",
-      ex: "Spark · Athena · BigQuery",
-    },
-    {
-      icon: LineChart,
-      title: "Serve",
-      label: "Görselleştirme",
-      color: "#f59e0b",
-      ex: "QuickSight · Looker · Power BI",
-    },
-  ];
+const BTN =
+  "inline-flex items-center gap-2 rounded-lg px-6 py-3 text-base font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors";
+
+/* Tıklanabilir öğeler ortada kalsın: ekranın sol/sağ %12'si slayt geçişine ayrılmıştır */
+function Stage({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`mx-auto w-full max-w-4xl ${className}`}>{children}</div>;
+}
+
+/* Hocanın sınıfa yönelteceği tek soru */
+function AskLine({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="grid grid-cols-1 md:grid-cols-7 gap-3 items-stretch"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6 }}
+      className="mt-6 text-sm text-gray-500"
     >
-      {stages.map((s, i) => (
-        <div key={s.title} className="contents">
+      <span className="mr-2 font-mono text-[11px] uppercase tracking-widest text-[#60a5fa]/70">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.div>
+  );
+}
+
+function TapHint({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-[#60a5fa]">
+      <MousePointerClick className="w-3.5 h-3.5" />
+      {children}
+    </span>
+  );
+}
+
+/* Tahmin et → tıkla göster */
+function Reveal({
+  question,
+  answer,
+  hint = "Cevap için tıkla",
+}: {
+  question: ReactNode;
+  answer: ReactNode;
+  hint?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`block w-full text-left rounded-xl p-5 transition-all ${
+        open ? "bvbb-card-sky" : "bvbb-card bvbb-card-hover"
+      }`}
+    >
+      <span className="block text-lg font-semibold text-white leading-snug">{question}</span>
+      {open ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 block text-base text-gray-200 leading-relaxed"
+        >
+          {answer}
+        </motion.span>
+      ) : (
+        <span className="mt-3 block">
+          <TapHint>{hint}</TapHint>
+        </span>
+      )}
+    </button>
+  );
+}
+
+/* Mini sınav: şıkka tıkla, doğru yeşil / yanlış kırmızı, tek cümle açıklama */
+type QuizItem = { q: string; options: string[]; correct: number; why: string };
+
+function Quiz({ items, doneText }: { items: QuizItem[]; doneText?: string }) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+  const item = items[idx];
+  const many = items.length > 1;
+
+  function pick(i: number) {
+    if (picked !== null) return;
+    setPicked(i);
+    if (i === item.correct) setScore((s) => s + 1);
+  }
+  function advance() {
+    if (idx === items.length - 1) {
+      setDone(true);
+    } else {
+      setIdx(idx + 1);
+      setPicked(null);
+    }
+  }
+  function restart() {
+    setIdx(0);
+    setPicked(null);
+    setScore(0);
+    setDone(false);
+  }
+
+  if (done) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bvbb-card-sky rounded-xl p-8 text-center"
+      >
+        <div className="text-5xl font-bold text-white">
+          {score} / {items.length}
+        </div>
+        <div className="mt-3 text-lg text-gray-300">
+          {doneText ?? "Yanlış yaptığın soruyu birlikte bir daha konuşalım."}
+        </div>
+        <button type="button" onClick={restart} className={`${BTN} mt-6`}>
+          <RotateCcw className="w-4 h-4" />
+          Baştan
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <div>
+      {many && (
+        <div className="mb-3 font-mono text-xs uppercase tracking-widest text-gray-500">
+          Soru {idx + 1} / {items.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white leading-snug">{item.q}</div>
+      <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+        {item.options.map((o, i) => {
+          const right = picked !== null && i === item.correct;
+          const wrong = picked === i && i !== item.correct;
+          const color = right ? "#22c55e" : wrong ? "#ef4444" : "#2563eb";
+          return (
+            <button
+              type="button"
+              key={o}
+              onClick={() => pick(i)}
+              disabled={picked !== null}
+              className="flex items-center gap-3 rounded-xl px-5 py-4 text-left text-base md:text-lg text-white transition-all disabled:cursor-default"
+              style={{
+                background: right || wrong ? `${color}26` : "rgba(37,99,235,0.07)",
+                border: `2px solid ${right || wrong ? color : "rgba(37,99,235,0.3)"}`,
+                opacity: picked !== null && !right && !wrong ? 0.45 : 1,
+              }}
+            >
+              <span
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                style={{ background: `${color}33`, color: right || wrong ? color : "#93c5fd" }}
+              >
+                {right ? <Check className="w-4 h-4" /> : wrong ? <X className="w-4 h-4" /> : "ABCD"[i]}
+              </span>
+              <span>{o}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[84px]">
+        {picked === null ? (
+          <TapHint>Sınıf karar versin, sonra şıkka tıkla</TapHint>
+        ) : (
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.15 }}
-            className="md:col-span-1 bvbb-flow-node rounded-xl p-4 flex flex-col"
-            style={{ borderColor: `${s.color}55` }}
+            className="flex flex-wrap items-center justify-between gap-4"
           >
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
-              style={{ background: `${s.color}22`, border: `1px solid ${s.color}66` }}
-            >
-              <s.icon className="w-5 h-5" style={{ color: s.color }} />
-            </div>
-            <div className="text-sm font-bold text-white">{s.title}</div>
-            <div className="text-[11px] text-gray-400 mb-2">{s.label}</div>
-            <div className="text-[10px] font-mono text-gray-500 mt-auto leading-relaxed">
-              {s.ex}
-            </div>
+            <p className="max-w-2xl text-base text-gray-200 leading-relaxed">
+              <span
+                className="mr-2 font-semibold"
+                style={{ color: picked === item.correct ? "#4ade80" : "#f87171" }}
+              >
+                {picked === item.correct ? "Doğru." : "Tam değil."}
+              </span>
+              {item.why}
+            </p>
+            {many && (
+              <button type="button" onClick={advance} className={BTN}>
+                {idx === items.length - 1 ? "Sonucu gör" : "Sonraki soru"}
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
           </motion.div>
-          {i < stages.length - 1 && (
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Adım adım ilerleyen şema: "İleri" ile adımlar tek tek açılır */
+type Step = { icon: LucideIcon; title: string; text: string; color: string };
+
+function Stepper({ steps }: { steps: Step[] }) {
+  const [shown, setShown] = useState(1);
+  const all = shown >= steps.length;
+  return (
+    <div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {steps.map((s, i) =>
+          i < shown ? (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 + i * 0.15 }}
-              className="hidden md:flex items-center justify-center"
+              key={s.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bvbb-card rounded-xl p-4 min-h-[170px]"
+              style={{ borderColor: `${s.color}66` }}
             >
-              <ChevronRight className="w-5 h-5 text-[#60a5fa]" />
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ background: `${s.color}22`, border: `1px solid ${s.color}66` }}
+                >
+                  <s.icon className="w-5 h-5" style={{ color: s.color }} />
+                </div>
+                <span className="font-mono text-xs" style={{ color: s.color }}>
+                  {i + 1}. adım
+                </span>
+              </div>
+              <div className="text-lg font-semibold text-white">{s.title}</div>
+              <div className="mt-1 text-sm text-gray-400 leading-relaxed">{s.text}</div>
             </motion.div>
+          ) : (
+            <div
+              key={s.title}
+              className="flex min-h-[170px] items-center justify-center rounded-xl border border-dashed border-white/10 text-4xl font-bold text-white/10"
+            >
+              {i + 1}
+            </div>
+          ),
+        )}
+      </div>
+      <div className="mt-5 flex justify-center">
+        <button type="button" onClick={() => setShown(all ? 1 : shown + 1)} className={BTN}>
+          {all ? (
+            <>
+              <RotateCcw className="w-4 h-4" />
+              Baştan
+            </>
+          ) : (
+            <>
+              İleri: {shown + 1}. adım
+              <ChevronRight className="w-4 h-4" />
+            </>
           )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* Seçenek çipleri (oyna-gör slaytlarında) */
+function Chips({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: number;
+  onChange: (i: number) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {options.map((o, i) => (
+        <button
+          type="button"
+          key={o}
+          onClick={() => onChange(i)}
+          className="rounded-full px-5 py-2.5 text-base font-semibold transition-all"
+          style={{
+            background: i === value ? "#2563eb" : "rgba(37,99,235,0.08)",
+            border: `2px solid ${i === value ? "#60a5fa" : "rgba(37,99,235,0.3)"}`,
+            color: i === value ? "#ffffff" : "#93c5fd",
+          }}
+        >
+          {o}
+        </button>
+      ))}
+      <TapHint>tıkla, değiştir</TapHint>
+    </div>
+  );
+}
+
+/* Sınıfta deneyelim: numaralı adımlar */
+function TrySteps({ steps }: { steps: string[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {steps.map((s, i) => (
+        <motion.div
+          key={s}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 + i * 0.1 }}
+          className="bvbb-card rounded-xl p-4 flex items-start gap-3"
+        >
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white">
+            {i + 1}
+          </span>
+          <span className="text-base text-gray-200 leading-relaxed">{s}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* Aklında kalsın: 3 şey */
+function ThreeThings({ items }: { items: string[] }) {
+  return (
+    <div className="space-y-3">
+      {items.map((t, i) => (
+        <motion.div
+          key={t}
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 + i * 0.15 }}
+          className="bvbb-card rounded-xl p-5 flex items-center gap-4"
+        >
+          <span className="text-4xl font-bold text-[#60a5fa]">{i + 1}</span>
+          <span className="text-lg md:text-xl text-white leading-snug">{t}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* İki kartlı benzetme karşılaştırması */
+function Versus({
+  left,
+  right,
+}: {
+  left: { icon: LucideIcon; tag: string; title: string; items: string[] };
+  right: { icon: LucideIcon; tag: string; title: string; items: string[] };
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {[left, right].map((c, i) => (
+        <motion.div
+          key={c.title}
+          initial={{ opacity: 0, x: i === 0 ? -20 : 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 + i * 0.15 }}
+          className={`${i === 0 ? "bvbb-card" : "bvbb-card-sky"} rounded-xl p-6`}
+        >
+          <div
+            className="flex items-center gap-2 mb-2"
+            style={{ color: i === 0 ? "#93c5fd" : "#67e8f9" }}
+          >
+            <c.icon className="w-5 h-5" />
+            <span className="font-mono text-xs uppercase tracking-widest">{c.tag}</span>
+          </div>
+          <div className="text-xl font-semibold text-white mb-3">{c.title}</div>
+          <ul className="space-y-2 text-base text-gray-300">
+            {c.items.map((it) => (
+              <li key={it} className="flex gap-2">
+                <ChevronRight
+                  className="w-4 h-4 mt-1 flex-shrink-0"
+                  style={{ color: i === 0 ? "#2563eb" : "#06b6d4" }}
+                />
+                {it}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* Kapak altındaki üç anahtar kelime */
+function CoverChips({ items }: { items: { name: string; icon: LucideIcon; color: string }[] }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
+    >
+      {items.map((p) => (
+        <div
+          key={p.name}
+          className="bvbb-card rounded-xl p-4 flex items-center gap-3"
+          style={{ borderColor: `${p.color}55` }}
+        >
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
+          >
+            <p.icon className="w-5 h-5" style={{ color: p.color }} />
+          </div>
+          <div className="text-left text-sm font-bold text-white">{p.name}</div>
         </div>
       ))}
     </motion.div>
   );
 }
 
-/* Athena / serverless SQL sorgu konsolu mockup */
-function QueryConsoleMock() {
+function CoverFooter() {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-window-chrome w-full"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.1 }}
+      className="mt-10 text-[11px] font-mono text-gray-600"
     >
-      {/* OS-level window bar */}
-      <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d1117", color: "#94a3b8" }}
-        >
-          <Globe className="w-3 h-3" />
-          <span>console.aws.amazon.com/athena · Query editor</span>
-        </div>
-      </div>
-
-      {/* SQL editor */}
-      <div className="bvbb-query-body">
-        <div>
-          <span className="bvbb-sql-com">-- S3 üzerindeki ham loglardan en çok satan 5 ürün</span>
-        </div>
-        <div>
-          <span className="bvbb-sql-kw">SELECT</span> urun_adi,{" "}
-          <span className="bvbb-sql-fn">SUM</span>(adet){" "}
-          <span className="bvbb-sql-kw">AS</span> toplam_adet
-        </div>
-        <div>
-          <span className="bvbb-sql-kw">FROM</span>{" "}
-          <span className="bvbb-sql-tbl">satislar</span>
-        </div>
-        <div>
-          <span className="bvbb-sql-kw">WHERE</span> yil ={" "}
-          <span className="bvbb-sql-num">2026</span>{" "}
-          <span className="bvbb-sql-kw">AND</span> bolge ={" "}
-          <span className="bvbb-sql-str">&apos;Ege&apos;</span>
-        </div>
-        <div>
-          <span className="bvbb-sql-kw">GROUP BY</span> urun_adi
-        </div>
-        <div>
-          <span className="bvbb-sql-kw">ORDER BY</span> toplam_adet{" "}
-          <span className="bvbb-sql-kw">DESC</span>
-        </div>
-        <div>
-          <span className="bvbb-sql-kw">LIMIT</span>{" "}
-          <span className="bvbb-sql-num">5</span>;
-        </div>
-      </div>
-
-      {/* Run bar */}
-      <div
-        className="flex items-center gap-3 px-4 py-2 text-[11px]"
-        style={{ background: "#161b22", borderTop: "1px solid #30363d", color: "#8b949e" }}
-      >
-        <span
-          className="px-3 py-1 rounded font-semibold"
-          style={{ background: "#2563eb", color: "#fff" }}
-        >
-          ▶ Run
-        </span>
-        <span className="text-green-400">● Succeeded</span>
-        <span>Süre: 1.8 sn</span>
-        <span>Taranan veri: 0.42 GB</span>
-        <span className="ml-auto text-[#fbbf24]">Tahmini ücret ≈ $0.0021</span>
-      </div>
-
-      {/* Result grid */}
-      <table className="bvbb-grid">
-        <thead>
-          <tr>
-            <th style={{ width: "8%" }}>#</th>
-            <th>urun_adi</th>
-            <th style={{ width: "25%" }}>toplam_adet</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[
-            { i: 1, n: "Zeytinyağı 1L", v: "12.840" },
-            { i: 2, n: "Kuru İncir 500g", v: "9.512" },
-            { i: 3, n: "Üzüm Pekmezi", v: "7.305" },
-            { i: 4, n: "Tahin 350g", v: "6.118" },
-            { i: 5, n: "Lavanta Sabunu", v: "4.977" },
-          ].map((r) => (
-            <tr key={r.i}>
-              <td className="text-gray-500">{r.i}</td>
-              <td className="text-white">{r.n}</td>
-              <td className="text-[#7ee787]">{r.v}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </motion.div>
-  );
-}
-
-/* CSV vs Parquet kolonsal depolama karşılaştırması */
-function StorageFormatDiagram() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="grid grid-cols-1 md:grid-cols-2 gap-6"
-    >
-      {/* Row-based CSV */}
-      <div className="bvbb-card rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Table className="w-5 h-5 text-gray-300" />
-          <div className="text-sm font-semibold text-white">CSV — satır tabanlı</div>
-          <span className="ml-auto text-[10px] text-gray-500 font-mono">ROW STORE</span>
-        </div>
-        <div className="space-y-1.5 font-mono text-[11px]">
-          {[
-            "1, Ali, Manisa, 1200",
-            "2, Ayşe, İzmir, 1850",
-            "3, Veli, Aydın, 940",
-          ].map((row) => (
-            <div
-              key={row}
-              className="rounded px-3 py-1.5 text-gray-300"
-              style={{ background: "rgba(148,163,184,0.08)", border: "1px solid rgba(148,163,184,0.18)" }}
-            >
-              {row}
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 text-[10px]">
-          <div className="bvbb-heat-low rounded px-2 py-1 text-center">Tüm satır okunur</div>
-          <div className="bvbb-heat-mid rounded px-2 py-1 text-center">Zayıf sıkıştırma</div>
-        </div>
-      </div>
-
-      {/* Columnar Parquet */}
-      <div className="bvbb-card-sky rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Layers className="w-5 h-5 text-sky-300" />
-          <div className="text-sm font-semibold text-white">Parquet — kolon tabanlı</div>
-          <span className="ml-auto text-[10px] text-sky-300/80 font-mono">COLUMN STORE</span>
-        </div>
-        <div className="space-y-1.5 font-mono text-[11px]">
-          {[
-            { c: "id", v: "[1, 2, 3]", color: "#60a5fa" },
-            { c: "ad", v: "[Ali, Ayşe, Veli]", color: "#22c55e" },
-            { c: "sehir", v: "[Manisa, İzmir, Aydın]", color: "#a855f7" },
-            { c: "tutar", v: "[1200, 1850, 940]", color: "#f59e0b" },
-          ].map((col) => (
-            <div
-              key={col.c}
-              className="rounded px-3 py-1.5 flex items-center gap-2"
-              style={{ background: `${col.color}12`, border: `1px solid ${col.color}40` }}
-            >
-              <span style={{ color: col.color }}>{col.c}:</span>
-              <span className="text-gray-300">{col.v}</span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 text-[10px]">
-          <div className="bvbb-heat-high rounded px-2 py-1 text-center">Sadece gereken kolon</div>
-          <div className="bvbb-heat-high rounded px-2 py-1 text-center">Güçlü sıkıştırma</div>
-        </div>
-      </div>
+      Öğr. Gör. Osman Can Çetlenbik · MCBÜ Manisa Teknik Bilimler MYO · Büyük Veri Analistliği
     </motion.div>
   );
 }
 
 /* ============================================================
-   SLIDES
+   13. HAFTAYA ÖZEL OYNA-GÖR BİLEŞENLERİ
+   ============================================================ */
+
+const SATIS = [
+  { sehir: "Manisa", toplam: 4200 },
+  { sehir: "İzmir", toplam: 3100 },
+  { sehir: "Aydın", toplam: 1800 },
+  { sehir: "Uşak", toplam: 900 },
+];
+
+/* CSV mi Parquet mi: aynı soruda hangi hücreler okunur? */
+function FormatPlay() {
+  const [mode, setMode] = useState(0);
+  const cols = ["tarih", "sehir", "urun", "tutar"];
+  const rows = [
+    ["3 Mart", "Manisa", "Çay", "40"],
+    ["3 Mart", "İzmir", "Tost", "90"],
+    ["4 Mart", "Manisa", "Simit", "25"],
+    ["4 Mart", "Aydın", "Çay", "40"],
+    ["5 Mart", "İzmir", "Ayran", "30"],
+  ];
+  const parquet = mode === 1;
+  return (
+    <Stage>
+      <Chips options={["CSV ile oku", "Parquet ile oku"]} value={mode} onChange={setMode} />
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+        <div className="md:col-span-3 bvbb-card rounded-xl p-4">
+          <div className="grid grid-cols-4 gap-1.5 text-center text-sm">
+            {cols.map((c) => (
+              <div key={c} className="font-mono text-xs uppercase text-gray-500 pb-1">
+                {c}
+              </div>
+            ))}
+            {rows.map((r, ri) =>
+              r.map((cell, ci) => {
+                const read = !parquet || ci === 3;
+                return (
+                  <motion.div
+                    key={`${ri}-${ci}`}
+                    animate={{
+                      backgroundColor: read ? "rgba(245,158,11,0.28)" : "rgba(255,255,255,0.03)",
+                      color: read ? "#fde68a" : "#6b7280",
+                    }}
+                    className="rounded-md py-1.5"
+                  >
+                    {cell}
+                  </motion.div>
+                );
+              }),
+            )}
+          </div>
+        </div>
+        <div className="md:col-span-2">
+          <div className="text-sm text-gray-400">Soru: toplam tutar ne kadar?</div>
+          <div className="mt-2 text-4xl font-bold text-white">
+            {parquet ? "5" : "20"}
+            <span className="text-xl font-medium text-gray-400"> / 20 hücre okundu</span>
+          </div>
+          <p className="mt-3 text-base text-gray-300 leading-relaxed">
+            {parquet
+              ? "Parquet veriyi sütun sütun saklar. Yalnız “tutar” sütununu açar, gerisine dokunmaz."
+              : "CSV veriyi satır satır saklar. Tek sütun gerekse bile bütün satırları baştan sona okur."}
+          </p>
+        </div>
+      </div>
+    </Stage>
+  );
+}
+
+/* Sorgu başına ödeme: sorgu değişince taranan veri ve fatura değişir */
+function CostPlay() {
+  const [pick, setPick] = useState(0);
+  const options = [
+    {
+      sql: "SELECT * FROM satislar;",
+      pct: 100,
+      level: "Çok",
+      note: "Bütün tabloyu tarar. Taksimetre en uzun yoldan gider.",
+    },
+    {
+      sql: "SELECT sehir, tutar FROM satislar;",
+      pct: 40,
+      level: "Orta",
+      note: "Yalnız iki sütunu tarar. Gerekmeyen sütunlara para ödemezsin.",
+    },
+    {
+      sql: "SELECT sehir, tutar FROM satislar WHERE ay = 'Mart';",
+      pct: 10,
+      level: "Az",
+      note: "İki sütun ve yalnız Mart klasörü. En kısa yol, en küçük fatura.",
+    },
+  ];
+  const o = options[pick];
+  const color = pick === 0 ? "#ef4444" : pick === 1 ? "#f59e0b" : "#22c55e";
+  return (
+    <Stage>
+      <Chips
+        options={["Her şeyi getir", "Yalnız 2 sütun", "2 sütun + yalnız bu ay"]}
+        value={pick}
+        onChange={setPick}
+      />
+      <div className="mt-4 bvbb-query-body rounded-xl" style={{ fontSize: 18 }}>
+        {o.sql}
+      </div>
+      <div className="mt-4 bvbb-card rounded-xl p-5">
+        <div className="flex items-center justify-between text-sm text-gray-400">
+          <span>Taranan veri (fatura da buna göre)</span>
+          <span className="text-xl font-bold" style={{ color }}>
+            {o.level}
+          </span>
+        </div>
+        <div className="mt-3 h-6 rounded-full bg-white/5 overflow-hidden">
+          <motion.div
+            className="h-full rounded-full"
+            animate={{ width: `${o.pct}%`, backgroundColor: color }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+        <p className="mt-3 text-base text-gray-200">{o.note}</p>
+      </div>
+      <div className="mt-2 text-xs text-gray-600">
+        Temsili gösterim: veri Parquet biçiminde ve aylara göre klasörlenmiş kabul edildi.
+      </div>
+    </Stage>
+  );
+}
+
+/* Aynı sonuç: tablo mu, grafik mi? */
+function TableChartPlay() {
+  const [mode, setMode] = useState(0);
+  const max = SATIS[0].toplam;
+  const karisik = [SATIS[2], SATIS[0], SATIS[3], SATIS[1]];
+  return (
+    <Stage>
+      <Chips options={["Tablo olarak göster", "Grafik olarak göster"]} value={mode} onChange={setMode} />
+      <div className="mt-4 bvbb-card rounded-xl p-5 min-h-[220px]">
+        {mode === 0 ? (
+          <div className="grid grid-cols-2 gap-y-2 text-lg">
+            <div className="font-mono text-xs uppercase text-gray-500">sehir</div>
+            <div className="font-mono text-xs uppercase text-gray-500">toplam</div>
+            {karisik.map((s) => (
+              <div key={s.sehir} className="contents">
+                <div className="text-gray-200">{s.sehir}</div>
+                <div className="text-gray-200">{s.toplam}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {karisik.map((s) => (
+              <div key={s.sehir} className="flex items-center gap-3">
+                <div className="w-20 text-base text-gray-200">{s.sehir}</div>
+                <div className="flex-1 h-7 rounded bg-white/5 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(s.toplam / max) * 100}%` }}
+                    transition={{ duration: 0.6 }}
+                    style={{ background: "linear-gradient(90deg, #2563eb, #60a5fa)" }}
+                  />
+                </div>
+                <div className="w-14 text-right text-sm text-gray-400">{s.toplam}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+}
+
+/* ============================================================
+   SLAYTLAR
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
@@ -464,882 +786,375 @@ const slides: Array<(active: boolean) => ReactNode> = [
           <span className="text-white">Veri Analitiği</span>
         </H1>
         <Sub className="mt-6 max-w-2xl mx-auto">
-          Ham veriyi karara dönüştürmek. Veri gölü, sunucusuz sorgu motorları
-          ve analitik hattı — terabaytları SQL ile sorgulamaya hoş geldiniz.
+          Veriyi biriktirdik. Bugün ona soru sormayı ve cevabını almayı öğreniyoruz.
         </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { name: "Data Lake", tag: "S3 · GCS · ADLS", color: "#22c55e", icon: HardDrive },
-            { name: "Sorgu Motoru", tag: "Athena · BigQuery", color: "#2563eb", icon: Search },
-            { name: "BI & Görsel", tag: "QuickSight · Looker", color: "#f59e0b", icon: BarChart3 },
-          ].map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 flex items-center gap-3"
-              style={{ borderColor: `${p.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
-              >
-                <p.icon className="w-5 h-5" style={{ color: p.color }} />
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">{p.name}</div>
-                <div className="text-[10px] text-gray-400">{p.tag}</div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          Öğr. Gör. Osman Can Çetlenbik · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
+        <CoverChips
+          items={[
+            { name: "Veri gölü ve ambarı", icon: HardDrive, color: "#22c55e" },
+            { name: "Sunucusuz sorgu", icon: Search, color: "#2563eb" },
+            { name: "Grafik ve pano", icon: BarChart3, color: "#f59e0b" },
+          ]}
+        />
+        <CoverFooter />
       </div>
     </SlideShell>
   ),
 
-  /* ─────────────────  2 · KÖPRÜ  ───────────────── */
+  /* ─────────────────  2 · SORUN / EL KALDIR  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · 12. haftadan 13. haftaya</Eyebrow>
-      <H2>Veriyi sakladık; şimdi ondan anlam çıkarıyoruz</H2>
+      <Eyebrow>El kaldır</Eyebrow>
+      <H2>Telefonun seni zaten analiz ediyor</H2>
       <Sub className="mt-3 max-w-3xl">
-        Geçen hafta NoSQL ve veri ambarı (DWH) ile büyük veriyi nereye
-        koyacağımızı konuştuk. Veri durduğu yerde değer üretmez — bu hafta o
-        veriyi sorgulayıp görselleştiren bulut analitik hattını kuruyoruz.
+        Geçen haftalarda büyük veriyi Hadoop ve Spark ile işledik. Şimdi o veriye soru soruyoruz.
       </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#93c5fd]">
-            <Database className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Geçen hafta · Depolama</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />NoSQL: doküman, anahtar-değer, kolon ailesi</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Veri ambarı: şema-on-write, yapılandırılmış</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Veri durur, ama henüz sorgulanmaz</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card-sky rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#67e8f9]">
-            <BarChart3 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bu hafta · Analitik</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Veri gölü ve lakehouse mimarisi</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Sunucusuz sorgu: doğrudan S3 üzerinde SQL</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Toplu (batch) vs akış (stream) analitik</li>
-          </ul>
-        </motion.div>
-      </div>
+      <Stage className="mt-6 space-y-3">
+        <Reveal
+          question="Kaçınız geçen hafta en çok hangi uygulamada vakit geçirdiğini biliyor?"
+          hint="Eller kalktıktan sonra tıkla"
+          answer="Telefonun biliyor. Her açtığın uygulamayı kaydediyor (veri), sonra “en çok hangisi?” diye soruyor (sorgu) ve sana grafik gösteriyor (rapor). Bu üçü birlikte analitiktir."
+        />
+        <Reveal
+          question="Aynı işi milyonlarca müşterisi olan bir market zinciri nerede yapar?"
+          answer="Bulutta. Veri tek bilgisayara sığmaz; saklamayı da sorgulamayı da kiralık bulut hizmetleri yapar. Bugünün konusu bu."
+        />
+      </Stage>
+      <AskLine>Ekran süresi raporu olmasa kendinle ilgili neyi fark etmezdin?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  3 · DERSİN AKIŞI  ───────────────── */
+  /* ─────────────────  3 · ANALİTİK NEDİR  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: veri gölü → sorgu → karar</H2>
+      <Eyebrow>Kavram</Eyebrow>
+      <H2>Analitik, veriye soru sorup cevap almaktır</H2>
       <Sub className="mt-3 max-w-3xl">
-        Önce ham veriyi nereye koyduğumuza ve hangi formatla sakladığımıza
-        bakıyoruz; sonra onu sunucusuz motorlarla sorguluyoruz; en son
-        görselleştirip iş kararına bağlıyoruz.
+        Veri analitiği (data analytics): elindeki kayıtlara bakıp karar vermeye yarayan cevabı bulmak.
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          {
-            range: "01",
-            title: "Veri Gölü & Lakehouse",
-            items: ["Lake vs Warehouse", "Şema-on-read", "Parquet kolonsal format"],
-            icon: HardDrive,
-            accent: "#22c55e",
-          },
-          {
-            range: "02",
-            title: "Sunucusuz Sorgu",
-            items: ["Athena · BigQuery · Synapse", "S3 üzerinde SQL", "Taranan veriye göre ücret"],
-            icon: Search,
-            accent: "#2563eb",
-          },
-          {
-            range: "03",
-            title: "Batch vs Stream",
-            items: ["Spark toplu işleme", "Kinesis / Pub/Sub akışı", "Görselleştirme & BI"],
-            icon: Workflow,
-            accent: "#a855f7",
-          },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="bvbb-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <FeatureCard
+          icon={HelpCircle}
+          title="1. Soru"
+          desc="Kantinde en çok ne satılıyor? Hangi saatte kuyruk oluyor?"
+          accent="#06b6d4"
+        />
+        <FeatureCard
+          icon={Database}
+          title="2. Veri"
+          desc="Kasadan çıkan her fiş bir kayıttır. Cevap bu kayıtların içinde durur."
+          delay={0.1}
+          accent="#22c55e"
+        />
+        <FeatureCard
+          icon={BarChart3}
+          title="3. Cevap"
+          desc="Öğlen tost bitiyor. Karar: öğlene daha çok tost hazırla."
+          delay={0.2}
+          accent="#f59e0b"
+        />
       </div>
+      <AskLine>Kantinci sen olsan veriye ilk hangi soruyu sorardın?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  4 · ANALİTİK HATTI  ───────────────── */
+  /* ─────────────────  4 · VERİNİN YOLCULUĞU  ───────────────── */
   () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Genel bakış · uçtan uca</Eyebrow>
-      <H2>Bulut analitik hattı</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Her bulut analitiği aynı dört adımı izler: veriyi topla, ucuza sakla,
-        ölçeklenebilir biçimde işle, sonucu insana göster. Tüm dersi bu hat
-        üzerinden okuyacağız.
-      </Sub>
+    <SlideShell>
+      <Eyebrow>Adım adım</Eyebrow>
+      <H2>Verinin yolculuğu dört duraktan geçer</H2>
+      <Stage className="mt-8">
+        <Stepper
+          steps={[
+            { icon: ShoppingCart, title: "Topla", text: "Kasada her satış bir kayıt olur.", color: "#06b6d4" },
+            { icon: HardDrive, title: "Sakla", text: "Kayıtlar bulutta ucuz bir depoya konur.", color: "#22c55e" },
+            { icon: Search, title: "Sorgula", text: "Depodaki veriye soru sorulur.", color: "#a855f7" },
+            { icon: BarChart3, title: "Göster", text: "Cevap grafik olur, müdür karar verir.", color: "#f59e0b" },
+          ]}
+        />
+      </Stage>
+      <AskLine>Market fişi bu dört durağın hangisinde doğar, hangisinde işe yarar?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  5 · GÖL vs AMBAR  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Benzetme</Eyebrow>
+      <H2>Veri gölü depodur, veri ambarı raflı market</H2>
       <div className="mt-8">
-        <AnalyticsPipeline />
+        <Versus
+          left={{
+            icon: Waves,
+            tag: "Veri gölü (data lake)",
+            title: "Her şeyin atıldığı büyük depo",
+            items: [
+              "Veri ham hâliyle, olduğu gibi girer",
+              "Fotoğraf, kayıt dosyası, tablo: hepsi olur",
+              "Saklaması ucuz, aradığını bulmak emek ister",
+            ],
+          }}
+          right={{
+            icon: Warehouse,
+            tag: "Veri ambarı (data warehouse)",
+            title: "Rafları düzenli market",
+            items: [
+              "Veri temizlenip tablolara dizilir",
+              "Her ürünün rafı ve etiketi bellidir",
+              "Soruya cevap hızlıdır, hazırlamak emek ister",
+            ],
+          }}
+        />
+      </div>
+      <AskLine>Aradığın bir şeyi depoda mı daha çabuk bulursun, markette mi? Neden?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  6 · GÖLE Mİ AMBARA MI  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Birlikte karar verelim</Eyebrow>
+      <Stage>
+        <Quiz
+          doneText="Ham ve karışık olan göle, temiz ve hazır olan ambara gider."
+          items={[
+            {
+              q: "Mağazadaki güvenlik kameralarının kayıtları nereye konur?",
+              options: ["Veri gölü (depo)", "Veri ambarı (raflı market)"],
+              correct: 0,
+              why: "Video ham ve büyük bir dosyadır, tabloya dizilmez; ucuz depoda durur.",
+            },
+            {
+              q: "Müdürün her sabah baktığı, şehir şehir düzenlenmiş satış tablosu nereye konur?",
+              options: ["Veri gölü (depo)", "Veri ambarı (raflı market)"],
+              correct: 1,
+              why: "Temiz, sütunları belli ve sık sorulan veri ambarın işidir.",
+            },
+            {
+              q: "Uygulamanın tuttuğu ham kayıt dosyaları (log) nereye konur?",
+              options: ["Veri gölü (depo)", "Veri ambarı (raflı market)"],
+              correct: 0,
+              why: "Ne işe yarayacağı henüz belli olmayan ham veri önce göle atılır.",
+            },
+            {
+              q: "Temizlenmiş, tekrarları silinmiş müşteri listesi nereye konur?",
+              options: ["Veri gölü (depo)", "Veri ambarı (raflı market)"],
+              correct: 1,
+              why: "Düzenlenmiş ve sorguya hazır veri raftadır, yani ambarda.",
+            },
+          ]}
+        />
+      </Stage>
+      <AskLine>Şıkka tıklamadan önce: neden öyle düşündün?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  7 · CSV vs PARQUET  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · dosya biçimi</Eyebrow>
+      <H2>CSV her şeyi okur, Parquet yalnız gerekeni</H2>
+      <div className="mt-6">
+        <FormatPlay />
+      </div>
+      <AskLine>Hangi soruda bütün sütunlara ihtiyaç duyarsın, hangisinde tek sütun yeter?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  8 · BÖLÜM  ───────────────── */
+  () => (
+    <SectionDivider
+      num="2"
+      total="2"
+      title="Sakladık, şimdi soralım"
+      subtitle="Veri depoda duruyor. Sıra ona soru sormakta, faturayı küçük tutmakta ve cevabı grafiğe çevirmekte."
+      bgGradient="linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)"
+      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.55)"
+      icon={<Search className="w-16 h-16 text-white" />}
+    />
+  ),
+
+  /* ─────────────────  9 · SUNUCUSUZ SORGU  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sunucusuz sorgu (serverless)</Eyebrow>
+      <H2>Sunucu kurmadan soruyu yaz, cevabı al</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Araba almak yerine taksiye binmek gibi: bilgisayarı sağlayıcı çalıştırır, sen yalnız soruyu yazarsın.
+      </Sub>
+      <Stage className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <div className="bvbb-query-body rounded-xl" style={{ fontSize: 16 }}>
+          <div>
+            <span className="bvbb-sql-kw">SELECT</span> sehir, <span className="bvbb-sql-fn">SUM</span>(tutar){" "}
+            <span className="bvbb-sql-kw">AS</span> toplam
+          </div>
+          <div>
+            <span className="bvbb-sql-kw">FROM</span> <span className="bvbb-sql-tbl">satislar</span>
+          </div>
+          <div>
+            <span className="bvbb-sql-kw">GROUP BY</span> sehir
+          </div>
+          <div>
+            <span className="bvbb-sql-kw">ORDER BY</span> toplam <span className="bvbb-sql-kw">DESC</span>;
+          </div>
+        </div>
+        <Reveal
+          question="Bu sorgu çalışınca ne görürüz?"
+          hint="Tahmin et, sonra tıkla"
+          answer={
+            <>
+              Her şehrin toplam satışı, büyükten küçüğe:
+              {SATIS.map((s) => (
+                <span key={s.sehir} className="mt-1 flex justify-between font-mono text-sm">
+                  <span>{s.sehir}</span>
+                  <span>{s.toplam}</span>
+                </span>
+              ))}
+            </>
+          }
+        />
+      </Stage>
+      <AskLine>Bu dört satır Türkçe olarak hangi soruyu soruyor?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  10 · SORGU BAŞINA ÖDEME  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · maliyet</Eyebrow>
+      <H2>Sorgu başına ödersin: taranan veri kadar</H2>
+      <div className="mt-5">
+        <CostPlay />
+      </div>
+      <AskLine>Her sorguda SELECT * yazmak neden pahalı bir alışkanlık?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  11 · ARA SORU  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Ara soru</Eyebrow>
+      <Stage>
+        <Quiz
+          items={[
+            {
+              q: "Sunucusuz sorgu servisinde ay sonu faturası kabardı. Hangisi faturayı düşürür?",
+              options: [
+                "Her sorguda SELECT * yazmak",
+                "Yalnız gereken sütunları ve tarihleri sorgulamak",
+                "Sorguyu daha hızlı yazmak",
+                "Sonucu tablo yerine grafik göstermek",
+              ],
+              correct: 1,
+              why: "Fatura taranan veriye bağlıdır; ne kadar az veri taratırsan o kadar az ödersin.",
+            },
+          ]}
+        />
+      </Stage>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  12 · TABLO → GRAFİK  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · gösterme</Eyebrow>
+      <H2>Sonuç tabloda kalmaz, grafiğe döner</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Pano (dashboard): sorgu sonuçlarını grafik olarak tek ekranda toplayan sayfa.
+      </Sub>
+      <div className="mt-5">
+        <TableChartPlay />
+      </div>
+      <AskLine>En çok satan şehri hangisinde daha çabuk buldun: tabloda mı, grafikte mi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  13 · SINIFTA DENEYELİM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sınıfta deneyelim · 10 dakika · telefonla</Eyebrow>
+      <H2>Telefonundaki analitik raporunu oku</H2>
+      <div className="mt-6">
+        <TrySteps
+          steps={[
+            "Ayarlar’ı aç: iPhone’da “Ekran Süresi”, Android’de “Dijital Denge”.",
+            "Bu hafta en çok kullandığın 3 uygulamayı ve sürelerini deftere yaz.",
+            "Yanındakiyle karşılaştır: aynı uygulamalar mı, sıralama aynı mı?",
+            "Birlikte yazın: bu rapor için hangi veri toplandı, hangi soru soruldu?",
+          ]}
+        />
+      </div>
+      <div className="mt-4 flex items-center gap-2 text-sm text-gray-400">
+        <Smartphone className="w-4 h-4 text-[#60a5fa]" />
+        Kurulum ve hesap gerekmez. Telefonu olmayan yanındakiyle çalışır.
+        <Users className="w-4 h-4 text-[#60a5fa] ml-2" />
+        İkişerli gruplar.
+      </div>
+      <AskLine>Bu rapordaki grafik, bugünkü dört durağın hangisi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  14 · KENDİNİ DENE  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Kendini dene · 3 soru</Eyebrow>
+      <Stage>
+        <Quiz
+          doneText="Takıldığın soru varsa o slayda birlikte geri dönelim."
+          items={[
+            {
+              q: "Her şeyin ham hâliyle atıldığı ucuz depoya ne diyoruz?",
+              options: ["Veri ambarı", "Veri gölü", "Pano", "Sorgu"],
+              correct: 1,
+              why: "Veri gölü ham veriyi olduğu gibi saklar; ambar ise düzenli tablolardır.",
+            },
+            {
+              q: "Yalnız “tutar” sütununun toplamı lazım. Hangisi daha az veri okur?",
+              options: ["CSV dosyası", "Parquet dosyası", "İkisi de aynı", "Dosyanın adına bağlı"],
+              correct: 1,
+              why: "Parquet sütun sütun saklar, yalnız istenen sütunu açar.",
+            },
+            {
+              q: "Sunucusuz sorgu servisinde fatura en çok neye bağlıdır?",
+              options: [
+                "Sorgunun kaç satır yazıldığına",
+                "Sorgunun taradığı veri miktarına",
+                "Kaç kişinin sonuca baktığına",
+                "Günün saatine",
+              ],
+              correct: 1,
+              why: "Sorgu başına ödersin; taksimetre taranan veriyle birlikte yazar.",
+            },
+          ]}
+        />
+      </Stage>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  15 · ÖZET + KÖPRÜ  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Aklında kalsın: 3 şey</Eyebrow>
+      <div className="mt-2 max-w-4xl">
+        <ThreeThings
+          items={[
+            "Veri gölü her şeyin atıldığı depodur, veri ambarı raflı market.",
+            "Parquet yalnız gereken sütunu okur; daha az veri, daha küçük fatura.",
+            "Sunucusuz sorguda taranan veri kadar ödersin; cevap grafiğe dönünce karar olur.",
+          ]}
+        />
       </div>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="mt-6 text-[11px] text-gray-500 text-center"
+        className="mt-6 bvbb-card-sky rounded-xl p-5 max-w-4xl flex items-center gap-3"
       >
-        <span className="bvbb-token">Not</span> Her adım ayrı bir bulut hizmetidir;
-        sağlayıcı bunları yönetir, sen yalnızca veriyi ve sorguyu getirirsin.
+        <Table className="w-6 h-6 text-[#67e8f9] flex-shrink-0" />
+        <span className="text-base md:text-lg text-gray-200">
+          Haftaya: veriye soru sormakla yetinmeyip bilgisayara veriden öğrenmeyi öğretiyoruz. Konu bulutta makine
+          öğrenimi.
+        </span>
       </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  5 · BÖLÜM 1  ───────────────── */
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Veri Gölü & Lakehouse"
-      subtitle="Veriyi işlemeden önce nereye, hangi formatta koyduğumuz analitik performansını ve maliyeti doğrudan belirler."
-      bgGradient="linear-gradient(135deg, #16a34a 0%, #22c55e 100%)"
-      shadow="0 20px 60px -10px rgba(34, 197, 94, 0.55)"
-      icon={<HardDrive className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  6 · LAKE vs WAREHOUSE  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Karşılaştırma · iki yaklaşım</Eyebrow>
-      <H2>Veri gölü vs Veri ambarı</H2>
-      <Sub className="mt-3 max-w-3xl">
-        İkisi de büyük veriyi tutar ama felsefeleri zıttır: göl &quot;önce at,
-        sonra anlamlandır&quot;; ambar &quot;önce şekle sok, sonra yükle&quot;.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 bvbb-card rounded-xl overflow-hidden"
-      >
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#1e293b] text-gray-300">
-              <th className="text-left px-4 py-3 font-semibold">Boyut</th>
-              <th className="text-left px-4 py-3 font-semibold">
-                <HardDrive className="inline w-4 h-4 mr-1.5 -mt-0.5 text-[#22c55e]" />
-                Veri Gölü (Lake)
-              </th>
-              <th className="text-left px-4 py-3 font-semibold">
-                <Database className="inline w-4 h-4 mr-1.5 -mt-0.5 text-[#60a5fa]" />
-                Veri Ambarı (DWH)
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-300">
-            {[
-              {
-                k: "Şema",
-                lake: "Şema-on-read (okurken çözülür)",
-                dwh: "Şema-on-write (yazmadan tanımlı)",
-              },
-              {
-                k: "Veri türü",
-                lake: "Ham · yapılandırılmış + yarı + yapısız",
-                dwh: "Temizlenmiş · yapılandırılmış",
-              },
-              {
-                k: "Format",
-                lake: "Parquet, JSON, CSV, görüntü, log",
-                dwh: "İlişkisel tablolar (kolonsal motor)",
-              },
-              {
-                k: "Maliyet",
-                lake: "Çok ucuz nesne deposu (GB başı düşük)",
-                dwh: "Daha pahalı, optimize hesaplama",
-              },
-              {
-                k: "Tipik kullanıcı",
-                lake: "Veri bilimci, mühendis (keşif)",
-                dwh: "Analist, BI (raporlama)",
-              },
-            ].map((row, i) => (
-              <motion.tr
-                key={row.k}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.08 }}
-                className="border-t border-white/5"
-              >
-                <td className="px-4 py-3 font-medium text-white">{row.k}</td>
-                <td className="px-4 py-3 text-[#86efac]">{row.lake}</td>
-                <td className="px-4 py-3 text-[#93c5fd]">{row.dwh}</td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        className="mt-4 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Lakehouse</span> İkisinin birleşimi:
-        gölün ucuzluğu + ambarın ACID işlem ve şema güvencesi (Delta Lake,
-        Apache Iceberg, BigLake).
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  7 · DOSYA FORMATI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Depolama formatı · neden önemli?</Eyebrow>
-      <H2>CSV vs Parquet</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Analitikte sorgu çoğunlukla birkaç kolona bakar. Satır tabanlı CSV her
-        satırı baştan sona okur; kolon tabanlı Parquet sadece gereken kolonu
-        getirir — daha az veri taranır, daha az ücret.
-      </Sub>
-      <div className="mt-8">
-        <StorageFormatDiagram />
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Pratik</span> Sunucusuz sorgu motorları
-        taranan veri üzerinden ücretlendirir; CSV&apos;yi Parquet&apos;e çevirmek
-        hem sorguyu hızlandırır hem faturayı küçültür.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  8 · BÖLÜM 2  ───────────────── */
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Sunucusuz Sorgu"
-      subtitle="Küme kurmadan, sunucu yönetmeden doğrudan veri gölü üzerinde SQL çalıştırmak. Sadece sorgu yaz, sadece taradığın veriye öde."
-      bgGradient="linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)"
-      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.6)"
-      icon={<Search className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  9 · 3 SAĞLAYICI MOTORU  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Üç sağlayıcı · aynı fikir</Eyebrow>
-      <H2>Sunucusuz analitik servisleri</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Üç büyük bulut da &quot;küme yok, sadece sorgu&quot; modelini sunar.
-        Arayüz farklı, mantık aynı: depodaki dosyaya SQL ile bak.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        {[
-          {
-            brand: "AWS",
-            name: "Amazon Athena",
-            icon: Cloud,
-            color: "#ff9900",
-            engine: "Presto / Trino tabanlı",
-            note: "S3 üzerinde doğrudan SQL; Glue Data Catalog ile şema.",
-          },
-          {
-            brand: "GCP",
-            name: "BigQuery",
-            icon: Cloud,
-            color: "#4285f4",
-            engine: "Dremel tabanlı",
-            note: "Petabayt ölçeğinde sorgu; depolama ve hesaplama ayrık.",
-          },
-          {
-            brand: "Azure",
-            name: "Synapse Serverless",
-            icon: Cloud,
-            color: "#0078d4",
-            engine: "Polaris / T-SQL",
-            note: "ADLS üzerindeki Parquet/CSV'yi T-SQL ile sorgular.",
-          },
-        ].map((s, i) => (
-          <motion.div
-            key={s.name}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5"
-            style={{ borderColor: `${s.color}55` }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${s.color}22`, border: `1px solid ${s.color}66` }}
-              >
-                <s.icon className="w-5 h-5" style={{ color: s.color }} />
-              </div>
-              <span
-                className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded"
-                style={{ background: `${s.color}1a`, color: s.color }}
-              >
-                {s.brand}
-              </span>
-            </div>
-            <div className="text-base font-bold text-white">{s.name}</div>
-            <div className="text-[11px] font-mono text-gray-500 mt-0.5">{s.engine}</div>
-            <p className="text-xs text-gray-400 mt-3 leading-relaxed">{s.note}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-center text-[11px] text-gray-500"
-      >
-        Ortak fikir: depolama (veri gölü) ile hesaplama (sorgu motoru) ayrılır —
-        kullanılmadığında hesaplama için ücret ödenmez.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · ATHENA SORGU KONSOLU  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Canlı örnek · Athena Query Editor</Eyebrow>
-      <H2 className="text-center md:text-left">S3&apos;teki veriye doğrudan SQL</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Hiç sunucu açmadan, S3&apos;teki ham satış loglarını sorguluyoruz.
-        Dikkat: çalışma süresi, taranan veri miktarı ve tahmini ücret birlikte raporlanır.
-      </Sub>
-      <div className="mt-6">
-        <QueryConsoleMock />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  11 · MALİYET MODELİ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Sunucusuz · maliyet mantığı</Eyebrow>
-      <H2 className="mb-2">Faturayı taranan veri belirler</H2>
-      <Sub className="max-w-3xl mb-8">
-        Sunucusuz sorguda çoğu sağlayıcı taranan veri miktarına göre ücret alır.
-        Aynı sorguyu üç şekilde yazıp ne kadar veri taradığına bakalım.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          {
-            title: "SELECT *",
-            color: "#f87171",
-            icon: X,
-            scan: "Tüm tablo",
-            tag: "En pahalı",
-            desc: "Bütün kolonlar + bütün bölümler taranır. Gerekmedikçe asla kullanma.",
-          },
-          {
-            title: "Kolon seç",
-            color: "#fbbf24",
-            icon: Filter,
-            scan: "Sadece gereken kolonlar",
-            tag: "Orta",
-            desc: "Parquet'te yalnız seçili kolon okunur — taranan veri düşer.",
-          },
-          {
-            title: "Kolon + bölüm (partition)",
-            color: "#34d399",
-            icon: Check,
-            scan: "Kolon ∩ ilgili bölüm",
-            tag: "En ucuz",
-            desc: "WHERE yil=2026 ile yalnız o bölümün dosyaları taranır (partition pruning).",
-          },
-        ].map((p, i) => (
-          <motion.div
-            key={p.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className="bvbb-card rounded-xl p-6"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: `${p.color}18`, border: `1px solid ${p.color}55` }}
-            >
-              <p.icon className="w-6 h-6" style={{ color: p.color }} />
-            </div>
-            <div className="font-mono text-base font-bold mb-1 text-white">{p.title}</div>
-            <div className="text-xs font-semibold mb-2" style={{ color: p.color }}>
-              {p.tag} · {p.scan}
-            </div>
-            <p className="text-xs text-gray-400 border-t border-white/5 pt-3 leading-relaxed">{p.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Kural</span> Veriyi bölümle (partition),
-        kolonsal formatta sakla, sadece gereken kolonu seç — üçü birlikte faturayı katlarca düşürür.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  12 · BÖLÜM 3  ───────────────── */
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Batch & Stream"
-      subtitle="Veri ya birikip toplu işlenir (batch) ya da geldiği anda işlenir (stream). Bulut her ikisi için ayrı, yönetilen servisler sunar."
-      bgGradient="linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)"
-      shadow="0 20px 60px -10px rgba(124, 58, 237, 0.6)"
-      icon={<Workflow className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  13 · BATCH vs STREAM  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>İki işleme modeli</Eyebrow>
-      <H2>Toplu işleme vs Akış işleme</H2>
-      <Sub className="mt-3 max-w-3xl">
-        &quot;Sonuca ne kadar hızlı ihtiyacım var?&quot; sorusu modeli belirler.
-        Gece çalışan bir rapor batch&apos;tir; dolandırıcılık uyarısı stream&apos;dir.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          {
-            n: "Batch (Toplu)",
-            icon: Package,
-            color: "#2563eb",
-            ex: "Spark · EMR · Dataproc · Glue",
-            when: "Gecelik raporlar, ETL, model eğitimi",
-            lat: "Dakikalar–saatler",
-            pro: "Büyük hacim için verimli, ucuz",
-            con: "Sonuç gecikmeli; gerçek zamanlı değil",
-          },
-          {
-            n: "Stream (Akış)",
-            icon: Zap,
-            color: "#a855f7",
-            ex: "Kinesis · Pub/Sub · Flink · Spark Streaming",
-            when: "Canlı pano, anomali/dolandırıcılık tespiti",
-            lat: "Milisaniye–saniye",
-            pro: "Anlık karar, taze veri",
-            con: "Daha karmaşık, durum (state) yönetimi gerekir",
-          },
-        ].map((d, i) => (
-          <motion.div
-            key={d.n}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bvbb-card rounded-xl p-5"
-            style={{ borderColor: `${d.color}55` }}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${d.color}22`, border: `1px solid ${d.color}66` }}
-              >
-                <d.icon className="w-5 h-5" style={{ color: d.color }} />
-              </div>
-              <div>
-                <div className="text-base font-bold text-white">{d.n}</div>
-                <div className="text-[10px] text-gray-500 font-mono">{d.ex}</div>
-              </div>
-              <span className="ml-auto flex items-center gap-1 text-[10px] font-mono text-gray-400">
-                <Gauge className="w-3.5 h-3.5" /> {d.lat}
-              </span>
-            </div>
-            <div className="text-xs text-gray-300 mb-3">
-              <span className="text-gray-500">Tipik kullanım: </span>{d.when}
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bvbb-heat-high rounded p-2">
-                <div className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wider">
-                  <Check className="w-3 h-3" /> Avantaj
-                </div>
-                <div className="mt-1">{d.pro}</div>
-              </div>
-              <div className="bvbb-heat-low rounded p-2">
-                <div className="flex items-center gap-1 font-semibold text-[10px] uppercase tracking-wider">
-                  <X className="w-3 h-3" /> Dezavantaj
-                </div>
-                <div className="mt-1">{d.con}</div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  14 · SPARK ETL TERMINAL  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Canlı çıktı · PySpark ETL işi</Eyebrow>
-      <H2 className="text-center md:text-left">CSV&apos;yi Parquet&apos;e dönüştür</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Tipik bir toplu işleme adımı: ham CSV&apos;yi oku, temizle, bölümle ve
-        kolonsal Parquet olarak veri gölüne yaz. Sonraki sorgular bu çıktıyı kullanır.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bvbb-window-chrome w-full mt-6"
-      >
-        <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-          <div className="flex gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-red-500/70" />
-            <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-            <span className="w-3 h-3 rounded-full bg-green-500/70" />
-          </div>
-          <div
-            className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-            style={{ background: "#0d1117", color: "#94a3b8" }}
-          >
-            <Terminal className="w-3 h-3" />
-            <span>emr@cluster:~ — spark-submit etl.py</span>
-          </div>
-        </div>
-        <div className="bvbb-query-body">
-          <div><span className="bvbb-sql-com"># PySpark — ham logları temizle ve Parquet olarak yaz</span></div>
-          <div>df = spark.<span className="bvbb-sql-fn">read</span>.<span className="bvbb-sql-fn">option</span>(<span className="bvbb-sql-str">&quot;header&quot;</span>, <span className="bvbb-sql-str">&quot;true&quot;</span>) \</div>
-          <div className="pl-6">.<span className="bvbb-sql-fn">csv</span>(<span className="bvbb-sql-str">&quot;s3://veri-golu/ham/satislar/&quot;</span>)</div>
-          <div className="mt-1">temiz = df.<span className="bvbb-sql-fn">dropna</span>().<span className="bvbb-sql-fn">withColumn</span>(<span className="bvbb-sql-str">&quot;yil&quot;</span>, <span className="bvbb-sql-fn">year</span>(<span className="bvbb-sql-str">&quot;tarih&quot;</span>))</div>
-          <div className="mt-1">temiz.<span className="bvbb-sql-fn">write</span>.<span className="bvbb-sql-fn">partitionBy</span>(<span className="bvbb-sql-str">&quot;yil&quot;</span>, <span className="bvbb-sql-str">&quot;bolge&quot;</span>) \</div>
-          <div className="pl-6">.<span className="bvbb-sql-fn">parquet</span>(<span className="bvbb-sql-str">&quot;s3://veri-golu/islenmis/satislar/&quot;</span>)</div>
-          <div className="mt-3" style={{ color: "#8b949e" }}>24/06 11:02 INFO DAGScheduler: Job 0 finished, took 38.4 s</div>
-          <div style={{ color: "#7ee787" }}>✔ 4.812.005 satır okundu · 11.940 hatalı satır atıldı</div>
-          <div style={{ color: "#7ee787" }}>✔ 6 bölüm (yil×bolge) · 1.2 GB → 184 MB Parquet (sıkıştırma ~6.5x)</div>
-          <div className="mt-2">
-            <span style={{ color: "#7ee787" }}>emr@cluster</span>
-            <span style={{ color: "#8b949e" }}>:~$</span>{" "}
-            <span style={{ color: "#c9d1d9" }}>_</span>
-            <span className="animate-pulse">█</span>
-          </div>
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  15 · UYGULAMALI LAB  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-      <H2>Veri gölünde dört adımda analitik</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Free Tier hesabınla, S3&apos;e bir veri seti yükleyip Athena ile
-        sorgulayacaksın. Sonraki derse çıktıların ekran görüntüsüyle gelmen bekleniyor.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          {
-            n: 1,
-            t: "S3'e veri seti yükle",
-            d: "Açık bir CSV (örn. belediye/ulaşım verisi) indir, s3://<bucket>/ham/ altına koy.",
-            icon: HardDrive,
-            color: "#22c55e",
-          },
-          {
-            n: 2,
-            t: "Glue ile tablo tanımla",
-            d: "Crawler çalıştır ya da CREATE EXTERNAL TABLE ile şemayı Athena'ya tanıt.",
-            icon: Box,
-            color: "#2563eb",
-          },
-          {
-            n: 3,
-            t: "Athena'da sorgula",
-            d: "GROUP BY / ORDER BY ile bir özet çıkar; taranan veri ve süreyi not al.",
-            icon: Search,
-            color: "#a855f7",
-          },
-          {
-            n: 4,
-            t: "Parquet'e çevir, tekrar sorgula",
-            d: "CTAS (CREATE TABLE AS) ile Parquet üret; taranan veri farkını karşılaştır.",
-            icon: Filter,
-            color: "#f59e0b",
-          },
-        ].map((item, i) => (
-          <motion.label
-            key={item.n}
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.45, delay: i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5 flex gap-4 cursor-pointer transition-all"
-          >
-            <div className="flex flex-col items-center gap-2">
-              <input
-                type="checkbox"
-                className="w-5 h-5 accent-[#2563eb] rounded"
-              />
-              <span className="text-[10px] font-mono text-gray-500">#{item.n}</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <item.icon className="w-4 h-4" style={{ color: item.color }} />
-                <div className="text-base font-semibold text-white">{item.t}</div>
-              </div>
-              <p className="text-xs text-gray-400 leading-relaxed">{item.d}</p>
-            </div>
-          </motion.label>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">İpucu</span> Sorguyu küçük tut: önce LIMIT
-        ile dene, doğru çalıştığından emin olunca tam veride çalıştır — Free Tier kotanı koru.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · GÖRSELLEŞTİRME & BI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Son adım · veriden karara</Eyebrow>
-      <H2>
-        Sorgu sonucu <span className="bvbb-shimmer-sky">panoya</span> dönüşür
-      </H2>
-      <Sub className="mt-3 max-w-3xl">
-        Analitik hattının çıktısı bir sayı yığını değil, bir karardır.
-        BI araçları sorgu sonucunu yöneticinin anlayacağı görsele çevirir.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        <FeatureCard
-          icon={BarChart3}
-          title="BI panoları"
-          desc="QuickSight, Looker Studio, Power BI — sorgu sonucunu interaktif grafik ve panolara bağlar."
-          delay={0.0}
-          accent="#f59e0b"
-        />
-        <FeatureCard
-          icon={Code}
-          title="Notebook & SQL"
-          desc="Jupyter, Databricks, BigQuery konsolu — keşifsel analiz ve tekrar üretilebilir sorgular."
-          delay={0.1}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={Brain}
-          title="Karar & aksiyon"
-          desc="Stok planı, kampanya hedefi, kapasite tahmini — veriden çıkan somut iş kararı."
-          delay={0.2}
-          accent="#a855f7"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 bvbb-card rounded-xl p-4 flex items-start gap-3"
-      >
-        <Lightbulb className="w-5 h-5 text-[#60a5fa] flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-gray-300">
-          <span className="bvbb-token">Özet</span> Topla → ucuza sakla → sunucusuz
-          sorgula → görselleştir. Bulut, bu zincirin her halkasını yönetilen bir
-          servise indirger; sen mimariye ve soruya odaklanırsın.
-        </p>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  17 · SIRADAKİ HAFTA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Hafta 14 Önizleme</Eyebrow>
-      <H2>Güvenlik &amp; maliyet yönetimi</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Analitik hattımız çalışıyor — ama bu verinin korunması ve faturanın
-        kontrol altında tutulması gerekiyor. Gelecek hafta bulutta güvenlik ve
-        maliyet optimizasyonunu işliyoruz.
-      </Sub>
-
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FeatureCard
-          icon={GitBranch}
-          title="Erişim & izolasyon"
-          desc="IAM rolleri, en az yetki, bucket politikaları ve veri şifreleme (at-rest / in-transit)."
-          delay={0.0}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={DollarSign}
-          title="Maliyet izleme"
-          desc="Cost Explorer, bütçe uyarıları, taranan veri kotaları ve depolama yaşam döngüsü kuralları."
-          delay={0.1}
-          accent="#22c55e"
-        />
-        <FeatureCard
-          icon={Gauge}
-          title="Optimizasyon"
-          desc="Spot/Reserved kapasite, Free Tier sınırları, gereksiz kaynakların kapatılması."
-          delay={0.2}
-          accent="#a855f7"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 bvbb-card rounded-xl p-5 flex items-center gap-4"
-      >
-        <Calendar className="w-6 h-6 text-[#60a5fa]" />
-        <div className="flex-1">
-          <div className="text-sm font-semibold text-white">Hazırlık</div>
-          <div className="text-xs text-gray-400 mt-0.5">
-            Bu haftanın lab çıktısını yanında getir · AWS faturanı (MTD cost)
-            ve Cost Explorer ekranını bir kez aç ve incele.
-          </div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-gray-500" />
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  18 · KAPANIŞ  ───────────────── */
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8"
-          style={{
-            background: "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
-            boxShadow: "0 20px 60px -10px rgba(37,99,235,0.6)",
-          }}
-        >
-          <BarChart3 className="w-12 h-12 text-white" />
-        </motion.div>
-
-        <Eyebrow>Hafta 13 · Son</Eyebrow>
-        <H1>
-          <span className="bvbb-shimmer">Teşekkürler!</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Ham veriyi karara dönüştürdük. Sorular için derslik 7&apos;de
-          buluşuyoruz — lab çıktılarınızı getirmeyi unutmayın.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { icon: Calendar, label: "Ders saati", value: "Çarşamba 09:55 — 12:30" },
-            { icon: Target, label: "Teslim", value: "Athena lab raporu · 4 adım" },
-            { icon: Globe, label: "Ders yöneticisi", value: "Öğr. Gör. Osman Can Çetlenbik" },
-          ].map((c, i) => (
-            <motion.div
-              key={c.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 text-left"
-            >
-              <c.icon className="w-5 h-5 text-[#60a5fa] mb-2" />
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider">{c.label}</div>
-              <div className="text-sm font-semibold text-white mt-1">{c.value}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          BVA 2103 · Büyük Veri İçin Bulut Bilişim · Güz 2026
-        </motion.div>
-      </div>
     </SlideShell>
   ),
 ];

@@ -9,33 +9,30 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Brain,
-  Cloud,
-  Database,
-  Cpu,
-  Server,
-  Workflow,
-  Boxes,
-  Rocket,
-  Gauge,
-  Layers,
-  Target,
-  Sparkles,
-  Code,
-  Terminal,
-  Table,
-  Activity,
-  Wand2,
-  GitBranch,
-  CheckCircle2,
-  AlertTriangle,
-  DollarSign,
-  ListChecks,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
+  Check,
+  X,
+  MousePointerClick,
+  RotateCcw,
+  Brain,
+  Mail,
+  Database,
+  GraduationCap,
+  FlaskConical,
+  Rocket,
+  Flame,
+  Wallet,
+  Wrench,
+  Sparkles,
+  Smartphone,
+  Wifi,
+  Shield,
+  ChefHat,
+  Cloud,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -192,198 +189,478 @@ function SectionDivider({
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   ETKİLEŞİM PARÇALARI
    ============================================================ */
 
-function MLPipeline() {
-  const steps = [
-    { icon: Database, label: "Veri", sub: "S3 / GCS / Blob", color: "#22c55e" },
-    { icon: Wand2, label: "Hazırlık", sub: "Temizle · öznitelik", color: "#0ea5e9" },
-    { icon: Cpu, label: "Eğitim", sub: "GPU küme", color: "#a855f7" },
-    { icon: Gauge, label: "Değerlendirme", sub: "Metrikler", color: "#f59e0b" },
-    { icon: Rocket, label: "Dağıtım", sub: "Endpoint", color: "#2563eb" },
-    { icon: Activity, label: "İzleme", sub: "Drift · log", color: "#ef4444" },
-  ];
+const BTN =
+  "inline-flex items-center gap-2 rounded-lg px-6 py-3 text-base font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors";
+
+/* Tıklanabilir öğeler ortada kalsın: ekranın sol/sağ %12'si slayt geçişine ayrılmıştır */
+function Stage({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`mx-auto w-full max-w-4xl ${className}`}>{children}</div>;
+}
+
+/* Hocanın sınıfa yönelteceği tek soru */
+function AskLine({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-card rounded-xl p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6 }}
+      className="mt-6 text-sm text-gray-500"
     >
-      <div className="flex flex-col md:flex-row items-stretch gap-3">
-        {steps.map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className="flex items-center gap-3 flex-1"
-          >
-            <div className="flex-1 rounded-lg p-3 text-center bvbb-card">
-              <div
-                className="w-10 h-10 mx-auto rounded-lg flex items-center justify-center mb-2"
-                style={{ background: `${s.color}22`, border: `1px solid ${s.color}66` }}
+      <span className="mr-2 font-mono text-[11px] uppercase tracking-widest text-[#60a5fa]/70">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.div>
+  );
+}
+
+function TapHint({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-[#60a5fa]">
+      <MousePointerClick className="w-3.5 h-3.5" />
+      {children}
+    </span>
+  );
+}
+
+/* Tahmin et → tıkla göster */
+function Reveal({
+  question,
+  answer,
+  hint = "Cevap için tıkla",
+}: {
+  question: ReactNode;
+  answer: ReactNode;
+  hint?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`block w-full text-left rounded-xl p-5 transition-all ${
+        open ? "bvbb-card-sky" : "bvbb-card bvbb-card-hover"
+      }`}
+    >
+      <span className="block text-lg font-semibold text-white leading-snug">{question}</span>
+      {open ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 block text-base text-gray-200 leading-relaxed"
+        >
+          {answer}
+        </motion.span>
+      ) : (
+        <span className="mt-3 block">
+          <TapHint>{hint}</TapHint>
+        </span>
+      )}
+    </button>
+  );
+}
+
+/* Mini sınav: şıkka tıkla, doğru yeşil / yanlış kırmızı, tek cümle açıklama */
+type QuizItem = { q: string; options: string[]; correct: number; why: string };
+
+function Quiz({ items, doneText }: { items: QuizItem[]; doneText?: string }) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+  const item = items[idx];
+  const many = items.length > 1;
+
+  function pick(i: number) {
+    if (picked !== null) return;
+    setPicked(i);
+    if (i === item.correct) setScore((s) => s + 1);
+  }
+  function advance() {
+    if (idx === items.length - 1) {
+      setDone(true);
+    } else {
+      setIdx(idx + 1);
+      setPicked(null);
+    }
+  }
+  function restart() {
+    setIdx(0);
+    setPicked(null);
+    setScore(0);
+    setDone(false);
+  }
+
+  if (done) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bvbb-card-sky rounded-xl p-8 text-center"
+      >
+        <div className="text-5xl font-bold text-white">
+          {score} / {items.length}
+        </div>
+        <div className="mt-3 text-lg text-gray-300">
+          {doneText ?? "Yanlış yaptığın soruyu birlikte bir daha konuşalım."}
+        </div>
+        <button type="button" onClick={restart} className={`${BTN} mt-6`}>
+          <RotateCcw className="w-4 h-4" />
+          Baştan
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <div>
+      {many && (
+        <div className="mb-3 font-mono text-xs uppercase tracking-widest text-gray-500">
+          Soru {idx + 1} / {items.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white leading-snug">{item.q}</div>
+      <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+        {item.options.map((o, i) => {
+          const right = picked !== null && i === item.correct;
+          const wrong = picked === i && i !== item.correct;
+          const color = right ? "#22c55e" : wrong ? "#ef4444" : "#2563eb";
+          return (
+            <button
+              type="button"
+              key={o}
+              onClick={() => pick(i)}
+              disabled={picked !== null}
+              className="flex items-center gap-3 rounded-xl px-5 py-4 text-left text-base md:text-lg text-white transition-all disabled:cursor-default"
+              style={{
+                background: right || wrong ? `${color}26` : "rgba(37,99,235,0.07)",
+                border: `2px solid ${right || wrong ? color : "rgba(37,99,235,0.3)"}`,
+                opacity: picked !== null && !right && !wrong ? 0.45 : 1,
+              }}
+            >
+              <span
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                style={{ background: `${color}33`, color: right || wrong ? color : "#93c5fd" }}
               >
-                <s.icon className="w-5 h-5" style={{ color: s.color }} />
-              </div>
-              <div className="text-xs font-semibold text-white">{s.label}</div>
-              <div className="text-[10px] text-gray-500 font-mono mt-0.5">{s.sub}</div>
-            </div>
-            {i < steps.length - 1 && (
-              <ChevronRight className="w-5 h-5 text-gray-600 flex-shrink-0 hidden md:block" />
+                {right ? <Check className="w-4 h-4" /> : wrong ? <X className="w-4 h-4" /> : "ABCD"[i]}
+              </span>
+              <span>{o}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[84px]">
+        {picked === null ? (
+          <TapHint>Sınıf karar versin, sonra şıkka tıkla</TapHint>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap items-center justify-between gap-4"
+          >
+            <p className="max-w-2xl text-base text-gray-200 leading-relaxed">
+              <span
+                className="mr-2 font-semibold"
+                style={{ color: picked === item.correct ? "#4ade80" : "#f87171" }}
+              >
+                {picked === item.correct ? "Doğru." : "Tam değil."}
+              </span>
+              {item.why}
+            </p>
+            {many && (
+              <button type="button" onClick={advance} className={BTN}>
+                {idx === items.length - 1 ? "Sonucu gör" : "Sonraki soru"}
+                <ChevronRight className="w-4 h-4" />
+              </button>
             )}
           </motion.div>
-        ))}
+        )}
       </div>
-      <div className="mt-4 text-[11px] text-gray-500 text-center font-mono">
-        Bulut ML akışı tek seferlik değil — &quot;İzleme&quot; adımı veriyi tekrar besler:
-        sürekli bir döngü (MLOps).
-      </div>
-    </motion.div>
+    </div>
   );
 }
 
-function SageMakerStudioMock() {
+/* Adım adım ilerleyen şema: "İleri" ile adımlar tek tek açılır */
+type Step = { icon: LucideIcon; title: string; text: string; color: string };
+
+function Stepper({ steps }: { steps: Step[] }) {
+  const [shown, setShown] = useState(1);
+  const all = shown >= steps.length;
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-window-chrome w-full"
-    >
-      {/* Window bar */}
-      <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d1117", color: "#94a3b8" }}
+    <div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {steps.map((s, i) =>
+          i < shown ? (
+            <motion.div
+              key={s.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bvbb-card rounded-xl p-4 min-h-[170px]"
+              style={{ borderColor: `${s.color}66` }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ background: `${s.color}22`, border: `1px solid ${s.color}66` }}
+                >
+                  <s.icon className="w-5 h-5" style={{ color: s.color }} />
+                </div>
+                <span className="font-mono text-xs" style={{ color: s.color }}>
+                  {i + 1}. adım
+                </span>
+              </div>
+              <div className="text-lg font-semibold text-white">{s.title}</div>
+              <div className="mt-1 text-sm text-gray-400 leading-relaxed">{s.text}</div>
+            </motion.div>
+          ) : (
+            <div
+              key={s.title}
+              className="flex min-h-[170px] items-center justify-center rounded-xl border border-dashed border-white/10 text-4xl font-bold text-white/10"
+            >
+              {i + 1}
+            </div>
+          ),
+        )}
+      </div>
+      <div className="mt-5 flex justify-center">
+        <button type="button" onClick={() => setShown(all ? 1 : shown + 1)} className={BTN}>
+          {all ? (
+            <>
+              <RotateCcw className="w-4 h-4" />
+              Baştan
+            </>
+          ) : (
+            <>
+              İleri: {shown + 1}. adım
+              <ChevronRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* Seçenek çipleri (oyna-gör slaytlarında) */
+function Chips({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: number;
+  onChange: (i: number) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {options.map((o, i) => (
+        <button
+          type="button"
+          key={o}
+          onClick={() => onChange(i)}
+          className="rounded-full px-5 py-2.5 text-base font-semibold transition-all"
+          style={{
+            background: i === value ? "#2563eb" : "rgba(37,99,235,0.08)",
+            border: `2px solid ${i === value ? "#60a5fa" : "rgba(37,99,235,0.3)"}`,
+            color: i === value ? "#ffffff" : "#93c5fd",
+          }}
         >
-          <Brain className="w-3 h-3" />
-          <span>SageMaker Studio · train.ipynb</span>
-        </div>
-      </div>
+          {o}
+        </button>
+      ))}
+      <TapHint>tıkla, değiştir</TapHint>
+    </div>
+  );
+}
 
-      {/* Notebook body */}
-      <div className="bvbb-terminal">
-        <div className="text-[#6b7280]"># [1] Kütüphaneler &amp; SageMaker oturumu</div>
-        <div>
-          <span className="text-[#a855f7]">import</span>{" "}
-          <span className="text-[#c9d1d9]">sagemaker, boto3</span>
+/* Sınıfta deneyelim: numaralı adımlar */
+function TrySteps({ steps }: { steps: string[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {steps.map((s, i) => (
+        <motion.div
+          key={s}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 + i * 0.1 }}
+          className="bvbb-card rounded-xl p-4 flex items-start gap-3"
+        >
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white">
+            {i + 1}
+          </span>
+          <span className="text-base text-gray-200 leading-relaxed">{s}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* Aklında kalsın: 3 şey */
+function ThreeThings({ items }: { items: string[] }) {
+  return (
+    <div className="space-y-3">
+      {items.map((t, i) => (
+        <motion.div
+          key={t}
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 + i * 0.15 }}
+          className="bvbb-card rounded-xl p-5 flex items-center gap-4"
+        >
+          <span className="text-4xl font-bold text-[#60a5fa]">{i + 1}</span>
+          <span className="text-lg md:text-xl text-white leading-snug">{t}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* İki kartlı benzetme karşılaştırması */
+function Versus({
+  left,
+  right,
+}: {
+  left: { icon: LucideIcon; tag: string; title: string; items: string[] };
+  right: { icon: LucideIcon; tag: string; title: string; items: string[] };
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {[left, right].map((c, i) => (
+        <motion.div
+          key={c.title}
+          initial={{ opacity: 0, x: i === 0 ? -20 : 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 + i * 0.15 }}
+          className={`${i === 0 ? "bvbb-card" : "bvbb-card-sky"} rounded-xl p-6`}
+        >
+          <div
+            className="flex items-center gap-2 mb-2"
+            style={{ color: i === 0 ? "#93c5fd" : "#67e8f9" }}
+          >
+            <c.icon className="w-5 h-5" />
+            <span className="font-mono text-xs uppercase tracking-widest">{c.tag}</span>
+          </div>
+          <div className="text-xl font-semibold text-white mb-3">{c.title}</div>
+          <ul className="space-y-2 text-base text-gray-300">
+            {c.items.map((it) => (
+              <li key={it} className="flex gap-2">
+                <ChevronRight
+                  className="w-4 h-4 mt-1 flex-shrink-0"
+                  style={{ color: i === 0 ? "#2563eb" : "#06b6d4" }}
+                />
+                {it}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* Kapak altındaki üç anahtar kelime */
+function CoverChips({ items }: { items: { name: string; icon: LucideIcon; color: string }[] }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
+    >
+      {items.map((p) => (
+        <div
+          key={p.name}
+          className="bvbb-card rounded-xl p-4 flex items-center gap-3"
+          style={{ borderColor: `${p.color}55` }}
+        >
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
+          >
+            <p.icon className="w-5 h-5" style={{ color: p.color }} />
+          </div>
+          <div className="text-left text-sm font-bold text-white">{p.name}</div>
         </div>
-        <div>
-          <span className="text-[#c9d1d9]">sess</span> ={" "}
-          <span className="text-[#60a5fa]">sagemaker</span>.Session()
-        </div>
-        <div className="mt-2 text-[#6b7280]"># [2] S3&apos;teki eğitim verisini bağla</div>
-        <div>
-          <span className="text-[#c9d1d9]">train</span> ={" "}
-          <span className="text-[#34d399]">&quot;s3://mcbu-ml/veri/train.csv&quot;</span>
-        </div>
-        <div className="mt-2 text-[#6b7280]"># [3] XGBoost tahmincisini tanımla (yönetilen kapsayıcı)</div>
-        <div>
-          <span className="text-[#c9d1d9]">est</span> = Estimator(image, role,
-        </div>
-        <div className="pl-6">
-          instance_type=<span className="text-[#34d399]">&quot;ml.m5.large&quot;</span>,
-          instance_count=<span className="text-[#a5b4fc]">1</span>)
-        </div>
-        <div className="mt-2">
-          <span className="text-[#c9d1d9]">est</span>.fit(
-          {"{"}<span className="text-[#34d399]">&quot;train&quot;</span>: train{"}"})
-        </div>
-        <div className="mt-2 text-[#34d399]">
-          2026-06-26 09:58:14 Training - Downloading the training image...
-        </div>
-        <div className="text-[#34d399]">[0]&#9;train-rmse:0.41207&#9;valid-rmse:0.44910</div>
-        <div className="text-[#34d399]">[24]&#9;train-rmse:0.18803&#9;valid-rmse:0.21744</div>
-        <div className="text-[#fbbf24]">
-          Training seconds: 96 · Billable seconds: 96
-        </div>
-        <div className="mt-2 text-[#6b7280]"># [4] Tek satırla gerçek-zamanlı endpoint aç</div>
-        <div>
-          <span className="text-[#c9d1d9]">pred</span> = est.deploy(
-          instance_type=<span className="text-[#34d399]">&quot;ml.t2.medium&quot;</span>)
-        </div>
-        <div>
-          <span className="text-[#60a5fa]">---&gt;</span> Endpoint{" "}
-          <span className="text-[#a5b4fc]">xgb-mcbu-2026</span> InService{" "}
-          <span className="animate-pulse">█</span>
-        </div>
-      </div>
+      ))}
     </motion.div>
   );
 }
 
-function ConfusionMatrix() {
+function CoverFooter() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-card rounded-xl p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.1 }}
+      className="mt-10 text-[11px] font-mono text-gray-600"
     >
-      <div className="text-xs font-mono uppercase tracking-widest text-[#60a5fa] mb-4">
-        Karmaşıklık matrisi · ikili sınıflandırma
-      </div>
-      <div className="grid grid-cols-[auto_1fr_1fr] gap-2 text-center text-sm">
-        <div />
-        <div className="text-[11px] text-gray-400 font-mono py-1">Tahmin: Pozitif</div>
-        <div className="text-[11px] text-gray-400 font-mono py-1">Tahmin: Negatif</div>
-
-        <div className="text-[11px] text-gray-400 font-mono flex items-center justify-end pr-2">
-          Gerçek: Poz.
-        </div>
-        <div className="bvbb-cm-tp rounded-lg p-4">
-          <div className="text-2xl font-bold">86</div>
-          <div className="text-[10px] mt-1">TP · doğru pozitif</div>
-        </div>
-        <div className="bvbb-cm-fn rounded-lg p-4">
-          <div className="text-2xl font-bold">14</div>
-          <div className="text-[10px] mt-1">FN · kaçırılan</div>
-        </div>
-
-        <div className="text-[11px] text-gray-400 font-mono flex items-center justify-end pr-2">
-          Gerçek: Neg.
-        </div>
-        <div className="bvbb-cm-fp rounded-lg p-4">
-          <div className="text-2xl font-bold">9</div>
-          <div className="text-[10px] mt-1">FP · yanlış alarm</div>
-        </div>
-        <div className="bvbb-cm-tn rounded-lg p-4">
-          <div className="text-2xl font-bold">891</div>
-          <div className="text-[10px] mt-1">TN · doğru negatif</div>
-        </div>
-      </div>
-      <div className="mt-5 grid grid-cols-3 gap-3 text-center">
-        <div className="bvbb-card-sky rounded-lg p-3">
-          <div className="text-[10px] text-gray-400 uppercase tracking-wider">Doğruluk</div>
-          <div className="text-lg font-bold text-white">%97.7</div>
-        </div>
-        <div className="bvbb-card-sky rounded-lg p-3">
-          <div className="text-[10px] text-gray-400 uppercase tracking-wider">Kesinlik</div>
-          <div className="text-lg font-bold text-white">%90.5</div>
-        </div>
-        <div className="bvbb-card-sky rounded-lg p-3">
-          <div className="text-[10px] text-gray-400 uppercase tracking-wider">Duyarlılık</div>
-          <div className="text-lg font-bold text-white">%86.0</div>
-        </div>
-      </div>
-      <div className="mt-4 text-[11px] text-gray-500">
-        <span className="bvbb-token">Dikkat</span> Dengesiz veride yalnız doğruluğa bakma:
-        991 negatife hep &quot;negatif&quot; demek de %90+ doğruluk verir ama hiçbir pozitifi
-        yakalamaz. Kesinlik ve duyarlılık dengesi önemlidir.
-      </div>
+      Öğr. Gör. Osman Can Çetlenbik · MCBÜ Manisa Teknik Bilimler MYO · Büyük Veri Analistliği
     </motion.div>
   );
 }
 
 /* ============================================================
-   SLIDES
+   14. HAFTAYA ÖZEL OYNA-GÖR BİLEŞENİ
+   ============================================================ */
+
+/* Spam filtresi: gösterilen örnek arttıkça yeni mesajlardaki tahmin düzelir */
+function TrainPlay() {
+  const [level, setLevel] = useState(0);
+  const mesajlar = [
+    { text: "Tebrikler! Bedava tatil kazandınız, hemen tıklayın", spam: true, guess: [true, true, true] },
+    { text: "Yarınki sınav saat 10’da, B-204’te", spam: false, guess: [false, false, false] },
+    { text: "Hesabınız kapatılacak, şifrenizi bu bağlantıdan girin", spam: true, guess: [false, true, true] },
+    { text: "Kantinde bedava çay var, gelsene", spam: false, guess: [true, true, false] },
+  ];
+  const notlar = [
+    "Az örnek gördü: “bedava” kelimesini ezberledi, şifre isteyen mesajı hiç tanımıyor.",
+    "Daha çok örnek gördü: şifre tuzağını öğrendi ama arkadaş mesajına hâlâ takılıyor.",
+    "Çok ve çeşitli örnek gördü: kelimeye değil mesajın bütününe bakıyor. Yine de gerçek hayatta ara sıra yanılır.",
+  ];
+  const dogru = mesajlar.filter((m) => m.guess[level] === m.spam).length;
+  return (
+    <Stage>
+      <Chips options={["Az örnek göster", "Daha çok örnek", "Çok ve çeşitli örnek"]} value={level} onChange={setLevel} />
+      <div className="mt-4 space-y-2">
+        {mesajlar.map((m) => {
+          const g = m.guess[level];
+          const ok = g === m.spam;
+          return (
+            <div key={m.text} className="bvbb-card rounded-lg px-4 py-2.5 flex items-center gap-3">
+              <Mail className="w-4 h-4 text-gray-500 flex-shrink-0" />
+              <span className="flex-1 text-base text-gray-200">{m.text}</span>
+              <motion.span
+                key={`${level}-${g}`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold"
+                style={{
+                  background: ok ? "rgba(34,197,94,0.18)" : "rgba(239,68,68,0.18)",
+                  color: ok ? "#4ade80" : "#f87171",
+                }}
+              >
+                {ok ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                Model: {g ? "spam" : "normal"}
+              </motion.span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center gap-4">
+        <div className="text-3xl font-bold text-white whitespace-nowrap">
+          {dogru} / 4 <span className="text-base font-medium text-gray-400">doğru</span>
+        </div>
+        <p className="text-base text-gray-300 leading-snug">{notlar[level]}</p>
+      </div>
+    </Stage>
+  );
+}
+
+/* ============================================================
+   SLAYTLAR
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
@@ -398,754 +675,385 @@ const slides: Array<(active: boolean) => ReactNode> = [
           <span className="text-white">Makine Öğrenimi</span>
         </H1>
         <Sub className="mt-6 max-w-2xl mx-auto">
-          Modeli kendi bilgisayarında değil bulutta eğit, dağıt ve izle. SageMaker,
-          Vertex AI ve Azure ML ile uçtan uca yönetilen ML akışı.
+          Bilgisayara kural yazmıyoruz, örnek gösteriyoruz. Bulut da bunun için mutfağını kiralıyor.
         </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { name: "SageMaker", tag: "AWS", color: "#ff9900", icon: Brain },
-            { name: "Vertex AI", tag: "Google Cloud", color: "#4285f4", icon: Brain },
-            { name: "Azure ML", tag: "Microsoft", color: "#0078d4", icon: Brain },
-          ].map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 flex items-center gap-3"
-              style={{ borderColor: `${p.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
-              >
-                <p.icon className="w-5 h-5" style={{ color: p.color }} />
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">{p.name}</div>
-                <div className="text-[10px] text-gray-400">{p.tag}</div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          Öğr. Gör. Osman Can Çetlenbik · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
+        <CoverChips
+          items={[
+            { name: "Örneklerden öğrenme", icon: Brain, color: "#a855f7" },
+            { name: "Hazır YZ servisleri", icon: Sparkles, color: "#2563eb" },
+            { name: "Kendi modelini eğitme", icon: GraduationCap, color: "#22c55e" },
+          ]}
+        />
+        <CoverFooter />
       </div>
     </SlideShell>
   ),
 
-  /* ─────────────────  2 · KÖPRÜ / HEDEF  ───────────────── */
+  /* ─────────────────  2 · EL KALDIR  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · 13. haftadan 14. haftaya</Eyebrow>
-      <H2>Veriyi depoladık ve sorguladık; şimdi ondan tahmin üretiyoruz</H2>
+      <Eyebrow>El kaldır</Eyebrow>
+      <H2>Bugün makine öğrenimiyle kaç kez karşılaştın?</H2>
       <Sub className="mt-3 max-w-3xl">
-        Önceki haftalarda HDFS, Spark ve NoSQL ile büyük veriyi sakladık ve işledik.
-        Bu hafta o veriyi bir adım öteye taşıyoruz: bulutun yönetilen ML servisleriyle
-        model eğitip canlı tahmin servisine dönüştürüyoruz.
+        Geçen hafta veriye soru sorduk. Bu hafta bilgisayar veriden kendisi bir şey öğreniyor.
       </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#60a5fa]">
-            <Database className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Şimdiye kadar</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Veri göllerinde (S3 / GCS) ham veri saklandı.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Spark ile dönüştürme ve toplulaştırma yapıldı.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Veri ambarında raporlar üretildi.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card-sky rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#67e8f9]">
-            <Brain className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bu hafta</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#0ea5e9] flex-shrink-0" />Aynı veriyle bulutta model eğitiyoruz.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#0ea5e9] flex-shrink-0" />Modeli bir API endpoint&apos;e dağıtıyoruz.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#0ea5e9] flex-shrink-0" />Performansı izleyip maliyeti kontrol ediyoruz.</li>
-          </ul>
-        </motion.div>
-      </div>
+      <Stage className="mt-6 space-y-3">
+        <Reveal
+          question="Kaçınız bugün hiç makine öğrenimi kullanmadığını düşünüyor?"
+          hint="Eller kalktıktan sonra tıkla"
+          answer="Büyük ihtimalle hepiniz kullandınız: telefonun yüzünü tanıyıp açıldı, klavye sıradaki kelimeyi önerdi, e-postan spam’i ayırdı, video uygulaman sıradaki videoyu seçti."
+        />
+        <Reveal
+          question="Bunların ortak noktası ne?"
+          answer="Hiçbirinde programcı kuralları tek tek yazmadı. Sistem, çok sayıda örneğe bakarak kendi kendine öğrendi."
+        />
+      </Stage>
+      <AskLine>Bu örneklerden hangisi seni en çok şaşırtıyor, hangisi bazen yanılıyor?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  3 · DERSİN AKIŞI  ───────────────── */
+  /* ─────────────────  3 · KURAL vs ÖRNEK  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: neden bulut → seviyeler → uçtan uca akış</H2>
+      <Eyebrow>Benzetme</Eyebrow>
+      <H2>Kural yazmak yerine örnek gösteririz</H2>
       <Sub className="mt-3 max-w-3xl">
-        Önce ML&apos;i neden buluta taşıdığımızı konuşuyoruz; sonra hazır API&apos;den
-        özel eğitime uzanan soyutlama seviyelerini; en son tek bir model akışını baştan
-        sona izliyoruz.
+        Küçük bir çocuğa kediyi tarif etmezsin; kedi gösterirsin. Makine öğrenimi (machine learning) de böyle çalışır.
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "Neden Bulutta ML?", items: ["Hesap & GPU sorunu", "Yönetilen servisler", "Ölçek ve maliyet"], icon: Cloud, accent: "#2563eb" },
-          { range: "02", title: "Soyutlama Seviyeleri", items: ["Hazır AI API", "AutoML", "Yönetilen eğitim"], icon: Layers, accent: "#a855f7" },
-          { range: "03", title: "Uçtan Uca Akış", items: ["Veri → eğitim → dağıtım", "Metrik & değerlendirme", "İzleme & MLOps"], icon: Workflow, accent: "#0ea5e9" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="bvbb-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
+      <div className="mt-6">
+        <Versus
+          left={{
+            icon: Wrench,
+            tag: "Klasik program",
+            title: "Kuralı sen yazarsın",
+            items: [
+              "“İçinde bedava geçiyorsa spam’dir”",
+              "Her yeni durum için yeni kural gerekir",
+              "Kural az ve netse iyi çalışır",
+            ],
+          }}
+          right={{
+            icon: Brain,
+            tag: "Makine öğrenimi",
+            title: "Kuralı örneklerden kendi çıkarır",
+            items: [
+              "Binlerce “spam” ve “normal” e-posta gösterirsin",
+              "Ortak özellikleri kendisi bulur",
+              "Ne kadar iyi örnek, o kadar iyi tahmin",
+            ],
+          }}
+        />
       </div>
+      <AskLine>Kediyi yalnız kurallarla tarif etmeyi dener misin? Nerede tıkanıyorsun?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  4 · BÖLÜM 1  ───────────────── */
+  /* ─────────────────  4 · SPAM FİLTRESİ OYNA-GÖR  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · spam filtresi</Eyebrow>
+      <H2>Örnek arttıkça tahmin düzelir</H2>
+      <div className="mt-5">
+        <TrainPlay />
+      </div>
+      <AskLine>Az örnekle eğitilen model “bedava çay” mesajına neden spam dedi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  5 · DÖRT ADIM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Adım adım · ikinci el araba fiyatı</Eyebrow>
+      <H2>Öğrenme dört adımda olur</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Model: örneklerden çıkarılan tahmin makinesi. Eğitim: modele örnek gösterme işi.
+      </Sub>
+      <Stage className="mt-5">
+        <Stepper
+          steps={[
+            { icon: Database, title: "Örnek topla", text: "Eski ilanlar: marka, yaş, kilometre ve satış fiyatı.", color: "#06b6d4" },
+            { icon: GraduationCap, title: "Eğit", text: "Model ilanlara bakar, fiyatı neyin etkilediğini bulur.", color: "#a855f7" },
+            { icon: FlaskConical, title: "Dene", text: "Hiç görmediği ilanlarla sınanır: tahmini tutuyor mu?", color: "#f59e0b" },
+            { icon: Rocket, title: "Kullan", text: "Yeni bir ilan gelir, model fiyat tahmini verir.", color: "#22c55e" },
+          ]}
+        />
+      </Stage>
+      <AskLine>Modeli neden daha önce hiç görmediği ilanlarla deniyoruz?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  6 · SAYI MI ETİKET Mİ  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Tahmin et · tıkla göster</Eyebrow>
+      <H2>Sayı mı tahmin ediyor, etiket mi seçiyor?</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Modeller en çok iki iş yapar: bir sayı tahmin eder ya da hazır etiketlerden birini seçer.
+      </Sub>
+      <Stage className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+        <Reveal
+          question="Bu evin kirası ne kadar olur?"
+          hint="Tahmin et, tıkla"
+          answer="Sayı tahmini. Cevap bir miktardır; araba fiyatı örneğiyle aynı tür."
+        />
+        <Reveal
+          question="Bu fotoğraftaki kedi mi, köpek mi?"
+          hint="Tahmin et, tıkla"
+          answer="Etiket seçme (sınıflandırma). Cevap hazır seçeneklerden biridir."
+        />
+        <Reveal
+          question="Bu e-posta spam mi?"
+          hint="Tahmin et, tıkla"
+          answer="Etiket seçme. İki etiket var: spam ya da normal."
+        />
+      </Stage>
+      <AskLine>Sen de bir örnek söyle: sayı tahmini mi, etiket seçme mi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  7 · ARA SORU  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Ara soru</Eyebrow>
+      <Stage>
+        <Quiz
+          items={[
+            {
+              q: "Bir spam filtresi hangi mesajın spam olduğunu nereden öğrenir?",
+              options: [
+                "Programcının yazdığı uzun bir kelime listesinden",
+                "Daha önce “spam” ve “normal” diye işaretlenmiş örnek e-postalardan",
+                "İnternetin hızından",
+                "E-postanın gönderildiği saatten",
+              ],
+              correct: 1,
+              why: "Makine öğrenimi işaretlenmiş örneklerden öğrenir; senin “spam olarak işaretle” tıklaman da bir örnektir.",
+            },
+          ]}
+        />
+      </Stage>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  8 · BÖLÜM  ───────────────── */
   () => (
     <SectionDivider
-      num="1"
-      total="3"
-      title="Neden Bulutta ML?"
-      subtitle="Kişisel bilgisayarın eğitemediği modeli, donanım kiralayıp dakikada eğitmek. Yönetilen servislerin çözdüğü temel sorun."
-      bgGradient="linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)"
-      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.6)"
+      num="2"
+      total="2"
+      title="Peki bulut bu işin neresinde?"
+      subtitle="Öğrenmek çok örnek ve güçlü bilgisayar ister. İkisini de satın almak yerine kiralayabilirsin."
+      bgGradient="linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)"
+      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.55)"
       icon={<Cloud className="w-16 h-16 text-white" />}
     />
   ),
 
-  /* ─────────────────  5 · YEREL vs BULUT  ───────────────── */
+  /* ─────────────────  9 · HAZIR MUTFAK  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Karşılaştırma · yerel vs bulut</Eyebrow>
-      <H2>Dizüstü bilgisayar bir yere kadar</H2>
+      <Eyebrow>Benzetme</Eyebrow>
+      <H2>Bulut, hazır mutfak kiralamak gibidir</H2>
       <Sub className="mt-3 max-w-3xl">
-        Küçük bir veri setiyle deney yaparken yerel makine yeterlidir. Büyük veride ve
-        GPU gerektiren modellerde duvara çarparsın.
+        Yılda birkaç kez büyük yemek yapacaksan restoran mutfağı satın almazsın; saatliğine kiralarsın.
       </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-8 bvbb-card rounded-xl overflow-hidden"
-      >
-        <table className="bvbb-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "26%" }}>Boyut</th>
-              <th style={{ width: "37%" }}>
-                <Cpu className="inline w-4 h-4 mr-1.5 -mt-0.5" />
-                Yerel makine
-              </th>
-              <th>
-                <Cloud className="inline w-4 h-4 mr-1.5 -mt-0.5 text-[#60a5fa]" />
-                Bulutta ML
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              { k: "GPU erişimi", op: "Pahalı, tek kart, sınırlı bellek", cl: "İstersen 8x A100/H100, saatlik kiralık" },
-              { k: "Ölçek", op: "Tek makineye sığan kadar veri", cl: "Dağıtık eğitim, terabaytlarca veri" },
-              { k: "Kurulum", op: "CUDA/sürücü/kütüphane çilesi", cl: "Hazır kapsayıcı (container) imajları" },
-              { k: "Maliyet modeli", op: "Donanımı satın al (CapEx)", cl: "Saniye/saat bazlı kiralama (OpEx)" },
-              { k: "Dağıtım", op: "Modeli sen sunucuya kur", cl: "Tek komutla yönetilen endpoint" },
-            ].map((row, i) => (
-              <motion.tr
-                key={row.k}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.08 }}
-              >
-                <td className="font-medium text-white">{row.k}</td>
-                <td className="text-gray-400">{row.op}</td>
-                <td className="text-[#93c5fd]">{row.cl}</td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        className="mt-4 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Not</span> Bulut her zaman zorunlu değildir —
-        küçük deneyler ve öğrenme için yerel ortam hâlâ en hızlısıdır.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  6 · YÖNETİLEN SERVİSİN AVANTAJLARI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Yönetilen ML servisleri</Eyebrow>
-      <H2>Sağlayıcı altyapıyı taşır, sen modele odaklanırsın</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bulut ML platformları, makine öğrenmesinin sıkıcı ama kritik altyapı işlerini
-        üstlenir; senin işin veri ve model kalitesi olur.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <FeatureCard
-          icon={Cpu}
-          title="Esnek hesaplama"
-          desc="CPU, GPU veya TPU düğümü dakikada başlar, iş bitince kapanır — yalnız kullandığın süreyi ödersin."
-          delay={0.0}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={Boxes}
-          title="Hazır ortamlar"
-          desc="TensorFlow, PyTorch, XGBoost önceden kurulu kapsayıcılar; sürüm/sürücü çilesi yok."
-          delay={0.1}
-          accent="#a855f7"
-        />
-        <FeatureCard
-          icon={Rocket}
-          title="Tek tıkla dağıtım"
-          desc="Eğitilen modeli ölçeklenen bir REST/gRPC endpoint&apos;e çevir; otomatik yük dengeleme dahil."
-          delay={0.2}
-          accent="#22c55e"
-        />
-        <FeatureCard
-          icon={Activity}
-          title="İzleme & yönetim"
-          desc="Model sürümleme, veri kayması (drift) tespiti ve günlükler tek panelden takip edilir."
-          delay={0.3}
+          icon={Flame}
+          title="Güçlü ocak"
+          desc="Eğitim çok işlem ister. Bulut, evdeki bilgisayarın yapamayacağı kadar güçlü makineleri verir."
           accent="#f59e0b"
         />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  7 · BÖLÜM 2  ───────────────── */
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Soyutlama Seviyeleri"
-      subtitle="Hazır AI API'sinden AutoML'e, oradan tam kontrollü özel eğitime. Ne kadar kontrol istersen o kadar emek; doğru seviyeyi seçmek bir mühendislik kararıdır."
-      bgGradient="linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)"
-      shadow="0 20px 60px -10px rgba(124, 58, 237, 0.6)"
-      icon={<Layers className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  8 · ÜÇ SEVİYE  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Üç seviye · kontrol vs kolaylık</Eyebrow>
-      <H2>Hazır API · AutoML · Özel eğitim</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Aşağı indikçe kontrol ve emek artar, ama her probleme en alt seviye gerekmez.
-        Çoğu iş ihtiyacı üst iki seviyeyle çözülür.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        {[
-          {
-            tier: "Hazır AI API",
-            sub: "Pre-trained services",
-            color: "#22c55e",
-            icon: Wand2,
-            effort: "En düşük",
-            you: ["Sadece API çağrısı", "Veri yok / az"],
-            ex: ["Amazon Rekognition", "Google Vision API", "Azure Speech", "Amazon Translate"],
-          },
-          {
-            tier: "AutoML",
-            sub: "Otomatik model arama",
-            color: "#2563eb",
-            icon: Wand2,
-            effort: "Orta",
-            you: ["Etiketli veri sağla", "Hedef sütunu seç"],
-            ex: ["SageMaker Autopilot", "Vertex AutoML", "Azure AutoML"],
-          },
-          {
-            tier: "Özel eğitim",
-            sub: "Custom training",
-            color: "#a855f7",
-            icon: Code,
-            effort: "En yüksek",
-            you: ["Kendi kodun", "Mimari & hiperparametre", "Veri hattı"],
-            ex: ["SageMaker Training", "Vertex Custom", "Azure ML Jobs"],
-          },
-        ].map((m, i) => (
-          <motion.div
-            key={m.tier}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="bvbb-card rounded-xl p-5"
-            style={{ borderColor: `${m.color}55` }}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${m.color}25`, border: `1px solid ${m.color}66` }}
-              >
-                <m.icon className="w-5 h-5" style={{ color: m.color }} />
-              </div>
-              <div>
-                <div className="text-base font-bold text-white">{m.tier}</div>
-                <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">{m.sub}</div>
-              </div>
-            </div>
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Gereken emek</div>
-            <div className="text-sm font-semibold mb-3" style={{ color: m.color }}>{m.effort}</div>
-
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Senin işin</div>
-            <div className="flex flex-wrap gap-1 mb-3">
-              {m.you.map((y) => (
-                <span key={y} className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-gray-300 border border-white/10">
-                  {y}
-                </span>
-              ))}
-            </div>
-
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Örnekler</div>
-            <ul className="space-y-1">
-              {m.ex.map((e) => (
-                <li key={e} className="text-xs text-gray-300 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3 h-3 flex-shrink-0" style={{ color: m.color }} />
-                  {e}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-center text-[11px] text-gray-500"
-      >
-        Kural: Probleme önce en üst seviyeden yaklaş; ancak gerekiyorsa aşağı in.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  9 · HAZIR API ÖRNEĞİ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Seviye 1 · hazır AI API</Eyebrow>
-      <H2 className="mb-2">Görüntü etiketleme — tek HTTP çağrısı</H2>
-      <Sub className="max-w-3xl mb-6">
-        Hazır servisler için model eğitmezsin; bir görseli yollar, etiketleri alırsın.
-        Aşağıda Amazon Rekognition&apos;a CLI ile bir çağrı ve dönen JSON yanıtı var.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bvbb-window-chrome w-full"
-      >
-        <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-          <div className="flex gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-red-500/70" />
-            <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-            <span className="w-3 h-3 rounded-full bg-green-500/70" />
-          </div>
-          <div
-            className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-            style={{ background: "#0d1117", color: "#94a3b8" }}
-          >
-            <Terminal className="w-3 h-3" />
-            <span>bash · aws rekognition</span>
-          </div>
-        </div>
-        <div className="bvbb-terminal">
-          <div>
-            <span className="bvbb-term-prompt">ocet@mcbu</span>
-            <span className="bvbb-term-dim">:~$</span>{" "}
-            <span className="bvbb-term-cmd">aws rekognition detect-labels \</span>
-          </div>
-          <div className="pl-6 bvbb-term-cmd">--image &apos;{"{"}&quot;S3Object&quot;:{"{"}&quot;Bucket&quot;:&quot;mcbu-ml&quot;,&quot;Name&quot;:&quot;kedi.jpg&quot;{"}"}{"}"}&apos; \</div>
-          <div className="pl-6 bvbb-term-cmd">--max-labels 5</div>
-          <div className="mt-2 bvbb-term-dim">{"{"} &quot;Labels&quot;: [</div>
-          <div className="pl-4">
-            <span className="bvbb-term-dim">{"{"} &quot;Name&quot;: </span>
-            <span className="bvbb-term-ok">&quot;Cat&quot;</span>
-            <span className="bvbb-term-dim">, &quot;Confidence&quot;: </span>
-            <span className="bvbb-term-val">98.4</span>
-            <span className="bvbb-term-dim"> {"}"},</span>
-          </div>
-          <div className="pl-4">
-            <span className="bvbb-term-dim">{"{"} &quot;Name&quot;: </span>
-            <span className="bvbb-term-ok">&quot;Pet&quot;</span>
-            <span className="bvbb-term-dim">, &quot;Confidence&quot;: </span>
-            <span className="bvbb-term-val">96.1</span>
-            <span className="bvbb-term-dim"> {"}"},</span>
-          </div>
-          <div className="pl-4">
-            <span className="bvbb-term-dim">{"{"} &quot;Name&quot;: </span>
-            <span className="bvbb-term-ok">&quot;Animal&quot;</span>
-            <span className="bvbb-term-dim">, &quot;Confidence&quot;: </span>
-            <span className="bvbb-term-val">96.1</span>
-            <span className="bvbb-term-dim"> {"}"} ]</span>
-          </div>
-          <div className="bvbb-term-dim">{"}"}</div>
-          <div className="mt-2 bvbb-term-warn">
-            # Eğitim yok · sunucu yok · faturalama çağrı (request) başına
-          </div>
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · BÖLÜM 3  ───────────────── */
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Uçtan Uca Akış"
-      subtitle="Veriden canlı tahmine: hazırlık, eğitim, değerlendirme, dağıtım ve izleme. Bir modelin yaşam döngüsünü baştan sona izliyoruz."
-      bgGradient="linear-gradient(135deg, #0ea5e9 0%, #22d3ee 100%)"
-      shadow="0 20px 60px -10px rgba(14, 165, 233, 0.6)"
-      icon={<Workflow className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  11 · ML PIPELINE DİYAGRAMI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>ML yaşam döngüsü</Eyebrow>
-      <H2 className="mb-2">Altı adımlık bulut ML hattı</H2>
-      <Sub className="max-w-3xl mb-6">
-        Her bulut ML projesi aşağı yukarı bu altı adımdan geçer. Bulutun katkısı,
-        her adımı ayrı bir yönetilen servisle desteklemesidir.
-      </Sub>
-      <MLPipeline />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  12 · SAGEMAKER NOTEBOOK MOCKUP  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Eğitim & dağıtım · canlı not defteri</Eyebrow>
-      <H2 className="text-center md:text-left">SageMaker Studio&apos;da bir model</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Veriyi S3&apos;ten bağla, yönetilen XGBoost kapsayıcısıyla eğit, tek satırla
-        endpoint aç. Faturalandırma yalnızca eğitimin sürdüğü saniyeler kadar.
-      </Sub>
-      <div className="mt-6">
-        <SageMakerStudioMock />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  13 · DEĞERLENDİRME / CONFUSION MATRIX  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Değerlendirme · model gerçekten iyi mi?</Eyebrow>
-      <H2 className="mb-2">Doğruluk yetmez: kesinlik ve duyarlılık</H2>
-      <Sub className="max-w-3xl mb-6">
-        Model eğitmek kolay; doğru ölçmek zordur. Sınıflandırmada karmaşıklık matrisi,
-        modelin nerede yanıldığını gösterir.
-      </Sub>
-      <ConfusionMatrix />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  14 · İZLEME / MLOps  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>İzleme · MLOps</Eyebrow>
-      <H2>Model dağıtıldı, iş bitmedi</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Üretimdeki model zamanla bozulur: gerçek dünya verisi eğitim verisinden uzaklaşır
-        (veri kayması). Bulut servisleri bunu izlemek için araçlar sunar.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         <FeatureCard
-          icon={Activity}
-          title="Veri kayması (drift)"
-          desc="Gelen verinin dağılımı eğitim verisinden saparsa alarm üretilir; modeli yeniden eğitme zamanıdır."
-          delay={0.0}
-          accent="#ef4444"
-        />
-        <FeatureCard
-          icon={GitBranch}
-          title="Sürümleme"
-          desc="Her model bir sürümdür; kötü sürüme hızlıca geri dönülebilir (rollback). Model kayıt defteri tutar."
+          icon={Wallet}
+          title="Kullandığın kadar öde"
+          desc="Eğitim bitince makineyi kapatırsın. Boşta bekleyen pahalı bilgisayarın olmaz."
           delay={0.1}
-          accent="#a855f7"
-        />
-        <FeatureCard
-          icon={Gauge}
-          title="Gecikme & yük"
-          desc="Endpoint yanıt süresi ve istek hacmi izlenir; trafik artınca otomatik ölçeklenir."
-          delay={0.2}
           accent="#22c55e"
         />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 bvbb-card rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <Workflow className="w-4 h-4 text-[#60a5fa] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">MLOps</span> = ML + DevOps. Veri → eğitim → dağıtım →
-          izleme → tekrar eğitim döngüsünü otomatikleştirme disiplinidir. Tek seferlik
-          eğitim değil, sürdürülebilir bir sistemdir.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  15 · MALİYET  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Maliyet · dikkat edilecekler</Eyebrow>
-      <H2>Bulutta ML&apos;in gizli faturası</H2>
-      <Sub className="mt-3 max-w-3xl">
-        GPU&apos;lar pahalıdır ve açık unutulan bir endpoint saatlerce fatura üretir.
-        Öğrenci projelerinde maliyeti kontrol etmek için birkaç temel kural:
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: DollarSign, t: "Endpoint&apos;i kapat", d: "Gerçek-zamanlı endpoint sürekli faturalanır. Test bitince delete-endpoint çalıştır.", color: "#ef4444" },
-          { icon: Cpu, t: "GPU&apos;yu yalnız eğitimde kullan", d: "Çıkarım (inference) çoğu zaman CPU ile yeterli; pahalı GPU&apos;yu eğitime sakla.", color: "#a855f7" },
-          { icon: Boxes, t: "Spot / preemptible örnekler", d: "Kesintiye dayanıklı eğitimlerde indirimli kapasite kullan; maliyeti büyük ölçüde düşürür.", color: "#22c55e" },
-          { icon: Target, t: "Bütçe alarmı kur", d: "Cost Explorer / Budgets ile eşik aşılınca e-posta al; sürpriz fatura olmasın.", color: "#f59e0b" },
-        ].map((item, i) => (
-          <motion.div
-            key={item.t}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -16 : 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.45, delay: i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5 flex items-start gap-4 transition-all"
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${item.color}1f`, border: `1px solid ${item.color}55` }}
-            >
-              <item.icon className="w-5 h-5" style={{ color: item.color }} />
-            </div>
-            <div>
-              <div className="text-base font-semibold text-white mb-1" dangerouslySetInnerHTML={{ __html: item.t }} />
-              <p className="text-sm text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: item.d }} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 bvbb-card rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <AlertTriangle className="w-4 h-4 text-[#fbbf24] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">En sık hata:</span> Lab sonunda endpoint&apos;i ve
-          notebook örneğini kapatmamak. Açık unutulan bir GPU örneği gece boyunca ciddi
-          fatura üretebilir.
-        </span>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · UYGULAMALI LAB  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı lab</Eyebrow>
-      <H2>Free Tier ile uçtan uca bir model</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Küçük bir tablo veriyle (örn. açık bir sınıflandırma veri seti) baştan sona
-        bir akış kuracaksın. Maliyeti düşük tutmak için küçük örnek tipleri yeterli.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: Database, title: "Veriyi S3&apos;e yükle", desc: "train.csv ve test.csv dosyalarını bir bucket&apos;a koy; yolları not al.", accent: "#22c55e" },
-          { icon: Brain, title: "AutoML ile eğit", desc: "SageMaker Autopilot / Vertex AutoML&apos;de hedef sütunu seç, eğitimi başlat.", accent: "#a855f7" },
-          { icon: Gauge, title: "Metrikleri oku", desc: "Doğruluk, kesinlik ve duyarlılığa bak; karmaşıklık matrisini yorumla.", accent: "#f59e0b" },
-          { icon: ListChecks, title: "Dağıt, dene, kapat", desc: "Endpoint aç, 2-3 örnek tahmin al, ekran görüntüsü çek ve endpoint&apos;i sil.", accent: "#2563eb" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5 flex items-start gap-4 transition-all"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white" dangerouslySetInnerHTML={{ __html: t.title }} />
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.desc }} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Teslim</span> Karmaşıklık matrisi ve bir tahmin
-        ekran görüntüsü + 3 cümlelik yorum. Endpoint&apos;in silindiğini de göster.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  17 · ÖZET  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Toparlayalım</Eyebrow>
-      <H2>
-        Bu haftanın <span className="bvbb-shimmer-sky">üç çıkarımı</span>
-      </H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bulutta ML, modeli değil çevresindeki tüm altyapıyı kolaylaştırır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         <FeatureCard
-          icon={Cloud}
-          title="Donanım kira ile gelir"
-          desc="GPU/TPU kurmadan, dakikada güçlü hesaplama; iş bitince kapanır ve faturalanmaz."
-          delay={0.0}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={Layers}
-          title="Doğru seviyeyi seç"
-          desc="Hazır API çoğu işi çözer; AutoML hızlı sonuç verir; özel eğitim tam kontrol içindir."
-          delay={0.1}
+          icon={ChefHat}
+          title="Hazır alet ve tarif"
+          desc="Verin zaten bulutta durur; eğitim araçları ve hazır modeller de aynı yerdedir."
+          delay={0.2}
           accent="#a855f7"
         />
-        <FeatureCard
-          icon={Gauge}
-          title="Ölç ve izle"
-          desc="Doğruluk tek başına yanıltır; kesinlik/duyarlılık ve drift izleme şarttır."
-          delay={0.2}
-          accent="#0ea5e9"
-        />
       </div>
+      <AskLine>Yılda bir kez düğün yemeği yapmak için mutfak satın alır mıydın?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  18 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
+  /* ─────────────────  10 · İKİ YOL  ───────────────── */
   () => (
     <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8"
-          style={{
-            background: "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
-            boxShadow: "0 20px 60px -10px rgba(37,99,235,0.6)",
+      <Eyebrow>İki yol</Eyebrow>
+      <H2>Hazır servisi kullan ya da kendi modelini eğit</H2>
+      <div className="mt-6">
+        <Versus
+          left={{
+            icon: Sparkles,
+            tag: "Hazır YZ servisi · hazır yemek",
+            title: "Başkasının eğittiği modeli kullanırsın",
+            items: [
+              "Görüntü tanıma, çeviri, konuşmayı yazıya dökme",
+              "Veri toplamadan, eğitmeden hemen çalışır",
+              "Herkesin ortak işleri için uygundur",
+            ],
           }}
-        >
-          <Sparkles className="w-12 h-12 text-white" />
-        </motion.div>
-
-        <Eyebrow>14. hafta tamamlandı · sıradaki: Final projeleri</Eyebrow>
-        <H1>
-          <span className="bvbb-shimmer">Hepsini Birleştir</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Gelecek hafta tüm dönemi tek bir uçtan uca projede topluyoruz: veri gölünden
-          modele, modelden canlı tahmine. Bu hafta kurduğun ML akışı projenin kalbi olacak.
-        </Sub>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="bvbb-card rounded-xl p-5">
-            <Table className="w-5 h-5 text-[#60a5fa] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Hazırlık</div>
-            <div className="text-white font-semibold">Veri seti seç</div>
-            <div className="text-sm text-gray-400">açık & küçük bir veri</div>
-          </div>
-          <div className="bvbb-card rounded-xl p-5">
-            <Server className="w-5 h-5 text-[#a855f7] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Ortam</div>
-            <div className="text-white font-semibold">Free Tier hesap</div>
-            <div className="text-sm text-gray-400">bütçe alarmı kurulu</div>
-          </div>
-          <div className="bvbb-card rounded-xl p-5">
-            <ListChecks className="w-5 h-5 text-[#22c55e] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Teslim</div>
-            <div className="text-white font-semibold">Lab raporu</div>
-            <div className="text-sm text-gray-400">4 adım + ekran görüntüsü</div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          BVA 2103 · Büyük Veri İçin Bulut Bilişim · Güz 2026
-        </motion.div>
+          right={{
+            icon: GraduationCap,
+            tag: "Kendi modelin · kendi tarifin",
+            title: "Kendi verinle sen eğitirsin",
+            items: [
+              "Yalnız senin işine özel bir soru varsa",
+              "Kendi örneklerini toplaman gerekir",
+              "Daha çok emek ister, sana özel sonuç verir",
+            ],
+          }}
+        />
       </div>
+      <AskLine>Hangisi daha hızlı başlar, hangisi yalnız senin işini bilir?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  11 · HAZIR MI KENDİ Mİ  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Birlikte karar verelim</Eyebrow>
+      <Stage>
+        <Quiz
+          doneText="İş herkesin işiyse hazır servis; cevap yalnız senin verinde saklıysa kendi modelin."
+          items={[
+            {
+              q: "Restoran menüsünün fotoğrafındaki yazıyı Türkçeye çevirmek istiyorsun.",
+              options: ["Hazır YZ servisi", "Kendi modelini eğit"],
+              correct: 0,
+              why: "Yazı okuma ve çeviri herkesin ortak işi; hazır servis bunu zaten iyi yapıyor.",
+            },
+            {
+              q: "Kendi fabrikanda üretilen parçaların hatalı olanlarını fotoğraftan ayırmak istiyorsun.",
+              options: ["Hazır YZ servisi", "Kendi modelini eğit"],
+              correct: 1,
+              why: "Senin parçanı ve senin hatanı yalnız senin fotoğrafların anlatır; kendi örneklerinle eğitmen gerekir.",
+            },
+            {
+              q: "Bir saatlik toplantı ses kaydını yazıya dökmek istiyorsun.",
+              options: ["Hazır YZ servisi", "Kendi modelini eğit"],
+              correct: 0,
+              why: "Konuşmayı yazıya dökmek hazır servislerin en yaygın işlerinden biridir.",
+            },
+            {
+              q: "Kendi marketinin gelecek hafta kaç ekmek satacağını tahmin etmek istiyorsun.",
+              options: ["Hazır YZ servisi", "Kendi modelini eğit"],
+              correct: 1,
+              why: "Cevap senin geçmiş satış kayıtlarında saklı; model o kayıtlarla eğitilir.",
+            },
+          ]}
+        />
+      </Stage>
+      <AskLine>Tıklamadan önce: bu işte senin kendi verin gerekli mi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  12 · SINIFTA DENEYELİM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sınıfta deneyelim · 10 dakika · telefonla</Eyebrow>
+      <H2>Hazır bir YZ servisini sına</H2>
+      <div className="mt-6">
+        <TrySteps
+          steps={[
+            "Telefonundaki çeviri uygulamasını aç ve kamera ile çeviriyi seç.",
+            "Sınıftaki İngilizce bir yazıya tut: kitap kapağı, etiket, klavye tuşu.",
+            "Klavyedeki mikrofona bas, bir cümle söyle; yazıya doğru döktü mü?",
+            "Not al: nerede yanıldı? Sence neden yanıldı?",
+          ]}
+        />
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-gray-400">
+        <span className="flex items-center gap-2">
+          <Wifi className="w-4 h-4 text-[#60a5fa]" />
+          İnternet gerekir, kurulum gerekmez.
+        </span>
+        <span className="flex items-center gap-2">
+          <Smartphone className="w-4 h-4 text-[#60a5fa]" />
+          Çeviri uygulaması olmayan yanındakiyle çalışır.
+        </span>
+      </div>
+      <AskLine>Bu çeviri telefonda mı yapıldı, buluttaki bir serviste mi? Nereden anlarız?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  13 · KENDİNİ DENE  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Kendini dene · 3 soru</Eyebrow>
+      <Stage>
+        <Quiz
+          doneText="Takıldığın soru varsa o slayda birlikte geri dönelim."
+          items={[
+            {
+              q: "Makine öğrenimini en iyi hangisi anlatır?",
+              options: [
+                "Programcı bütün kuralları tek tek yazar",
+                "Bilgisayar çok sayıda örneğe bakarak kuralı kendi çıkarır",
+                "Bilgisayar internetten hazır cevap kopyalar",
+                "Bilgisayar rastgele tahmin yapar",
+              ],
+              correct: 1,
+              why: "Kural yazmak yerine örnek gösteririz; model ortak özellikleri kendisi bulur.",
+            },
+            {
+              q: "Bulut, model eğitirken en çok ne sağlar?",
+              options: [
+                "Güçlü bilgisayarı satın almadan kiralamayı",
+                "Modelin hiç yanılmamasını",
+                "Veri toplamaya gerek kalmamasını",
+                "İnternetsiz çalışmayı",
+              ],
+              correct: 0,
+              why: "Hazır mutfak gibi: güçlü makineyi işin süresince kiralar, bitince kapatırsın.",
+            },
+            {
+              q: "Bir fotoğraftaki yazıyı okutmak istiyorsun. İlk hangisini denersin?",
+              options: [
+                "Sıfırdan kendi modelimi eğitirim",
+                "Hazır bir YZ servisini kullanırım",
+                "Yazıyı elle kural yazarak okuturum",
+                "Bu iş bulutta yapılamaz",
+              ],
+              correct: 1,
+              why: "Yazı okuma herkesin ortak işi; hazır servis varken sıfırdan eğitmek gereksiz emek olur.",
+            },
+          ]}
+        />
+      </Stage>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  14 · ÖZET + KÖPRÜ  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Aklında kalsın: 3 şey</Eyebrow>
+      <div className="mt-2 max-w-4xl">
+        <ThreeThings
+          items={[
+            "Makine öğrenimi kural yazmak değil, örnek göstermektir; örnek iyiyse tahmin iyi olur.",
+            "Bulut bu iş için kiralık mutfaktır: güçlü makine, kullandığın kadar ödeme.",
+            "Ortak işlerde hazır YZ servisi yeter; sana özel soruda kendi verinle model eğitirsin.",
+          ]}
+        />
+      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="mt-6 bvbb-card-sky rounded-xl p-5 max-w-4xl flex items-center gap-3"
+      >
+        <Shield className="w-6 h-6 text-[#67e8f9] flex-shrink-0" />
+        <span className="text-base md:text-lg text-gray-200">
+          Haftaya: bu kadar veri ve model bulutta duruyor. Onu kim, nasıl koruyor? Konu bulutta güvenlik ve gizlilik.
+        </span>
+      </motion.div>
     </SlideShell>
   ),
 ];
@@ -1236,7 +1144,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#60a5fa]/80">
-          BVA 2103 · 14. Hafta · Bulutta ML
+          BVA 2103 · 14. Hafta · Bulutta Makine Öğrenimi
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#60a5fa]/60">

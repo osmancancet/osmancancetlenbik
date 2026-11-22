@@ -9,28 +9,21 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowDownWideNarrow,
-  Search,
-  Repeat,
-  Target,
-  Lightbulb,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
   Check,
-  CheckCircle2,
-  AlertTriangle,
-  Zap,
-  Hash,
-  Binary,
-  GitBranch,
-  Scale,
-  Clock,
-  ListOrdered,
-  Calendar,
-  FileText,
+  X,
+  Eye,
+  RotateCcw,
+  EyeOff,
+  Scissors,
+  PenLine,
+  Search,
+  ArrowUpDown,
+  Repeat,
   type LucideIcon,
 } from "lucide-react";
 import { CodeEditor } from "../_shared/code/CodeEditor";
@@ -52,7 +45,8 @@ function SlideShell({
       {bgPattern && (
         <div className="absolute inset-0 prog-grid-bg pointer-events-none" />
       )}
-      <div className="relative z-10 w-full max-w-6xl">{children}</div>
+      {/* max-w-4xl: tıklanabilir öğeler kenar geçiş alanlarının (%12) dışında kalsın */}
+      <div className="relative z-10 w-full max-w-4xl">{children}</div>
     </div>
   );
 }
@@ -63,7 +57,7 @@ function Eyebrow({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="inline-flex items-center gap-3 mb-6 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
+      className="inline-flex items-center gap-3 mb-4 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
     >
       <span className="w-8 h-px bg-[#5fa8e0]" />
       {children}
@@ -90,7 +84,7 @@ function H2({ children, className = "" }: { children: ReactNode; className?: str
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className={`text-3xl md:text-5xl font-semibold tracking-tight text-white ${className}`}
+      className={`text-2xl md:text-4xl font-semibold tracking-tight leading-tight text-white ${className}`}
     >
       {children}
     </motion.h2>
@@ -103,185 +97,497 @@ function Sub({ children, className = "" }: { children: ReactNode; className?: st
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
-      className={`text-lg md:text-xl text-gray-400 leading-relaxed ${className}`}
+      className={`text-base md:text-lg text-gray-400 leading-relaxed ${className}`}
     >
       {children}
     </motion.p>
   );
 }
 
-function FeatureCard({
+/* ---- Ortak etkileşim parçaları ------------------------------ */
+
+/** Slayt altındaki soluk "Sınıfa sor" satırı. */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6 }}
+      className="mt-5 text-sm text-gray-500"
+    >
+      <span className="font-mono text-[11px] uppercase tracking-widest text-[#5fa8e0]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Tahmin et → tıkla göster. Tekrar tıklayınca kapanır. */
+function Reveal({
+  label = "Cevabı görmek için tıkla",
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`w-full text-left rounded-xl px-5 py-4 transition-all cursor-pointer ${
+        open ? "prog-card" : "prog-card-yellow"
+      }`}
+    >
+      {open ? (
+        <span className="block text-base text-gray-200 leading-relaxed">{children}</span>
+      ) : (
+        <span className="flex items-center gap-3 text-[#ffd43b] font-semibold">
+          <Eye className="w-5 h-5 flex-shrink-0" />
+          {label}
+        </span>
+      )}
+    </button>
+  );
+}
+
+/** Mini sınav: şıkka tıkla; doğru yeşil, yanlış kırmızı, altında açıklama. */
+function Quiz({
+  question,
+  options,
+  correct,
+  why,
+}: {
+  question: ReactNode;
+  options: string[];
+  correct: number;
+  why: string;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div>
+      <div className="text-lg text-white font-semibold mb-3 leading-snug">{question}</div>
+      <div className="grid gap-2">
+        {options.map((o, i) => {
+          let cls = "prog-card prog-card-hover text-gray-200";
+          if (picked !== null) {
+            if (i === correct) cls = "border border-[#4ec9b0] bg-[#4ec9b0]/15 text-[#86efac]";
+            else if (i === picked) cls = "border border-[#f87171] bg-[#f87171]/15 text-[#fca5a5]";
+            else cls = "prog-card text-gray-500";
+          }
+          return (
+            <button
+              key={o}
+              type="button"
+              onClick={() => setPicked(i)}
+              className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-left text-base transition-all cursor-pointer ${cls}`}
+            >
+              <span className="font-mono text-xs opacity-70">{"ABCD"[i]}</span>
+              <span className="flex-1">{o}</span>
+              {picked !== null && i === correct && <Check className="w-4 h-4" />}
+              {picked === i && i !== correct && <X className="w-4 h-4" />}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[2.75rem] text-sm text-gray-300 leading-relaxed">
+        {picked === null ? (
+          <span className="text-gray-500">Bir şıkka tıkla.</span>
+        ) : (
+          <>
+            <span className={picked === correct ? "text-[#86efac] font-semibold" : "text-[#fca5a5] font-semibold"}>
+              {picked === correct ? "Doğru. " : "Olmadı. "}
+            </span>
+            {why}{" "}
+            <button
+              type="button"
+              onClick={() => setPicked(null)}
+              className="underline text-gray-500 hover:text-gray-300 cursor-pointer"
+            >
+              Sıfırla
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Çalıştırılmayan, yalnızca gösterilen kısa kod; `active` satırı vurgular. */
+function CodeView({ code, active }: { code: string; active?: number }) {
+  return (
+    <div
+      className="prog-editor rounded-lg py-3 border border-[#2d2d2d] overflow-hidden"
+      style={{ fontSize: 15 }}
+    >
+      {code.split("\n").map((ln, i) => (
+        <div
+          key={i}
+          className="px-4 whitespace-pre"
+          style={
+            i === active
+              ? { background: "rgba(255,212,59,0.14)", boxShadow: "inset 3px 0 0 #ffd43b" }
+              : undefined
+          }
+        >
+          {ln || " "}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Seçenek çipi (oyna-gör slaytları). */
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all cursor-pointer ${
+        active
+          ? "bg-[#ffd43b]/15 border-[#ffd43b] text-[#ffd43b]"
+          : "border-[#3776ab]/40 text-gray-300 hover:border-[#5fa8e0]"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Adım adım ilerleyen gösterimlerin düğmeleri. */
+function StepNav({
+  step,
+  total,
+  onStep,
+  nextLabel = "İleri",
+}: {
+  step: number;
+  total: number;
+  onStep: (n: number) => void;
+  nextLabel?: string;
+}) {
+  const atEnd = step >= total - 1;
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={() => onStep(Math.min(step + 1, total - 1))}
+        disabled={atEnd}
+        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#3776ab] text-white text-sm font-semibold disabled:opacity-30 cursor-pointer disabled:cursor-default"
+      >
+        {nextLabel} <ChevronRight className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => onStep(0)}
+        disabled={step === 0}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[#3776ab]/40 text-gray-300 text-sm disabled:opacity-30 cursor-pointer disabled:cursor-default"
+      >
+        <RotateCcw className="w-4 h-4" /> Baştan
+      </button>
+      <span className="text-xs font-mono text-gray-500">
+        Adım {step + 1} / {total} · tıkla
+      </span>
+    </div>
+  );
+}
+
+/* ---- Bu haftaya özel parçalar -------------------------------- */
+
+function InfoCard({
   icon: Icon,
   title,
   desc,
-  delay = 0,
   accent = "#3776ab",
 }: {
   icon: LucideIcon;
   title: string;
   desc: string;
-  delay?: number;
   accent?: string;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="prog-card prog-card-hover rounded-xl p-6 transition-all"
-    >
+    <div className="prog-card rounded-xl p-5">
       <div
-        className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-        style={{
-          background: `${accent}1f`,
-          border: `1px solid ${accent}55`,
-        }}
+        className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+        style={{ background: `${accent}1f`, border: `1px solid ${accent}55` }}
       >
-        <Icon className="w-6 h-6" style={{ color: accent }} />
+        <Icon className="w-5 h-5" style={{ color: accent }} />
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <h3 className="text-base font-semibold text-white mb-1">{title}</h3>
       <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
-    </motion.div>
+    </div>
   );
 }
 
-/* ---- Code Editor Mockup (VS Code style) ---------------------- */
+/** Slayt 3 — doğrusal arama: kutuları baştan tek tek aç. */
+const KARISIK = [23, 7, 41, 15, 62, 34, 9, 50];
 
-type CodeLine = ReactNode;
-
-// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
-// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
-// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
-
-
-/* ---- Array row visualizer ----------------------------------- */
-
-type CellState = "normal" | "active" | "sorted" | "found";
-
-function ArrayRow({
-  label,
-  cells,
-  delay = 0,
-}: {
-  label?: string;
-  cells: Array<{ v: string; state?: CellState }>;
-  delay?: number;
-}) {
+function DogrusalDemo() {
+  const [hedef, setHedef] = useState(62);
+  const [acik, setAcik] = useState(0);
+  const yer = KARISIK.indexOf(hedef);
+  const sonAdim = yer >= 0 ? yer + 1 : KARISIK.length;
+  const bitti = acik >= sonAdim;
+  let mesaj = `${hedef} sayısını arıyoruz. Kutular kapalı; baştan başlayacağız.`;
+  if (acik > 0 && !bitti) mesaj = `${acik} kutu açtık, ${hedef} henüz çıkmadı. Devam.`;
+  if (bitti && yer >= 0) mesaj = `Bulduk: ${acik} kutu açmamız gerekti.`;
+  if (bitti && yer < 0) mesaj = `${KARISIK.length} kutunun hepsini açtık: ${hedef} listede yok.`;
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -16 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.45, delay }}
-      className="flex items-center gap-3"
-    >
-      {label && (
-        <span className="w-24 text-[11px] font-mono text-gray-500 text-right flex-shrink-0">
-          {label}
-        </span>
-      )}
-      <div className="flex gap-1.5">
-        {cells.map((c, i) => {
-          const cls =
-            c.state === "active"
-              ? "prog-array-cell prog-array-cell-active"
-              : c.state === "sorted"
-              ? "prog-array-cell prog-array-cell-sorted"
-              : c.state === "found"
-              ? "prog-array-cell prog-array-cell-found"
-              : "prog-array-cell";
+    <div className="mt-5">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="text-xs font-mono uppercase tracking-widest text-gray-500 mr-2">Aranan · tıkla</span>
+        {[62, 23, 99].map((h) => (
+          <Chip
+            key={h}
+            active={hedef === h}
+            onClick={() => {
+              setHedef(h);
+              setAcik(0);
+            }}
+          >
+            {h}
+          </Chip>
+        ))}
+      </div>
+      <div className="grid grid-cols-8 gap-2">
+        {KARISIK.map((v, i) => {
+          const acildi = i < acik;
+          const bulundu = acildi && v === hedef;
           return (
             <div
               key={i}
-              className={`${cls} w-11 h-11 rounded-md flex items-center justify-center text-sm font-semibold`}
+              className={`prog-array-cell rounded-lg h-16 flex items-center justify-center text-2xl font-bold ${
+                bulundu ? "prog-array-cell-sorted" : i === acik - 1 ? "prog-array-cell-active" : ""
+              }`}
             >
-              {c.v}
+              {acildi ? v : "?"}
             </div>
           );
         })}
       </div>
-    </motion.div>
+      <div className="mt-3 min-h-[1.75rem] text-base text-gray-200">{mesaj}</div>
+      <div className="mt-3">
+        <StepNav step={acik} total={sonAdim + 1} onStep={setAcik} nextLabel="Sıradaki kutuyu aç" />
+      </div>
+    </div>
   );
 }
 
-/* ---- Recursion call-stack diagram --------------------------- */
+/** Slayt 5 — ikili arama: ortaya bak, yarıyı at. */
+const SIRALI = [3, 8, 12, 17, 21, 26, 30, 35, 41, 48, 53, 59, 64, 72, 80];
 
-function CallStack({
-  frames,
-}: {
-  frames: Array<{ call: string; ret?: string; depth: number }>;
-}) {
+type IkiliDurum = { sol: number; sag: number; orta: number; bulundu: boolean; mesaj: string };
+
+function ikiliAdimlar(hedef: number): IkiliDurum[] {
+  let sol = 0;
+  let sag = SIRALI.length - 1;
+  const liste: IkiliDurum[] = [
+    { sol, sag, orta: -1, bulundu: false, mesaj: `${hedef} sayısını arıyoruz. Liste sıralı; tam ortadan başlayacağız.` },
+  ];
+  while (sol <= sag) {
+    const orta = Math.floor((sol + sag) / 2);
+    const v = SIRALI[orta];
+    if (v === hedef) {
+      liste.push({ sol, sag, orta, bulundu: true, mesaj: `Ortadaki ${v}. Bulduk!` });
+      break;
+    }
+    if (v < hedef) {
+      sol = orta + 1;
+      liste.push({ sol, sag, orta, bulundu: false, mesaj: `Ortadaki ${v}. Aradığımız daha büyük: sol yarıyı at.` });
+    } else {
+      sag = orta - 1;
+      liste.push({ sol, sag, orta, bulundu: false, mesaj: `Ortadaki ${v}. Aradığımız daha küçük: sağ yarıyı at.` });
+    }
+  }
+  if (!liste[liste.length - 1].bulundu) {
+    liste[liste.length - 1].mesaj += " Bakacak kutu kalmadı: listede yok.";
+  }
+  return liste;
+}
+
+function IkiliDemo() {
+  const [hedef, setHedef] = useState(64);
+  const [adim, setAdim] = useState(0);
+  const adimlar = ikiliAdimlar(hedef);
+  const d = adimlar[adim];
+  const bitti = adim === adimlar.length - 1;
+  const yer = SIRALI.indexOf(hedef);
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="prog-flow-bg p-6 w-full"
-    >
-      <div className="text-[10px] font-mono uppercase tracking-widest text-[#5fa8e0] mb-4">
-        Çağrı yığını · faktoriyel(4)
-      </div>
-      <div className="space-y-2">
-        {frames.map((f, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.25 + i * 0.12 }}
-            className="flex items-center gap-3"
-            style={{ paddingLeft: `${f.depth * 28}px` }}
+    <div className="mt-5">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="text-xs font-mono uppercase tracking-widest text-gray-500 mr-2">Aranan · tıkla</span>
+        {[64, 12, 50].map((h) => (
+          <Chip
+            key={h}
+            active={hedef === h}
+            onClick={() => {
+              setHedef(h);
+              setAdim(0);
+            }}
           >
-            <div className="prog-card rounded-lg px-4 py-2.5 flex items-center justify-between flex-1 max-w-xl">
-              <span className="font-mono text-sm text-[#9cdcfe]">{f.call}</span>
-              {f.ret && (
-                <span className="font-mono text-xs text-[#86efac]">
-                  &rarr; döner {f.ret}
-                </span>
-              )}
-            </div>
-          </motion.div>
+            {h}
+          </Chip>
         ))}
       </div>
-      <div className="mt-4 text-[11px] text-gray-500">
-        Her çağrı bir alt çağrı açar (iniş); taban duruma ulaşınca sonuçlar geriye
-        çarpılarak toplanır (çıkış).
+      <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${SIRALI.length}, minmax(0, 1fr))` }}>
+        {SIRALI.map((v, i) => {
+          const atildi = i < d.sol || i > d.sag;
+          let cls = "";
+          if (i === d.orta) cls = d.bulundu ? "prog-array-cell-sorted" : "prog-array-cell-active";
+          return (
+            <div
+              key={v}
+              className={`prog-array-cell rounded-md h-14 flex items-center justify-center text-lg font-bold transition-opacity ${cls}`}
+              style={{ opacity: atildi && i !== d.orta ? 0.2 : 1 }}
+            >
+              {v}
+            </div>
+          );
+        })}
       </div>
+      <div className="mt-3 min-h-[3.25rem] text-base text-gray-200">
+        {d.mesaj}
+        {bitti && (
+          <span className="block text-sm text-gray-400">
+            {adim} kez baktık. Baştan tek tek baksaydık {yer >= 0 ? yer + 1 : SIRALI.length} kez bakardık.
+          </span>
+        )}
+      </div>
+      <div className="mt-2">
+        <StepNav step={adim} total={adimlar.length} onStep={setAdim} nextLabel="Ortaya bak" />
+      </div>
+    </div>
+  );
+}
+
+/** Slayt 7 — kabarcık sıralama: her tıkta bir karşılaştırma. */
+type KabarcikDurum = { dizi: number[]; cift: number; sabit: number; mesaj: string };
+
+function kabarcikAdimlar(baslangic: number[]): KabarcikDurum[] {
+  const d = [...baslangic];
+  const n = d.length;
+  const liste: KabarcikDurum[] = [
+    { dizi: [...d], cift: -1, sabit: n, mesaj: "Karışık liste. Soldan başlayıp yan yana ikililere bakacağız." },
+  ];
+  for (let tur = 0; tur < n - 1; tur++) {
+    for (let i = 0; i < n - 1 - tur; i++) {
+      const a = d[i];
+      const b = d[i + 1];
+      let mesaj = `${a} ile ${b}: sıra doğru, dokunma.`;
+      if (a > b) {
+        d[i] = b;
+        d[i + 1] = a;
+        mesaj = `${a} ile ${b}: soldaki büyük, yer değiştir.`;
+      }
+      const turBitti = i === n - 2 - tur;
+      if (turBitti) mesaj += ` Tur ${tur + 1} bitti: ${d[n - 1 - tur]} yerine oturdu.`;
+      liste.push({ dizi: [...d], cift: i, sabit: turBitti ? n - 1 - tur : n - tur, mesaj });
+    }
+  }
+  const son = liste[liste.length - 1];
+  son.sabit = 0;
+  son.mesaj += " Liste sıralandı.";
+  return liste;
+}
+
+const KABARCIK = kabarcikAdimlar([5, 3, 8, 1, 4]);
+
+function KabarcikDemo() {
+  const [adim, setAdim] = useState(0);
+  const d = KABARCIK[adim];
+  return (
+    <div className="mt-5">
+      <div className="flex items-end justify-center gap-3 h-36">
+        {d.dizi.map((v, i) => {
+          const sabit = i >= d.sabit;
+          const secili = !sabit && (i === d.cift || i === d.cift + 1) && d.cift >= 0;
+          return (
+            <motion.div
+              key={v}
+              layout
+              transition={{ type: "spring", stiffness: 300, damping: 28 }}
+              className={`prog-array-cell rounded-lg w-20 flex items-end justify-center pb-2 text-2xl font-bold ${
+                sabit ? "prog-array-cell-sorted" : secili ? "prog-array-cell-active" : ""
+              }`}
+              style={{ height: 40 + v * 12 }}
+            >
+              {v}
+            </motion.div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center justify-center gap-5 text-xs text-gray-500">
+        <span><span className="text-[#ffd43b]">Sarı:</span> şu an bakılan ikili</span>
+        <span><span className="text-[#86efac]">Yeşil:</span> yerine oturdu</span>
+      </div>
+      <div className="mt-3 min-h-[1.75rem] text-base text-gray-200 text-center">{d.mesaj}</div>
+      <div className="mt-3 flex justify-center">
+        <StepNav step={adim} total={KABARCIK.length} onStep={setAdim} nextLabel="Sonraki ikili" />
+      </div>
+    </div>
+  );
+}
+
+/** Slayt 9 — matruşka: her bebeğin içinden bir küçüğü çıkar. */
+const BEBEK_RENK = ["#4ec9b0", "#5fa8e0", "#ffd43b", "#f472b6"];
+
+function Bebek({ n, enIc }: { n: number; enIc: number }) {
+  const renk = BEBEK_RENK[n];
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.92 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="rounded-2xl px-4 py-2.5"
+      style={{ border: `2px solid ${renk}`, background: `${renk}14` }}
+    >
+      <div className="flex flex-wrap items-baseline gap-x-3">
+        <span className="font-mono text-sm font-bold" style={{ color: renk }}>
+          geri_say({n})
+        </span>
+        <span className="text-sm text-gray-300">
+          {n === 0
+            ? "En küçük bebek: “Kalkış!” yazar ve durur."
+            : `Ekrana ${n} yazar, sonra içindeki bebeği açar.`}
+        </span>
+      </div>
+      {n > enIc && (
+        <div className="mt-2">
+          <Bebek n={n - 1} enIc={enIc} />
+        </div>
+      )}
     </motion.div>
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  glowClass,
-  icon,
-}: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  glowClass: string;
-  icon: ReactNode;
-}) {
+function MatruskaDemo() {
+  const [adim, setAdim] = useState(0);
+  const ekran = ["3", "2", "1", "Kalkış!"].slice(0, adim + 1);
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className={`inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 prog-pulse ${glowClass}`}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <div className="mt-5">
+      <div className="grid grid-cols-[1fr_180px] gap-4 items-start">
+        <div className="min-h-[15rem]">
+          <Bebek n={3} enIc={3 - adim} />
+        </div>
+        <div className="prog-terminal rounded-lg p-4 border border-[#2d2d2d] min-h-[9rem]" style={{ fontSize: 15 }}>
+          <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Ekran</div>
+          {ekran.map((s) => (
+            <div key={s}>{s}</div>
+          ))}
+        </div>
       </div>
-    </SlideShell>
+      <div className="mt-3">
+        <StepNav step={adim} total={4} onStep={setAdim} nextLabel="İçindeki bebeği aç" />
+      </div>
+    </div>
   );
 }
 
@@ -294,43 +600,31 @@ const slides: Array<(active: boolean) => ReactNode> = [
   () => (
     <SlideShell>
       <div className="text-center">
-        <Eyebrow>BVA 1101 · 14. Hafta · Bahar Dönemi</Eyebrow>
+        <Eyebrow>BVA 1101 · 14. Hafta</Eyebrow>
         <H1>
-          <span className="prog-shimmer">Sıralama, Arama ve Rekürsiyon</span>
+          <span className="prog-shimmer">Ara, bul, sırala</span>
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Bir listeyi düzene sokmak, içinde hızlıca aramak ve bir fonksiyonun
-          kendini çağırması — üç temel algoritmik araç.
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Listede aradığını bulmak, listeyi sıraya dizmek ve kendini çağıran fonksiyon.
         </Sub>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="grid grid-cols-3 gap-4 mt-14 max-w-3xl mx-auto"
+          className="grid grid-cols-3 gap-4 mt-12 max-w-2xl mx-auto"
         >
           {[
-            { name: "Sıralama", icon: ArrowDownWideNarrow, color: "#3776ab", desc: "Veriyi düzene sok" },
-            { name: "Arama", icon: Search, color: "#ffd43b", desc: "Aradığını çabuk bul" },
-            { name: "Rekürsiyon", icon: Repeat, color: "#86efac", desc: "Kendini çağıran çözüm" },
-          ].map((l, i) => (
-            <motion.div
-              key={l.name}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.1 }}
-              className="prog-card rounded-xl p-5"
-              style={{ borderColor: `${l.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg mx-auto mb-3 flex items-center justify-center"
-                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
-              >
-                <l.icon className="w-5 h-5" />
+            { name: "Arama", tag: "rehber, sözlük", color: "#3776ab" },
+            { name: "Sıralama", tag: "boy sırası", color: "#ffd43b" },
+            { name: "Özyineleme", tag: "matruşka", color: "#4ec9b0" },
+          ].map((l) => (
+            <div key={l.name} className="prog-card rounded-xl p-4" style={{ borderColor: `${l.color}55` }}>
+              <div className="text-white font-semibold text-sm mb-1">{l.name}</div>
+              <div className="font-mono text-xs" style={{ color: l.color }}>
+                {l.tag}
               </div>
-              <div className="text-white font-semibold text-sm">{l.name}</div>
-              <div className="text-[11px] text-gray-500 mt-1">{l.desc}</div>
-            </motion.div>
+            </div>
           ))}
         </motion.div>
 
@@ -338,820 +632,279 @@ const slides: Array<(active: boolean) => ReactNode> = [
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
+          className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
         >
-          Öğr. Gör. · MCBÜ MYO · Bilgisayar Programcılığı
+          Programlama Temelleri · MCBÜ Manisa Teknik Bilimler MYO
         </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ─────────────────  2 · KÖPRÜ / HEDEF  ───────────────── */
+  /* ─────────────────  2 · SORUN / OYLAMA  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · 13. haftadan 14. haftaya</Eyebrow>
-      <H2>Verimiz artık listede; peki onunla ne yapacağız?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Geçen hafta diziler/listeler ve fonksiyonlar ile veriyi tek bir yapıda
-        toplamayı öğrendik. Bu hafta o listeyi <span className="text-white font-semibold">düzene sokmayı</span> (sıralama),
-        içinde <span className="text-white font-semibold">verimli aramayı</span> ve problemleri kendini çağıran
-        fonksiyonlarla (rekürsiyon) çözmeyi göreceğiz.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        <FeatureCard
-          icon={ArrowDownWideNarrow}
-          title="Sıralama"
-          desc="Seçmeli ve kabarcık sıralamayı adım adım izleyip nasıl çalıştıklarını göreceğiz."
-          delay={0.0}
-          accent="#3776ab"
-        />
-        <FeatureCard
-          icon={Search}
-          title="Arama"
-          desc="Doğrusal arama ile ikili aramayı karşılaştıracak, neden farkın büyük olduğunu anlayacağız."
-          delay={0.1}
-          accent="#ffd43b"
-        />
-        <FeatureCard
-          icon={Repeat}
-          title="Rekürsiyon"
-          desc="Taban durum ve özyineli adım kavramını, çağrı yığını üzerinden somutlaştıracağız."
-          delay={0.2}
-          accent="#86efac"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-8 prog-card rounded-xl p-5 flex items-center gap-4"
-      >
-        <Clock className="w-6 h-6 text-[#5fa8e0] flex-shrink-0" />
-        <div className="text-sm text-gray-300">
-          <span className="text-white font-semibold">Bu haftanın anahtar fikri:</span> Aynı işi
-          yapan iki algoritma çok farklı hızlarda çalışabilir. &quot;Çalışıyor&quot; yetmez —
-          &quot;ne kadar adımda çalışıyor&quot; sorusunu da sormaya başlıyoruz.
+      <Eyebrow>Sorun · sınıf oylaması</Eyebrow>
+      <H2>Rehberde 500 kişi var: Zeynep&apos;i nasıl bulursun?</H2>
+      <Sub className="mt-3">Arama çubuğu yok. İki yoldan birini seç ve el kaldır.</Sub>
+      <div className="grid grid-cols-2 gap-4 mt-5">
+        <div className="prog-card rounded-xl p-5">
+          <div className="text-[#5fa8e0] font-mono text-sm mb-1">A yolu</div>
+          <div className="text-white text-lg font-semibold">En baştan başlarım, tek tek bakarım.</div>
         </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3 · SECTION 1/3 · SIRALAMA  ───────────────── */
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Sıralama Algoritmaları"
-      subtitle="Bir listeyi küçükten büyüğe (veya tersine) dizmek — birçok başka işlemin ön koşulu."
-      glowClass="prog-glow-blue"
-      icon={<ArrowDownWideNarrow className="w-14 h-14 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  4 · NEDEN SIRALAMA?  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · Sıralama</Eyebrow>
-      <H2>Neden sıralarız?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Sıralama tek başına amaç değil; <span className="text-white font-semibold">başka işleri
-        kolaylaştırdığı</span> için yaparız. Sıralı veride aramak, en küçüğü/en büyüğü bulmak ve
-        tekrarları ayıklamak çok daha hızlıdır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        <FeatureCard
-          icon={Search}
-          title="Hızlı arama"
-          desc="Sıralı listede ikili arama yapılabilir; aradığını çok daha az adımda bulursun."
-          delay={0.0}
-          accent="#3776ab"
-        />
-        <FeatureCard
-          icon={ListOrdered}
-          title="Düzenli sunum"
-          desc="Sınıf listesi, fiyat listesi, sonuç tablosu — insan gözü sıralı veriyi daha kolay okur."
-          delay={0.1}
-          accent="#5fa8e0"
-        />
-        <FeatureCard
-          icon={Scale}
-          title="Karşılaştırma"
-          desc="En yakın iki değeri bulmak, medyan almak, tekrarı saptamak sıralı veride basitleşir."
-          delay={0.2}
-          accent="#ffd43b"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-8 prog-card-yellow rounded-xl p-5 flex items-center gap-4"
-      >
-        <Lightbulb className="w-7 h-7 text-[#ffd43b] flex-shrink-0" />
-        <div className="text-sm text-gray-300">
-          <span className="text-white font-semibold">Pratikte:</span> Python&apos;da hazır{" "}
-          <span className="font-mono text-[#9cdcfe]">sorted(liste)</span> ve{" "}
-          <span className="font-mono text-[#9cdcfe]">liste.sort()</span> vardır. Biz mantığını
-          anlamak için elle yazıyoruz — gerçek projede genellikle hazırını kullanırsın.
+        <div className="prog-card rounded-xl p-5">
+          <div className="text-[#ffd43b] font-mono text-sm mb-1">B yolu</div>
+          <div className="text-white text-lg font-semibold">Ortalardan açarım, Z&apos;ye doğru atlarım.</div>
         </div>
-      </motion.div>
+      </div>
+      <div className="mt-4">
+        <Reveal label="Oylama bitti mi? Yorumu görmek için tıkla">
+          İkisi de bugünün konusu. A yolu <span className="text-white font-semibold">doğrusal arama</span>,
+          B yolu <span className="text-white font-semibold">ikili arama</span>. B çok daha az bakışla bulur
+          ama bir şartı var: rehber sıralı olmalı.
+        </Reveal>
+      </div>
+      <Ask>Rehberdeki adlar karışık yazılmış olsaydı B yolu işe yarar mıydı?</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  5 · SEÇMELİ SIRALAMA — GÖRSEL  ───────────────── */
+  /* ─────────────────  3 · DOĞRUSAL ARAMA  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Seçmeli sıralama · selection sort</Eyebrow>
-      <H2 className="mb-2">En küçüğü seç, başa al, tekrarla</H2>
-      <Sub className="max-w-3xl mb-6">
-        Her turda kalan kısmın <span className="text-white">en küçük</span> elemanını bulup sıranın
-        başındaki yerine yerleştiririz. Sol taraf adım adım sıralanır (yeşil).
-      </Sub>
-
-      <div className="prog-card rounded-xl p-6 space-y-3">
-        <ArrayRow
-          label="başlangıç"
-          delay={0.0}
-          cells={[
-            { v: "29" }, { v: "10" }, { v: "14" }, { v: "37" }, { v: "13" },
-          ]}
-        />
-        <ArrayRow
-          label="tur 1 sonu"
-          delay={0.12}
-          cells={[
-            { v: "10", state: "sorted" }, { v: "29", state: "active" }, { v: "14" }, { v: "37" }, { v: "13" },
-          ]}
-        />
-        <ArrayRow
-          label="tur 2 sonu"
-          delay={0.24}
-          cells={[
-            { v: "10", state: "sorted" }, { v: "13", state: "sorted" }, { v: "14", state: "active" }, { v: "37" }, { v: "29" },
-          ]}
-        />
-        <ArrayRow
-          label="tur 3 sonu"
-          delay={0.36}
-          cells={[
-            { v: "10", state: "sorted" }, { v: "13", state: "sorted" }, { v: "14", state: "sorted" }, { v: "37", state: "active" }, { v: "29" },
-          ]}
-        />
-        <ArrayRow
-          label="sonuç"
-          delay={0.48}
-          cells={[
-            { v: "10", state: "sorted" }, { v: "13", state: "sorted" }, { v: "14", state: "sorted" }, { v: "29", state: "sorted" }, { v: "37", state: "sorted" },
-          ]}
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-xs text-gray-500 font-mono text-center"
-      >
-        Yeşil = kesin yerine oturmuş · Sarı = bu turda taşınan en küçük eleman
-      </motion.div>
+      <Eyebrow>Arama · adım adım</Eyebrow>
+      <H2>Doğrusal arama: baştan başla, tek tek bak</H2>
+      <Sub className="mt-3">Sıralı olmayan bir çekmecede anahtar aramak gibi: hepsine sırayla bakarsın.</Sub>
+      <DogrusalDemo />
+      <Ask>Aradığımız sayı en sondaysa ya da hiç yoksa kaç kutu açarız?</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  6 · SEÇMELİ SIRALAMA — KOD  ───────────────── */
+  /* ─────────────────  4 · DOĞRUSAL ARAMA KODU  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Seçmeli sıralama · Python</Eyebrow>
-      <H2 className="mb-2">Aynı mantık, on satır kod</H2>
-      <Sub className="max-w-3xl">
-        İç içe iki döngü: dış döngü sıranın hangi yerini dolduracağımızı, iç döngü kalan
-        kısımdaki en küçüğü bulmayı sağlar.
-      </Sub>
+      <Eyebrow>Canlı kod · önce tahmin et, sonra çalıştır</Eyebrow>
+      <H2 className="mb-4">Aynı işi Python&apos;a yaptıralım</H2>
+      <CodeEditor
+        title="dogrusal_arama.py"
+        tabs={["dogrusal_arama.py"]}
+        activeTab="dogrusal_arama.py"
+        code={`notlar = [70, 45, 90, 60, 85]
+aranan = 90
 
-      <div className="mt-6">
-        <CodeEditor
-          title="secmeli_siralama.py — Visual Studio Code"
-          tabs={["secmeli_siralama.py", "README.md"]}
-          activeTab="secmeli_siralama.py"
-          code={`def secmeli_sirala(dizi):
-  for i in range(len(dizi)):
-    en_kucuk = i
-    for j in range(i + 1, len(dizi)):
-      if dizi[j] < dizi[en_kucuk]:
-        en_kucuk = j
-    # en küçüğü baştaki ile yer değiştir
-    dizi[i], dizi[en_kucuk] = dizi[en_kucuk], dizi[i]
-  return dizi`}
-          terminal={
-            <div className="leading-relaxed">
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="prog-terminal-out">python secmeli_siralama.py</span>
-              </div>
-              <div className="prog-terminal-out">
-                secmeli_sirala([29, 10, 14, 37, 13])
-              </div>
-              <div className="prog-terminal-out">
-                &rarr; <span className="prog-terminal-user">[10, 13, 14, 29, 37]</span>
-              </div>
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="animate-pulse">▌</span>
-              </div>
-            </div>
-          }
+for sira in range(len(notlar)):
+    if notlar[sira] == aranan:
+        print("Bulundu, sıra:", sira)`}
+      />
+      <Ask>aranan = 100 yapıp çalıştırırsak ekranda ne görürüz? Neden?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  5 · İKİLİ ARAMA  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Arama · adım adım</Eyebrow>
+      <H2>İkili arama: sözlükte ortadan aç, yarısını at</H2>
+      <Sub className="mt-3">
+        Sözlükte kelime ararken ortadan açarsın; kelimen daha gerideyse ön yarıya hiç bakmazsın.
+      </Sub>
+      <IkiliDemo />
+      <Ask>Liste karışık olsaydı &ldquo;sol yarıyı at&rdquo; diyebilir miydik?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  6 · MİNİ SINAV  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Mini sınav · şıkka tıkla</Eyebrow>
+      <H2>Aklımdan 1 ile 100 arasında bir sayı tuttum</H2>
+      <div className="grid grid-cols-2 gap-5 mt-6 items-start">
+        <Quiz
+          question="Her tahminde yalnızca “büyük” ya da “küçük” diyeceğim. İlk tahminin ne olmalı?"
+          options={["1", "50", "100", "Fark etmez"]}
+          correct={1}
+          why="50 dersen cevabım ne olursa olsun sayıların yarısı elenir."
         />
+        <div className="space-y-3">
+          <div className="prog-card-yellow rounded-xl px-5 py-4 text-base text-gray-200">
+            <span className="text-[#ffd43b] font-semibold">Tek şart:</span> ikili arama yalnızca sıralı
+            listede çalışır.
+          </div>
+          <div className="prog-card rounded-xl px-5 py-4 text-sm text-gray-300">
+            Liste karışıksa önce sıralarız. Sıradaki konu tam olarak bu.
+          </div>
+        </div>
       </div>
+      <Ask>1&apos;den başlayıp birer birer sayarsan en kötü ihtimalle kaç tahmin gerekir?</Ask>
     </SlideShell>
   ),
 
   /* ─────────────────  7 · KABARCIK SIRALAMA  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Kabarcık sıralama · bubble sort</Eyebrow>
-      <H2 className="mb-2">Komşuları karşılaştır, gerekirse takas et</H2>
-      <Sub className="max-w-3xl mb-6">
-        Yan yana iki elemana bakarız; soldaki büyükse yer değiştirirler. Her turda en büyük
-        eleman sağ uca &quot;kabarır&quot;. Aşağıda ilk turun ilk üç karşılaştırması:
+      <Eyebrow>Sıralama · adım adım</Eyebrow>
+      <H2>Kabarcık sıralama: yan yana ikiliye bak, yanlışsa yer değiştir</H2>
+      <Sub className="mt-3">
+        Beden dersinde boy sırası gibi: yanındaki senden kısaysa yer değiştirirsiniz.
       </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="prog-card rounded-xl p-6 space-y-3">
-          <div className="text-xs font-mono uppercase tracking-widest text-[#5fa8e0] mb-2">
-            Tur 1 · adım adım
-          </div>
-          <ArrayRow
-            label="5 &gt; 1 → takas"
-            delay={0.0}
-            cells={[
-              { v: "5", state: "active" }, { v: "1", state: "active" }, { v: "4" }, { v: "2" },
-            ]}
-          />
-          <ArrayRow
-            label="5 &gt; 4 → takas"
-            delay={0.12}
-            cells={[
-              { v: "1" }, { v: "5", state: "active" }, { v: "4", state: "active" }, { v: "2" },
-            ]}
-          />
-          <ArrayRow
-            label="5 &gt; 2 → takas"
-            delay={0.24}
-            cells={[
-              { v: "1" }, { v: "4" }, { v: "5", state: "active" }, { v: "2", state: "active" },
-            ]}
-          />
-          <ArrayRow
-            label="tur 1 sonu"
-            delay={0.36}
-            cells={[
-              { v: "1" }, { v: "4" }, { v: "2" }, { v: "5", state: "sorted" },
-            ]}
-          />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prog-card rounded-xl p-6 flex flex-col justify-center"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-[#ffd43b]/20 border border-[#ffd43b]/50 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-[#ffd43b]" />
-            </div>
-            <div className="text-white font-semibold">Püf noktası</div>
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />
-              Her tam turda en az bir eleman kesin yerine oturur.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />
-              Bir turda hiç takas olmadıysa dizi zaten sıralıdır; erken durabiliriz.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />
-              Anlaması çok kolaydır ama büyük listelerde yavaş kalır.
-            </li>
-          </ul>
-        </motion.div>
-      </div>
+      <KabarcikDemo />
+      <Ask>İlk tur bitince hangi sayı yerine oturdu? Neden hep en büyüğü?</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  8 · KARMAŞIKLIK · BÜYÜK-O  ───────────────── */
+  /* ─────────────────  8 · KABARCIK KODU  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Verimlilik · büyük-O gösterimi</Eyebrow>
-      <H2>Aynı işi yapan algoritmalar, farklı maliyet</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bir algoritmanın kabaca kaç adımda çalıştığını <span className="text-white font-semibold">büyük-O</span> ile
-        ifade ederiz. Liste büyüdükçe adım sayısının nasıl arttığına bakarız.
-      </Sub>
+      <Eyebrow>Canlı kod · önce tahmin et, sonra çalıştır</Eyebrow>
+      <H2 className="mb-4">Az önce elle yaptığımızı Python tur tur yapsın</H2>
+      <CodeEditor
+        title="kabarcik.py"
+        tabs={["kabarcik.py"]}
+        activeTab="kabarcik.py"
+        code={`sayilar = [5, 3, 8, 1, 4]
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl overflow-hidden"
-      >
-        <table className="prog-compare">
-          <thead>
-            <tr>
-              <th>Algoritma</th>
-              <th>Tür</th>
-              <th>Tipik karmaşıklık</th>
-              <th>Yorum</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="font-semibold text-white">Seçmeli sıralama</td>
-              <td>Sıralama</td>
-              <td className="font-mono text-[#9cdcfe]">O(n²)</td>
-              <td>Liste 10 kat büyürse adım yaklaşık 100 kat artar.</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Kabarcık sıralama</td>
-              <td>Sıralama</td>
-              <td className="font-mono text-[#9cdcfe]">O(n²)</td>
-              <td>Basit ama büyük veride yavaş; eğitim amaçlı tercih edilir.</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Doğrusal arama</td>
-              <td>Arama</td>
-              <td className="font-mono text-[#9cdcfe]">O(n)</td>
-              <td>En kötü durumda tüm elemanlara tek tek bakar.</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">İkili arama</td>
-              <td>Arama (sıralı)</td>
-              <td className="font-mono text-[#86efac]">O(log n)</td>
-              <td>Her adımda kalan kısmı yarıya böler — çok hızlı.</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-xs text-gray-500 font-mono"
-      >
-        Not: Python&apos;un yerleşik sort&apos;u ortalama O(n log n)&apos;dir; bizim elle
-        yazdıklarımız öğrenme amaçlı daha basit sürümlerdir.
-      </motion.div>
+for tur in range(len(sayilar) - 1):
+    for i in range(len(sayilar) - 1):
+        if sayilar[i] > sayilar[i + 1]:
+            sayilar[i], sayilar[i + 1] = sayilar[i + 1], sayilar[i]
+    print("Tur", tur + 1, ":", sayilar)`}
+      />
+      <Ask>
+        Son turda liste değişti mi? Günlük işte hazır olan sayilar.sort() kullanılır; biz mantığını
+        görmek için elle yazdık.
+      </Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  9 · SECTION 2/3 · ARAMA  ───────────────── */
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Arama Algoritmaları"
-      subtitle="Bir değeri bir listede bulmak. İki yöntem var ve aralarındaki hız farkı çarpıcı."
-      glowClass="prog-glow-yellow"
-      icon={<Search className="w-14 h-14 text-[#1a1a1a]" />}
-    />
-  ),
-
-  /* ─────────────────  10 · DOĞRUSAL ARAMA  ───────────────── */
+  /* ─────────────────  9 · ÖZYİNELEME: MATRUŞKA  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bölüm 2 · Arama</Eyebrow>
-      <H2 className="mb-2">Doğrusal arama: baştan sona tara</H2>
-      <Sub className="max-w-3xl mb-6">
-        En basit yöntem: ilk elemandan başla, aradığını bulana kadar tek tek bak. Liste sıralı
-        olmasa bile çalışır. Hedef: <span className="font-mono text-[#ffd43b]">22</span>.
+      <Eyebrow>Özyineleme · adım adım</Eyebrow>
+      <H2>Özyineleme: matruşka gibi, her bebeğin içinden bir küçüğü çıkar</H2>
+      <Sub className="mt-3">
+        Özyineleme (recursion): bir fonksiyonun işin küçüğünü yine kendisine yaptırması.
       </Sub>
-
-      <div className="prog-card rounded-xl p-6 space-y-3">
-        <ArrayRow
-          label="adım 1 · 8?"
-          delay={0.0}
-          cells={[
-            { v: "8", state: "active" }, { v: "3" }, { v: "22" }, { v: "17" }, { v: "5" },
-          ]}
-        />
-        <ArrayRow
-          label="adım 2 · 3?"
-          delay={0.14}
-          cells={[
-            { v: "8" }, { v: "3", state: "active" }, { v: "22" }, { v: "17" }, { v: "5" },
-          ]}
-        />
-        <ArrayRow
-          label="adım 3 · 22? ✓"
-          delay={0.28}
-          cells={[
-            { v: "8" }, { v: "3" }, { v: "22", state: "found" }, { v: "17" }, { v: "5" },
-          ]}
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        <div className="prog-card rounded-lg p-4 flex items-start gap-3">
-          <CheckCircle2 className="w-5 h-5 text-[#86efac] mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-gray-300">
-            <span className="text-white font-semibold">Artı:</span> Liste sıralı olmasa da çalışır,
-            yazması çok kolaydır.
-          </div>
-        </div>
-        <div className="prog-card rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-[#fca5a5] mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-gray-300">
-            <span className="text-white font-semibold">Eksi:</span> En kötü durumda{" "}
-            <span className="font-mono text-[#9cdcfe]">n</span> elemanın hepsine bakar — O(n).
-          </div>
-        </div>
-      </motion.div>
+      <MatruskaDemo />
+      <Ask>En küçük bebek neden açılmıyor? Açılsaydı ne olurdu?</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  11 · İKİLİ ARAMA  ───────────────── */
+  /* ─────────────────  10 · GERİ SAYIM KODU  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>İkili arama · binary search</Eyebrow>
-      <H2 className="mb-2">Sıralı listeyi her adımda yarıya böl</H2>
-      <Sub className="max-w-3xl mb-6">
-        Liste <span className="text-white">sıralı olmalı</span>. Ortadaki elemana bak: hedef küçükse
-        sol yarıya, büyükse sağ yarıya geç. Hedef: <span className="font-mono text-[#ffd43b]">23</span>.
-      </Sub>
-
-      <div className="prog-card rounded-xl p-6 space-y-3">
-        <ArrayRow
-          label="orta=14, 23&gt;14"
-          delay={0.0}
-          cells={[
-            { v: "2" }, { v: "7" }, { v: "9" }, { v: "14", state: "active" }, { v: "20" }, { v: "23" }, { v: "31" },
-          ]}
-        />
-        <ArrayRow
-          label="sağ yarı · orta=23"
-          delay={0.16}
-          cells={[
-            { v: "2" }, { v: "7" }, { v: "9" }, { v: "14" }, { v: "20" }, { v: "23", state: "active" }, { v: "31" },
-          ]}
-        />
-        <ArrayRow
-          label="bulundu ✓"
-          delay={0.32}
-          cells={[
-            { v: "2" }, { v: "7" }, { v: "9" }, { v: "14" }, { v: "20" }, { v: "23", state: "found" }, { v: "31" },
-          ]}
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-6 prog-card-yellow rounded-xl p-5 flex items-center gap-4"
-      >
-        <Binary className="w-7 h-7 text-[#ffd43b] flex-shrink-0" />
-        <div className="text-sm text-gray-300">
-          <span className="text-white font-semibold">Güç buradan geliyor:</span> 1.000.000 elemanlı
-          sıralı bir listede ikili arama en fazla yaklaşık <span className="font-mono text-[#9cdcfe]">20</span> adımda
-          sonuç verir (log₂ 1.000.000 ≈ 20). Doğrusal arama en kötü durumda bir milyon adım yapardı.
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  12 · İKİLİ ARAMA KOD  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>İkili arama · Python</Eyebrow>
-      <H2 className="mb-2">Sol-sağ sınırları ortada buluştur</H2>
-      <Sub className="max-w-3xl">
-        İki işaretçi tutarız: <span className="font-mono text-[#9cdcfe]">sol</span> ve{" "}
-        <span className="font-mono text-[#9cdcfe]">sag</span>. Ortayı kontrol eder, hedefe göre
-        aralığı daraltırız. Bulamazsak <span className="font-mono text-[#c586c0]">-1</span> döneriz.
-      </Sub>
-
-      <div className="mt-6">
-        <CodeEditor
-          title="ikili_arama.py — Visual Studio Code"
-          tabs={["ikili_arama.py", "README.md"]}
-          activeTab="ikili_arama.py"
-          code={`def ikili_ara(dizi, hedef):
-  sol, sag = 0, len(dizi) - 1
-  while sol <= sag:
-    orta = (sol + sag) // 2
-    if dizi[orta] == hedef:
-      return orta  # indeks bulundu
-    elif dizi[orta] < hedef:
-      sol = orta + 1
+      <Eyebrow>Canlı kod · önce tahmin et, sonra çalıştır</Eyebrow>
+      <H2 className="mb-4">Geri sayım: kendini çağıran fonksiyon</H2>
+      <CodeEditor
+        title="geri_say.py"
+        tabs={["geri_say.py"]}
+        activeTab="geri_say.py"
+        code={`def geri_say(n):
+    if n == 0:
+        print("Kalkış!")
     else:
-      sag = orta - 1
-  return -1  # bulunamadı`}
-          terminal={
-            <div className="leading-relaxed">
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="prog-terminal-out">python ikili_arama.py</span>
-              </div>
-              <div className="prog-terminal-out">
-                ikili_ara([2, 7, 9, 14, 20, 23, 31], 23)
-              </div>
-              <div className="prog-terminal-out">
-                &rarr; <span className="prog-terminal-user">5</span>{" "}
-                <span className="text-gray-500"># 23 sayısı 5. indekste</span>
-              </div>
-              <div>
-                <span className="prog-terminal-prompt">user@mcbu</span>
-                <span className="text-gray-500"> $ </span>
-                <span className="animate-pulse">▌</span>
-              </div>
-            </div>
-          }
+        print(n)
+        geri_say(n - 1)
+
+geri_say(3)`}
+      />
+      <Ask>Son satırı geri_say(5) yaparsak ekrana kaç satır yazılır?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  11 · DURMA KOŞULU  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Dikkat · önce tahmin et</Eyebrow>
+      <H2>Durma koşulu olmazsa matruşka hiç bitmez</H2>
+      <Sub className="mt-3">
+        Durma koşulu: fonksiyonun kendini artık çağırmadığı yer. Aşağıdaki kodda if satırını sildik.
+      </Sub>
+      <div className="grid grid-cols-2 gap-4 mt-5 items-start">
+        <CodeView code={`def geri_say(n):\n    print(n)\n    geri_say(n - 1)\n\ngeri_say(3)`} active={2} />
+        <Reveal label="Bu kod ne yapar? Tahmin et, sonra tıkla">
+          3, 2, 1, 0, -1, -2… diye durmadan iner. Python bir süre sonra programı keser ve{" "}
+          <span className="text-[#fca5a5] font-semibold">RecursionError</span> (çok fazla iç içe çağrı)
+          hatası verir.
+        </Reveal>
+      </div>
+      <Ask>Bir önceki slayttaki kodda en küçük bebek hangi satırdı?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  12 · SINIFTA DENEYELİM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sınıfta deneyelim · 5–10 dakika</Eyebrow>
+      <H2>Sayı tahmin oyunu: ikili aramayı sen oyna</H2>
+      <div className="grid grid-cols-3 gap-4 mt-5">
+        <InfoCard icon={EyeOff} title="1 · Sayı tut" desc="Yanındaki arkadaşın 1 ile 100 arasında bir sayı tutsun, kâğıda yazsın." accent="#3776ab" />
+        <InfoCard icon={Scissors} title="2 · Hep ortayı söyle" desc="Sen ortadaki sayıyı söyle; o yalnızca büyük, küçük ya da bildin desin." accent="#ffd43b" />
+        <InfoCard icon={PenLine} title="3 · Tahminleri say" desc="Kaç tahminde bulduğunu yaz. Sonra rolleri değiştirin." accent="#4ec9b0" />
+      </div>
+      <div className="mt-4">
+        <Reveal label="En çok kaç tahmin yeter? Sınıfça tahmin edin, sonra tıkla">
+          <span className="text-white font-semibold">7 tahmin her zaman yeter.</span> Her tahminde
+          olasılıkların yarısı gider: 100, 50, 25, 13, 7, 4, 2, 1.
+        </Reveal>
+      </div>
+      <Ask>En az tahminle bulan kim? Hangi yolu izledi?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  13 · KENDİNİ DENE  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Kendini dene · iki soru</Eyebrow>
+      <H2>Bugünü iki soruda toplayalım</H2>
+      <div className="grid grid-cols-2 gap-6 mt-6 items-start">
+        <Quiz
+          question="İkili arama hangi listede çalışır?"
+          options={["Her listede", "Yalnızca sıralı listede", "Yalnızca kısa listede", "Yalnızca karışık listede"]}
+          correct={1}
+          why="Yarıyı atabilmek için aradığımızın hangi yanda kaldığını bilmeliyiz; bunu sıra söyler."
+        />
+        <Quiz
+          question="Kendini çağıran fonksiyonda durma koşulunu unuttun. Ne olur?"
+          options={["Hiç çalışmaz", "Bir kez çalışıp durur", "Durmadan kendini çağırır, sonunda hata verir", "Liste sıralanır"]}
+          correct={2}
+          why="En küçük bebek yoksa matruşka bitmez; Python sonunda RecursionError verir."
         />
       </div>
     </SlideShell>
   ),
 
-  /* ─────────────────  13 · SECTION 3/3 · REKÜRSİYON  ───────────────── */
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Rekürsif Fonksiyonlar"
-      subtitle="Bir fonksiyonun problemi küçülterek kendi kendini çağırması — döngülere zarif bir alternatif."
-      glowClass="prog-glow-purple"
-      icon={<Repeat className="w-14 h-14 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  14 · REKÜRSİYON NEDİR  ───────────────── */
+  /* ─────────────────  14 · AKLINDA KALSIN  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bölüm 3 · Rekürsiyon</Eyebrow>
-      <H2>Rekürsiyon: kendini çağıran fonksiyon</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bir problemi, <span className="text-white font-semibold">aynı problemin daha küçük bir
-        hâline</span> indirgeyerek çözmektir. İki parçası mutlaka olmalı: bir{" "}
-        <span className="text-[#86efac] font-semibold">taban durum</span> (durma noktası) ve bir{" "}
-        <span className="text-[#9cdcfe] font-semibold">özyineli adım</span> (kendini çağırma).
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
-        <FeatureCard
-          icon={Target}
-          title="Taban durum"
-          desc="Fonksiyonun artık kendini çağırmadan doğrudan sonuç döndürdüğü en küçük durum. Olmazsa sonsuza dek çağrılır."
-          delay={0.0}
-          accent="#86efac"
+      <Eyebrow>Aklında kalsın · 3 şey</Eyebrow>
+      <H2>Bugünden cebine koyacağın üç şey</H2>
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        <InfoCard
+          icon={Search}
+          title="1 · İki arama yolu"
+          desc="Doğrusal: tek tek bak. İkili: ortadan böl; ama liste sıralı olmalı."
+          accent="#3776ab"
         />
-        <FeatureCard
-          icon={GitBranch}
-          title="Özyineli adım"
-          desc="Problemi bir adım küçültüp fonksiyonun kendini tekrar çağırdığı kısım. Her çağrı tabana yaklaşmalı."
-          delay={0.1}
-          accent="#5fa8e0"
+        <InfoCard
+          icon={ArrowUpDown}
+          title="2 · Kabarcık sıralama"
+          desc="Yan yana ikiliye bak, yanlışsa yer değiştir; her turda en büyük sona gider."
+          accent="#ffd43b"
+        />
+        <InfoCard
+          icon={Repeat}
+          title="3 · Özyineleme"
+          desc="Fonksiyon kendini çağırır; durma koşulu olmazsa bitmez."
+          accent="#4ec9b0"
         />
       </div>
-
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="mt-6 prog-card rounded-xl p-5 flex items-start gap-4"
+        transition={{ delay: 0.5 }}
+        className="mt-6 prog-card-yellow rounded-xl px-5 py-4 text-base text-gray-200"
       >
-        <AlertTriangle className="w-6 h-6 text-[#ffd43b] mt-0.5 flex-shrink-0" />
-        <div className="text-sm text-gray-300">
-          <span className="text-white font-semibold">Dikkat:</span> Taban durumu unutursan ya da
-          her adımda problemi küçültmezsen, Python bir noktada{" "}
-          <span className="font-mono text-[#fca5a5]">RecursionError: maximum recursion depth exceeded</span>{" "}
-          hatası verir. Sonsuz döngünün rekürsif karşılığıdır.
-        </div>
+        <span className="text-[#ffd43b] font-semibold">Gelecek hafta:</span> listelerimizi dosyaya
+        kaydedeceğiz ki program kapanınca kaybolmasın; ardından dönemi birlikte tekrar edeceğiz.
       </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  15 · FAKTORİYEL · KOD + YIĞIN  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Klasik örnek · faktöriyel</Eyebrow>
-      <H2 className="mb-2">n! = n × (n-1)!</H2>
-      <Sub className="max-w-3xl mb-6">
-        Faktöriyel rekürsiyonun ders kitabı örneğidir: <span className="font-mono text-[#9cdcfe]">4! = 4 × 3!</span>,{" "}
-        <span className="font-mono text-[#9cdcfe]">3! = 3 × 2!</span> ... Taban durum{" "}
-        <span className="font-mono text-[#86efac]">0! = 1</span>&apos;dir.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        <CodeEditor
-          title="faktoriyel.py"
-          tabs={["faktoriyel.py"]}
-          activeTab="faktoriyel.py"
-          code={`def faktoriyel(n):
-  # taban durum
-  if n == 0:
-    return 1
-  # özyineli adım
-  return n * faktoriyel(n - 1)
-
-print(faktoriyel(4))  # 24`}
-        />
-
-        <CallStack
-          frames={[
-            { call: "faktoriyel(4)", depth: 0 },
-            { call: "faktoriyel(3)", depth: 1 },
-            { call: "faktoriyel(2)", depth: 2 },
-            { call: "faktoriyel(1)", depth: 3 },
-            { call: "faktoriyel(0)", ret: "1", depth: 4 },
-            { call: "→ 1 × 1 = 1", ret: "1", depth: 3 },
-            { call: "→ 2 × 1 = 2", ret: "2", depth: 2 },
-            { call: "→ 3 × 2 = 6", ret: "6", depth: 1 },
-            { call: "→ 4 × 6 = 24", ret: "24", depth: 0 },
-          ]}
-        />
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · DÖNGÜ vs REKÜRSİYON  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Karşılaştırma · iki yol, aynı sonuç</Eyebrow>
-      <H2>Döngü mü, rekürsiyon mu?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Çoğu rekürsif çözüm döngüyle de yazılabilir. Hangisinin daha okunabilir olduğu probleme
-        bağlıdır; ikisini de bilmek gerekir.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl overflow-hidden"
-      >
-        <table className="prog-compare">
-          <thead>
-            <tr>
-              <th>Özellik</th>
-              <th>Döngü (iteratif)</th>
-              <th>Rekürsiyon</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="font-semibold text-white">Yapı</td>
-              <td>for / while ile tekrar</td>
-              <td>Fonksiyon kendini çağırır</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Bellek</td>
-              <td>Genelde sabit, düşük</td>
-              <td>Her çağrı yığında yer kaplar</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Okunabilirlik</td>
-              <td>Basit tekrarlarda net</td>
-              <td>Ağaç/parçalama problemlerinde çok zarif</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">Risk</td>
-              <td>Sonsuz döngü</td>
-              <td>Taban durum yoksa RecursionError</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white">İyi olduğu yer</td>
-              <td>Sayma, toplama, basit gezinme</td>
-              <td>Faktöriyel, klasör ağacı, ikili arama</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  17 · UYGULAMALI ALIŞTIRMA  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı alıştırma</Eyebrow>
-      <H2>Kendi makinende dört görev</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Üç konuyu da elle uygula. Sonraki derse kodlarını ve terminal çıktının ekran görüntüsünü
-        alarak gel.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl p-6 max-w-3xl mx-auto"
-      >
-        <div className="text-xs uppercase tracking-wider text-[#5fa8e0] mb-4 font-mono flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" />
-          Görev listesi · Hafta 14
-        </div>
-        <div className="space-y-3">
-          {[
-            { t: "Seçmeli sıralamayı yaz", d: "[29, 10, 14, 37, 13] listesini elle sırala; her turdaki diziyi yazdır." },
-            { t: "Doğrusal aramayı yaz", d: "Bir sayı sor; listede varsa indeksini, yoksa -1 döndür." },
-            { t: "İkili aramayı dene", d: "Sıralı bir listede ikili aramayı çalıştır; kaç adımda bulduğunu say." },
-            { t: "Rekürsif toplam yaz", d: "1&apos;den n&apos;e kadar olan sayıları rekürsif bir fonksiyonla topla; taban durumu unutma." },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.08 }}
-              className="flex items-start gap-3 bg-black/30 rounded-lg p-3"
-            >
-              <div className="w-6 h-6 rounded-md border border-[#5fa8e0]/60 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check className="w-3.5 h-3.5 text-[#5fa8e0]" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm text-white font-medium">{item.t}</div>
-                <div
-                  className="text-xs text-gray-400 mt-0.5"
-                  dangerouslySetInnerHTML={{ __html: item.d }}
-                />
-              </div>
-              <div className="text-[10px] font-mono text-gray-600 mt-1">
-                {String(i + 1).padStart(2, "0")}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  18 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
-  () => (
-    <SlideShell>
-      <div className="text-center">
-        <Eyebrow>Hafta 15 · Önizleme ve dönem kapanışı</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Genel Tekrar</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Önümüzdeki hafta tüm dönemi baştan sona toparlıyoruz: değişkenlerden döngülere,
-          fonksiyonlardan bu haftaki algoritmalara kadar — final öncesi büyük tekrar.
-        </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12"
-        >
-          <div className="prog-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#5fa8e0] mb-2 mx-auto" />
-            <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-              Ders saati
-            </div>
-            <div className="text-white font-semibold mt-1">Perşembe</div>
-            <div className="text-sm text-gray-400">09:55 — 12:30</div>
-          </div>
-
-          <div className="prog-card rounded-xl p-5">
-            <Hash className="w-5 h-5 text-[#5fa8e0] mb-2 mx-auto" />
-            <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-              Getir
-            </div>
-            <div className="text-white font-semibold mt-1">4 görev</div>
-            <div className="text-sm text-gray-400">kod + ekran görüntüsü</div>
-          </div>
-
-          <div className="prog-card rounded-xl p-5">
-            <FileText className="w-5 h-5 text-[#5fa8e0] mb-2 mx-auto" />
-            <div className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-              Sonraki hafta
-            </div>
-            <div className="text-white font-semibold mt-1">H15</div>
-            <div className="text-sm text-gray-400">Genel tekrar · final</div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
-        >
-          BVA 1101 · Programlama Temelleri · Bahar 2026
-        </motion.div>
-      </div>
     </SlideShell>
   ),
 ];
@@ -1242,7 +995,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#5fa8e0]/70">
-          BVA 1101 · 14. Hafta · Sıralama, Arama ve Rekürsiyon
+          BVA 1101 · 14. Hafta · Arama, Sıralama, Özyineleme
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#5fa8e0]/50">

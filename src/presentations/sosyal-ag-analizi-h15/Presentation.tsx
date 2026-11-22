@@ -9,34 +9,26 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Shield,
-  ShieldCheck,
-  ShieldAlert,
-  Lock,
-  Unlock,
-  Eye,
-  EyeOff,
-  Users,
-  Scale,
-  FileText,
-  AlertTriangle,
-  UserX,
-  Fingerprint,
-  Database,
-  ClipboardCheck,
-  Check,
-  Network,
-  Search,
-  Code2,
-  Calendar,
-  MapPin,
-  Mail,
-  Clock,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
+  Check,
+  X,
+  MousePointerClick,
+  RotateCcw,
+  ArrowRight,
+  Eye,
+  Scale,
+  Users,
+  Link2,
+  HelpCircle,
+  IdCard,
+  ShieldAlert,
+  Hand,
+  FileText,
+  Database,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -150,904 +142,1073 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+/* ============================================================
+   ETKİLEŞİM BİLEŞENLERİ (ortak)
+   ============================================================ */
+
+/** Başlıkları 1280×720 ekrana sığdırmak için biraz küçültür. */
+const BASLIK = "md:text-4xl!";
+
+/** Slaydın altındaki soluk "Sınıfa sor" satırı. */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6 }}
+      className="mt-5 text-sm text-gray-500 text-center"
+    >
+      <span className="font-mono uppercase tracking-wider text-[11px] text-[#14b8a6]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Tahmin et → tıkla göster kartı. */
+function Reveal({
+  soru,
+  cevap,
+  ipucu = "Tahmin et, sonra tıkla",
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  soru: string;
+  cevap: string;
+  ipucu?: string;
+}) {
+  const [acik, setAcik] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setAcik((a) => !a)}
+      className={`rounded-xl p-5 text-left w-full h-full cursor-pointer transition-all ${
+        acik ? "saa-card-teal" : "saa-card saa-card-hover"
+      }`}
+    >
+      <div className="text-base font-semibold text-white leading-snug">{soru}</div>
+      {acik ? (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 text-sm text-[#a7f3d0] leading-relaxed"
+        >
+          {cevap}
+        </motion.div>
+      ) : (
+        <div className="mt-3 saa-hint">
+          <MousePointerClick className="w-3.5 h-3.5" />
+          {ipucu}
+        </div>
+      )}
+    </button>
+  );
+}
+
+type Soru = {
+  soru: string;
+  siklar: string[];
+  dogru: number;
+  aciklama: string;
+};
+
+/** Mini sınav: şıkka tıkla, doğru yeşil / yanlış kırmızı, tek cümle açıklama. */
+function Quiz({ sorular }: { sorular: Soru[] }) {
+  const [no, setNo] = useState(0);
+  const [secim, setSecim] = useState<number | null>(null);
+  const s = sorular[no];
+  const sonSoru = no === sorular.length - 1;
+  return (
+    <div className="max-w-4xl mx-auto">
+      {sorular.length > 1 && (
+        <div className="text-xs font-mono text-gray-500 mb-2">
+          Soru {no + 1} / {sorular.length}
+        </div>
+      )}
+      <div className="saa-card-teal rounded-xl px-5 py-4 text-lg font-semibold text-white leading-snug">
+        {s.soru}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+        {s.siklar.map((sik, i) => {
+          const durum =
+            secim === null
+              ? "saa-card saa-card-hover cursor-pointer"
+              : i === s.dogru
+              ? "saa-ok"
+              : i === secim
+              ? "saa-no"
+              : "saa-card opacity-50";
+          return (
+            <button
+              key={sik}
+              type="button"
+              disabled={secim !== null}
+              onClick={() => setSecim(i)}
+              className={`rounded-xl px-4 py-3 text-left text-sm text-gray-100 flex items-center gap-3 transition-all ${durum}`}
+            >
+              <span className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 text-xs font-bold bg-[#14b8a6]/15 border border-[#14b8a6]/40 text-[#5eead4]">
+                {secim !== null && i === s.dogru ? (
+                  <Check className="w-4 h-4" />
+                ) : secim === i ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  "ABCD"[i]
+                )}
+              </span>
+              <span>{sik}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[64px] flex items-center justify-between gap-4">
+        {secim === null ? (
+          <div className="saa-hint">
+            <MousePointerClick className="w-3.5 h-3.5" />
+            Sınıf karar versin, sonra şıkka tıkla
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-gray-200 leading-relaxed"
+          >
+            <span
+              className={
+                secim === s.dogru
+                  ? "text-emerald-400 font-semibold"
+                  : "text-red-400 font-semibold"
+              }
+            >
+              {secim === s.dogru ? "Doğru. " : "Olmadı. "}
+            </span>
+            {s.aciklama}
+          </motion.div>
+        )}
+        {secim !== null && (
+          <button
+            type="button"
+            className="saa-btn shrink-0"
+            onClick={() => {
+              setSecim(null);
+              setNo(sonSoru ? 0 : no + 1);
+            }}
+          >
+            {sonSoru ? (
+              <>
+                <RotateCcw className="w-4 h-4" />
+                {sorular.length > 1 ? "Baştan" : "Tekrar sor"}
+              </>
+            ) : (
+              <>
+                Sonraki soru
+                <ChevronRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Adım adım açılan süreç: "İleri" ile bir sonraki adım görünür. */
+function Stepper({ adimlar }: { adimlar: Array<{ baslik: string; metin: string }> }) {
+  const [n, setN] = useState(1);
+  const bitti = n >= adimlar.length;
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="space-y-2.5">
+        {adimlar.map((a, i) => (
+          <div
+            key={a.baslik}
+            className={`rounded-xl px-4 py-3 flex items-start gap-4 transition-all ${
+              i < n ? "saa-card-teal" : "saa-card opacity-30"
+            }`}
+          >
+            <div className="saa-tick w-8 h-8 flex items-center justify-center shrink-0 text-sm font-bold">
+              {i + 1}
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-white">
+                {i < n ? a.baslik : "Sıradaki adım"}
+              </div>
+              {i < n && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-gray-300 mt-0.5 leading-relaxed"
+                >
+                  {a.metin}
+                </motion.div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <button
+          type="button"
+          className="saa-btn"
+          onClick={() => setN(bitti ? 1 : n + 1)}
+        >
+          {bitti ? (
+            <>
+              <RotateCcw className="w-4 h-4" />
+              Baştan
+            </>
+          ) : (
+            <>
+              İleri: {n + 1}. adım
+              <ChevronRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+        <span className="text-xs font-mono text-gray-500">
+          {n} / {adimlar.length}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** İçerik slaydı kabuğu: üst etiket, cümle başlık, kısa alt metin, içerik, "Sınıfa sor". */
+function Icerik({
+  ust,
+  baslik,
+  alt,
+  sor,
+  children,
+}: {
+  ust: string;
+  baslik: ReactNode;
+  alt?: ReactNode;
+  sor?: ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <SlideShell>
+      <div className="max-w-4xl mx-auto">
+        <Eyebrow>{ust}</Eyebrow>
+        <H2 className={BASLIK}>{baslik}</H2>
+        {alt && <Sub className="mt-3 md:text-lg!">{alt}</Sub>}
+        <div className="mt-6">{children}</div>
+        {sor && <Ask>{sor}</Ask>}
       </div>
     </SlideShell>
   );
 }
 
 /* ============================================================
-   TOPIC MOCKUPS
+   KONU BİLEŞENLERİ — AĞLARDA ETİK VE GİZLİLİK
    ============================================================ */
 
-/* Anonimleştirme öncesi/sonrası tablo */
-function AnonymizationTable() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5 overflow-x-auto"
-    >
-      <table className="saa-table">
-        <thead>
-          <tr>
-            <th style={{ width: "22%" }}>Alan</th>
-            <th>Ham veri (riskli)</th>
-            <th>Yetersiz maskeleme</th>
-            <th>Doğru yaklaşım</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="saa-row-head">Ad Soyad</td>
-            <td>Ayşe Yıldız</td>
-            <td>A. Y.</td>
-            <td>Tamamen kaldır · rastgele kimlik (u_3192)</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Kullanıcı adı</td>
-            <td>@ayse_yildiz_34</td>
-            <td>@ayse_***</td>
-            <td>Tutarlı hash (HMAC) ile takma kimlik</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Konum</td>
-            <td>Kadıköy, 40.99, 29.03</td>
-            <td>İstanbul</td>
-            <td>İl düzeyinde genelleştir · koordinatı sil</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Zaman damgası</td>
-            <td>2026-03-14 21:47:08</td>
-            <td>2026-03-14 21:47</td>
-            <td>Saat dilimine yuvarla (gün/hafta)</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Bağlantı listesi</td>
-            <td>Tam komşu listesi</td>
-            <td>İlk 3 komşu</td>
-            <td>Kenarlara gürültü ekle · alt-örnekle</td>
-          </tr>
-        </tbody>
-      </table>
-    </motion.div>
-  );
-}
+const TAKIPLER: Array<{ hesap: string; baslik: string; tahmin: string; hassas?: boolean }> = [
+  {
+    hesap: "Manisa MYO öğrenci topluluğu",
+    baslik: "Okulu",
+    tahmin: "Büyük ihtimalle Manisa MYO öğrencisi.",
+  },
+  {
+    hesap: "Akhisar haber sayfası",
+    baslik: "Yaşadığı yer",
+    tahmin: "Akhisar ya da çevresinde yaşıyor olabilir.",
+  },
+  {
+    hesap: "Bir voleybol kulübü",
+    baslik: "İlgi alanı",
+    tahmin: "Voleybolla ilgileniyor.",
+  },
+  {
+    hesap: "Diyabet destek grubu",
+    baslik: "Sağlık durumu",
+    tahmin: "Kendisinde ya da yakınında diyabet olabilir.",
+    hassas: true,
+  },
+  {
+    hesap: "Bir partinin gençlik kolu",
+    baslik: "Siyasi görüşü",
+    tahmin: "O partiye yakın olabilir.",
+    hassas: true,
+  },
+  {
+    hesap: "Bebek bakımı sayfası",
+    baslik: "Aile durumu",
+    tahmin: "Bebek bekliyor ya da küçük çocuğu olabilir.",
+  },
+];
 
-/* Yeniden tanımlama (re-identification) saldırısı — terminal mockup */
-function ReidentTerminal() {
+/** Takip listesinden çıkarım: hesapları aç/kapa, tahminler anında değişsin. */
+function TakipLab() {
+  const [sec, setSec] = useState<number[]>([]);
+  const degistir = (i: number) =>
+    setSec(sec.includes(i) ? sec.filter((s) => s !== i) : [...sec, i]);
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="saa-card rounded-xl p-4">
+        <div className="saa-hint mb-3">
+          <MousePointerClick className="w-3.5 h-3.5" />
+          Bu kişi kimleri takip ediyor? Tıkla
         </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <Search className="w-3.5 h-3.5" />
-          <span>reidentify.py · &quot;anonim&quot; ağ + yardımcı veri</span>
+        <div className="grid grid-cols-1 gap-2">
+          {TAKIPLER.map((t, i) => (
+            <button
+              key={t.hesap}
+              type="button"
+              onClick={() => degistir(i)}
+              className={`saa-btn-ghost py-1.5! ${sec.includes(i) ? "saa-chip-on" : ""}`}
+            >
+              {t.hesap}
+            </button>
+          ))}
         </div>
       </div>
-      <div className="saa-terminal">
-        <div>
-          <span className="saa-term-prompt">analist@lab</span>
-          <span className="saa-term-dim">:~$</span>{" "}
-          <span className="saa-term-cmd">python reidentify.py --graph anon_ag.gexf --aux linkedin_public.csv</span>
+      <div className="saa-card-teal rounded-xl p-4 flex flex-col gap-2 text-sm">
+        <div className="text-base text-white font-semibold">
+          Yabancı birinin tahminleri ({sec.length})
         </div>
-        <div className="saa-term-dim">[*] Anonim ağ yükleniyor: 12.400 düğüm · 88.300 kenar (etiketler kaldırılmış)</div>
-        <div className="saa-term-dim">[*] Yardımcı kaynak: herkese açık 9.100 profil (derece + komşuluk imzası)</div>
-        <div className="mt-1 saa-term-warn">[+] Yapısal imza eşleştirmesi başlatıldı (degree + triangle profili)</div>
-        <div className="saa-term-ok">[+] Yüksek-dereceli 50 düğümün 41&apos;i tek adayla eşleşti</div>
-        <div className="saa-term-err">[!] u_3192  ←→  @ayse_yildiz_34   (güven: yüksek)</div>
-        <div className="saa-term-err">[!] u_0087  ←→  @mehmet.k         (güven: yüksek)</div>
-        <div className="saa-term-dim">[*] Sonuç: anonimleştirme yalnız etiketleri sildi; YAPI parmak izini bırakmadı.</div>
-        <div className="mt-2">
-          <span className="saa-term-prompt">analist@lab</span>
-          <span className="saa-term-dim">:~$</span>{" "}
-          <span className="saa-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* Aydınlatma metni / rıza karşılaştırması */
-function ConsentCompare() {
-  return (
-    <div className="grid md:grid-cols-2 gap-6">
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="saa-card-warn rounded-xl p-6"
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <UserX className="w-6 h-6 text-[#f87171]" />
-          <h3 className="text-xl font-semibold text-white">Sorunlu uygulama</h3>
-        </div>
-        <ul className="space-y-2.5 text-sm text-gray-300">
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />
-            Açık API&apos;den izinsiz toplu profil çekme (scraping)
-          </li>
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />
-            &quot;Herkese açık demek serbest demek&quot; varsayımı
-          </li>
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />
-            Amaç dışı ikincil kullanım — veriyi başka projeye taşıma
-          </li>
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />
-            Ham, kimliklendirilmiş veriyi süresiz saklama
-          </li>
-        </ul>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.25 }}
-        className="saa-card-teal rounded-xl p-6"
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <ShieldCheck className="w-6 h-6 text-[#5eead4]" />
-          <h3 className="text-xl font-semibold text-white">İlkeli uygulama</h3>
-        </div>
-        <ul className="space-y-2.5 text-sm text-gray-300">
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-            Platform kullanım şartlarına ve API limitlerine uyma
-          </li>
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-            Amaç sınırlaması — yalnız tanımlı araştırma sorusu için
-          </li>
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-            Veri minimizasyonu — gerekenden fazlasını toplama
-          </li>
-          <li className="flex gap-2">
-            <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-            Kimliksizleştir, sınırlı sakla, etik kurul onayı al
-          </li>
-        </ul>
-      </motion.div>
-    </div>
-  );
-}
-
-/* KVKK / GDPR ilke kartları */
-function PrincipleGrid() {
-  const items: Array<{ icon: LucideIcon; t: string; d: string; accent: string }> = [
-    {
-      icon: FileText,
-      t: "Hukuka uygunluk & şeffaflık",
-      d: "Verinin neden işlendiği açık; aydınlatma metni anlaşılır.",
-      accent: "#14b8a6",
-    },
-    {
-      icon: Search,
-      t: "Amaçla sınırlılık",
-      d: "Yalnız belirlenen amaç için; sonradan amaç kaydırma yasak.",
-      accent: "#0d9488",
-    },
-    {
-      icon: Database,
-      t: "Veri minimizasyonu",
-      d: "Araştırma için gerekli en az alan; fazlasını toplama.",
-      accent: "#5eead4",
-    },
-    {
-      icon: Clock,
-      t: "Saklama süresi sınırı",
-      d: "İş bitince ham veriyi sil; yalnız özet/anonim sakla.",
-      accent: "#2dd4bf",
-    },
-    {
-      icon: Lock,
-      t: "Bütünlük & gizlilik",
-      d: "Şifreli saklama, erişim kontrolü, ihlal bildirimi.",
-      accent: "#0f766e",
-    },
-    {
-      icon: Scale,
-      t: "Hesap verebilirlik",
-      d: "Uyumu belgeleyebilme; veri sahibinin haklarına yanıt.",
-      accent: "#115e59",
-    },
-  ];
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {items.map((it, i) => (
-        <motion.div
-          key={it.t}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: i * 0.08 }}
-          className="saa-card rounded-xl p-5"
-        >
-          <div
-            className="w-11 h-11 rounded-lg flex items-center justify-center mb-3"
-            style={{ background: `${it.accent}18`, border: `1px solid ${it.accent}55` }}
+        {sec.length === 0 ? (
+          <p className="text-gray-400 leading-relaxed">
+            Henüz hiçbir şey bilinmiyor. Soldan takip edilen hesapları ekle.
+          </p>
+        ) : (
+          TAKIPLER.map((t, i) =>
+            sec.includes(i) ? (
+              <motion.div
+                key={t.hesap}
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={`rounded-lg px-3 py-1.5 ${t.hassas ? "saa-no" : "saa-card"}`}
+              >
+                <span className="text-white font-semibold">{t.baslik}: </span>
+                <span className="text-gray-200">{t.tahmin}</span>
+                {t.hassas && (
+                  <span className="ml-2 text-[10px] uppercase tracking-wider text-red-300">
+                    hassas
+                  </span>
+                )}
+              </motion.div>
+            ) : null,
+          )
+        )}
+        <div className="mt-auto pt-2 flex items-center justify-between gap-3">
+          <span className="text-xs text-gray-400">
+            Bunlar tahmindir; yanlış da olabilir.
+          </span>
+          <button
+            type="button"
+            className="saa-btn-ghost py-1.5!"
+            onClick={() => setSec([])}
           >
-            <it.icon className="w-5 h-5" style={{ color: it.accent }} />
-          </div>
-          <h3 className="text-sm font-semibold text-white mb-1">{it.t}</h3>
-          <p className="text-xs text-gray-400 leading-relaxed">{it.d}</p>
-        </motion.div>
-      ))}
+            <RotateCcw className="w-4 h-4" />
+            Sıfırla
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-/* k-anonimlik kod örneği */
-function KAnonymityCode() {
+/** İsimleri silinmiş 8 kişilik ağ. Kod → konum. */
+const DAIRELER: Array<{ kod: string; x: number; y: number }> = [
+  { kod: "K4", x: 360, y: 50 },
+  { kod: "K7", x: 200, y: 105 },
+  { kod: "K2", x: 190, y: 245 },
+  { kod: "K5", x: 360, y: 175 },
+  { kod: "K1", x: 500, y: 260 },
+  { kod: "K8", x: 520, y: 95 },
+  { kod: "K3", x: 630, y: 180 },
+  { kod: "K6", x: 670, y: 295 },
+];
+
+const CIZGILER: Array<[number, number]> = [
+  [3, 0], [3, 1], [3, 2], [3, 4], [3, 5], [1, 2], [4, 6], [5, 6], [6, 7],
+];
+
+const ELIF = 3;
+const ONUR = 0;
+
+function arkadasSayisi(i: number): number {
+  return CIZGILER.filter(([a, b]) => a === i || b === i).length;
+}
+
+/** Anonim ağdan kimlik bulma: iki ipucu ile doğru daireye tıkla. */
+function KimlikLab() {
+  const [asama, setAsama] = useState(0);
+  const [yanlis, setYanlis] = useState<number | null>(null);
+  const tikla = (i: number) => {
+    if (asama >= 2) return;
+    const hedef = asama === 0 ? ELIF : ONUR;
+    if (i === hedef) {
+      setAsama(asama + 1);
+      setYanlis(null);
+    } else {
+      setYanlis(i);
+    }
+  };
+  const ad = (i: number) =>
+    i === ELIF && asama >= 1 ? "Elif" : i === ONUR && asama >= 2 ? "Onur" : "";
+  const ipucu =
+    asama === 0
+      ? "İpucu 1: Elif sınıfın en çok arkadaşı olan kişisi; 5 arkadaşı var. Hangi daire Elif?"
+      : asama === 1
+      ? "K5 = Elif. İpucu 2: Onur'un tek arkadaşı var, o da Elif. Onur hangi daire?"
+      : "İsim yoktu ama iki küçük bilgi yetti: K5 = Elif, K4 = Onur.";
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          <span>anonymize.py · Python 3.12 · pandas + networkx</span>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-stretch">
+      <div className="md:col-span-3 saa-card rounded-xl p-2 flex items-center">
+        <svg viewBox="0 0 720 345" className="w-full h-auto">
+          {CIZGILER.map(([a, b]) => (
+            <line
+              key={`${a}-${b}`}
+              x1={DAIRELER[a].x}
+              y1={DAIRELER[a].y}
+              x2={DAIRELER[b].x}
+              y2={DAIRELER[b].y}
+              stroke="#4b5563"
+              strokeWidth={2}
+            />
+          ))}
+          {DAIRELER.map((d, i) => {
+            const bulundu = ad(i) !== "";
+            const hata = yanlis === i;
+            return (
+              <g key={d.kod} onClick={() => tikla(i)} className="saa-node-click">
+                <circle
+                  cx={d.x}
+                  cy={d.y}
+                  r={22}
+                  fill={bulundu ? "#5eead4" : hata ? "#7f1d1d" : "#111827"}
+                  stroke={bulundu ? "#ffffff" : hata ? "#f87171" : "#2dd4bf"}
+                  strokeWidth={2.5}
+                />
+                <text
+                  x={d.x}
+                  y={d.y + 5}
+                  textAnchor="middle"
+                  fontSize={14}
+                  fontWeight={700}
+                  fill={bulundu ? "#042f2e" : "#e5e7eb"}
+                >
+                  {d.kod}
+                </text>
+                {bulundu && (
+                  <text
+                    x={d.x}
+                    y={d.y + 42}
+                    textAnchor="middle"
+                    fontSize={15}
+                    fontWeight={700}
+                    fill="#5eead4"
+                    stroke="#050807"
+                    strokeWidth={4}
+                    paintOrder="stroke"
+                  >
+                    {ad(i)}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
       </div>
-      <pre className="saa-code p-6 overflow-x-auto m-0">
-        <code>
-          <span className="saa-code-cmt"># 1) Doğrudan tanımlayıcıları kaldır</span>
-          {"\n"}
-          df = df.<span className="saa-code-fn">drop</span>(columns=[
-          <span className="saa-code-str">&quot;ad_soyad&quot;</span>,{" "}
-          <span className="saa-code-str">&quot;kullanici_adi&quot;</span>,{" "}
-          <span className="saa-code-str">&quot;eposta&quot;</span>])
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># 2) Yarı-tanımlayıcıları genelleştir (konum, yaş)</span>
-          {"\n"}
-          df[<span className="saa-code-str">&quot;sehir&quot;</span>] = df[
-          <span className="saa-code-str">&quot;ilce&quot;</span>].
-          <span className="saa-code-fn">map</span>(ilce_to_il)
-          {"\n"}
-          df[<span className="saa-code-str">&quot;yas_grubu&quot;</span>] = pd.
-          <span className="saa-code-fn">cut</span>(df.yas, bins=[
-          <span className="saa-code-num">0</span>,
-          <span className="saa-code-num">18</span>,
-          <span className="saa-code-num">30</span>,
-          <span className="saa-code-num">50</span>,
-          <span className="saa-code-num">99</span>])
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># 3) k-anonimlik kontrolu: her grup en az k=5 kayit icermeli</span>
-          {"\n"}
-          q = [<span className="saa-code-str">&quot;sehir&quot;</span>,{" "}
-          <span className="saa-code-str">&quot;yas_grubu&quot;</span>,{" "}
-          <span className="saa-code-str">&quot;cinsiyet&quot;</span>]
-          {"\n"}
-          k = df.<span className="saa-code-fn">groupby</span>(q).
-          <span className="saa-code-fn">size</span>().
-          <span className="saa-code-fn">min</span>()
-          {"\n"}
-          <span className="saa-code-kw">assert</span> k &gt;={" "}
-          <span className="saa-code-num">5</span>,{" "}
-          <span className="saa-code-str">&quot;k-anonimlik saglanmadi: tekil kayit var&quot;</span>
-        </code>
-      </pre>
-    </motion.div>
+      <div className="md:col-span-2 saa-card-teal rounded-xl p-4 flex flex-col gap-3 text-sm text-gray-300">
+        <div className="saa-hint">
+          <MousePointerClick className="w-3.5 h-3.5" />
+          Tahmin et, daireye tıkla
+        </div>
+        <p className="text-base text-white leading-relaxed">{ipucu}</p>
+        {yanlis !== null && asama < 2 && (
+          <p className="text-red-300 leading-relaxed">
+            {DAIRELER[yanlis].kod} dairesinin {arkadasSayisi(yanlis)} arkadaşı
+            var; ipucuna uymuyor. Çizgileri say, tekrar dene.
+          </p>
+        )}
+        {asama === 2 && (
+          <p className="leading-relaxed">
+            Ağın şekli parmak izi gibidir. Dışarıdan bilinen küçük bir bilgi,
+            isimsiz ağda kişiyi ele verebilir.
+          </p>
+        )}
+        <button
+          type="button"
+          className="saa-btn-ghost mt-auto"
+          onClick={() => {
+            setAsama(0);
+            setYanlis(null);
+          }}
+        >
+          <RotateCcw className="w-4 h-4" />
+          Sıfırla
+        </button>
+      </div>
+    </div>
   );
 }
+
+type Hukum = "dogru" | "bagli" | "yanlis";
+
+const HUKUMLER: Array<{ id: Hukum; ad: string }> = [
+  { id: "dogru", ad: "Doğru" },
+  { id: "bagli", ad: "Duruma bağlı" },
+  { id: "yanlis", ad: "Yanlış" },
+];
+
+const VAKALAR: Array<{ olay: string; cevap: Hukum; neden: string }> = [
+  {
+    olay: "Dönem projen için sınıf arkadaşlarının takip listelerini, onlara sormadan tek tek kaydettin.",
+    cevap: "yanlis",
+    neden: "İzin yok; arkadaşların verilerinin ne için kullanılacağını bilmiyor. Doğrusu: sor, amacını anlat, isim yerine numara kullan.",
+  },
+  {
+    olay: "Sınıfta gönüllü bir anket yaptın: herkes kiminle çalışmak istediğini kendi yazdı. İsim yerine numara kullandın, sonucu yalnızca derste gösterdin.",
+    cevap: "dogru",
+    neden: "Herkes bilerek katıldı, yalnızca gereken bilgi alındı, isimler gizlendi ve veri söylenen amaç dışında kullanılmadı.",
+  },
+  {
+    olay: "Herkese açık hesaplardan, bir etiket altında kimin kimi etiketlediğini programla topladın.",
+    cevap: "bagli",
+    neden: "Açık olması serbest demek değildir. Platform kuralları ne diyor? İsimler tutuluyor mu? Resmî bir yol ya da hazır açık veri varsa önce o kullanılır.",
+  },
+  {
+    olay: "İsimleri silinmiş bir ağda, merak edip bir arkadaşının hangi daire olduğunu buldun ve grupta paylaştın.",
+    cevap: "yanlis",
+    neden: "Kimliği gizlenmiş birini bilerek açığa çıkardın ve yaydın. Yapabiliyor olman, yapmanın doğru olduğunu göstermez.",
+  },
+];
+
+/** Vaka kartları: vaka seç, sınıf oylasın, gerekçe açılsın. */
+function VakaLab() {
+  const [no, setNo] = useState(0);
+  const [oy, setOy] = useState<Record<number, Hukum>>({});
+  const v = VAKALAR[no];
+  const secim = oy[no];
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        {VAKALAR.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setNo(i)}
+            className={`saa-btn-ghost py-1.5! ${i === no ? "saa-chip-on" : ""}`}
+          >
+            Vaka {i + 1}
+            {oy[i] && <Check className="w-4 h-4" />}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="saa-btn-ghost py-1.5! ml-auto"
+          onClick={() => {
+            setOy({});
+            setNo(0);
+          }}
+        >
+          <RotateCcw className="w-4 h-4" />
+          Sıfırla
+        </button>
+      </div>
+      <div className="saa-card-teal rounded-xl px-5 py-4 mt-3 text-lg text-white leading-snug min-h-[92px]">
+        {v.olay}
+      </div>
+      <div className="grid grid-cols-3 gap-3 mt-3">
+        {HUKUMLER.map((h) => {
+          const durum = !secim
+            ? "saa-card saa-card-hover cursor-pointer"
+            : h.id === v.cevap
+            ? "saa-ok"
+            : h.id === secim
+            ? "saa-no"
+            : "saa-card opacity-50";
+          return (
+            <button
+              key={h.id}
+              type="button"
+              disabled={Boolean(secim)}
+              onClick={() => setOy({ ...oy, [no]: h.id })}
+              className={`rounded-xl px-4 py-3 text-base font-semibold text-white transition-all ${durum}`}
+            >
+              {h.ad}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[72px] text-sm leading-relaxed">
+        {secim ? (
+          <motion.div
+            key={no}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-gray-200"
+          >
+            <span className="text-[#5eead4] font-semibold">Neden? </span>
+            {v.neden}
+          </motion.div>
+        ) : (
+          <span className="saa-hint">
+            <MousePointerClick className="w-3.5 h-3.5" />
+            Sınıf oylasın: bunu yapmak doğru mu? Sonra tıkla
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const ARA_SINAV: Soru[] = [
+  {
+    soru: "Hesabın gizli ama takip ettiklerin görünüyor: bir MYO topluluğu, bir ilçe haber sayfası, bir voleybol kulübü. Yabancı biri ne tahmin edebilir?",
+    siklar: [
+      "Okulunu, yaşadığın yeri ve ilgi alanını",
+      "Hiçbir şey; hesap gizli",
+      "Yalnızca şifreni",
+      "Yalnızca doğum gününü",
+    ],
+    dogru: 0,
+    aciklama:
+      "Paylaşım görünmese de takip listesi okul, yer ve ilgi alanı hakkında güçlü ipuçları verir.",
+  },
+];
+
+const HAFTA_SINAV: Soru[] = [
+  {
+    soru: "Bir arkadaşlık ağından isimleri sildin. Bu neden tek başına yetmez?",
+    siklar: [
+      "Silinen isimler kendiliğinden geri gelir",
+      "Ağın şekli ve dışarıdan bilinen küçük bilgilerle kişiler bulunabilir",
+      "İsimsiz ağ bilgisayarda açılmaz",
+      "Yeter; isim yoksa kimse bulunamaz",
+    ],
+    dogru: 1,
+    aciklama:
+      "“5 arkadaşı olan tek kişi” gibi bir bilgi, isimsiz ağda o kişiyi göstermeye yeter.",
+  },
+  {
+    soru: "Açık rıza nedir?",
+    siklar: [
+      "Hesabın herkese açık olması",
+      "Verinin internette bulunabilmesi",
+      "Arkadaşının senin yerine “olur” demesi",
+      "Kişinin, verisinin ne için kullanılacağını bilerek kendi isteğiyle verdiği onay",
+    ],
+    dogru: 3,
+    aciklama:
+      "Açık rızada kişi neye “evet” dediğini bilir ve bunu kendi isteğiyle söyler.",
+  },
+  {
+    soru: "Herkese açık profillerden programla toplu veri toplamak (veri kazıma) için hangisi doğrudur?",
+    siklar: [
+      "Açıksa her şey serbesttir",
+      "Kimse fark etmezse sorun olmaz",
+      "Açık olması serbest demek değildir; platform kuralları ve KVKK geçerlidir",
+      "Yalnızca gece yapılırsa serbesttir",
+    ],
+    dogru: 2,
+    aciklama:
+      "Açık profildeki bilgi de kişisel veridir; platformun kuralları ve kanun yine geçerlidir.",
+  },
+];
+
+const DONEM_SINAV: Soru[] = [
+  {
+    soru: "Bir ağda en çok bağlantısı olan kişiyi bulmak istiyorsun. Hangi ölçüye bakarsın?",
+    siklar: [
+      "Derece merkeziliği",
+      "Ağdaki toplam kişi sayısı",
+      "Topluluk sayısı",
+      "Düğümlerin rengi",
+    ],
+    dogru: 0,
+    aciklama: "Derece, bir kişinin kaç bağlantısı olduğunu sayar.",
+  },
+  {
+    soru: "Kendi içinde sıkı, dışarıyla az bağlantılı arkadaş gruplarını bulmaya ne denir?",
+    siklar: [
+      "Örnekleme",
+      "Topluluk tespiti",
+      "Bağlantı tahmini",
+      "Anonimleştirme",
+    ],
+    dogru: 1,
+    aciklama: "Topluluk tespiti, ağdaki sıkı grupları ortaya çıkarır.",
+  },
+  {
+    soru: "Aynı kişilerin WhatsApp, Instagram ve sınıf bağlantılarını ayrı ayrı gösteren ağa ne denir?",
+    siklar: [
+      "Rastgele ağ",
+      "Anonim ağ",
+      "Çok katmanlı ağ",
+      "Örnek ağ",
+    ],
+    dogru: 2,
+    aciklama: "Her ilişki türü bir katmandır; kişiler aynı, bağlantılar farklıdır.",
+  },
+  {
+    soru: "Bir ağdan en çok bağlantılı birkaç kişi çıkarılırsa ne olur?",
+    siklar: [
+      "Hiçbir şey değişmez",
+      "Ağ büyür",
+      "Herkes birbirine bağlanır",
+      "Ağ hızla parçalara ayrılabilir",
+    ],
+    dogru: 3,
+    aciklama:
+      "Çok bağlantılı kişiler ağı bir arada tutar; onlar gidince ağ dağılabilir.",
+  },
+  {
+    soru: "Kartopu örneklemesi nasıl ilerler?",
+    siklar: [
+      "Listeden kura çekerek",
+      "Bir kişiden başlayıp arkadaştan arkadaşa genişleyerek",
+      "Yalnızca en popüler kişileri alarak",
+      "Ağın tamamını indirerek",
+    ],
+    dogru: 1,
+    aciklama: "Kartopu bir kişiden başlar ve dalga dalga arkadaşları ekler.",
+  },
+];
 
 /* ============================================================
    SLIDES
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
-  /* ───── 1. Kapak ───── */
+  // 1 — Kapak
   () => (
     <SlideShell>
       <div className="text-center">
         <Eyebrow>BVA 2105 · 15. Hafta — Sosyal Ağ Analizi</Eyebrow>
         <H1 className="saa-shimmer">
-          Ağ Etiği ve
+          Ağlarda Etik
           <br />
-          Gizlilik Sorunları
+          ve Gizlilik
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Bağlantı verisi kişiseldir. Bu hafta &quot;teknik olarak yapabilmek&quot;
-          ile &quot;yapmaya hakkımız olması&quot; arasındaki çizgiyi çekiyoruz.
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Yapabiliyor olmak, yapmanın doğru olduğu anlamına gelmez.
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto text-left">
           <FeatureCard
             icon={Eye}
-            title="Mahremiyet"
-            desc="Ağ verisi neden hassas; arkadaş listesi ne kadar şey ele verir."
-            delay={0.3}
+            title="Listen ne anlatıyor?"
+            desc="Takip listesinden çıkan tahminler."
             accent="#14b8a6"
+            delay={0.3}
           />
           <FeatureCard
-            icon={UserX}
-            title="Yeniden tanımlama"
-            desc="&quot;Anonim&quot; bir grafı yapısal imzadan geri çözmek."
-            delay={0.45}
+            icon={IdCard}
+            title="İsimsiz ağda kimlik"
+            desc="İsimleri silmek neden yetmez?"
             accent="#0d9488"
+            delay={0.45}
           />
           <FeatureCard
             icon={Scale}
-            title="Hukuk & etik"
-            desc="KVKK / GDPR ilkeleri, rıza, etik kurul ve araştırma sınırları."
-            delay={0.6}
+            title="İzin ve KVKK"
+            desc="Bunu yapmak doğru mu?"
             accent="#5eead4"
+            delay={0.6}
           />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Dönemin son teknik konusu — ardından proje teslimine giriyoruz.
-        </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ───── 2. Geçen hafta → bu hafta köprüsü ───── */
+  // 2 — Sorun (sınıf oylaması / tıkla göster)
   () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 14. haftadan 15. haftaya</Eyebrow>
-      <H2>Dönem boyu ağları ölçtük, modelledik, yaydık; şimdi sorumluluğu</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Merkezilik, topluluk tespiti, bilgi yayılımı ve etki maksimizasyonu — hepsi
-        gerçek insanların bağlantı verisi üzerinde çalışır. Bu güç beraberinde
-        gizlilik ve etik sorumluluğu getirir. Bugün onu konuşuyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5eead4]">
-            <Network className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Öğrendiğimiz güç</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />Kim merkezde, kim köprü — etki haritası</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />Toplulukları ve gizli grupları ayırma</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />Bir mesajı en hızlı kim yayar — etki seçimi</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card-warn rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#f87171]">
-            <ShieldAlert className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Beraberindeki risk</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Aynı yöntemle gözetim, profilleme, ayrımcılık</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />&quot;Anonim&quot; sandığımız verinin geri çözülmesi</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Kişinin haberi olmadan kararını etkileme</li>
-          </ul>
-        </motion.div>
+    <Icerik
+      ust="Sorun · gizli hesap yeter mi?"
+      baslik="Hesabın gizli olsa bile arkadaşların seni anlatır"
+      alt="Eski söz: &ldquo;Bana arkadaşını söyle, sana kim olduğunu söyleyeyim.&rdquo; Ağlarda bu söz gerçekten işler."
+      sor="Takip listeni kimler görebiliyor, biliyor musun?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Reveal
+          soru="Kaçınızın hesabı gizli? Gizli hesap sizi tamamen korur mu?"
+          cevap="Paylaşımların gizlenir ama kimlerle bağlı olduğun çoğu zaman görünür kalır. Bağlantılar da bilgi taşır."
+          ipucu="El kaldırın, sonra tıkla"
+        />
+        <Reveal
+          soru="Sınıftaki herkes aynı okul sayfasını takip ediyor. Dışarıdan bakan ne anlar?"
+          cevap="Hiçbiriniz yazmasanız da hangi okulda okuduğunuzu anlar. Tek tek küçük bilgiler birleşince büyük resim çıkar."
+        />
       </div>
-    </SlideShell>
+    </Icerik>
   ),
 
-  /* ───── 3. Bu dersin akışı ───── */
+  // 3 — Takip listesinden çıkarım (oyna-gör)
   () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: mahremiyet → yeniden tanımlama → hukuk &amp; etik</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce ağ verisinin neden hassas olduğunu görüyoruz; sonra &quot;anonimleştirme&quot;nin
-        neden çoğu zaman yetmediğini gösteriyoruz; en son KVKK/GDPR ilkeleri ve etik
-        çerçeveye bağlıyoruz. Sonunda kısa bir etik denetim alıştırması.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "Mahremiyet & Hassasiyet", items: ["Ağ verisi neden kişiseldir", "Çıkarımsal (inference) gizlilik", "Gözetim ve profilleme riski"], icon: Eye, accent: "#14b8a6" },
-          { range: "02", title: "Anonimlik Yanılgısı", items: ["Etiket silmek yetmez", "Yapısal yeniden tanımlama", "k-anonimlik, gürültü, mahremiyet bütçesi"], icon: UserX, accent: "#0d9488" },
-          { range: "03", title: "Hukuk & Etik", items: ["KVKK / GDPR ilkeleri", "Rıza, amaç sınırlaması", "Etik kurul & araştırma sınırları"], icon: Scale, accent: "#5eead4" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="saa-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
+    <Icerik
+      ust="Oyna-gör · takip listesi"
+      baslik="Takip listesi, hiç paylaşım yapmadan çok şey söyler"
+      sor="Bu tahminlerden hangisinin bilinmesi seni rahatsız ederdi?"
+    >
+      <TakipLab />
+    </Icerik>
   ),
 
-  /* ───── 4. Bölüm 1 — Mahremiyet ───── */
+  // 4 — Kavram: ağ neden farklı?
   () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Mahremiyet ve Ağ Verisi"
-      subtitle="Bir kişiyi sildiğinde bile bağlantıları onu ele verir. Ağ verisi neden tekil bir gizlilik problemidir?"
-      bgGradient="linear-gradient(135deg, #14b8a6, #0d9488)"
-      shadow="0 30px 80px -10px rgba(20, 184, 166, 0.6)"
-      icon={<Eye className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 5. Ağ verisi neden hassas? ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Neden bağlantı verisi farklı?</Eyebrow>
-      <H2 className="mb-8">Tek bir satır değil — ilişkiler ele verir</H2>
-      <div className="grid md:grid-cols-2 gap-5 mb-6">
+    <Icerik
+      ust="Kavram · ağ verisi neden özel?"
+      baslik="Sen söylemesen de ağın söyler"
+      sor="Arkadaşının paylaştığı bir fotoğraf senin hakkında ne söyleyebilir?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FeatureCard
           icon={Users}
-          title="İlişkisel veri ortaktır"
-          desc="Sen verini paylaşmasan da, arkadaşlarının bağlantı listesi senin varlığını ve ilişkilerini açığa çıkarır. Rıza yalnız bireysel değildir."
-          accent="#14b8a6"
+          title="Arkadaşlar benzer"
+          desc="Aynı okul, aynı şehir, benzer zevkler. Çevren bilinirse sen de tahmin edilirsin."
           delay={0.1}
         />
         <FeatureCard
-          icon={Fingerprint}
-          title="Yapı bir parmak izidir"
-          desc="Kimin kimi takip ettiği örüntüsü, ad-soyad silinse bile çoğu kişiyi tekil biçimde tanımlamaya yeter."
+          icon={Link2}
+          title="Bağlantı iki kişiliktir"
+          desc="Sen arkadaşlığını gizlesen de karşı taraf gösterebilir. Karar yalnız sende değildir."
           accent="#0d9488"
           delay={0.25}
         />
         <FeatureCard
-          icon={Search}
-          title="Çıkarımsal gizlilik"
-          desc="Açıkça yazmadığın şeyler (siyasi görüş, cinsel yönelim, sağlık) komşularından istatistiksel olarak tahmin edilebilir."
+          icon={HelpCircle}
+          title="Tahmin de bir bilgidir"
+          desc="Doğru çıkarsa gizlin açığa çıkar; yanlış çıkarsa hakkında yanlış bir etiket dolaşır."
           accent="#5eead4"
           delay={0.4}
         />
-        <FeatureCard
-          icon={EyeOff}
-          title="Gözetim & profilleme"
-          desc="Merkezilik ve topluluk analizi, kişileri rızası dışında etiketleyip hedeflemek için de kullanılabilir."
-          accent="#2dd4bf"
-          delay={0.55}
+      </div>
+    </Icerik>
+  ),
+
+  // 5 — Mini sınav (ortada)
+  () => (
+    <Icerik ust="Mini sınav · durup düşünelim" baslik="Yabancı biri ne tahmin eder?">
+      <Quiz sorular={ARA_SINAV} />
+    </Icerik>
+  ),
+
+  // 6 — Anonim ağdan kimlik bulma (tahmin et → tıkla)
+  () => (
+    <Icerik
+      ust="Anonimleştirme · isimleri silip kimliği gizlemek"
+      baslik="İsimleri silmek yetmez: ağın şekli parmak izi gibidir"
+      sor="İsimsiz bir sınıf ağında kendini bulabilir miydin? Hangi bilgiyle?"
+    >
+      <KimlikLab />
+    </Icerik>
+  ),
+
+  // 7 — İzin ve açık rıza (tahmin et → tıkla göster)
+  () => (
+    <Icerik
+      ust="İzin · bu izin sayılır mı?"
+      baslik="Herkese açık olması, izin verildiği anlamına gelmez"
+      alt="Kapısı açık bir ev düşün: açık olması, içeri girip fotoğraf çekebileceğin anlamına gelmez."
+      sor="Senden en son ne için izin istendi? Okuyup mu kabul ettin?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Reveal
+          soru="“Hesabı herkese açık, demek ki verisini alabilirim.”"
+          cevap="Sayılmaz. Açık olmak, senin çalışmana “evet” demek değildir."
+          ipucu="Sayılır mı? Tıkla"
+        />
+        <Reveal
+          soru="“Kırk sayfalık sözleşmenin sonundaki kutuyu işaretlemişti.”"
+          cevap="Zayıf bir izin. Kişi neye “evet” dediğini anlamadıysa bilerek verilmiş bir onay olmaz."
+          ipucu="Sayılır mı? Tıkla"
+        />
+        <Reveal
+          soru="“Ne için kullanacağımı anlattım, kendi isteğiyle kabul etti.”"
+          cevap="Sayılır. Ne için istendiğini biliyor ve kendi isteğiyle onaylıyor. Buna açık rıza denir."
+          ipucu="Sayılır mı? Tıkla"
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="saa-card-teal rounded-xl p-5 text-center text-sm text-gray-300"
-      >
-        Temel ilke:{" "}
-        <span className="text-[#5eead4] font-semibold">veri toplamadan önce</span> &quot;bu
-        kişinin bunu paylaşmama hakkı var mı?&quot; sorusunu sor — &quot;teknik olarak
-        erişilebilir mi?&quot; sorusunu değil.
-      </motion.div>
-    </SlideShell>
+    </Icerik>
   ),
 
-  /* ───── 6. Çıkarımsal saldırı / homofili ───── */
+  // 8 — KVKK
   () => (
-    <SlideShell>
-      <Eyebrow>Çıkarımsal gizlilik · &quot;söylemediğin şey&quot;</Eyebrow>
-      <H2 className="mb-2">Komşularından okunan özellikler</H2>
-      <Sub className="max-w-3xl mb-6">
-        Ağlarda homofili vardır: benzer kişiler bağlanır. Bu yüzden profilini gizli
-        tutsan bile, bağlantılarının çoğunluğu bir özelliği taşıyorsa o özellik sana da
-        yüksek olasılıkla atfedilir. Bu, &quot;gölge profil&quot; riskinin temelidir.
-      </Sub>
-      <div className="grid md:grid-cols-3 gap-4">
-        {[
-          { icon: Users, t: "Komşu çoğunluğu", d: "Bağlantılarının %80&apos;i bir grup/görüş taşıyorsa, sınıflandırıcı seni de o etikete koyar." , accent: "#14b8a6" },
-          { icon: Search, t: "Etiket yayılımı", d: "Birkaç etiketli düğümden başlayıp ağ boyunca yayan algoritmalar, hiç etiketlenmemişleri tahmin eder.", accent: "#0d9488" },
-          { icon: ShieldAlert, t: "Riskli sonuç", d: "Sağlık, inanç, yönelim gibi hassas çıkarımlar — kişi hiç beyan etmemiş olsa bile.", accent: "#f87171" },
-        ].map((c, i) => (
-          <motion.div
-            key={c.t}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className={i === 2 ? "saa-card-warn rounded-xl p-5" : "saa-card rounded-xl p-5"}
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center mb-3"
-              style={{ background: `${c.accent}18`, border: `1px solid ${c.accent}55` }}
-            >
-              <c.icon className="w-5 h-5" style={{ color: c.accent }} />
-            </div>
-            <h3 className="text-sm font-semibold text-white mb-1">{c.t}</h3>
-            <p className="text-xs text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: c.d }} />
-          </motion.div>
-        ))}
+    <Icerik
+      ust="Kanun · KVKK (Kişisel Verilerin Korunması Kanunu)"
+      baslik="KVKK, seni tanıtan bilgileri koruyan kanundur"
+      sor="Arkadaş listen kişisel veri midir? Neden?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FeatureCard
+          icon={IdCard}
+          title="Kişisel veri"
+          desc="Seni tanıtan her bilgi: adın, numaran, fotoğrafın, arkadaş listen."
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={ShieldAlert}
+          title="Hassas veri"
+          desc="Sağlık, din, siyasi görüş gibi bilgiler daha sıkı korunur. Kanundaki adı: özel nitelikli kişisel veri."
+          accent="#0d9488"
+          delay={0.25}
+        />
+        <FeatureCard
+          icon={Hand}
+          title="Senin hakların"
+          desc="Hakkında hangi verinin tutulduğunu öğrenebilir, düzeltilmesini ve silinmesini isteyebilirsin."
+          accent="#5eead4"
+          delay={0.4}
+        />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 text-[11px] text-gray-500 font-mono text-center"
-      >
-        Homofili = benzerlik bağ kurar · ama aynı mekanizma, gizlenen özelliği de tahmin edilebilir kılar.
-      </motion.div>
-    </SlideShell>
+    </Icerik>
   ),
 
-  /* ───── 7. Bölüm 2 — Anonimlik yanılgısı ───── */
+  // 9 — Veri kazıma sınırları
   () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Anonimlik Yanılgısı"
-      subtitle="İsimleri silmek anonimleştirmek değildir. Yapısal imza geride kalır ve yardımcı veriyle geri çözülebilir."
-      bgGradient="linear-gradient(135deg, #0d9488, #134e4a)"
-      shadow="0 30px 80px -10px rgba(13, 148, 136, 0.6)"
-      icon={<UserX className="w-16 h-16 text-white" />}
-    />
+    <Icerik
+      ust="Veri kazıma · sayfalardaki veriyi programla toplamak"
+      baslik="Veri kazıma mümkündür ama her zaman serbest değildir"
+      sor="Bir proje için ağ verisi gerekirse ilk nereye bakarsın?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FeatureCard
+          icon={FileText}
+          title="Platformun kuralları"
+          desc="Çoğu platform, izinsiz toplu veri toplamayı kullanım şartlarında yasaklar."
+          delay={0.1}
+        />
+        <FeatureCard
+          icon={Scale}
+          title="Kanun yine geçerli"
+          desc="Açık profildeki bilgi de kişisel veridir. Toplayan kişi KVKK'ya uymak zorundadır."
+          accent="#0d9488"
+          delay={0.25}
+        />
+        <FeatureCard
+          icon={Database}
+          title="Güvenli yol"
+          desc="Önce hazır açık veri setlerine ve platformun resmî veri yoluna bak. Az veri al, isimleri tutma."
+          accent="#5eead4"
+          delay={0.4}
+        />
+      </div>
+    </Icerik>
   ),
 
-  /* ───── 8. Anonimleştirme tablosu ───── */
+  // 10 — Vaka kartları
   () => (
-    <SlideShell>
-      <Eyebrow>Anonimleştirme · alan alan</Eyebrow>
-      <H2 className="mb-2">Maskeleme yetmez, doğru genelleştir</H2>
-      <Sub className="max-w-3xl mb-6">
-        Çoğu sızıntı, &quot;yarı-tanımlayıcı&quot; alanların (konum, zaman, ince
-        ayrıntı) yetersiz maskelenmesinden gelir. Sağ sütun pratikte hedeflediğimiz
-        yaklaşımdır.
-      </Sub>
-      <AnonymizationTable />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-4 text-[11px] text-gray-500 text-center"
-      >
-        Doğrudan tanımlayıcı (ad) ≠ yarı-tanımlayıcı (konum+zaman). İkincisi birleşince yine kişiyi gösterir.
-      </motion.div>
-    </SlideShell>
+    <Icerik
+      ust="Vaka kartları · sınıf oylaması"
+      baslik="Bunu yapmak doğru mu?"
+      sor="Yanlış bulduğumuz vakayı doğru hâle nasıl getirirdin?"
+    >
+      <VakaLab />
+    </Icerik>
   ),
 
-  /* ───── 9. Yeniden tanımlama saldırısı (terminal) ───── */
+  // 11 — Dört soru (adım adım)
   () => (
-    <SlideShell>
-      <Eyebrow>Yapısal yeniden tanımlama · canlı örnek</Eyebrow>
-      <H2 className="mb-2">&quot;Anonim&quot; ağ neden geri çözülür?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Etiketler silinse bile her düğümün derece ve komşuluk örüntüsü kalır. Herkese
-        açık bir yardımcı kaynakla eşleştirilince yüksek-dereceli kişiler tek tek tanınır.
-        Bu, ağ verisinde klasik bir saldırı senaryosudur.
-      </Sub>
-      <ReidentTerminal />
-    </SlideShell>
+    <Icerik
+      ust="Karar · kısa kontrol listesi"
+      baslik="Veriye dokunmadan önce kendine dört soru sor"
+      sor="Bu dört sorudan en çok hangisini atlıyoruz?"
+    >
+      <Stepper
+        adimlar={[
+          {
+            baslik: "İzin var mı?",
+            metin: "Verisi olan kişi, ne için kullanılacağını biliyor ve kabul ediyor mu?",
+          },
+          {
+            baslik: "Gerekli mi?",
+            metin: "Aynı işi daha az veriyle ya da isim olmadan yapabilir miyim?",
+          },
+          {
+            baslik: "Kime zarar verebilir?",
+            metin: "Sonuç birini zor durumda bırakır mı? Hassas bir şeyi açığa çıkarır mı?",
+          },
+          {
+            baslik: "Nasıl saklayıp paylaşacağım?",
+            metin: "Veriyi kimler görecek? Sonucu isimsiz ve toplu hâlde gösterebilir miyim?",
+          },
+        ]}
+      />
+    </Icerik>
   ),
 
-  /* ───── 10. Koruma teknikleri ───── */
+  // 12 — Sınıfta deneyelim (adım adım)
   () => (
-    <SlideShell>
-      <Eyebrow>Gerçek koruma · seçenekler</Eyebrow>
-      <H2 className="mb-2">Etiket silmenin ötesinde üç yaklaşım</H2>
-      <Sub className="max-w-3xl mb-8">
-        Hiçbiri sihirli değildir; her biri fayda-mahremiyet dengesinde bir noktada
-        durur. Doğru seçim, verinin hassasiyetine ve yayım biçimine bağlıdır.
-      </Sub>
+    <Icerik
+      ust="Sınıfta deneyelim · 10 dakika"
+      baslik="Takip listen seni ne kadar anlatıyor?"
+      sor="Listenden çıkan hangi tahmin seni şaşırttı?"
+    >
+      <Stepper
+        adimlar={[
+          {
+            baslik: "Listeni aç",
+            metin: "Telefonunda takip ettiğin hesaplara bak. İçlerinden 10 tanesini seç.",
+          },
+          {
+            baslik: "Yabancı gözüyle bak",
+            metin: "Bir kâğıda yaz: seni tanımayan biri bu listeden hakkında hangi 3 şeyi tahmin eder?",
+          },
+          {
+            baslik: "Sınıfça sayalım",
+            metin: "Kaç kişide okul çıktı? Kaç kişide şehir? El kaldıralım. Paylaşmak gönüllüdür.",
+          },
+          {
+            baslik: "Ayarını kontrol et",
+            metin: "Gizlilik ayarlarından takip listeni kimlerin görebildiğine bak. İstersen değiştir.",
+          },
+        ]}
+      />
+    </Icerik>
+  ),
+
+  // 13 — Kendini dene: bu hafta
+  () => (
+    <Icerik ust="Kendini dene · bu hafta (3 soru)" baslik="Etik ve gizlilikten ne kaldı?">
+      <Quiz sorular={HAFTA_SINAV} />
+    </Icerik>
+  ),
+
+  // 14 — Kendini dene: dönem tekrarı
+  () => (
+    <Icerik ust="Kendini dene · dönem tekrarı (5 soru)" baslik="Dönemin tamamından beş soru">
+      <Quiz sorular={DONEM_SINAV} />
+    </Icerik>
+  ),
+
+  // 15 — Aklında kalsın + kapanış
+  () => (
+    <Icerik ust="Özet · 15. hafta" baslik="Aklında kalsın: 3 şey">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { icon: Users, state: "k-anonimlik", color: "#14b8a6", what: "Her kayıt en az k-1 başkasıyla ayırt edilemez olacak şekilde genelleştir.", mean: "Basit ve denetlenebilir; ama yapısal saldırıya tek başına dayanmaz." },
-          { icon: Network, state: "graf perturbasyonu", color: "#0d9488", what: "Kenar ekle/sil, alt-örnekle — yapısal imzayı bulanıklaştır.", mean: "Yeniden tanımlamayı zorlaştırır; ölçüm doğruluğunu bir miktar bozar." },
-          { icon: Lock, state: "diferansiyel gizlilik", color: "#5eead4", what: "Sonuçlara kontrollü gürültü; tek bir kişinin katkısı matematiksel olarak gizlenir.", mean: "En güçlü garanti; mahremiyet bütçesi (ε) ile fayda arasında ödünleşme." },
-        ].map((p, i) => (
+          "Bağlantıların da bilgi taşır: takip listesi, paylaşım yapmasan bile seni anlatır.",
+          "İsimleri silmek yetmez. Ağın şekli ve küçük bir yan bilgi kişiyi ele verebilir.",
+          "Önce sor: izin var mı, gerekli mi, kime zarar verir? Açık olması serbest demek değildir.",
+        ].map((metin, i) => (
           <motion.div
-            key={p.state}
-            initial={{ opacity: 0, y: 24 }}
+            key={metin}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.12 }}
-            className="saa-card rounded-xl p-6"
+            transition={{ delay: 0.15 * i }}
+            className="saa-card rounded-xl p-5"
           >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-              style={{ background: `${p.color}18`, border: `1px solid ${p.color}55` }}
-            >
-              <p.icon className="w-6 h-6" style={{ color: p.color }} />
+            <div className="saa-tick w-9 h-9 flex items-center justify-center font-bold mb-3">
+              {i + 1}
             </div>
-            <div className="font-mono text-base font-bold mb-2" style={{ color: p.color }}>{p.state}</div>
-            <p className="text-sm text-gray-300 mb-3">{p.what}</p>
-            <p className="text-xs text-gray-500 border-t border-white/5 pt-3">{p.mean}</p>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 11. k-anonimlik kod örneği ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Python · pratik anonimleştirme</Eyebrow>
-      <H2 className="mb-6">Üç adımda k-anonimlik kontrolü</H2>
-      <KAnonymityCode />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-5 text-xs text-gray-500 text-center"
-      >
-        Bir grup k&apos;dan küçükse o satırlar tekildir — daha kaba genelleştirme ya da o kayıtları baskılama (suppression) gerekir.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 12. Bölüm 3 — Hukuk & Etik ───── */
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Hukuk ve Etik Çerçeve"
-      subtitle="KVKK ve GDPR ilkeleri, rıza, amaç sınırlaması ve etik kurul. Teknik kararı kurala bağlayan kısım."
-      bgGradient="linear-gradient(135deg, #0d9488, #115e59)"
-      shadow="0 30px 80px -10px rgba(13, 148, 136, 0.6)"
-      icon={<Scale className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 13. KVKK / GDPR ilkeleri ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>KVKK &amp; GDPR · temel ilkeler</Eyebrow>
-      <H2 className="mb-2">Kişisel veriyi işlemenin altı kuralı</H2>
-      <Sub className="max-w-3xl mb-8">
-        Türkiye&apos;de KVKK (6698 sayılı kanun), Avrupa&apos;da GDPR aynı çekirdek
-        ilkeleri paylaşır. Sosyal ağ verisi çoğu zaman kişisel veridir; bu ilkeler
-        araştırmada da bağlayıcıdır.
-      </Sub>
-      <PrincipleGrid />
-    </SlideShell>
-  ),
-
-  /* ───── 14. Rıza & sorumlu toplama ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Rıza · sorumlu veri toplama</Eyebrow>
-      <H2 className="mb-2">&quot;Herkese açık&quot; serbest demek değildir</H2>
-      <Sub className="max-w-3xl mb-6">
-        Verinin teknik olarak erişilebilir olması, onu istediğin gibi toplayıp
-        saklayabileceğin anlamına gelmez. İki uçtaki yaklaşımı yan yana koyalım.
-      </Sub>
-      <ConsentCompare />
-    </SlideShell>
-  ),
-
-  /* ───── 15. Etik denetim — uygulamalı alıştırma ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · etik denetim alıştırması</Eyebrow>
-      <H2>Kendi projeni bir kontrol listesinden geçir</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Dönem projende kullandığın veri kümesini aşağıdaki dört adımda denetle.
-        Gelecek derse her madde için kısa bir not (1-2 cümle) hazırlamış gelmen
-        bekleniyor.
-      </Sub>
-      <div className="space-y-3 mt-8">
-        {([
-          { t: "Veri kaynağını ve iznini yaz", d: "Veri nereden geldi? Platform şartlarına ve API limitine uygun mu, scraping var mı?", icon: FileText },
-          { t: "Tanımlayıcıları sınıflandır", d: "Doğrudan ve yarı-tanımlayıcı alanları işaretle; hangileri kaldırılacak/genelleştirilecek karar ver.", icon: Database },
-          { t: "Yeniden tanımlama riskini test et", d: "Yüksek-dereceli düğümler dışarıdan tanınabilir mi? k-anonimlik en az 5 mi?", icon: Search },
-          { t: "Saklama ve amaç notu", d: "Ham veri ne kadar tutulacak, ne zaman silinecek? Amaç dışı kullanım var mı?", icon: ClipboardCheck },
-        ] as Array<{ t: string; d: string; icon: LucideIcon }>).map((it, i) => (
-          <motion.div
-            key={it.t}
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: i * 0.08 }}
-            className="saa-card saa-card-hover rounded-xl p-4 flex items-center gap-4"
-          >
-            <div className="saa-tick w-9 h-9 rounded-md flex items-center justify-center shrink-0">
-              <Check className="w-5 h-5" strokeWidth={3} />
-            </div>
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-[#14b8a6]/15 border border-[#14b8a6]/35">
-              <it.icon className="w-4 h-4 text-[#5eead4]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white">{it.t}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{it.d}</div>
-            </div>
-            <div className="text-[10px] font-mono text-gray-600">
-              #{String(i + 1).padStart(2, "0")}
-            </div>
+            <div className="text-base text-gray-200 leading-relaxed">{metin}</div>
           </motion.div>
         ))}
       </div>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 saa-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
+        transition={{ delay: 0.6 }}
+        className="mt-5 saa-card-teal rounded-xl px-5 py-4 flex items-center gap-3 text-base text-gray-200"
       >
-        <AlertTriangle className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
+        <ArrowRight className="w-5 h-5 text-[#5eead4] shrink-0" />
         <span>
-          <span className="text-white">Sınır:</span> Gerçek kişilerin verisiyle çalışırken
-          kişiyi rızası dışında hedeflemek, hassas çıkarım yapıp paylaşmak veya izinsiz
-          toplu veri çekmek KVKK kapsamında hukuki sorumluluk doğurabilir.
+          <span className="text-[#5eead4] font-semibold">Sırada final var:</span>{" "}
+          dönem tekrarındaki soruları bir kez de kendi başına çöz; takıldığın
+          haftanın sunumuna geri dön.
         </span>
       </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 16. Sıradaki hafta + kapanış ───── */
-  () => (
-    <SlideShell>
-      <div className="text-center max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: "linear-gradient(135deg, #14b8a6, #0d9488)",
-            boxShadow: "0 20px 60px -10px rgba(20, 184, 166, 0.6)",
-          }}
-        >
-          <ShieldCheck className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>15. hafta tamamlandı · sıradaki: Proje sunumları</Eyebrow>
-        <H1 className="saa-shimmer-teal">İlkeli Analiz</H1>
-        <Sub className="mt-6">
-          Teknik beceriyi öğrendik; bu hafta onu{" "}
-          <span className="text-[#5eead4]">sorumlulukla</span> kullanmayı ekledik.
-          Sıradaki derste projelerinizi bu etik kontrol listesiyle birlikte sunacaksınız.
-        </Sub>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 text-left"
-        >
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <Calendar className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Sıradaki Ders
-              </div>
-              <div className="text-sm font-semibold text-white">
-                Proje sunumları
-              </div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <ClipboardCheck className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Teslim
-              </div>
-              <div className="text-sm font-semibold text-white">
-                Etik denetim notu
-              </div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <Mail className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Ofis Saati
-              </div>
-              <div className="text-sm font-semibold text-white">
-                Salı · 14:00 – 16:00
-              </div>
-            </div>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-10 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Shield className="w-3.5 h-3.5" />
-          <span className="inline-flex items-center gap-2">
-            BVA 2105 · Sosyal Ağ Analizi · Önce gizlilik, sonra analiz
-          </span>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="mt-4 inline-flex items-center gap-4 text-[10px] font-mono text-gray-600"
-        >
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="w-3 h-3" /> MYO · Derslik 7
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Unlock className="w-3 h-3" /> İzinsiz toplama yok
-          </span>
-        </motion.div>
-      </div>
-    </SlideShell>
+    </Icerik>
   ),
 ];
 
@@ -1137,7 +1298,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#14b8a6]/70">
-          BVA 2105 · 15. Hafta · Ağ Etiği &amp; Gizlilik
+          BVA 2105 · 15. Hafta · Ağlarda Etik ve Gizlilik
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#14b8a6]/50">
@@ -1148,6 +1309,7 @@ export default function Presentation() {
             {String(TOTAL).padStart(2, "0")}
           </div>
           <button
+            type="button"
             onClick={() => {
               if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen?.();
@@ -1178,12 +1340,14 @@ export default function Presentation() {
       </AnimatePresence>
 
       <button
+        type="button"
         onClick={prev}
         disabled={current === 0}
         aria-label="Önceki slayt"
         className="absolute left-0 top-12 bottom-16 w-[12%] z-30 cursor-w-resize disabled:cursor-default opacity-0"
       />
       <button
+        type="button"
         onClick={next}
         disabled={current === TOTAL - 1}
         aria-label="Sonraki slayt"
@@ -1192,6 +1356,7 @@ export default function Presentation() {
 
       <div className="absolute bottom-0 left-0 right-0 z-40 px-8 py-4 flex items-center justify-between border-t border-white/5 bg-black/60 backdrop-blur">
         <button
+          type="button"
           onClick={prev}
           disabled={current === 0}
           className="flex items-center gap-2 px-4 py-2 text-xs text-gray-500 hover:text-[#14b8a6] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
@@ -1202,6 +1367,7 @@ export default function Presentation() {
         <div className="flex items-center gap-1 max-w-[60%] overflow-hidden">
           {Array.from({ length: TOTAL }).map((_, i) => (
             <button
+              type="button"
               key={i}
               onClick={() => {
                 setDirection(i > current ? 1 : -1);
@@ -1222,6 +1388,7 @@ export default function Presentation() {
           ))}
         </div>
         <button
+          type="button"
           onClick={next}
           disabled={current === TOTAL - 1}
           className="flex items-center gap-2 px-4 py-2 text-xs text-gray-500 hover:text-[#14b8a6] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"

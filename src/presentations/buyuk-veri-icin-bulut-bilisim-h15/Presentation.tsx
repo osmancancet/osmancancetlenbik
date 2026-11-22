@@ -9,37 +9,32 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Shield,
-  ShieldCheck,
-  ShieldAlert,
-  Lock,
-  Unlock,
-  Key,
-  KeyRound,
-  Eye,
-  EyeOff,
-  UserCheck,
-  Users,
-  Database,
-  HardDrive,
-  Network,
-  Globe,
-  Terminal,
-  FileWarning,
-  AlertTriangle,
-  Check,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
-  Fingerprint,
-  ScrollText,
+  Check,
+  X,
+  MousePointerClick,
+  RotateCcw,
+  Shield,
+  ShieldCheck,
+  Lock,
+  Unlock,
+  Key,
   Building2,
-  FlaskConical,
-  Calendar,
-  Target,
-  Layers,
+  DoorOpen,
+  Upload,
+  Globe,
+  Download,
+  Copy,
+  Clock,
+  User,
+  FileCheck,
+  Smartphone,
+  MapPin,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -196,201 +191,530 @@ function SectionDivider({
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   ETKİLEŞİM PARÇALARI
    ============================================================ */
 
-/* Paylaşılan sorumluluk modeli — sağlayıcı vs müşteri */
-function SharedResponsibilityDiagram() {
-  const layers = [
-    { name: "Veri ve sınıflandırma", who: "customer" as const },
-    { name: "Kimlik ve erişim yönetimi (IAM)", who: "customer" as const },
-    { name: "Uygulama ve istemci tarafı şifreleme", who: "customer" as const },
-    { name: "İşletim sistemi, ağ ve güvenlik duvarı yapılandırması", who: "mixed" as const },
-    { name: "Sanallaştırma / hipervizör", who: "provider" as const },
-    { name: "Fiziksel ana bilgisayar ve depolama", who: "provider" as const },
-    { name: "Veri merkezi, bölge ve fiziksel güvenlik", who: "provider" as const },
-  ];
-  const palette = {
-    customer: { bg: "#2563eb", label: "Müşteri" },
-    provider: { bg: "#22c55e", label: "Sağlayıcı" },
-    mixed: { bg: "#f59e0b", label: "Paylaşılan" },
-  };
+const BTN =
+  "inline-flex items-center gap-2 rounded-lg px-6 py-3 text-base font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] transition-colors";
+
+/* Tıklanabilir öğeler ortada kalsın: ekranın sol/sağ %12'si slayt geçişine ayrılmıştır */
+function Stage({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`mx-auto w-full max-w-4xl ${className}`}>{children}</div>;
+}
+
+/* Hocanın sınıfa yönelteceği tek soru */
+function AskLine({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-card rounded-xl p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6 }}
+      className="mt-6 text-sm text-gray-500"
     >
-      <div className="flex items-center gap-4 mb-5 text-[11px] font-mono">
-        {(["customer", "mixed", "provider"] as const).map((k) => (
-          <span key={k} className="flex items-center gap-1.5">
-            <span
-              className="w-3 h-3 rounded-sm"
-              style={{ background: palette[k].bg }}
-            />
-            <span className="text-gray-300">{palette[k].label}</span>
-          </span>
-        ))}
-        <span className="ml-auto text-gray-500 uppercase tracking-widest">
-          IN / OF the cloud
+      <span className="mr-2 font-mono text-[11px] uppercase tracking-widest text-[#60a5fa]/70">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.div>
+  );
+}
+
+function TapHint({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-[#60a5fa]">
+      <MousePointerClick className="w-3.5 h-3.5" />
+      {children}
+    </span>
+  );
+}
+
+/* Tahmin et → tıkla göster */
+function Reveal({
+  question,
+  answer,
+  hint = "Cevap için tıkla",
+}: {
+  question: ReactNode;
+  answer: ReactNode;
+  hint?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`block w-full text-left rounded-xl p-5 transition-all ${
+        open ? "bvbb-card-sky" : "bvbb-card bvbb-card-hover"
+      }`}
+    >
+      <span className="block text-lg font-semibold text-white leading-snug">{question}</span>
+      {open ? (
+        <motion.span
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 block text-base text-gray-200 leading-relaxed"
+        >
+          {answer}
+        </motion.span>
+      ) : (
+        <span className="mt-3 block">
+          <TapHint>{hint}</TapHint>
         </span>
-      </div>
-      <div className="space-y-2">
-        {layers.map((l, i) => {
-          const p = palette[l.who];
+      )}
+    </button>
+  );
+}
+
+/* Mini sınav: şıkka tıkla, doğru yeşil / yanlış kırmızı, tek cümle açıklama */
+type QuizItem = { q: string; options: string[]; correct: number; why: string };
+
+function Quiz({ items, doneText }: { items: QuizItem[]; doneText?: string }) {
+  const [idx, setIdx] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+  const item = items[idx];
+  const many = items.length > 1;
+
+  function pick(i: number) {
+    if (picked !== null) return;
+    setPicked(i);
+    if (i === item.correct) setScore((s) => s + 1);
+  }
+  function advance() {
+    if (idx === items.length - 1) {
+      setDone(true);
+    } else {
+      setIdx(idx + 1);
+      setPicked(null);
+    }
+  }
+  function restart() {
+    setIdx(0);
+    setPicked(null);
+    setScore(0);
+    setDone(false);
+  }
+
+  if (done) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bvbb-card-sky rounded-xl p-8 text-center"
+      >
+        <div className="text-5xl font-bold text-white">
+          {score} / {items.length}
+        </div>
+        <div className="mt-3 text-lg text-gray-300">
+          {doneText ?? "Yanlış yaptığın soruyu birlikte bir daha konuşalım."}
+        </div>
+        <button type="button" onClick={restart} className={`${BTN} mt-6`}>
+          <RotateCcw className="w-4 h-4" />
+          Baştan
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <div>
+      {many && (
+        <div className="mb-3 font-mono text-xs uppercase tracking-widest text-gray-500">
+          Soru {idx + 1} / {items.length}
+        </div>
+      )}
+      <div className="text-xl md:text-2xl font-semibold text-white leading-snug">{item.q}</div>
+      <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+        {item.options.map((o, i) => {
+          const right = picked !== null && i === item.correct;
+          const wrong = picked === i && i !== item.correct;
+          const color = right ? "#22c55e" : wrong ? "#ef4444" : "#2563eb";
           return (
-            <motion.div
-              key={l.name}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.15 + i * 0.07 }}
-              className="rounded-lg px-4 py-2.5 flex items-center justify-between"
-              style={{ background: `${p.bg}14`, border: `1px solid ${p.bg}45` }}
+            <button
+              type="button"
+              key={o}
+              onClick={() => pick(i)}
+              disabled={picked !== null}
+              className="flex items-center gap-3 rounded-xl px-5 py-4 text-left text-base md:text-lg text-white transition-all disabled:cursor-default"
+              style={{
+                background: right || wrong ? `${color}26` : "rgba(37,99,235,0.07)",
+                border: `2px solid ${right || wrong ? color : "rgba(37,99,235,0.3)"}`,
+                opacity: picked !== null && !right && !wrong ? 0.45 : 1,
+              }}
             >
-              <span className="text-sm text-gray-200">{l.name}</span>
               <span
-                className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded"
-                style={{ background: `${p.bg}26`, color: p.bg }}
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                style={{ background: `${color}33`, color: right || wrong ? color : "#93c5fd" }}
               >
-                {p.label}
+                {right ? <Check className="w-4 h-4" /> : wrong ? <X className="w-4 h-4" /> : "ABCD"[i]}
               </span>
-            </motion.div>
+              <span>{o}</span>
+            </button>
           );
         })}
       </div>
-      <div className="mt-4 text-[11px] text-gray-500">
-        <span className="bvbb-token">Kural</span> Sağlayıcı <em>bulutun</em>{" "}
-        güvenliğinden, müşteri <em>buluttaki</em> verinin güvenliğinden
-        sorumludur. IaaS&apos;te müşteri payı artar, SaaS&apos;te azalır.
+      <div className="mt-4 min-h-[84px]">
+        {picked === null ? (
+          <TapHint>Sınıf karar versin, sonra şıkka tıkla</TapHint>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap items-center justify-between gap-4"
+          >
+            <p className="max-w-2xl text-base text-gray-200 leading-relaxed">
+              <span
+                className="mr-2 font-semibold"
+                style={{ color: picked === item.correct ? "#4ade80" : "#f87171" }}
+              >
+                {picked === item.correct ? "Doğru." : "Tam değil."}
+              </span>
+              {item.why}
+            </p>
+            {many && (
+              <button type="button" onClick={advance} className={BTN}>
+                {idx === items.length - 1 ? "Sonucu gör" : "Sonraki soru"}
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+          </motion.div>
+        )}
       </div>
+    </div>
+  );
+}
+
+/* Adım adım ilerleyen şema: "İleri" ile adımlar tek tek açılır */
+type Step = { icon: LucideIcon; title: string; text: string; color: string };
+
+function Stepper({ steps }: { steps: Step[] }) {
+  const [shown, setShown] = useState(1);
+  const all = shown >= steps.length;
+  return (
+    <div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {steps.map((s, i) =>
+          i < shown ? (
+            <motion.div
+              key={s.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bvbb-card rounded-xl p-4 min-h-[170px]"
+              style={{ borderColor: `${s.color}66` }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ background: `${s.color}22`, border: `1px solid ${s.color}66` }}
+                >
+                  <s.icon className="w-5 h-5" style={{ color: s.color }} />
+                </div>
+                <span className="font-mono text-xs" style={{ color: s.color }}>
+                  {i + 1}. adım
+                </span>
+              </div>
+              <div className="text-lg font-semibold text-white">{s.title}</div>
+              <div className="mt-1 text-sm text-gray-400 leading-relaxed">{s.text}</div>
+            </motion.div>
+          ) : (
+            <div
+              key={s.title}
+              className="flex min-h-[170px] items-center justify-center rounded-xl border border-dashed border-white/10 text-4xl font-bold text-white/10"
+            >
+              {i + 1}
+            </div>
+          ),
+        )}
+      </div>
+      <div className="mt-5 flex justify-center">
+        <button type="button" onClick={() => setShown(all ? 1 : shown + 1)} className={BTN}>
+          {all ? (
+            <>
+              <RotateCcw className="w-4 h-4" />
+              Baştan
+            </>
+          ) : (
+            <>
+              İleri: {shown + 1}. adım
+              <ChevronRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* Seçenek çipleri (oyna-gör slaytlarında) */
+function Chips({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: number;
+  onChange: (i: number) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {options.map((o, i) => (
+        <button
+          type="button"
+          key={o}
+          onClick={() => onChange(i)}
+          className="rounded-full px-5 py-2.5 text-base font-semibold transition-all"
+          style={{
+            background: i === value ? "#2563eb" : "rgba(37,99,235,0.08)",
+            border: `2px solid ${i === value ? "#60a5fa" : "rgba(37,99,235,0.3)"}`,
+            color: i === value ? "#ffffff" : "#93c5fd",
+          }}
+        >
+          {o}
+        </button>
+      ))}
+      <TapHint>tıkla, değiştir</TapHint>
+    </div>
+  );
+}
+
+/* Sınıfta deneyelim: numaralı adımlar */
+function TrySteps({ steps }: { steps: string[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {steps.map((s, i) => (
+        <motion.div
+          key={s}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 + i * 0.1 }}
+          className="bvbb-card rounded-xl p-4 flex items-start gap-3"
+        >
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-sm font-bold text-white">
+            {i + 1}
+          </span>
+          <span className="text-base text-gray-200 leading-relaxed">{s}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* Aklında kalsın: 3 şey */
+function ThreeThings({ items }: { items: string[] }) {
+  return (
+    <div className="space-y-3">
+      {items.map((t, i) => (
+        <motion.div
+          key={t}
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 + i * 0.15 }}
+          className="bvbb-card rounded-xl p-5 flex items-center gap-4"
+        >
+          <span className="text-4xl font-bold text-[#60a5fa]">{i + 1}</span>
+          <span className="text-lg md:text-xl text-white leading-snug">{t}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* İki kartlı benzetme karşılaştırması */
+function Versus({
+  left,
+  right,
+}: {
+  left: { icon: LucideIcon; tag: string; title: string; items: string[] };
+  right: { icon: LucideIcon; tag: string; title: string; items: string[] };
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {[left, right].map((c, i) => (
+        <motion.div
+          key={c.title}
+          initial={{ opacity: 0, x: i === 0 ? -20 : 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 + i * 0.15 }}
+          className={`${i === 0 ? "bvbb-card" : "bvbb-card-sky"} rounded-xl p-6`}
+        >
+          <div
+            className="flex items-center gap-2 mb-2"
+            style={{ color: i === 0 ? "#93c5fd" : "#67e8f9" }}
+          >
+            <c.icon className="w-5 h-5" />
+            <span className="font-mono text-xs uppercase tracking-widest">{c.tag}</span>
+          </div>
+          <div className="text-xl font-semibold text-white mb-3">{c.title}</div>
+          <ul className="space-y-2 text-base text-gray-300">
+            {c.items.map((it) => (
+              <li key={it} className="flex gap-2">
+                <ChevronRight
+                  className="w-4 h-4 mt-1 flex-shrink-0"
+                  style={{ color: i === 0 ? "#2563eb" : "#06b6d4" }}
+                />
+                {it}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* Kapak altındaki üç anahtar kelime */
+function CoverChips({ items }: { items: { name: string; icon: LucideIcon; color: string }[] }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
+    >
+      {items.map((p) => (
+        <div
+          key={p.name}
+          className="bvbb-card rounded-xl p-4 flex items-center gap-3"
+          style={{ borderColor: `${p.color}55` }}
+        >
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
+          >
+            <p.icon className="w-5 h-5" style={{ color: p.color }} />
+          </div>
+          <div className="text-left text-sm font-bold text-white">{p.name}</div>
+        </div>
+      ))}
     </motion.div>
   );
 }
 
-/* AWS IAM policy JSON mockup (least privilege) */
-function IamPolicyMock() {
+function CoverFooter() {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-window-chrome w-full max-w-3xl mx-auto"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.1 }}
+      className="mt-10 text-[11px] font-mono text-gray-600"
     >
-      <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d1117", color: "#94a3b8" }}
-        >
-          <KeyRound className="w-3 h-3" />
-          <span>iam-policy · s3-read-only-veriseti.json</span>
-        </div>
-      </div>
-      <div className="bvbb-terminal">
-        <div>
-          <span className="bvbb-json-num">{"{"}</span>
-        </div>
-        <div>{"  "}<span className="bvbb-json-key">&quot;Version&quot;</span>: <span className="bvbb-json-str">&quot;2012-10-17&quot;</span>,</div>
-        <div>{"  "}<span className="bvbb-json-key">&quot;Statement&quot;</span>: [</div>
-        <div>{"    "}<span className="bvbb-json-num">{"{"}</span></div>
-        <div>{"      "}<span className="bvbb-json-key">&quot;Sid&quot;</span>: <span className="bvbb-json-str">&quot;SadeceOkumaErisimi&quot;</span>,</div>
-        <div>{"      "}<span className="bvbb-json-key">&quot;Effect&quot;</span>: <span className="bvbb-json-allow">&quot;Allow&quot;</span>,</div>
-        <div>{"      "}<span className="bvbb-json-key">&quot;Action&quot;</span>: [<span className="bvbb-json-str">&quot;s3:GetObject&quot;</span>, <span className="bvbb-json-str">&quot;s3:ListBucket&quot;</span>],</div>
-        <div>{"      "}<span className="bvbb-json-key">&quot;Resource&quot;</span>: [</div>
-        <div>{"        "}<span className="bvbb-json-str">&quot;arn:aws:s3:::mcbu-veriseti&quot;</span>,</div>
-        <div>{"        "}<span className="bvbb-json-str">&quot;arn:aws:s3:::mcbu-veriseti/*&quot;</span></div>
-        <div>{"      "}],</div>
-        <div>{"      "}<span className="bvbb-json-key">&quot;Condition&quot;</span>: {"{"}</div>
-        <div>{"        "}<span className="bvbb-json-key">&quot;Bool&quot;</span>: {"{"} <span className="bvbb-json-str">&quot;aws:SecureTransport&quot;</span>: <span className="bvbb-json-str">&quot;true&quot;</span> {"}"}</div>
-        <div>{"      "}{"}"}</div>
-        <div>{"    "}<span className="bvbb-json-num">{"}"}</span></div>
-        <div>{"  "}]</div>
-        <div>
-          <span className="bvbb-json-num">{"}"}</span>
-        </div>
-      </div>
-      <div className="px-4 py-3 text-[11px] text-gray-400 border-t border-white/5 flex items-start gap-2">
-        <ShieldCheck className="w-4 h-4 text-[#22c55e] mt-0.5 flex-shrink-0" />
-        <span>
-          En az yetki: yalnızca tek bir bucket&apos;ta okuma izni; üstelik{" "}
-          <span className="text-[#67e8f9] font-mono">aws:SecureTransport</span>{" "}
-          koşuluyla yalnızca HTTPS üzerinden. <span className="text-white">*</span>{" "}
-          (her şeye izin) yerine her zaman dar kapsam yazılır.
-        </span>
-      </div>
-    </motion.div>
-  );
-}
-
-/* Şifreleme: at-rest vs in-transit terminal mockup */
-function EncryptionTerminalMock() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bvbb-window-chrome w-full"
-    >
-      <div className="bvbb-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d1117", color: "#67e8f9" }}
-        >
-          <Terminal className="w-3.5 h-3.5" />
-          <span>ocet@cloud:~ — aws s3 + kms</span>
-        </div>
-      </div>
-      <div className="bvbb-terminal">
-        <div>
-          <span className="bvbb-term-prompt">ocet@cloud</span>
-          <span className="bvbb-term-dim">:~$</span>{" "}
-          <span className="bvbb-term-cmd">aws s3 cp veriseti.parquet s3://mcbu-veriseti/ \</span>
-        </div>
-        <div>
-          {"    "}
-          <span className="bvbb-term-cmd">--sse aws:kms --sse-kms-key-id alias/veri-anahtari</span>
-        </div>
-        <div className="bvbb-term-ok">upload: ./veriseti.parquet → s3://mcbu-veriseti/veriseti.parquet</div>
-        <div className="bvbb-term-dim">ServerSideEncryption: aws:kms (durağan veri şifreli — AES-256)</div>
-        <div className="mt-2">
-          <span className="bvbb-term-prompt">ocet@cloud</span>
-          <span className="bvbb-term-dim">:~$</span>{" "}
-          <span className="bvbb-term-cmd">curl -svo /dev/null https://mcbu-veriseti.s3.eu-central-1.amazonaws.com/ 2&gt;&amp;1 | grep TLS</span>
-        </div>
-        <div className="bvbb-term-ok">* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384</div>
-        <div className="bvbb-term-dim">(aktarımdaki veri şifreli — TLS 1.3)</div>
-        <div className="mt-2">
-          <span className="bvbb-term-prompt">ocet@cloud</span>
-          <span className="bvbb-term-dim">:~$</span>{" "}
-          <span className="bvbb-term-cmd">aws s3api get-public-access-block --bucket mcbu-veriseti</span>
-        </div>
-        <div className="bvbb-term-warn">&quot;BlockPublicAcls&quot;: true, &quot;IgnorePublicAcls&quot;: true,</div>
-        <div className="bvbb-term-warn">&quot;BlockPublicPolicy&quot;: true, &quot;RestrictPublicBuckets&quot;: true</div>
-        <div className="bvbb-term-dim">(bucket herkese açık değil — sızıntıların 1 numaralı sebebi kapatıldı)</div>
-        <div className="mt-2">
-          <span className="bvbb-term-prompt">ocet@cloud</span>
-          <span className="bvbb-term-dim">:~$</span>{" "}
-          <span className="bvbb-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
-        </div>
-      </div>
+      Öğr. Gör. Osman Can Çetlenbik · MCBÜ Manisa Teknik Bilimler MYO · Büyük Veri Analistliği
     </motion.div>
   );
 }
 
 /* ============================================================
-   SLIDES
+   15. HAFTAYA ÖZEL OYNA-GÖR BİLEŞENLERİ
    ============================================================ */
+
+/* En az yetki: role göre hangi kapılar açılır? */
+function RolePlay() {
+  const [role, setRole] = useState(0);
+  const kapilar = ["Raporları gör", "Veri yükle", "Veri sil", "Kullanıcı ekle"];
+  const roller = [
+    { izin: [true, false, false, false], not: "Stajyer yalnız rapora bakar. Hata yapsa bile silebileceği bir şey yoktur.", iyi: true },
+    { izin: [true, true, false, false], not: "Analist veri yükler ve rapor alır; silme ve kullanıcı işleri onun işi değildir.", iyi: true },
+    { izin: [true, true, true, true], not: "Yönetici her kapıyı açar. Bu yüzden bu hesap az kişide olur ve en sıkı korunur.", iyi: true },
+    { izin: [true, true, true, true], not: "Kolay ama tehlikeli: tek bir yanlış tıklama ya da çalınan tek bir şifre her şeyi götürür.", iyi: false },
+  ];
+  const r = roller[role];
+  return (
+    <Stage>
+      <Chips
+        options={["Stajyer", "Veri analisti", "Sistem yöneticisi", "Herkese tam yetki"]}
+        value={role}
+        onChange={setRole}
+      />
+      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+        {kapilar.map((k, i) => {
+          const acik = r.izin[i];
+          const color = !acik ? "#6b7280" : r.iyi ? "#22c55e" : "#ef4444";
+          return (
+            <motion.div
+              key={k}
+              animate={{ borderColor: `${color}88` }}
+              className="rounded-xl border-2 p-4 text-center"
+              style={{ background: `${color}14` }}
+            >
+              {acik ? (
+                <Unlock className="w-8 h-8 mx-auto" style={{ color }} />
+              ) : (
+                <Lock className="w-8 h-8 mx-auto" style={{ color }} />
+              )}
+              <div className="mt-2 text-base font-semibold text-white">{k}</div>
+              <div className="text-sm" style={{ color }}>
+                {acik ? "açık" : "kilitli"}
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+      <p className="mt-4 text-base md:text-lg text-gray-200 leading-relaxed">{r.not}</p>
+    </Stage>
+  );
+}
+
+/* Şifreleme: dosya çalınırsa hırsız ne görür? */
+function EncryptPlay() {
+  const [on, setOn] = useState(0);
+  return (
+    <Stage>
+      <Chips options={["Şifreleme kapalı", "Şifreleme açık"]} value={on} onChange={setOn} />
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bvbb-card rounded-xl p-5">
+          <div className="font-mono text-xs uppercase tracking-widest text-gray-500">Depodaki dosya</div>
+          <div className="mt-3 space-y-1 text-lg text-gray-200">
+            <div>Öğrenci: Ayşe Yılmaz</div>
+            <div>Vize notu: 85</div>
+            <div>Telefon: 0555 000 00 00</div>
+          </div>
+        </div>
+        <motion.div
+          key={on}
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-xl border-2 p-5"
+          style={{
+            borderColor: on ? "#22c55e88" : "#ef444488",
+            background: on ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+          }}
+        >
+          <div
+            className="font-mono text-xs uppercase tracking-widest"
+            style={{ color: on ? "#4ade80" : "#f87171" }}
+          >
+            Dosyayı çalan kişinin gördüğü
+          </div>
+          {on ? (
+            <div className="mt-3 space-y-1 font-mono text-lg text-gray-400 break-all">
+              <div>x9F#kQ2vL0pZr7Tn</div>
+              <div>Aa81$mW3eYcB</div>
+              <div>h5Rz0Qd7uJ2sKx4P</div>
+            </div>
+          ) : (
+            <div className="mt-3 space-y-1 text-lg text-gray-200">
+              <div>Öğrenci: Ayşe Yılmaz</div>
+              <div>Vize notu: 85</div>
+              <div>Telefon: 0555 000 00 00</div>
+            </div>
+          )}
+        </motion.div>
+      </div>
+      <p className="mt-4 text-base md:text-lg text-gray-200 leading-relaxed">
+        {on
+          ? "Anahtar olmadan anlamsız karakterler. Veri iki yerde şifrelenir: depoda dururken ve internette yol alırken."
+          : "Dosya olduğu gibi okunur. Çalan kişi her şeyi görür."}
+      </p>
+    </Stage>
+  );
+}
+
+/* ============================================================
+   SLAYTLAR
+   ============================================================ */
+
+const KIM = ["Sağlayıcı (ev sahibi)", "Biz, müşteri (kiracı)"];
 
 const slides: Array<(active: boolean) => ReactNode> = [
   /* ─────────────────  1 · KAPAK  ───────────────── */
@@ -399,754 +723,459 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <div className="text-center">
         <Eyebrow>BVA 2103 · 15. Hafta · Güz Dönemi</Eyebrow>
         <H1>
-          <span className="bvbb-shimmer">Bulut Bilişimde</span>
+          <span className="bvbb-shimmer">Bulutta</span>
           <br />
-          <span className="text-white">Güvenlik &amp; Gizlilik</span>
+          <span className="text-white">Güvenlik ve Gizlilik</span>
         </H1>
         <Sub className="mt-6 max-w-2xl mx-auto">
-          Veri bulutta yaşıyor; peki onu kim, neye karşı, nasıl koruyor? Paylaşılan
-          sorumluluktan şifrelemeye, IAM&apos;den KVKK/GDPR&apos;a güvenliğin
-          temelleri.
+          Veri bulutta duruyor. Onu kim koruyor, sana hangi iş düşüyor? Sonunda dönemi birlikte tekrar ediyoruz.
         </Sub>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto"
-        >
-          {[
-            { name: "Erişim", tag: "IAM · MFA · least privilege", color: "#2563eb", icon: Key },
-            { name: "Şifreleme", tag: "at-rest · in-transit · KMS", color: "#22c55e", icon: Lock },
-            { name: "Uyumluluk", tag: "KVKK · GDPR · ISO 27001", color: "#a855f7", icon: ScrollText },
-          ].map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
-              className="bvbb-card rounded-xl p-4 flex items-center gap-3"
-              style={{ borderColor: `${p.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${p.color}22`, border: `1px solid ${p.color}66` }}
-              >
-                <p.icon className="w-5 h-5" style={{ color: p.color }} />
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">{p.name}</div>
-                <div className="text-[10px] text-gray-400">{p.tag}</div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
-          className="mt-10 text-[11px] font-mono text-gray-600"
-        >
-          Öğr. Gör. Osman Can Çetlenbik · MCBÜ MYO · Bilgisayar Programcılığı
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Köprü · 14. haftadan 15. haftaya</Eyebrow>
-      <H2>Önce veriyi taşıdık ve işledik; şimdi onu koruyoruz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Dönem boyunca veriyi buluta taşıdık, HDFS&apos;te tuttuk, Spark ile işledik
-        ve ML modelleri kurduk. Tüm bu yığını bir arada tutan tek bir soru kaldı:
-        bu veri ve hizmetler nasıl güvende kalacak?
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#60a5fa]">
-            <Database className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Şimdiye kadar</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Veriyi S3/HDFS üzerinde depoladık.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Spark/MapReduce ile dağıtık işledik.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#2563eb] flex-shrink-0" />Bulutta model eğittik ve dağıttık.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card-warn rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#f87171]">
-            <ShieldAlert className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bu hafta cevaplayacağımız</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Bu veriye kim, hangi yetkiyle erişebilmeli?</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Çalınırsa okunabilir mi (şifreli mi)?</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Kişisel veriyse hangi yasalar geçerli?</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3 · DERSİN AKIŞI  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: sorumluluk → koruma → uyumluluk</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce kimin neyden sorumlu olduğunu netleştiriyoruz; sonra erişim ve
-        şifreleme ile veriyi teknik olarak koruyoruz; en son yasal/gizlilik
-        çerçevesine bakıyoruz. Sonunda küçük bir uygulamalı sertleştirme görevi.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "Tehdit & Sorumluluk", items: ["Bulut tehdit yüzeyi", "Paylaşılan sorumluluk modeli", "CIA üçlüsü bulutta"], icon: Shield, accent: "#2563eb" },
-          { range: "02", title: "Erişim & Şifreleme", items: ["IAM, MFA, least privilege", "At-rest / in-transit şifreleme", "Anahtar yönetimi (KMS)"], icon: Lock, accent: "#22c55e" },
-          { range: "03", title: "Gizlilik & Uyumluluk", items: ["KVKK · GDPR", "Veri yerleşimi (residency)", "ISO 27001 · denetim/loglama"], icon: ScrollText, accent: "#a855f7" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="bvbb-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  4 · BÖLÜM 1  ───────────────── */
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Tehdit ve Sorumluluk"
-      subtitle="Bulutta hangi varlıklar risk altında, kim neyden sorumlu? Önce zemini netleştiriyoruz."
-      bgGradient="linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)"
-      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.6)"
-      icon={<Shield className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  5 · CIA ÜÇLÜSÜ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Güvenliğin temel ekseni</Eyebrow>
-      <H2>CIA üçlüsü — bulutta da geçerli</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Her güvenlik kararı bu üç hedeften en az birine hizmet eder. Bulutta hedef
-        aynı, sadece sorumluluk paylaşılır.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        <FeatureCard
-          icon={EyeOff}
-          title="Gizlilik (Confidentiality)"
-          desc="Veriye yalnızca yetkili kişiler erişsin. Araçlar: şifreleme, IAM, en az yetki, ağ izolasyonu (VPC)."
-          delay={0.0}
-          accent="#2563eb"
+        <CoverChips
+          items={[
+            { name: "Kim sorumlu?", icon: Shield, color: "#2563eb" },
+            { name: "Yetki, şifreleme, yedek", icon: Key, color: "#22c55e" },
+            { name: "KVKK ve verinin konumu", icon: MapPin, color: "#f59e0b" },
+          ]}
         />
-        <FeatureCard
-          icon={Fingerprint}
-          title="Bütünlük (Integrity)"
-          desc="Veri izinsiz değiştirilmesin. Araçlar: hash/checksum, sürümleme (S3 versioning), imzalı loglar."
-          delay={0.1}
-          accent="#22c55e"
-        />
-        <FeatureCard
-          icon={Network}
-          title="Erişilebilirlik (Availability)"
-          desc="Hizmet ihtiyaç anında ayakta olsun. Araçlar: çoklu AZ, yedekleme, DDoS koruması, otomatik ölçek."
-          delay={0.2}
-          accent="#a855f7"
-        />
+        <CoverFooter />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 bvbb-card rounded-xl p-4 flex items-start gap-3"
-      >
-        <Layers className="w-5 h-5 text-[#60a5fa] flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-gray-300">
-          <span className="bvbb-token">Denge</span> Üç hedef çoğu zaman birbiriyle
-          gerilir: aşırı kısıtlama erişilebilirliği düşürür, aşırı açıklık gizliliği
-          bozar. Güvenlik = bu dengeyi riske göre ayarlamaktır.
-        </p>
-      </motion.div>
     </SlideShell>
   ),
 
-  /* ─────────────────  6 · TEHDİT YÜZEYİ  ───────────────── */
+  /* ─────────────────  2 · EL KALDIR  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bulut tehdit yüzeyi</Eyebrow>
-      <H2>En sık karşılaşılan bulut riskleri</H2>
+      <Eyebrow>El kaldır</Eyebrow>
+      <H2>Bulutta en büyük açık çoğu zaman insandır</H2>
       <Sub className="mt-3 max-w-3xl">
-        Bulut ihlallerinin büyük çoğunluğu sıfır-gün açığından değil,{" "}
-        <span className="text-white">yanlış yapılandırmadan</span> kaynaklanır —
-        yani önlenebilir hatalardan.
+        Geçen hafta veriyi ve modeli buluta koyduk. Bu hafta soru şu: onları kim koruyor?
       </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-7 bvbb-card rounded-xl overflow-hidden"
-      >
-        <table className="bvbb-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "26%" }}>Risk</th>
-              <th style={{ width: "40%" }}>Tipik örnek</th>
-              <th>Temel önlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              {
-                k: "Yanlış yapılandırma",
-                e: "Herkese açık (public) S3 bucket; açık güvenlik grubu (0.0.0.0/0)",
-                m: "Block Public Access · IaC taraması · varsayılan kapalı",
-              },
-              {
-                k: "Sızdırılmış kimlik bilgisi",
-                e: "Koda gömülü access key, GitHub&apos;a push edilen .env",
-                m: "Gizli yöneticisi (Secrets Manager) · kısa ömürlü rol · MFA",
-              },
-              {
-                k: "Aşırı geniş yetki",
-                e: "Her kullanıcıya Administrator / s3:* verilmesi",
-                m: "En az yetki ilkesi · rol bazlı erişim (RBAC)",
-              },
-              {
-                k: "Şifresiz veri",
-                e: "Durağan veya aktarımdaki verinin açık metin tutulması",
-                m: "At-rest (KMS) + in-transit (TLS) zorunlu kılma",
-              },
-              {
-                k: "İzleme eksikliği",
-                e: "Loglama kapalı; ihlal aylar sonra fark edilir",
-                m: "CloudTrail/denetim logları · alarm · merkezi SIEM",
-              },
-            ].map((row, i) => (
-              <motion.tr
-                key={row.k}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.08 }}
-              >
-                <td className="font-medium text-white">{row.k}</td>
-                <td className="text-gray-400" dangerouslySetInnerHTML={{ __html: row.e }} />
-                <td className="text-[#93c5fd]">{row.m}</td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
+      <Stage className="mt-6 space-y-3">
+        <Reveal
+          question="Kaçınız aynı şifreyi birden fazla hesapta kullanıyor?"
+          hint="Eller kalktıktan sonra tıkla"
+          answer="Bir sitedeki şifre sızarsa aynı şifreyi kullandığın bütün hesaplar açılır. Bulut hesapları da çoğu zaman böyle ele geçer."
+        />
+        <Reveal
+          question="Buluttaki veri sızıntıları en çok nereden çıkar: usta bir saldırıdan mı, basit bir hatadan mı?"
+          answer="Çoğu zaman basit hatadan: zayıf şifre, herkese fazla yetki, açık unutulan bir ayar. Bugünkü konuların hepsi bu hataları önlemek için."
+        />
+      </Stage>
+      <AskLine>En önemli hesabının şifresini en son ne zaman değiştirdin?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  7 · PAYLAŞILAN SORUMLULUK  ───────────────── */
+  /* ─────────────────  3 · PAYLAŞILAN SORUMLULUK  ───────────────── */
   () => (
     <SlideShell>
       <Eyebrow>Paylaşılan sorumluluk modeli</Eyebrow>
-      <H2 className="mb-2">&quot;Bulut güvende&quot; demek &quot;sen güvendesin&quot; demek değil</H2>
-      <Sub className="max-w-3xl mb-6">
-        Sağlayıcı altyapıyı korur; ama yapılandırma, erişim ve verinin kendisi sana
-        aittir. İhlallerin çoğu müşteri tarafındaki bu katmanlarda olur.
-      </Sub>
-      <SharedResponsibilityDiagram />
+      <H2>Ev sahibi binayı, kiracı kapısını korur</H2>
+      <div className="mt-8">
+        <Versus
+          left={{
+            icon: Building2,
+            tag: "Bulut sağlayıcı · ev sahibi",
+            title: "Binanın kendisini korur",
+            items: [
+              "Veri merkezinin kapısı, kamerası, bekçisi",
+              "Bilgisayarlar, diskler, kablolar",
+              "Elektrik, soğutma ve altyapı",
+            ],
+          }}
+          right={{
+            icon: DoorOpen,
+            tag: "Sen, müşteri · kiracı",
+            title: "Kendi dairenin kapısını korursun",
+            items: [
+              "Şifreler ve kimin girebileceği",
+              "Dosyaların açık mı, kapalı mı olduğu",
+              "Verinin kendisi ve yedeği",
+            ],
+          }}
+        />
+      </div>
+      <AskLine>Kapıyı açık bırakıp çıktın ve ev soyuldu. Suç ev sahibinde mi?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  8 · BÖLÜM 2  ───────────────── */
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Erişim ve Şifreleme"
-      subtitle="Kim girer, ne okur? Veriyi hem erişim kontrolüyle hem de şifreleme ile iki kat koruyoruz."
-      bgGradient="linear-gradient(135deg, #16a34a 0%, #22c55e 100%)"
-      shadow="0 20px 60px -10px rgba(34, 197, 94, 0.55)"
-      icon={<Lock className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  9 · IAM TEMELLERİ  ───────────────── */
+  /* ─────────────────  4 · KİM SORUMLU  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Kimlik &amp; erişim yönetimi · IAM</Eyebrow>
-      <H2>Doğru kişi, doğru kaynak, doğru izin</H2>
+      <Eyebrow>Kim sorumlu? · 5 olay</Eyebrow>
+      <Stage>
+        <Quiz
+          doneText="Bina sağlayıcının, kapı ve içerideki eşya senin. Ayar, şifre ve yetki hataları hep kiracıya yazar."
+          items={[
+            {
+              q: "Veri merkezine gece hırsız girdi ve bir sunucuyu söktü.",
+              options: KIM,
+              correct: 0,
+              why: "Binanın fiziksel güvenliği ev sahibinin, yani sağlayıcının işidir.",
+            },
+            {
+              q: "Bir çalışanın bulut hesabı şifresi “123456” idi ve hesap ele geçirildi.",
+              options: KIM,
+              correct: 1,
+              why: "Şifreyi kiracı seçer; zayıf şifre dairenin kapısını açık bırakmaktır.",
+            },
+            {
+              q: "Müşteri listesinin durduğu depolama kovası “herkese açık” ayarlanmıştı.",
+              options: KIM,
+              correct: 1,
+              why: "Kovayı kimin görebileceğini müşteri ayarlar; sağlayıcı bu ayarı senin yerine düzeltmez.",
+            },
+            {
+              q: "Sunucudaki disk eskidi ve bozuldu.",
+              options: KIM,
+              correct: 0,
+              why: "Donanımı sağlayıcı değiştirir. Ama verinin yedeğini almak yine senin işindir.",
+            },
+            {
+              q: "Stajyere yönetici yetkisi verildi; yanlışlıkla bir veritabanını sildi.",
+              options: KIM,
+              correct: 1,
+              why: "Kime hangi yetkinin verileceğine müşteri karar verir.",
+            },
+          ]}
+        />
+      </Stage>
+      <AskLine>Tıklamadan önce: bu olay binada mı oldu, dairenin içinde mi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  5 · EN AZ YETKİ  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · en az yetki</Eyebrow>
+      <H2>Herkese işine yetecek kadar anahtar ver</H2>
       <Sub className="mt-3 max-w-3xl">
-        IAM dört kavram üzerine kuruludur. Hepsinin ortak ilkesi:{" "}
-        <span className="text-white">varsayılan reddet, gerektiği kadarını aç.</span>
+        Kimlik ve erişim yönetimi (IAM): bulutta kimin hangi kapıyı açabileceğini belirleyen ayarlar.
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+      <div className="mt-5">
+        <RolePlay />
+      </div>
+      <AskLine>Apartman görevlisine neden her dairenin anahtarını vermiyoruz?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  6 · ARA SORU  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Ara soru</Eyebrow>
+      <Stage>
+        <Quiz
+          items={[
+            {
+              q: "Şifren bir şekilde çalındı. Hesabını yine de hangisi korur?",
+              options: [
+                "Şifreyi bir kâğıda yazıp ekrana yapıştırmak",
+                "İki adımlı doğrulama: şifreden sonra telefona gelen kod",
+                "Aynı şifreyi bütün hesaplarda kullanmak",
+                "Hesaba daha seyrek girmek",
+              ],
+              correct: 1,
+              why: "İki adımlı doğrulamada şifreyi bilen kişi telefonun olmadan içeri giremez.",
+            },
+          ]}
+        />
+      </Stage>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  7 · ŞİFRELEME  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Oyna-gör · şifreleme</Eyebrow>
+      <H2>Şifreleme, veriyi kilitli kasaya koymaktır</H2>
+      <div className="mt-5">
+        <EncryptPlay />
+      </div>
+      <AskLine>Tarayıcıda adresin yanındaki kilit simgesi sana ne anlatıyor?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  8 · AÇIK KOVA  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Adım adım · en sık yapılan hata</Eyebrow>
+      <H2>Açık bırakılan kova nasıl sızıntıya döner?</H2>
+      <Sub className="mt-3 max-w-3xl">
+        Kova (bucket): bulutta dosyaların konduğu klasör. Yeni kova kapalı gelir; hata onu elle açınca başlar.
+      </Sub>
+      <Stage className="mt-5">
+        <Stepper
+          steps={[
+            { icon: Upload, title: "Yükle", text: "Müşteri listesini kovaya yüklersin.", color: "#06b6d4" },
+            { icon: Globe, title: "Herkese aç", text: "Arkadaşın kolay görsün diye “herkese açık” yaparsın.", color: "#f59e0b" },
+            { icon: Download, title: "Sızıntı", text: "Adresi bulan herkes dosyayı indirir. Şifre sormaz.", color: "#ef4444" },
+            { icon: Lock, title: "Doğrusu", text: "Kova kapalı kalır; yalnız gereken kişiye izin verilir.", color: "#22c55e" },
+          ]}
+        />
+      </Stage>
+      <AskLine>Bulut diskinde “bağlantıya sahip herkes” diye paylaştığın bir dosya var mı?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  9 · YEDEK  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Yedekleme</Eyebrow>
+      <H2>Yedeğin yoksa verin de yok sayılır</H2>
+      <Stage className="mt-6">
+        <Reveal
+          question="Telefonun bugün kaybolsa fotoğraflarına ne olur?"
+          hint="Tahmin et, sonra tıkla"
+          answer="Yedek açıksa yeni telefona geri gelir, kapalıysa gider. Bulutta da silinen ya da bozulan veri ancak yedekten döner."
+        />
+      </Stage>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <FeatureCard icon={Copy} title="Başka yerde kopya" desc="Yedek, asıl veriyle aynı yerde durmaz." accent="#06b6d4" />
+        <FeatureCard icon={Clock} title="Otomatik" desc="Elle alınan yedek unutulur; zamanlanmış olsun." delay={0.1} accent="#22c55e" />
+        <FeatureCard icon={RotateCcw} title="Geri yüklemeyi dene" desc="Hiç denenmemiş yedeğe güvenilmez." delay={0.2} accent="#f59e0b" />
+      </div>
+      <AskLine>Telefonun bugün kaybolsa neyi geri getiremezdin?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  10 · KVKK  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Gizlilik</Eyebrow>
+      <H2>KVKK: kişisel veri sahibinindir</H2>
+      <Sub className="mt-3 max-w-3xl">
+        KVKK (Kişisel Verilerin Korunması Kanunu): bir insanı tanıtan bilgilerin nasıl toplanıp saklanacağını belirler.
+      </Sub>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <FeatureCard
-          icon={UserCheck}
-          title="Kullanıcı &amp; Grup"
-          desc="Gerçek kişi/uygulama kimlikleri; ortak ihtiyaçlar gruplarda toplanır, izin gruba bir kez verilir."
-          delay={0.0}
-          accent="#2563eb"
+          icon={User}
+          title="Kişisel veri nedir?"
+          desc="Ad, telefon, adres, sağlık bilgisi, fotoğraf: seni tanıtan her bilgi."
+          accent="#06b6d4"
         />
         <FeatureCard
-          icon={Users}
-          title="Rol (Role)"
-          desc="Kalıcı anahtar yerine kısa ömürlü, devredilebilir kimlik. EC2/Lambda kaynakları rolle yetkilenir."
+          icon={FileCheck}
+          title="Amacını söyle, azını topla"
+          desc="Veriyi ne için aldığını açıkça söylersin; işine yaramayanı hiç istemezsin."
           delay={0.1}
           accent="#22c55e"
         />
         <FeatureCard
-          icon={ScrollText}
-          title="Politika (Policy)"
-          desc="JSON ile yazılı izin kuralı: Effect (Allow/Deny), Action, Resource, Condition. En özgül olan kazanır."
+          icon={ShieldCheck}
+          title="Korumak senin görevin"
+          desc="Veriyi toplayan kurum onu korumak zorundadır; buluta koymak sorumluluğu devretmez."
           delay={0.2}
-          accent="#a855f7"
-        />
-        <FeatureCard
-          icon={Fingerprint}
-          title="MFA"
-          desc="Parola + ikinci faktör (TOTP/donanım anahtarı). Çalınan parolayı tek başına işe yaramaz hale getirir."
-          delay={0.3}
           accent="#f59e0b"
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">İlke</span> Least Privilege — bir kimliğe
-        görevini yapması için <em>gereken en az</em> yetki verilir, fazlası değil.
-      </motion.div>
+      <AskLine>Bir uygulama senden işiyle ilgisi olmayan hangi bilgiyi istedi?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  10 · IAM POLICY JSON  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Örnek · en az yetki politikası</Eyebrow>
-      <H2 className="mb-2">Bir IAM politikası neye benzer?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Aşağıdaki politika, bir kullanıcıya tek bir bucket&apos;ta yalnızca okuma
-        izni verir — hem kaynağı hem de yöntemi (HTTPS) sıkı kapsar.
-      </Sub>
-      <IamPolicyMock />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  11 · ŞİFRELEME · AT-REST vs IN-TRANSIT  ───────────────── */
+  /* ─────────────────  11 · VERİNİN KONUMU  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Şifreleme · iki hâl</Eyebrow>
-      <H2>Durağan veri vs aktarımdaki veri</H2>
+      <Eyebrow>Verinin konumu</Eyebrow>
+      <H2>Verin hangi ülkede duruyor?</H2>
       <Sub className="mt-3 max-w-3xl">
-        Veri ya bir diskte durur ya da ağ üzerinde akar. İkisi farklı tehditlere
-        açıktır ve farklı şekilde şifrelenir — ikisi de gereklidir.
+        Bulutta veriyi koyacağın bölgeyi (region: veri merkezlerinin bulunduğu yer) sen seçersin.
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#60a5fa]">
-            <HardDrive className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">At-rest · durağan</span>
-          </div>
-          <p className="text-sm text-gray-300 mb-3">
-            Disk veya nesne deposundaki veri. Tehdit: disk/snapshot çalınması,
-            yetkisiz kopya.
-          </p>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Algoritma: genelde AES-256.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />S3 SSE-KMS, EBS şifreleme, RDS encryption.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Anahtar bulut KMS&apos;te tutulur ve rotate edilir.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="bvbb-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#34d399]">
-            <Globe className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">In-transit · aktarımdaki</span>
-          </div>
-          <p className="text-sm text-gray-300 mb-3">
-            Ağ üzerinde akan veri (istemci↔bulut, hizmet↔hizmet). Tehdit: pasif
-            dinleme, ortadaki adam (MITM).
-          </p>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Protokol: TLS 1.2/1.3 (HTTPS).</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Sertifikalar (ACM), HSTS, modern şifre takımları.</li>
-            <li className="flex gap-2"><Check className="w-4 h-4 mt-0.5 text-[#22c55e] flex-shrink-0" />Politikayla zorla: yalnızca SecureTransport.</li>
-          </ul>
-        </motion.div>
+      <Stage className="mt-6 space-y-3">
+        <Reveal
+          question="Bir hastane, hasta kayıtlarını dilediği ülkedeki veri merkezine koyabilir mi?"
+          hint="Tahmin et, sonra tıkla"
+          answer="Dilediği gibi koyamaz. KVKK kişisel verinin yurt dışına aktarılmasını şartlara bağlar. Bu yüzden bölge seçimi yalnız teknik değil, hukuki bir karardır."
+        />
+        <Reveal
+          question="Bölge seçerken başka neye bakılır?"
+          answer="Yakınlığa. Veri kullanıcıya ne kadar yakınsa uygulama o kadar hızlı açılır."
+        />
+      </Stage>
+      <AskLine>Telefonundaki fotoğrafların yedeği şu an hangi ülkede olabilir?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  12 · SINIFTA DENEYELİM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sınıfta deneyelim · 10 dakika · telefonla</Eyebrow>
+      <H2>Kendi hesabının güvenlik kontrolünü yap</H2>
+      <div className="mt-6">
+        <TrySteps
+          steps={[
+            "E-posta hesabının ayarlarında “Güvenlik” bölümünü aç.",
+            "İki adımlı doğrulama açık mı? Hangi cihazlar oturum açmış görünüyor?",
+            "Bulut diskinde paylaştığın bir dosyayı aç: “bağlantıya sahip herkes” mi?",
+            "Bir şeyi düzelt ve ne yaptığını yanındakine anlat.",
+          ]}
+        />
       </div>
+      <div className="mt-4 flex items-center gap-2 text-sm text-gray-400">
+        <Smartphone className="w-4 h-4 text-[#60a5fa]" />
+        Kurulum gerekmez. Kimse şifresini ya da ekranını göstermek zorunda değil.
+      </div>
+      <AskLine>Bugün hesabında neyi düzelttin?</AskLine>
     </SlideShell>
   ),
 
-  /* ─────────────────  12 · ŞİFRELEME TERMİNALİ  ───────────────── */
-  () => (
-    <SlideShell bgPattern={false}>
-      <Eyebrow>Canlı çıktı · şifreleme &amp; sertleştirme</Eyebrow>
-      <H2 className="mb-2">Komut satırında üç temel koruma</H2>
-      <Sub className="max-w-3xl mb-6">
-        Verinin durağanken (KMS) ve aktarılırken (TLS) şifreli olması, bucket&apos;ın
-        ise herkese kapalı olması — üçü bir aradayken &quot;güvenli temel&quot; sağlanır.
-      </Sub>
-      <EncryptionTerminalMock />
-    </SlideShell>
-  ),
-
-  /* ─────────────────  13 · BÖLÜM 3  ───────────────── */
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Gizlilik ve Uyumluluk"
-      subtitle="Teknik koruma yetmez; kişisel veride hangi yasa, hangi sorumluluk ve hangi denetim geçerli?"
-      bgGradient="linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)"
-      shadow="0 20px 60px -10px rgba(124, 58, 237, 0.6)"
-      icon={<ScrollText className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  14 · KVKK vs GDPR  ───────────────── */
+  /* ─────────────────  13 · KENDİNİ DENE  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Kişisel veri · yasal çerçeve</Eyebrow>
-      <H2>KVKK ve GDPR — temel ilkeler</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Büyük veri çoğu zaman kişisel veri içerir. Türkiye&apos;de KVKK (6698),
-        AB&apos;de GDPR bu veriyi düzenler; ikisi de büyük ölçüde örtüşür.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-6 bvbb-card rounded-xl overflow-hidden"
-      >
-        <table className="bvbb-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "26%" }}>Konu</th>
-              <th style={{ width: "37%" }}>KVKK (Türkiye · 6698)</th>
-              <th>GDPR (AB · 2016/679)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="text-white font-semibold">İşleme şartı</td>
-              <td>Açık rıza veya kanuni sebep</td>
-              <td>Rıza, sözleşme, meşru menfaat vb.</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">İlgili kişi hakları</td>
-              <td>Bilgi, düzeltme, silme, itiraz</td>
-              <td>Erişim, taşınabilirlik, unutulma hakkı</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">Yurt dışına aktarım</td>
-              <td>Yeterli koruma / taahhütname şartı</td>
-              <td>Yeterlilik kararı / SCC gerekir</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">İhlal bildirimi</td>
-              <td>Kurula en kısa sürede bildirim</td>
-              <td>72 saat içinde denetim otoritesine</td>
-            </tr>
-            <tr>
-              <td className="text-white font-semibold">Denetim otoritesi</td>
-              <td>KVKK Kurumu (KVKK / Kurul)</td>
-              <td>İlgili ülkenin Veri Koruma Otoritesi</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        className="mt-4 text-[11px] text-gray-500 text-center"
-      >
-        <span className="bvbb-token">Not</span> İdari para cezaları yüksektir;
-        yine de asıl maliyet itibar kaybı ve güven erozyonudur. Tablo özet amaçlıdır,
-        yasal danışmanlık yerine geçmez.
-      </motion.div>
+      <Eyebrow>Kendini dene · bu hafta · 3 soru</Eyebrow>
+      <Stage>
+        <Quiz
+          doneText="Takıldığın soru varsa o slayda birlikte geri dönelim."
+          items={[
+            {
+              q: "Paylaşılan sorumluluk modelinde müşterinin işi hangisidir?",
+              options: [
+                "Veri merkezinin kapısını korumak",
+                "Bozulan diskleri değiştirmek",
+                "Kimin hangi veriye erişeceğini ayarlamak",
+                "Binanın elektriğini sağlamak",
+              ],
+              correct: 2,
+              why: "Bina sağlayıcınındır; şifre, yetki ve ayarlar kiracının, yani müşterinindir.",
+            },
+            {
+              q: "“En az yetki” ne demektir?",
+              options: [
+                "Herkese yönetici yetkisi vermek",
+                "Herkese yalnız işine yetecek kadar yetki vermek",
+                "Kimseye hiç yetki vermemek",
+                "Yetkileri yılda bir kez dağıtmak",
+              ],
+              correct: 1,
+              why: "Yetki ne kadar azsa bir hata ya da çalınan şifre o kadar az zarar verir.",
+            },
+            {
+              q: "Şifrelenmiş bir dosya çalınırsa ne olur?",
+              options: [
+                "Çalan kişi her şeyi okur",
+                "Dosya kendiliğinden silinir",
+                "Anahtar olmadan anlamsız karakterler görünür",
+                "Sağlayıcı dosyayı geri getirir",
+              ],
+              correct: 2,
+              why: "Şifreleme çalınmayı engellemez ama çalınan veriyi okunmaz kılar.",
+            },
+          ]}
+        />
+      </Stage>
     </SlideShell>
   ),
 
-  /* ─────────────────  15 · VERİ YERLEŞİMİ & GİZLİLİK TEKNİKLERİ  ───────────────── */
+  /* ─────────────────  14 · ÖZET  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Gizliliği teknikle desteklemek</Eyebrow>
-      <H2>Veri yerleşimi ve gizlilik teknikleri</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Uyumluluk yalnızca belge işi değildir; mimaride somut karşılığı vardır. Üç
-        anahtar pratik:
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        <FeatureCard
-          icon={Building2}
-          title="Veri yerleşimi (residency)"
-          desc="Bölge (region) seçimiyle verinin hangi ülkede tutulacağını belirle. Kişisel veri için yerel/AB bölgesi tercih edilir."
-          delay={0.0}
-          accent="#2563eb"
-        />
-        <FeatureCard
-          icon={EyeOff}
-          title="Maskeleme &amp; anonimleştirme"
-          desc="Analiz için kimlik gerekmiyorsa kaldır: anonimleştirme (geri döndürülemez) veya takma adlaştırma (pseudonymisation)."
-          delay={0.1}
-          accent="#22c55e"
-        />
-        <FeatureCard
-          icon={Eye}
-          title="Veri minimizasyonu"
-          desc="Yalnızca amaç için gereken veriyi topla ve sakla. Toplamadığın veri sızdırılamaz; en güvenli veri var olmayandır."
-          delay={0.2}
-          accent="#a855f7"
+      <Eyebrow>Aklında kalsın: 3 şey</Eyebrow>
+      <div className="mt-2 max-w-4xl">
+        <ThreeThings
+          items={[
+            "Ev sahibi binayı, kiracı kapısını korur: şifre, yetki ve ayarlar senin sorumluluğun.",
+            "Az yetki ver, iki adımlı doğrulamayı aç, veriyi şifrele, yedeğini al, kovayı açık bırakma.",
+            "Kişisel veri sahibinindir; KVKK gereği nerede durduğunu ve kimin gördüğünü bilmek zorundasın.",
+          ]}
         />
       </div>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 bvbb-card rounded-xl p-4 flex items-start gap-3"
+        transition={{ delay: 0.8 }}
+        className="mt-6 bvbb-card-sky rounded-xl p-5 max-w-4xl flex items-center gap-3"
       >
-        <FileWarning className="w-5 h-5 text-[#f59e0b] flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-gray-300">
-          <span className="bvbb-token">Dikkat</span> &quot;Anonim&quot; sandığımız
-          veri, başka kümelerle birleştirilince yeniden kimliklendirilebilir
-          (re-identification). Gerçek anonimleştirme zordur; şüphedeyse kişisel veri
-          gibi davran.
-        </p>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  16 · GÜVENLİK KONTROLLERİ ÖZETİ  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Katmanlı savunma · özet</Eyebrow>
-      <H2>Bir bulut iş yükünü sertleştiren kontroller</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Tek bir önlem yeterli değildir; katmanlar üst üste binince bir katmanın
-        aşılması felakete dönüşmez (defense in depth).
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: Key, t: "Kimlik", d: "MFA zorunlu, kök hesabı kilitli, kısa ömürlü roller, least privilege.", c: "#2563eb" },
-          { icon: Lock, t: "Şifreleme", d: "At-rest (KMS) + in-transit (TLS) her yerde; anahtar rotasyonu açık.", c: "#22c55e" },
-          { icon: Network, t: "Ağ", d: "VPC izolasyonu, özel alt ağlar, güvenlik grupları dar, public erişim kapalı.", c: "#a855f7" },
-          { icon: ScrollText, t: "İzleme", d: "Denetim logları (CloudTrail), alarmlar, merkezi log, düzenli yapılandırma taraması.", c: "#f59e0b" },
-        ].map((it, i) => (
-          <motion.div
-            key={it.t}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${it.c}18`, border: `1px solid ${it.c}55` }}
-            >
-              <it.icon className="w-5 h-5" style={{ color: it.c }} />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-white mb-1">{it.t}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{it.d}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  17 · UYGULAMALI GÖREV  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı sertleştirme</Eyebrow>
-      <H2>Kendi bucket&apos;ını dört adımda güvenli hâle getir</H2>
-      <Sub className="mt-3 max-w-3xl">
-        1. haftada açtığın S3 bucket ve hesabın üzerinde çalış. Sonraki derse bu
-        dördünü yapmış ve ekran görüntüsünü almış gelmen bekleniyor.
-      </Sub>
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          {
-            n: 1,
-            t: "Kök hesaba MFA ekle",
-            d: "IAM → kök kullanıcı için TOTP (Authenticator) etkinleştir; günlük iş için ayrı IAM kullanıcısı kullan.",
-            icon: Fingerprint,
-            color: "#2563eb",
-          },
-          {
-            n: 2,
-            t: "Block Public Access&apos;i doğrula",
-            d: "S3 bucket → Permissions → dört seçeneğin de açık (engelli) olduğunu kontrol et.",
-            icon: ShieldCheck,
-            color: "#22c55e",
-          },
-          {
-            n: 3,
-            t: "Şifrelemeyi aç",
-            d: "Default encryption olarak SSE-KMS seç; bir dosya yükleyip ServerSideEncryption alanını gör.",
-            icon: Lock,
-            color: "#a855f7",
-          },
-          {
-            n: 4,
-            t: "En az yetki politikası yaz",
-            d: "Tek bucket&apos;a sadece s3:GetObject veren bir IAM politikası oluştur; Administrator vermekten kaçın.",
-            icon: KeyRound,
-            color: "#f59e0b",
-          },
-        ].map((item, i) => (
-          <motion.label
-            key={item.n}
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.45, delay: i * 0.1 }}
-            className="bvbb-card bvbb-card-hover rounded-xl p-5 flex gap-4 cursor-pointer transition-all"
-          >
-            <div className="flex flex-col items-center gap-2">
-              <input
-                type="checkbox"
-                className="w-5 h-5 accent-[#2563eb] rounded"
-              />
-              <span className="text-[10px] font-mono text-gray-500">#{item.n}</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <item.icon className="w-4 h-4" style={{ color: item.color }} />
-                <div
-                  className="text-base font-semibold text-white"
-                  dangerouslySetInnerHTML={{ __html: item.t }}
-                />
-              </div>
-              <p
-                className="text-xs text-gray-400 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: item.d }}
-              />
-            </div>
-          </motion.label>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 bvbb-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl mx-auto"
-      >
-        <AlertTriangle className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Yalnızca kendi hesabında.</span> Erişim
-          anahtarlarını asla kodla birlikte paylaşma; iş bitince gereksiz
-          kullanıcı/anahtarı sil ve faturalama uyarısının açık olduğundan emin ol.
+        <GraduationCap className="w-6 h-6 text-[#67e8f9] flex-shrink-0" />
+        <span className="text-base md:text-lg text-gray-200">
+          Bu son haftaydı. Şimdi dönemi baştan sona birlikte tekrar ediyoruz; sırada final var.
         </span>
       </motion.div>
     </SlideShell>
   ),
 
-  /* ─────────────────  18 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
+  /* ─────────────────  15 · BÖLÜM: DÖNEM TEKRARI  ───────────────── */
+  () => (
+    <SectionDivider
+      num="2"
+      total="2"
+      title="Dönemi toparlayalım"
+      subtitle="Bulutun temelleri ve hizmet modelleri, depolama, Hadoop ile Spark, analitik, makine öğrenimi ve güvenlik: altı soruda bütün dönem."
+      bgGradient="linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)"
+      shadow="0 20px 60px -10px rgba(37, 99, 235, 0.55)"
+      icon={<GraduationCap className="w-16 h-16 text-white" />}
+    />
+  ),
+
+  /* ─────────────────  16 · DÖNEM TEKRARI  ───────────────── */
   () => (
     <SlideShell>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8"
-          style={{
-            background: "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
-            boxShadow: "0 20px 60px -10px rgba(37,99,235,0.6)",
-          }}
-        >
-          <ShieldCheck className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>15. hafta tamamlandı · sıradaki: Final &amp; proje</Eyebrow>
-        <H1>
-          <span className="bvbb-shimmer">Güvenli buluta hazırız</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Erişimi sınırladık, veriyi şifreledik, gizliliği yasal çerçeveye oturttuk.
-          Önümüzdeki hafta dönem projelerini bu güvenlik kontrolleriyle birlikte
-          sunacak ve genel tekrar yapacağız.
-        </Sub>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="bvbb-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#60a5fa] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Ders saati</div>
-            <div className="text-white font-semibold">Çarşamba</div>
-            <div className="text-sm text-gray-400">09:55 — 12:30 · Derslik 7</div>
-          </div>
-          <div className="bvbb-card rounded-xl p-5">
-            <Target className="w-5 h-5 text-[#a855f7] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Hazırlık</div>
-            <div className="text-white font-semibold">Proje + güvenlik</div>
-            <div className="text-sm text-gray-400">MFA · şifreleme · IAM uygula</div>
-          </div>
-          <div className="bvbb-card rounded-xl p-5">
-            <FlaskConical className="w-5 h-5 text-[#22c55e] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Teslim</div>
-            <div className="text-white font-semibold">Sertleştirme raporu</div>
-            <div className="text-sm text-gray-400">4 adım + ekran görüntüsü</div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="mt-10 text-[11px] font-mono text-gray-600 flex items-center justify-center gap-2"
-        >
-          <Unlock className="w-3.5 h-3.5" />
-          <span>BVA 2103 · Büyük Veri İçin Bulut Bilişim · Güz 2026</span>
-        </motion.div>
-      </div>
+      <Eyebrow>Kendini dene · dönemin tamamı · 6 soru</Eyebrow>
+      <Stage>
+        <Quiz
+          doneText="Dönem bitti. Yanlış yaptığın sorunun haftasını finalden önce bir kez daha aç. Finalde başarılar."
+          items={[
+            {
+              q: "Bulut bilişim en kısa hâliyle nedir?",
+              options: [
+                "Kendi sunucunu satın alıp odana kurmak",
+                "Bilgisayar gücünü ve depolamayı internet üzerinden kiralamak",
+                "Dosyaları USB bellekte taşımak",
+                "İnternetsiz çalışan programlar",
+              ],
+              correct: 1,
+              why: "Satın almak yerine kiralarsın, kullandığın kadar ödersin.",
+            },
+            {
+              q: "Tarayıcıdan açıp kullandığın hazır e-posta uygulaması hangi hizmet modelidir?",
+              options: [
+                "IaaS: altyapı kiralarsın",
+                "PaaS: geliştirme ortamı kiralarsın",
+                "SaaS: hazır yazılımı kullanırsın",
+                "Hiçbiri",
+              ],
+              correct: 2,
+              why: "Kurulum ve sunucu derdi yok; hazır yazılımı kullanıyorsun, bu SaaS’tır.",
+            },
+            {
+              q: "Bir banka bulutu yalnız kendisi kullanıyor, dışarıya kapalı. Bu hangi dağıtım modelidir?",
+              options: ["Genel bulut", "Özel bulut", "Hibrit bulut", "Topluluk bulutu"],
+              correct: 1,
+              why: "Tek bir kuruma ayrılan bulut özel buluttur.",
+            },
+            {
+              q: "Hadoop ve Spark hangi sorunu çözer?",
+              options: [
+                "Tek bilgisayara sığmayan veriyi birçok bilgisayara bölüp işlemeyi",
+                "Şifrelerin unutulmasını",
+                "İnternetin yavaşlamasını",
+                "Ekran kartının ısınmasını",
+              ],
+              correct: 0,
+              why: "Büyük veriyi böl, dağıt, kopyala; iş birçok makinede aynı anda yapılır.",
+            },
+            {
+              q: "Veri gölü ile veri ambarının farkı hangisidir?",
+              options: [
+                "Göl küçük, ambar büyük veriler içindir",
+                "Göl ham verinin atıldığı depodur, ambar düzenli tablolardır",
+                "Göl ücretlidir, ambar ücretsizdir",
+                "Aralarında fark yoktur",
+              ],
+              correct: 1,
+              why: "Depo ile raflı market: biri her şeyi alır, diğeri düzenlenmiş veriyi sunar.",
+            },
+            {
+              q: "Herkese açık bırakılan bir depolama kovasından veri sızdı. Sorumlu kim?",
+              options: [
+                "Bulut sağlayıcı",
+                "Kovayı ayarlayan müşteri",
+                "İnternet servis sağlayıcısı",
+                "Hiç kimse",
+              ],
+              correct: 1,
+              why: "Ev sahibi binayı, kiracı kapısını korur; ayar müşterinindir.",
+            },
+          ]}
+        />
+      </Stage>
     </SlideShell>
   ),
 ];
@@ -1237,7 +1266,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#60a5fa]/80">
-          BVA 2103 · 15. Hafta · Güvenlik &amp; Gizlilik
+          BVA 2103 · 15. Hafta · Bulutta Güvenlik ve Gizlilik
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#60a5fa]/60">

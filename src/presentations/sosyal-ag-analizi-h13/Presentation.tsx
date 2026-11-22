@@ -9,35 +9,22 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Share2,
-  Network,
-  GitBranch,
-  Target,
-  Users,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
   Check,
-  Shuffle,
-  Hash,
-  Layers,
-  Database,
-  Search,
-  Code2,
-  MapPin,
-  Clock,
-  Mail,
-  Calendar,
-  Filter,
-  Crosshair,
-  Scaling,
-  AlertTriangle,
-  Footprints,
-  Waypoints,
+  X,
+  MousePointerClick,
+  RotateCcw,
+  ArrowRight,
   Dice5,
-  TableProperties,
+  Snowflake,
+  Footprints,
+  Users,
+  Filter,
+  Target,
   type LucideIcon,
 } from "lucide-react";
 import "./styles.css";
@@ -151,482 +138,805 @@ function FeatureCard({
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  bgGradient,
-  shadow,
-  icon,
+/* ============================================================
+   ETKİLEŞİM BİLEŞENLERİ (ortak)
+   ============================================================ */
+
+/** Başlıkları 1280×720 ekrana sığdırmak için biraz küçültür. */
+const BASLIK = "md:text-4xl!";
+
+/** Slaydın altındaki soluk "Sınıfa sor" satırı. */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6 }}
+      className="mt-5 text-sm text-gray-500 text-center"
+    >
+      <span className="font-mono uppercase tracking-wider text-[11px] text-[#14b8a6]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Tahmin et → tıkla göster kartı. */
+function Reveal({
+  soru,
+  cevap,
+  ipucu = "Tahmin et, sonra tıkla",
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  bgGradient: string;
-  shadow: string;
-  icon: ReactNode;
+  soru: string;
+  cevap: string;
+  ipucu?: string;
+}) {
+  const [acik, setAcik] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setAcik((a) => !a)}
+      className={`rounded-xl p-5 text-left w-full h-full cursor-pointer transition-all ${
+        acik ? "saa-card-teal" : "saa-card saa-card-hover"
+      }`}
+    >
+      <div className="text-base font-semibold text-white leading-snug">{soru}</div>
+      {acik ? (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 text-sm text-[#a7f3d0] leading-relaxed"
+        >
+          {cevap}
+        </motion.div>
+      ) : (
+        <div className="mt-3 saa-hint">
+          <MousePointerClick className="w-3.5 h-3.5" />
+          {ipucu}
+        </div>
+      )}
+    </button>
+  );
+}
+
+type Soru = {
+  soru: string;
+  siklar: string[];
+  dogru: number;
+  aciklama: string;
+};
+
+/** Mini sınav: şıkka tıkla, doğru yeşil / yanlış kırmızı, tek cümle açıklama. */
+function Quiz({ sorular }: { sorular: Soru[] }) {
+  const [no, setNo] = useState(0);
+  const [secim, setSecim] = useState<number | null>(null);
+  const s = sorular[no];
+  const sonSoru = no === sorular.length - 1;
+  return (
+    <div className="max-w-4xl mx-auto">
+      {sorular.length > 1 && (
+        <div className="text-xs font-mono text-gray-500 mb-2">
+          Soru {no + 1} / {sorular.length}
+        </div>
+      )}
+      <div className="saa-card-teal rounded-xl px-5 py-4 text-lg font-semibold text-white leading-snug">
+        {s.soru}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+        {s.siklar.map((sik, i) => {
+          const durum =
+            secim === null
+              ? "saa-card saa-card-hover cursor-pointer"
+              : i === s.dogru
+              ? "saa-ok"
+              : i === secim
+              ? "saa-no"
+              : "saa-card opacity-50";
+          return (
+            <button
+              key={sik}
+              type="button"
+              disabled={secim !== null}
+              onClick={() => setSecim(i)}
+              className={`rounded-xl px-4 py-3 text-left text-sm text-gray-100 flex items-center gap-3 transition-all ${durum}`}
+            >
+              <span className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 text-xs font-bold bg-[#14b8a6]/15 border border-[#14b8a6]/40 text-[#5eead4]">
+                {secim !== null && i === s.dogru ? (
+                  <Check className="w-4 h-4" />
+                ) : secim === i ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  "ABCD"[i]
+                )}
+              </span>
+              <span>{sik}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[64px] flex items-center justify-between gap-4">
+        {secim === null ? (
+          <div className="saa-hint">
+            <MousePointerClick className="w-3.5 h-3.5" />
+            Sınıf karar versin, sonra şıkka tıkla
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-gray-200 leading-relaxed"
+          >
+            <span
+              className={
+                secim === s.dogru
+                  ? "text-emerald-400 font-semibold"
+                  : "text-red-400 font-semibold"
+              }
+            >
+              {secim === s.dogru ? "Doğru. " : "Olmadı. "}
+            </span>
+            {s.aciklama}
+          </motion.div>
+        )}
+        {secim !== null && (
+          <button
+            type="button"
+            className="saa-btn shrink-0"
+            onClick={() => {
+              setSecim(null);
+              setNo(sonSoru ? 0 : no + 1);
+            }}
+          >
+            {sonSoru ? (
+              <>
+                <RotateCcw className="w-4 h-4" />
+                {sorular.length > 1 ? "Baştan" : "Tekrar sor"}
+              </>
+            ) : (
+              <>
+                Sonraki soru
+                <ChevronRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Adım adım açılan süreç: "İleri" ile bir sonraki adım görünür. */
+function Stepper({ adimlar }: { adimlar: Array<{ baslik: string; metin: string }> }) {
+  const [n, setN] = useState(1);
+  const bitti = n >= adimlar.length;
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="space-y-2.5">
+        {adimlar.map((a, i) => (
+          <div
+            key={a.baslik}
+            className={`rounded-xl px-4 py-3 flex items-start gap-4 transition-all ${
+              i < n ? "saa-card-teal" : "saa-card opacity-30"
+            }`}
+          >
+            <div className="saa-tick w-8 h-8 flex items-center justify-center shrink-0 text-sm font-bold">
+              {i + 1}
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-white">
+                {i < n ? a.baslik : "Sıradaki adım"}
+              </div>
+              {i < n && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-gray-300 mt-0.5 leading-relaxed"
+                >
+                  {a.metin}
+                </motion.div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <button
+          type="button"
+          className="saa-btn"
+          onClick={() => setN(bitti ? 1 : n + 1)}
+        >
+          {bitti ? (
+            <>
+              <RotateCcw className="w-4 h-4" />
+              Baştan
+            </>
+          ) : (
+            <>
+              İleri: {n + 1}. adım
+              <ChevronRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+        <span className="text-xs font-mono text-gray-500">
+          {n} / {adimlar.length}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** İçerik slaydı kabuğu: üst etiket, cümle başlık, kısa alt metin, içerik, "Sınıfa sor". */
+function Icerik({
+  ust,
+  baslik,
+  alt,
+  sor,
+  children,
+}: {
+  ust: string;
+  baslik: ReactNode;
+  alt?: ReactNode;
+  sor?: ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: bgGradient,
-            boxShadow: shadow,
-          }}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
+    <SlideShell>
+      <div className="max-w-4xl mx-auto">
+        <Eyebrow>{ust}</Eyebrow>
+        <H2 className={BASLIK}>{baslik}</H2>
+        {alt && <Sub className="mt-3 md:text-lg!">{alt}</Sub>}
+        <div className="mt-6">{children}</div>
+        {sor && <Ask>{sor}</Ask>}
       </div>
     </SlideShell>
   );
 }
 
 /* ============================================================
-   TOPIC MOCKUPS — AĞ ÖRNEKLEME
+   KONU BİLEŞENLERİ — AĞ ÖRNEKLEME (küçük arkadaşlık ağı)
    ============================================================ */
 
-type SampleNode = {
-  id: string;
-  x: number;
-  y: number;
-  /** örnekleme adımı (0 = henüz alınmadı) */
-  step?: number;
-  seed?: boolean;
+type Kisi = { ad: string; x: number; y: number };
+
+/** 14 kişilik örnek ağ. Elif'in 7 arkadaşı var; Onur, Naz ve Umut'un birer. */
+const KISILER: Kisi[] = [
+  { ad: "Elif", x: 300, y: 170 },
+  { ad: "Can", x: 170, y: 80 },
+  { ad: "Zeynep", x: 300, y: 45 },
+  { ad: "Mert", x: 430, y: 90 },
+  { ad: "Ayşe", x: 160, y: 200 },
+  { ad: "Burak", x: 210, y: 290 },
+  { ad: "Deniz", x: 350, y: 290 },
+  { ad: "Ece", x: 450, y: 210 },
+  { ad: "Kaan", x: 570, y: 130 },
+  { ad: "Selin", x: 610, y: 250 },
+  { ad: "Umut", x: 660, y: 50 },
+  { ad: "İrem", x: 500, y: 300 },
+  { ad: "Onur", x: 60, y: 130 },
+  { ad: "Naz", x: 60, y: 280 },
+];
+
+const BAGLAR: Array<[number, number]> = [
+  [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7],
+  [1, 2], [1, 12], [4, 13], [4, 5], [3, 8], [7, 8], [7, 9],
+  [8, 10], [8, 9], [9, 11], [6, 11],
+];
+
+function komsular(i: number): number[] {
+  return BAGLAR.filter(([a, b]) => a === i || b === i).map(([a, b]) =>
+    a === i ? b : a,
+  );
+}
+
+type Ton = "bos" | "secili" | "aktif";
+
+const TONLAR: Record<Ton, { fill: string; stroke: string; yazi: string }> = {
+  bos: { fill: "#111827", stroke: "#374151", yazi: "#9ca3af" },
+  secili: { fill: "#0d9488", stroke: "#5eead4", yazi: "#ffffff" },
+  aktif: { fill: "#5eead4", stroke: "#ffffff", yazi: "#042f2e" },
 };
 
-type SampleEdge = { from: string; to: string };
-
-const samplingNodes: SampleNode[] = [
-  { id: "n1", x: 110, y: 90 },
-  { id: "n2", x: 250, y: 60 },
-  { id: "n3", x: 400, y: 80, seed: true, step: 1 },
-  { id: "n4", x: 560, y: 70 },
-  { id: "n5", x: 690, y: 130 },
-  { id: "n6", x: 180, y: 220 },
-  { id: "n7", x: 330, y: 210, step: 2 },
-  { id: "n8", x: 480, y: 220, step: 3 },
-  { id: "n9", x: 640, y: 250 },
-  { id: "n10", x: 120, y: 360 },
-  { id: "n11", x: 290, y: 360, step: 4 },
-  { id: "n12", x: 470, y: 360 },
-  { id: "n13", x: 640, y: 370 },
-];
-
-const samplingEdges: SampleEdge[] = [
-  { from: "n1", to: "n2" },
-  { from: "n2", to: "n3" },
-  { from: "n3", to: "n4" },
-  { from: "n4", to: "n5" },
-  { from: "n3", to: "n7" },
-  { from: "n7", to: "n8" },
-  { from: "n8", to: "n9" },
-  { from: "n7", to: "n11" },
-  { from: "n11", to: "n12" },
-  { from: "n12", to: "n13" },
-  { from: "n6", to: "n7" },
-  { from: "n6", to: "n10" },
-  { from: "n1", to: "n6" },
-  { from: "n8", to: "n4" },
-  { from: "n9", to: "n13" },
-];
-
-/**
- * Snowball / kartopu örneklemesini görselleştirir: seed düğümden başlayıp
- * komşulara doğru dalga dalga genişleyen bir alt-ağ.
- */
-function SnowballMockup() {
-  const find = (id: string) => samplingNodes.find((n) => n.id === id)!;
-  const inSample = (n: SampleNode) => (n.step ?? 0) > 0;
+/** Ağı çizer; düğümlerin tonu, rozeti ve tıklanması dışarıdan verilir. */
+function AgCizimi({
+  ton,
+  rozet,
+  bagAcik,
+  onSec,
+}: {
+  ton: (i: number) => Ton;
+  rozet?: (i: number) => string;
+  bagAcik: (a: number, b: number) => boolean;
+  onSec?: (i: number) => void;
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <span className="w-5 h-5 rounded-sm saa-n-tile flex items-center justify-center text-[11px]">
-            N
-          </span>
-          <span>snowball_sample · seed=n3 · dalga 0→2 · 13 düğüm evrenden 5 örnek</span>
-        </div>
-      </div>
-      <div className="p-4 bg-[#070b0a]">
-        <svg viewBox="0 0 800 440" className="w-full h-auto">
-          <defs>
-            <radialGradient id="seedGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#5eead4" />
-              <stop offset="100%" stopColor="#0d9488" />
-            </radialGradient>
-            <radialGradient id="sampleGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#0d9488" />
-              <stop offset="100%" stopColor="#134e4a" />
-            </radialGradient>
-            <radialGradient id="outGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#1f2937" />
-              <stop offset="100%" stopColor="#111827" />
-            </radialGradient>
-          </defs>
-
-          {samplingEdges.map((e, i) => {
-            const a = find(e.from);
-            const b = find(e.to);
-            const sampled = inSample(a) && inSample(b);
-            return (
-              <line
-                key={`se-${i}`}
-                x1={a.x}
-                y1={a.y}
-                x2={b.x}
-                y2={b.y}
-                stroke={sampled ? "#14b8a6" : "#374151"}
-                strokeWidth={sampled ? 2.2 : 1.2}
-                strokeOpacity={sampled ? 0.8 : 0.4}
-              />
-            );
-          })}
-
-          {samplingNodes.map((n) => {
-            const sampled = inSample(n);
-            return (
-              <g key={n.id}>
-                <circle
-                  cx={n.x}
-                  cy={n.y}
-                  r={n.seed ? 26 : sampled ? 20 : 15}
-                  fill={
-                    n.seed
-                      ? "url(#seedGrad)"
-                      : sampled
-                      ? "url(#sampleGrad)"
-                      : "url(#outGrad)"
-                  }
-                  stroke={n.seed ? "#5eead4" : sampled ? "#2dd4bf" : "#374151"}
-                  strokeWidth={n.seed ? 2.5 : sampled ? 1.8 : 1}
-                  className={n.seed ? "saa-node-pulse" : ""}
-                />
-                {sampled && (
-                  <text
-                    x={n.x}
-                    y={n.y + 4}
-                    textAnchor="middle"
-                    fontSize={n.seed ? 12 : 10}
-                    fontWeight={700}
-                    fill="#ffffff"
-                    fontFamily="Inter, sans-serif"
-                  >
-                    {n.seed ? "seed" : `d${n.step}`}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-        <div className="mt-1 flex items-center justify-center gap-5 text-[11px] text-gray-400">
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full" style={{ background: "#0d9488" }} />
-            Örnekte (5)
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full" style={{ background: "#1f2937", border: "1px solid #374151" }} />
-            Evrende ama örnek dışında (8)
-          </span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/**
- * Random Node vs Random Walk farkını yan yana gösteren küçük diyagram.
- */
-function MiniRandomNode() {
-  const pts = [
-    { x: 50, y: 50, on: true },
-    { x: 130, y: 35, on: false },
-    { x: 210, y: 55, on: false },
-    { x: 70, y: 120, on: false },
-    { x: 150, y: 110, on: true },
-    { x: 220, y: 125, on: false },
-    { x: 45, y: 185, on: false },
-    { x: 135, y: 180, on: false },
-    { x: 215, y: 185, on: true },
-  ];
-  return (
-    <svg viewBox="0 0 260 220" className="w-full h-auto">
-      {pts.map((p, i) => (
-        <circle
-          key={i}
-          cx={p.x}
-          cy={p.y}
-          r={p.on ? 12 : 8}
-          fill={p.on ? "#0d9488" : "#1f2937"}
-          stroke={p.on ? "#5eead4" : "#374151"}
-          strokeWidth={p.on ? 2 : 1}
-        />
-      ))}
-    </svg>
-  );
-}
-
-function MiniRandomWalk() {
-  const path = [
-    { x: 40, y: 60 },
-    { x: 120, y: 40 },
-    { x: 175, y: 100 },
-    { x: 110, y: 150 },
-    { x: 180, y: 185 },
-    { x: 60, y: 170 },
-  ];
-  return (
-    <svg viewBox="0 0 260 220" className="w-full h-auto">
-      <defs>
-        <marker
-          id="walk-arrow"
-          viewBox="0 0 10 10"
-          refX="8"
-          refY="5"
-          markerWidth="6"
-          markerHeight="6"
-          orient="auto-start-reverse"
-        >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#5eead4" />
-        </marker>
-      </defs>
-      {path.slice(1).map((p, i) => {
-        const a = path[i];
+    <svg viewBox="0 0 720 345" className="w-full h-auto">
+      {BAGLAR.map(([a, b]) => {
+        const acik = bagAcik(a, b);
         return (
           <line
-            key={i}
-            x1={a.x}
-            y1={a.y}
-            x2={p.x}
-            y2={p.y}
-            stroke="#5eead4"
-            strokeWidth={2}
-            strokeOpacity={0.85}
-            markerEnd="url(#walk-arrow)"
+            key={`${a}-${b}`}
+            x1={KISILER[a].x}
+            y1={KISILER[a].y}
+            x2={KISILER[b].x}
+            y2={KISILER[b].y}
+            stroke={acik ? "#5eead4" : "#374151"}
+            strokeWidth={acik ? 3 : 1.5}
+            strokeOpacity={acik ? 0.95 : 0.6}
           />
         );
       })}
-      {path.map((p, i) => (
-        <g key={`w-${i}`}>
-          <circle
-            cx={p.x}
-            cy={p.y}
-            r={12}
-            fill="#0d9488"
-            stroke="#5eead4"
-            strokeWidth={2}
-          />
-          <text
-            x={p.x}
-            y={p.y + 4}
-            textAnchor="middle"
-            fontSize={10}
-            fontWeight={700}
-            fill="#fff"
-            fontFamily="Inter, sans-serif"
+      {KISILER.map((k, i) => {
+        const t = TONLAR[ton(i)];
+        const r = rozet ? rozet(i) : "";
+        return (
+          <g
+            key={k.ad}
+            onClick={onSec ? () => onSec(i) : undefined}
+            className={onSec ? "saa-node-click" : undefined}
           >
-            {i + 1}
-          </text>
-        </g>
-      ))}
+            <circle
+              cx={k.x}
+              cy={k.y}
+              r={20}
+              fill={t.fill}
+              stroke={t.stroke}
+              strokeWidth={2.5}
+            />
+            {r && (
+              <text
+                x={k.x}
+                y={k.y + 5}
+                textAnchor="middle"
+                fontSize={15}
+                fontWeight={700}
+                fill={t.yazi}
+              >
+                {r}
+              </text>
+            )}
+            <text
+              x={k.x}
+              y={k.y + 38}
+              textAnchor="middle"
+              fontSize={14}
+              fontWeight={600}
+              fill={ton(i) === "bos" ? "#9ca3af" : "#ffffff"}
+              stroke="#050807"
+              strokeWidth={4}
+              paintOrder="stroke"
+            >
+              {k.ad}
+            </text>
+          </g>
+        );
+      })}
     </svg>
   );
 }
 
-function MethodComparison() {
+function LabDuzeni({ ag, children }: { ag: ReactNode; children: ReactNode }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-card rounded-xl p-5 overflow-x-auto"
-    >
-      <table className="saa-table">
-        <thead>
-          <tr>
-            <th style={{ width: "16%" }}>Yöntem</th>
-            <th>Nasıl çalışır?</th>
-            <th>Güçlü yanı</th>
-            <th>Yanlılık (bias) riski</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="saa-row-head">Random Node</td>
-            <td>Düğümleri eşit olasılıkla rastgele seç.</td>
-            <td>Derece dağılımını görece korur; basit.</td>
-            <td>Seçilen düğümler arasında kenar az kalır — ağ kopuk görünür.</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Random Edge</td>
-            <td>Kenarları rastgele seç, uçlarını örneğe al.</td>
-            <td>Bağlı bir alt-ağ üretmesi daha olası.</td>
-            <td>Yüksek dereceli düğümlere doğru yanlı (orantısız seçilir).</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Snowball / BFS</td>
-            <td>Seed düğümden komşulara dalga dalga genişle.</td>
-            <td>Gizli/erişimi zor topluluklara ulaşır.</td>
-            <td>Merkezi, yüksek dereceli düğümleri aşırı temsil eder.</td>
-          </tr>
-          <tr>
-            <td className="saa-row-head">Random Walk</td>
-            <td>Bir düğümden başla, komşuya rastgele adımla.</td>
-            <td>Büyük ağda API kotasıyla uyumlu, yerel.</td>
-            <td>Dereceyle orantılı yanlılık; RDS/MHRW ile düzeltilir.</td>
-          </tr>
-        </tbody>
-      </table>
-    </motion.div>
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-stretch">
+      <div className="md:col-span-3 saa-card rounded-xl p-2 flex items-center">
+        {ag}
+      </div>
+      <div className="md:col-span-2 saa-card-teal rounded-xl p-4 flex flex-col gap-3 text-sm text-gray-300">
+        {children}
+      </div>
+    </div>
   );
 }
 
-function CodeBlock() {
+function Sayi({ etiket, deger }: { etiket: string; deger: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="saa-window-chrome w-full"
-    >
-      <div className="saa-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-semibold flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0a0f0e", color: "#5eead4" }}
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          <span>network_sampling.py · Python 3.12 · NetworkX 3.3 · Little Ball of Fur</span>
-        </div>
+    <div className="saa-card rounded-lg px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wider text-gray-500">
+        {etiket}
       </div>
-      <pre className="saa-code p-6 overflow-x-auto m-0">
+      <div className="text-lg font-semibold text-white leading-tight">{deger}</div>
+    </div>
+  );
+}
+
+/** 1. yol — rastgele kişi seçme: "zar at", 5 kişi seçilsin. */
+function RastgeleLab() {
+  const [secili, setSecili] = useState<number[]>([]);
+  const zarAt = () => {
+    const havuz = KISILER.map((_, i) => i);
+    const yeni: number[] = [];
+    while (yeni.length < 5) {
+      const sira = Math.floor(Math.random() * havuz.length);
+      yeni.push(havuz.splice(sira, 1)[0]);
+    }
+    setSecili(yeni);
+  };
+  const icinde = (i: number) => secili.includes(i);
+  const kalan = BAGLAR.filter(([a, b]) => icinde(a) && icinde(b)).length;
+  return (
+    <LabDuzeni
+      ag={
+        <AgCizimi
+          ton={(i) => (icinde(i) ? "secili" : "bos")}
+          bagAcik={(a, b) => icinde(a) && icinde(b)}
+        />
+      }
+    >
+      <div className="saa-hint">
+        <MousePointerClick className="w-3.5 h-3.5" />
+        Tıkla: kura çek
+      </div>
+      <button type="button" className="saa-btn" onClick={zarAt}>
+        <Dice5 className="w-4 h-4" />
+        Zar at: rastgele 5 kişi seç
+      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <Sayi etiket="Seçilen kişi" deger={`${secili.length} / 14`} />
+        <Sayi etiket="Kalan bağlantı" deger={`${kalan} / 18`} />
+      </div>
+      <p className="leading-relaxed">
+        {secili.length === 0
+          ? "Önce tahmin edin: seçilen 5 kişi arasında kaç bağlantı kalır?"
+          : kalan === 0
+          ? "Seçilenlerin hiçbiri birbirine bağlı değil. Kişiler var ama ağın şekli kayboldu."
+          : `18 bağlantıdan yalnızca ${kalan} tanesi örnekte kaldı. Birkaç kez daha zar at ve karşılaştır.`}
+      </p>
+      <button
+        type="button"
+        className="saa-btn-ghost mt-auto"
+        onClick={() => setSecili([])}
+      >
+        <RotateCcw className="w-4 h-4" />
+        Sıfırla
+      </button>
+    </LabDuzeni>
+  );
+}
+
+/** 2. yol — kartopu: bir kişiye tıkla, dalga dalga büyüt. */
+function KartopuLab() {
+  const [dalga, setDalga] = useState<Record<number, number>>({});
+  const icinde = (i: number) => dalga[i] !== undefined;
+  const ornek = Object.keys(dalga).map(Number);
+  const sonDalga = ornek.length ? Math.max(...ornek.map((i) => dalga[i])) : 0;
+  const yeniler = Array.from(
+    new Set(ornek.flatMap((i) => komsular(i)).filter((i) => !icinde(i))),
+  );
+  const buyut = () => {
+    const sonraki = { ...dalga };
+    yeniler.forEach((i) => {
+      sonraki[i] = sonDalga + 1;
+    });
+    setDalga(sonraki);
+  };
+  return (
+    <LabDuzeni
+      ag={
+        <AgCizimi
+          ton={(i) => (!icinde(i) ? "bos" : dalga[i] === 0 ? "aktif" : "secili")}
+          rozet={(i) => (icinde(i) ? String(dalga[i]) : "")}
+          bagAcik={(a, b) => icinde(a) && icinde(b)}
+          onSec={(i) => setDalga({ [i]: 0 })}
+        />
+      }
+    >
+      <div className="saa-hint">
+        <MousePointerClick className="w-3.5 h-3.5" />
+        Ağda bir kişiye tıkla: başlangıç o
+      </div>
+      <button
+        type="button"
+        className="saa-btn"
+        disabled={ornek.length === 0 || yeniler.length === 0}
+        onClick={buyut}
+      >
+        <Snowflake className="w-4 h-4" />
+        Bir dalga daha: arkadaşlarını ekle
+      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <Sayi etiket="Dalga" deger={ornek.length ? String(sonDalga) : "-"} />
+        <Sayi etiket="Örnekteki kişi" deger={`${ornek.length} / 14`} />
+      </div>
+      <p className="leading-relaxed">
+        {ornek.length === 0
+          ? "0 başlangıç kişisi, 1 onun arkadaşları, 2 arkadaşlarının arkadaşları."
+          : yeniler.length === 0
+          ? "Herkes örneğe girdi. Şimdi başka bir kişiden başla: kaç dalga sürdü?"
+          : `Sıradaki dalgada ${yeniler.length} kişi daha girecek. Kartopu yuvarlandıkça büyüyor.`}
+      </p>
+      <button
+        type="button"
+        className="saa-btn-ghost mt-auto"
+        onClick={() => setDalga({})}
+      >
+        <RotateCcw className="w-4 h-4" />
+        Sıfırla
+      </button>
+    </LabDuzeni>
+  );
+}
+
+type Yuruyus = { konum: number; ziyaret: number[]; adim: number };
+
+const BASLANGIC = 12; // Onur
+
+function yuruyusBasi(): Yuruyus {
+  return {
+    konum: BASLANGIC,
+    ziyaret: KISILER.map((_, i) => (i === BASLANGIC ? 1 : 0)),
+    adim: 0,
+  };
+}
+
+/** 3. yol — rastgele yürüyüş: her adımda rastgele bir arkadaşa geç. */
+function YuruyusLab() {
+  const [d, setD] = useState<Yuruyus>(yuruyusBasi);
+  const yuru = (kac: number) => {
+    let konum = d.konum;
+    const ziyaret = [...d.ziyaret];
+    for (let k = 0; k < kac; k++) {
+      const ks = komsular(konum);
+      konum = ks[Math.floor(Math.random() * ks.length)];
+      ziyaret[konum] += 1;
+    }
+    setD({ konum, ziyaret, adim: d.adim + kac });
+  };
+  const enCok = d.ziyaret.indexOf(Math.max(...d.ziyaret));
+  return (
+    <LabDuzeni
+      ag={
+        <AgCizimi
+          ton={(i) =>
+            i === d.konum ? "aktif" : d.ziyaret[i] > 0 ? "secili" : "bos"
+          }
+          rozet={(i) => (d.ziyaret[i] > 0 ? String(d.ziyaret[i]) : "")}
+          bagAcik={() => false}
+        />
+      }
+    >
+      <div className="saa-hint">
+        <MousePointerClick className="w-3.5 h-3.5" />
+        Tıkla: gezgini yürüt
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" className="saa-btn" onClick={() => yuru(1)}>
+          <Footprints className="w-4 h-4" />1 adım
+        </button>
+        <button type="button" className="saa-btn" onClick={() => yuru(10)}>
+          <Footprints className="w-4 h-4" />
+          10 adım
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <Sayi etiket="Şu an" deger={KISILER[d.konum].ad} />
+        <Sayi etiket="Toplam adım" deger={String(d.adim)} />
+      </div>
+      <p className="leading-relaxed">
+        {d.adim < 20
+          ? "Gezgin Onur'dan başlıyor. Dairedeki sayı, o kişiye kaç kez uğrandığını gösterir. 30-40 adım attır."
+          : `En çok uğranan: ${KISILER[enCok].ad} (${d.ziyaret[enCok]} kez). Neden o?`}
+      </p>
+      <button
+        type="button"
+        className="saa-btn-ghost mt-auto"
+        onClick={() => setD(yuruyusBasi())}
+      >
+        <RotateCcw className="w-4 h-4" />
+        Sıfırla
+      </button>
+    </LabDuzeni>
+  );
+}
+
+/** Popüler kişiye giden kapı çoktur: kişiye tıkla, kapılarını gör. */
+function KapiLab() {
+  const [sec, setSec] = useState(0);
+  const [hepsi, setHepsi] = useState(false);
+  const derece = komsular(sec).length;
+  return (
+    <LabDuzeni
+      ag={
+        <AgCizimi
+          ton={(i) => (i === sec ? "aktif" : komsular(sec).includes(i) ? "secili" : "bos")}
+          rozet={(i) => (hepsi || i === sec ? String(komsular(i).length) : "")}
+          bagAcik={(a, b) => a === sec || b === sec}
+          onSec={setSec}
+        />
+      }
+    >
+      <div className="saa-hint">
+        <MousePointerClick className="w-3.5 h-3.5" />
+        Ağda bir kişiye tıkla
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <Sayi etiket="Seçilen kişi" deger={KISILER[sec].ad} />
+        <Sayi etiket="Arkadaş = kapı" deger={String(derece)} />
+      </div>
+      <p className="leading-relaxed">
+        {derece >= 4
+          ? `Bu kişiye ${derece} ayrı arkadaştan ulaşılır. Kartopu da gezgin de onu kolayca bulur.`
+          : derece === 1
+          ? "Tek kapı var. O tek arkadaş örneğe girmezse bu kişi hiç görülmez."
+          : `Yalnızca ${derece} kapı var. Örneğe girmesi, çok arkadaşı olana göre daha zor.`}
+      </p>
+      <button
+        type="button"
+        className="saa-btn-ghost mt-auto"
+        onClick={() => setHepsi((h) => !h)}
+      >
+        {hepsi ? "Sayıları gizle" : "Herkesin kapı sayısını göster"}
+      </button>
+    </LabDuzeni>
+  );
+}
+
+const YOLLAR = [
+  {
+    ad: "Rastgele kişi",
+    nasil: "Listeden kura çeker gibi kişi seçersin.",
+    iyi: "Herkesin şansı eşittir, kimse kayırılmaz.",
+    dikkat: "Tam liste gerekir. Seçilenler çoğu zaman birbirini tanımaz, bağlantılar kaybolur.",
+    ornek: "Okulun öğrenci listesinden 50 numara çekmek.",
+  },
+  {
+    ad: "Kartopu",
+    nasil: "Bir kişiden başlar, arkadaşlarını, sonra onların arkadaşlarını eklersin.",
+    iyi: "Liste olmadan da çalışır. Ulaşması zor gruplara arkadaş üzerinden girersin.",
+    dikkat: "Başladığın kişinin çevresinde kalırsın. Popüler kişiler hemen örneğe girer.",
+    ornek: "Bir oyun topluluğunu tek bir oyuncudan başlayarak bulmak.",
+  },
+  {
+    ad: "Rastgele yürüyüş",
+    nasil: "Bir kişiden başlar, her adımda rastgele bir arkadaşına geçersin.",
+    iyi: "Her adımda tek kişinin arkadaş listesi yeter. Çok büyük ağlarda pratiktir.",
+    dikkat: "Çok arkadaşı olana daha sık uğrar, az arkadaşı olanı kaçırabilir.",
+    ornek: "Bir hesaptan başlayıp takip listelerinde rastgele ilerlemek.",
+  },
+];
+
+/** Üç yolu yan yana: çipe tıkla, kart değişsin. */
+function YolSecici() {
+  const [no, setNo] = useState(0);
+  const y = YOLLAR[no];
+  const satirlar: Array<[string, string]> = [
+    ["Nasıl çalışır?", y.nasil],
+    ["İyi yanı", y.iyi],
+    ["Dikkat", y.dikkat],
+    ["Örnek", y.ornek],
+  ];
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-3">
+        {YOLLAR.map((yol, i) => (
+          <button
+            key={yol.ad}
+            type="button"
+            onClick={() => setNo(i)}
+            className={`saa-btn-ghost ${i === no ? "saa-chip-on" : ""}`}
+          >
+            {yol.ad}
+          </button>
+        ))}
+        <span className="saa-hint">
+          <MousePointerClick className="w-3.5 h-3.5" />
+          Yola tıkla
+        </span>
+      </div>
+      <motion.div
+        key={y.ad}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="saa-card-teal rounded-xl p-5 mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"
+      >
+        {satirlar.map(([etiket, metin]) => (
+          <div key={etiket}>
+            <div className="text-[11px] uppercase tracking-wider text-[#5eead4] mb-1">
+              {etiket}
+            </div>
+            <div className="text-base text-gray-200 leading-relaxed">{metin}</div>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+function KodOrnegi() {
+  return (
+    <div className="saa-window-chrome w-full">
+      <div className="saa-window-bar px-4 py-2 text-[11px] font-mono text-[#5eead4]">
+        rastgele_ornek.py · networkx
+      </div>
+      <pre className="saa-code p-5 overflow-x-auto m-0">
         <code>
-          <span className="saa-code-cmt"># 1) Büyük bir ağ (evren) hazırla — örn. 5000 düğümlü ölçeksiz ağ</span>
+          <span className="saa-code-kw">import</span> networkx{" "}
+          <span className="saa-code-kw">as</span> nx{"\n"}
+          <span className="saa-code-kw">import</span> random{"\n"}
           {"\n"}
-          <span className="saa-code-kw">import</span>{" "}
-          <span className="saa-code-fn">networkx</span>{" "}
-          <span className="saa-code-kw">as</span>{" "}
-          <span className="saa-code-fn">nx</span>
+          ag = nx.<span className="saa-code-fn">karate_club_graph</span>(){"      "}
+          <span className="saa-code-cmt"># 34 kişilik hazır ağ (evren)</span>
           {"\n"}
-          <span className="saa-code-kw">from</span>{" "}
-          <span className="saa-code-fn">littleballoffur</span>{" "}
-          <span className="saa-code-kw">import</span> RandomWalkSampler, SnowBallSampler
-          {"\n"}
-          {"\n"}
-          G = nx.<span className="saa-code-fn">barabasi_albert_graph</span>(
-          <span className="saa-code-num">5000</span>,{" "}
-          <span className="saa-code-num">4</span>, seed=
-          <span className="saa-code-num">42</span>)
+          kisiler = <span className="saa-code-fn">list</span>(ag.nodes()){"          "}
+          <span className="saa-code-cmt"># herkesin listesi</span>
           {"\n"}
           {"\n"}
-          <span className="saa-code-cmt"># 2) Rastgele yürüyüş ile ~%10 örnek al</span>
+          secilen = random.<span className="saa-code-fn">sample</span>(kisiler,{" "}
+          <span className="saa-code-num">8</span>){"   "}
+          <span className="saa-code-cmt"># kura: rastgele 8 kişi</span>
           {"\n"}
-          rw = <span className="saa-code-fn">RandomWalkSampler</span>(
-          number_of_nodes=<span className="saa-code-num">500</span>, seed=
-          <span className="saa-code-num">42</span>)
-          {"\n"}
-          G_rw = rw.<span className="saa-code-fn">sample</span>(G)
-          {"\n"}
-          {"\n"}
-          <span className="saa-code-cmt"># 3) Kartopu (snowball) ile karşılaştır</span>
-          {"\n"}
-          sb = <span className="saa-code-fn">SnowBallSampler</span>(
-          number_of_nodes=<span className="saa-code-num">500</span>, k=
-          <span className="saa-code-num">50</span>, seed=
-          <span className="saa-code-num">42</span>)
-          {"\n"}
-          G_sb = sb.<span className="saa-code-fn">sample</span>(G)
+          ornek = ag.<span className="saa-code-fn">subgraph</span>(secilen){"          "}
+          <span className="saa-code-cmt"># yalnız onların ağı</span>
           {"\n"}
           {"\n"}
-          <span className="saa-code-cmt"># 4) Örneğin evreni ne kadar koruduğunu ölç</span>
-          {"\n"}
-          <span className="saa-code-kw">for</span> ad, alt{" "}
-          <span className="saa-code-kw">in</span> [(
-          <span className="saa-code-str">&quot;walk&quot;</span>, G_rw), (
-          <span className="saa-code-str">&quot;snowball&quot;</span>, G_sb)]:
-          {"\n"}
-          {"    "}
-          <span className="saa-code-fn">print</span>(ad, alt.
-          <span className="saa-code-fn">number_of_nodes</span>(),{" "}
-          <span className="saa-code-fn">round</span>(nx.
-          <span className="saa-code-fn">density</span>(alt),{" "}
-          <span className="saa-code-num">4</span>))
+          <span className="saa-code-fn">print</span>(
+          <span className="saa-code-str">&quot;Seçilenler:&quot;</span>, secilen){"\n"}
+          <span className="saa-code-fn">print</span>(
+          <span className="saa-code-str">&quot;Kalan bağlantı:&quot;</span>, ornek.
+          <span className="saa-code-fn">number_of_edges</span>())
         </code>
       </pre>
-    </motion.div>
+    </div>
   );
 }
 
-function BiasBar({
-  label,
-  pct,
-  caption,
-  delay = 0,
-}: {
-  label: string;
-  pct: number;
-  caption: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
-      className="saa-card rounded-lg p-4"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-semibold text-white">{label}</span>
-        <span className="text-xs font-mono text-[#5eead4]">{pct}%</span>
-      </div>
-      <div className="saa-bar-track">
-        <motion.div
-          className="saa-bar-fill"
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.9, delay: delay + 0.15, ease: [0.22, 1, 0.36, 1] }}
-        />
-      </div>
-      <div className="text-[11px] text-gray-500 mt-2">{caption}</div>
-    </motion.div>
-  );
-}
+const ARA_SINAV: Soru[] = [
+  {
+    soru: "Yoklama listesinden gözün kapalı 5 numara çektin. Bu hangi yol?",
+    siklar: [
+      "Rastgele kişi seçme",
+      "Kartopu",
+      "Rastgele yürüyüş",
+      "Bu bir örnek sayılmaz",
+    ],
+    dogru: 0,
+    aciklama:
+      "Listeden kura çekiyorsun; kimsenin arkadaşına bakmıyorsun. Bu, rastgele kişi seçmedir.",
+  },
+];
+
+const SON_SINAV: Soru[] = [
+  {
+    soru: "Evren ile örnek arasındaki fark nedir?",
+    siklar: [
+      "Evren ağın tamamıdır, örnek ondan seçtiğimiz parçadır",
+      "Evren küçüktür, örnek büyüktür",
+      "İkisi aynı şeydir",
+      "Örnek yalnızca popüler kişilerden oluşur",
+    ],
+    dogru: 0,
+    aciklama: "Evren hepsi, örnek ise bakmak için seçtiğimiz küçük parça.",
+  },
+  {
+    soru: "Elinde liste yok, topluluktan yalnızca bir kişiyi tanıyorsun. Nasıl başlarsın?",
+    siklar: [
+      "Rastgele kişi seçerim",
+      "Kartopu: o kişiden başlar, arkadaşlarına geçerim",
+      "Bütün ağı bilgisayara indiririm",
+      "Alfabetik listeden ilk 10 kişiyi alırım",
+    ],
+    dogru: 1,
+    aciklama:
+      "Liste olmadan kura çekilmez. Kartopu, tanıdığın kişiden başlayıp arkadaştan arkadaşa ilerler.",
+  },
+  {
+    soru: "Kartopu ve rastgele yürüyüşte popüler kişiler örneğe neden daha kolay girer?",
+    siklar: [
+      "Adları alfabede önde olduğu için",
+      "Hesapları daha eski olduğu için",
+      "Çok arkadaşları olduğu için onlara giden yol çoktur",
+      "Bilgisayar onları özellikle seçtiği için",
+    ],
+    dogru: 2,
+    aciklama:
+      "Her arkadaş bir kapıdır. Kapısı çok olana ulaşmak kolaydır; bu yüzden örnekte fazla görünürler.",
+  },
+];
 
 /* ============================================================
    SLIDES
    ============================================================ */
 
 const slides: Array<(active: boolean) => ReactNode> = [
-  /* ─────────────────  AÇILIŞ  ───────────────── */
-
   // 1 — Kapak
   () => (
     <SlideShell>
@@ -637,713 +947,266 @@ const slides: Array<(active: boolean) => ReactNode> = [
           <br />
           Teknikleri
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Milyonlarca düğümlü bir ağı bütün indiremezsin. Peki temsil eden küçük
-          bir parçayı nasıl, hangi yanlılıkla seçersin?
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Bütün Türkiye&apos;ye soramazsın. Peki kimi seçeceksin?
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto text-left">
           <FeatureCard
             icon={Dice5}
-            title="Düğüm &amp; kenar örnekleme"
-            desc="Random node, random edge — en temel rastgele seçim aileleri."
+            title="Rastgele kişi"
+            desc="Listeden kura çeker gibi seçmek."
             accent="#14b8a6"
             delay={0.3}
           />
           <FeatureCard
-            icon={Footprints}
-            title="Gezinme tabanlı"
-            desc="Snowball / BFS ve random walk — komşuluk üzerinden büyüyen örnek."
+            icon={Snowflake}
+            title="Kartopu"
+            desc="Arkadaştan arkadaşa büyüyen örnek."
             accent="#0d9488"
             delay={0.45}
           />
           <FeatureCard
-            icon={Scaling}
-            title="Yanlılık &amp; kalite"
-            desc="Örnek evreni temsil ediyor mu? Bias nasıl ölçülür ve düzeltilir?"
+            icon={Footprints}
+            title="Rastgele yürüyüş"
+            desc="Her adımda bir arkadaşa geçen gezgin."
             accent="#5eead4"
             delay={0.6}
           />
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Cuma · 09:55 – 11:35 · NetworkX + Little Ball of Fur ile uygulama
-        </motion.div>
       </div>
     </SlideShell>
   ),
 
-  // 2 — Geçen haftadan köprü / bu haftanın hedefi
+  // 2 — Sorun + benzetme (sınıf oylaması / tıkla göster)
   () => (
-    <SlideShell>
-      <Eyebrow>Köprü · neyi neden örnekliyoruz?</Eyebrow>
-      <H2>Önceki haftalar tüm ağ elimizdeydi; gerçekte çoğu zaman değildir</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Karate Club 34 düğümdü, kolayca tümünü işledik. Ama Twitter/X takip ağı
-        milyarlarca kenar, API kotaları sınırlı, RAM yetmez. Bu hafta soru
-        değişiyor: tümünü değil, <span className="text-[#5eead4]">temsil eden bir
-        alt-ağı</span> nasıl seçeriz?
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#67e8f9]">
-            <Database className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Neden örnekleme zorunlu?
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />
-              Ağın tamamı erişilemez (API limiti, gizlilik, oran sınırı).
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />
-              Hesaplama maliyeti: bazı metrikler O(n³) — milyonlarca düğümde imkânsız.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#14b8a6] flex-shrink-0" />
-              Hızlı keşif: önce küçük örnekte hipotez kur, sonra ölçekle.
-            </li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5eead4]">
-            <Target className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Bu haftanın hedefi
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-              Dört örnekleme ailesini ayırt etmek ve uygun olanı seçmek.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-              Her yöntemin getirdiği yanlılığı (bias) tanımak.
-            </li>
-            <li className="flex gap-2">
-              <ChevronRight className="w-4 h-4 mt-0.5 text-[#5eead4] flex-shrink-0" />
-              Örneğin evreni ne kadar koruduğunu sayısal olarak ölçmek.
-            </li>
-          </ul>
-        </motion.div>
+    <Icerik
+      ust="Sorun · neden örnek alıyoruz?"
+      baslik="Çorbanın tadına bakmak için tencereyi bitirmezsin"
+      alt="Bir kaşık yeter, çünkü kaşıktaki çorba tenceredekine benzer. Ağlarda da aynısını yaparız."
+      sor="Günlük hayatta başka nerede bir parçaya bakıp bütünü tahmin ediyoruz?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Reveal
+          soru="Kaçınız bir ankete katıldı? Sence bir seçim anketi kaç kişiye sorulur?"
+          cevap="Milyonlarca seçmen var ama anketler genellikle birkaç bin kişiyle yapılır. Doğru seçilirse küçük grup büyük resmi gösterir."
+          ipucu="El kaldırın, sonra tıkla"
+        />
+        <Reveal
+          soru="Instagram'daki herkesin arkadaşlık ağını bilgisayarına indirebilir misin?"
+          cevap="Hayır. Kullanıcı çok fazla, platform hepsini vermez, bilgisayarın da yetmez. Bu yüzden ağın bir parçasıyla çalışırız."
+        />
       </div>
-    </SlideShell>
+    </Icerik>
   ),
 
-  // 3 — Evren / örnek terminolojisi
+  // 3 — İki terim: evren ve örnek
   () => (
-    <SlideShell>
-      <Eyebrow>Temel terimler</Eyebrow>
-      <H2 className="mb-2">Evren, örnek ve indüklenmiş alt-graf</H2>
-      <Sub className="max-w-3xl mb-8">
-        Ağ örneklemesi, klasik anket örneklemesine benzer ama bir farkla: birim
-        bağımsız değil. Bir düğümü seçmek, ona bağlı kenarları da etkiler.
-      </Sub>
-      <div className="grid md:grid-cols-3 gap-5">
+    <Icerik
+      ust="Kavram · iki yeni kelime"
+      baslik="Evren hepsi, örnek senin seçtiklerin"
+      sor="Bu sınıf evrense, iyi bir örnek kimlerden oluşur?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FeatureCard
-          icon={Network}
-          title="Evren (population)"
-          desc="Gerçek tam ağ G = (V, E). Çoğu zaman tamamına hiç erişemeyiz; varlığını bilir, parçasını görürüz."
-          accent="#14b8a6"
+          icon={Users}
+          title="Evren"
+          desc="İlgilendiğin ağın tamamı. Örneğin okuldaki bütün öğrenciler ve arkadaşlıkları."
           delay={0.1}
         />
         <FeatureCard
           icon={Filter}
-          title="Örnek (sample)"
-          desc="Seçtiğimiz düğüm alt-kümesi Vs ⊆ V ve aralarındaki kenarlar. Amaç: küçük ama temsil edici."
+          title="Örnek"
+          desc="Evrenden seçtiğin küçük parça. Örneğin 40 öğrenci ve aralarındaki arkadaşlıklar."
           accent="#0d9488"
           delay={0.25}
         />
         <FeatureCard
-          icon={GitBranch}
-          title="İndüklenmiş alt-graf"
-          desc="Seçilen düğümler arasındaki TÜM kenarları tutan alt-ağ. Kenarları nasıl dahil ettiğin metrikleri değiştirir."
+          icon={Target}
+          title="İyi örnek"
+          desc="Küçüktür ama bütüne benzer: içinde hem çok arkadaşı olan hem az arkadaşı olan vardır."
           accent="#5eead4"
           delay={0.4}
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55 }}
-        className="mt-6 saa-card-teal rounded-xl p-5 text-center font-mono text-sm text-[#a7f3d0]"
-      >
-        Gs = (Vs, Es) &nbsp;·&nbsp; Vs ⊆ V &nbsp;·&nbsp; Es = {"{ (u,v) ∈ E : u,v ∈ Vs }"}
-      </motion.div>
-    </SlideShell>
+    </Icerik>
   ),
 
-  // 4 — Neyi korumak istiyoruz?
+  // 4 — Taraflı örnek (tahmin et → tıkla göster)
   () => (
-    <SlideShell>
-      <Eyebrow>Kalite ölçütü</Eyebrow>
-      <H2 className="mb-2">İyi örnek neyi korur?</H2>
-      <Sub className="max-w-3xl mb-8">
-        &ldquo;Temsil edici&rdquo; soyut bir söz değil — örneğin, evrenin hangi
-        yapısal özelliklerini ne kadar koruduğuyla ölçülür.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <BiasBar
-          label="Derece dağılımı"
-          pct={82}
-          caption="Random node yöntemi derece dağılımını görece iyi korur."
-          delay={0.1}
+    <Icerik
+      ust="Tahmin et · bu örnekte sorun ne?"
+      baslik="Kimi seçtiğin, sonucu değiştirir"
+      sor="Okulun en sevdiği diziyi bulmak için yalnız kendi arkadaşlarına sorsan ne çıkar?"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Reveal
+          soru="Kantinde sıradaki ilk 10 kişiye sordun."
+          cevap="Hep kantine gelenler çıktı. Yemeğini evden getiren ya da o saatte derste olan kimse yok."
         />
-        <BiasBar
-          label="Kümelenme katsayısı"
-          pct={61}
-          caption="Snowball yerel üçgenleri şişirme eğiliminde; korunum orta."
-          delay={0.2}
+        <Reveal
+          soru="Yalnızca kendi arkadaşlarına sordun."
+          cevap="Arkadaşların sana benzer. Sonuç senin çevreni gösterir, okulun tamamını değil."
         />
-        <BiasBar
-          label="Bağlılık / bileşen yapısı"
-          pct={45}
-          caption="Random node örneği çoğu kez kopuk; bağlılık zayıf korunur."
-          delay={0.3}
-        />
-        <BiasBar
-          label="En kısa yol uzunluğu"
-          pct={70}
-          caption="Random walk yolları görece korur ama dereceye yanlıdır."
-          delay={0.4}
+        <Reveal
+          soru="Yalnızca en çok takipçisi olan hesaplara baktın."
+          cevap="Herkes çok takipçili sanılır. Oysa hesapların çoğunun az takipçisi vardır."
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-5 text-[11px] text-gray-500 text-center"
-      >
-        Çubuklar yöntemleri kıyaslamak için örnek/temsilî değerlerdir; gerçek
-        korunum ağa ve örnek oranına göre değişir.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  1. DÜĞÜM/KENAR ÖRNEKLEME  ───────────────── */
-
-  // 5 — Section divider 1/3
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Düğüm &amp; Kenar Örnekleme"
-      subtitle="En temel iki rastgele aile: düğümleri mi yoksa kenarları mı seçeceğiz?"
-      bgGradient="linear-gradient(135deg, #14b8a6, #0d9488)"
-      shadow="0 20px 60px -10px rgba(20, 184, 166, 0.6)"
-      icon={<Dice5 className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 6 — Random Node vs Random Edge
-  () => (
-    <SlideShell>
-      <Eyebrow>1 / 4 ve 2 / 4 — Düğüm ve kenar</Eyebrow>
-      <H2 className="mb-8">Random Node ve Random Edge örnekleme</H2>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <Crosshair className="w-6 h-6 text-[#5eead4]" />
-            <h3 className="text-xl font-semibold text-white">Random Node (RN)</h3>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed mb-4">
-            Her düğümü <span className="text-[#5eead4] font-semibold">eşit
-            olasılıkla</span> bağımsız seç; sonra aralarındaki kenarları al.
-          </p>
-          <div className="saa-card rounded-lg p-3 mb-3">
-            <MiniRandomNode />
-          </div>
-          <ul className="text-xs text-gray-400 space-y-1">
-            <li>+ Derece dağılımı görece korunur.</li>
-            <li>− Seçilenler arasında az kenar kalır → ağ kopuk görünür.</li>
-          </ul>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <GitBranch className="w-6 h-6 text-gray-300" />
-            <h3 className="text-xl font-semibold text-white">Random Edge (RE)</h3>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed mb-4">
-            Kenarları rastgele seç,{" "}
-            <span className="text-gray-200 font-semibold">uçlarını</span> örneğe
-            ekle. Bağlı bir alt-ağ üretmesi daha olasıdır.
-          </p>
-          <div className="saa-card rounded-lg p-3 mb-3">
-            <MiniRandomWalk />
-          </div>
-          <ul className="text-xs text-gray-400 space-y-1">
-            <li>+ Örnek daha bağlantılı çıkar.</li>
-            <li>− Yüksek dereceli düğümler orantısız sık seçilir (bias).</li>
-          </ul>
-        </motion.div>
+      <div className="mt-4 text-base text-gray-300 text-center">
+        Örnek bir tarafa kayarsa buna{" "}
+        <span className="text-[#5eead4] font-semibold">yanlılık</span> (bias:
+        taraflı örnek) denir.
       </div>
-    </SlideShell>
+    </Icerik>
   ),
 
-  // 7 — Derece yanlılığı (neden RE yanlı?)
+  // 5 — 1. yol: rastgele kişi (oyna-gör)
   () => (
-    <SlideShell>
-      <Eyebrow>Dikkat · derece yanlılığı</Eyebrow>
-      <H2 className="mb-2">Neden kenar seçmek yüksek dereceyi kayırır?</H2>
-      <Sub className="max-w-3xl mb-8">
-        Bir düğüm ne kadar çok kenara sahipse, rastgele seçilen bir kenarın o
-        düğüme dokunma olasılığı o kadar yüksektir. Bu, &ldquo;arkadaşlık
-        paradoksu&rdquo;nun örnekleme yüzüdür.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-[#5eead4] mb-3">
-            Seçilme olasılığı
-          </div>
-          <p className="text-base text-gray-200 leading-relaxed mb-5">
-            Rastgele bir kenar üzerinden bir düğüme ulaşma olasılığı,{" "}
-            <span className="text-[#5eead4]">derecesiyle orantılıdır</span>:
-          </p>
-          <div className="saa-card rounded-lg p-4 font-mono text-sm text-[#a7f3d0] text-center">
-            P(v seçilir) ∝ deg(v)
-          </div>
-          <div className="mt-3 text-xs text-gray-500">
-            Random node&apos;da bu olasılık tüm düğümler için eşittir (1/n).
-          </div>
-        </motion.div>
+    <Icerik
+      ust="1. yol · rastgele kişi seçme"
+      baslik="Listeden kura çeker gibi rastgele kişi seçersin"
+      sor="Seçilen 5 kişi birbirini tanıyor mu? Ağın şekli hâlâ görünüyor mu?"
+    >
+      <RastgeleLab />
+    </Icerik>
+  ),
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-gray-400 mb-3">
-            Sonuç olarak
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3">
-              <Hash className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                Örneklenen ortalama derece, gerçek ortalamadan{" "}
-                <span className="text-[#5eead4]">büyük</span> çıkar.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Scaling className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                Hub&apos;lar neredeyse her örnekte; uç (düşük dereceli) düğümler
-                sık atlanır.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                Düzeltme için ağırlıklandırma (Horvitz-Thompson tipi) ya da
-                yöntem değiştirmek gerekir.
-              </span>
-            </li>
-          </ul>
-        </motion.div>
+  // 6 — 2. yol: kartopu (adım adım)
+  () => (
+    <Icerik
+      ust="2. yol · kartopu"
+      baslik="Kartopu, arkadaştan arkadaşa yuvarlanarak büyür"
+      sor="Elif'ten başlamakla Onur'dan başlamak arasında ne fark var?"
+    >
+      <KartopuLab />
+    </Icerik>
+  ),
+
+  // 7 — 3. yol: rastgele yürüyüş (oyna-gör)
+  () => (
+    <Icerik
+      ust="3. yol · rastgele yürüyüş"
+      baslik="Gezgin her adımda rastgele bir arkadaşa geçer"
+      sor="Gezgin en çok kime uğradı? Onur'a neden az uğruyor?"
+    >
+      <YuruyusLab />
+    </Icerik>
+  ),
+
+  // 8 — Mini sınav (ortada)
+  () => (
+    <Icerik ust="Mini sınav · durup düşünelim" baslik="Bu hangi yol?">
+      <Quiz sorular={ARA_SINAV} />
+    </Icerik>
+  ),
+
+  // 9 — Popüler kişiler neden daha çok girer? (oyna-gör)
+  () => (
+    <Icerik
+      ust="Sezgi · popüler kişiler"
+      baslik="Popüler kişiye giden kapı çoktur"
+      sor="Örnekte hep popülerler olursa &ldquo;ortalama arkadaş sayısı&rdquo; olduğundan büyük mü çıkar, küçük mü?"
+    >
+      <KapiLab />
+    </Icerik>
+  ),
+
+  // 10 — Üç yol yan yana (seçenek çipleri)
+  () => (
+    <Icerik
+      ust="Toparlayalım · hangisi ne zaman?"
+      baslik="Üç yolun da iyi yanı ve dikkat edilecek yanı var"
+      sor="Okuldaki bir oyun topluluğunu bulmak için hangi yolu seçerdin?"
+    >
+      <YolSecici />
+    </Icerik>
+  ),
+
+  // 11 — Tek kısa networkx örneği
+  () => (
+    <Icerik
+      ust="Python · tek kısa örnek"
+      baslik="Python'da rastgele örnek almak birkaç satır sürer"
+      sor="Kodu iki kez çalıştırırsak aynı 8 kişi mi çıkar? Neden?"
+    >
+      <KodOrnegi />
+    </Icerik>
+  ),
+
+  // 12 — Sınıfta deneyelim (adım adım)
+  () => (
+    <Icerik
+      ust="Sınıfta deneyelim · 10 dakika"
+      baslik="Sınıfın kartopu örneğini tahtada çıkaralım"
+      sor="İki listede de çıkan var mı? Hiç çıkmayan kim, neden?"
+    >
+      <Stepper
+        adimlar={[
+          {
+            baslik: "Başlangıç kişisi",
+            metin: "Bir gönüllü adını tahtaya yazar. Kartopu ondan başlıyor.",
+          },
+          {
+            baslik: "Birinci dalga",
+            metin: "Gönüllü, sınıfta en çok konuştuğu 2 kişiyi söyler. Adları yazıp çizgiyle bağlarız.",
+          },
+          {
+            baslik: "İkinci dalga",
+            metin: "O iki kişi de ikişer kişi söyler. Tahtada küçük bir ağ oluştu.",
+          },
+          {
+            baslik: "Rastgele liste ile karşılaştır",
+            metin: "Yoklama listesinden telefonla rastgele 6 numara çekeriz. İki listeyi yan yana koyarız.",
+          },
+        ]}
+      />
+    </Icerik>
+  ),
+
+  // 13 — Kendini dene (3 soru)
+  () => (
+    <Icerik ust="Kendini dene · 3 soru" baslik="Bugün ne öğrendik, bakalım">
+      <Quiz sorular={SON_SINAV} />
+    </Icerik>
+  ),
+
+  // 14 — Aklında kalsın + köprü
+  () => (
+    <Icerik ust="Özet · 13. hafta" baslik="Aklında kalsın: 3 şey">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          "Ağın tamamına bakamayız. Küçük ama bütüne benzeyen bir örnek seçeriz.",
+          "Üç yol var: rastgele kişi seçme, kartopu ve rastgele yürüyüş.",
+          "Kimi nasıl seçtiğin sonucu değiştirir. Arkadaş üzerinden giden yollar popüler kişileri öne çıkarır.",
+        ].map((metin, i) => (
+          <motion.div
+            key={metin}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 * i }}
+            className="saa-card rounded-xl p-5"
+          >
+            <div className="saa-tick w-9 h-9 flex items-center justify-center font-bold mb-3">
+              {i + 1}
+            </div>
+            <div className="text-base text-gray-200 leading-relaxed">{metin}</div>
+          </motion.div>
+        ))}
       </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  2. GEZİNME TABANLI  ───────────────── */
-
-  // 8 — Section divider 2/3
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Gezinme Tabanlı Örnekleme"
-      subtitle="Bir tohum düğümden başlayıp komşuluklar boyunca büyüyen örnekler: snowball ve random walk."
-      bgGradient="linear-gradient(135deg, #0d9488, #134e4a)"
-      shadow="0 20px 60px -10px rgba(13, 148, 136, 0.6)"
-      icon={<Footprints className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 9 — Snowball / BFS
-  () => (
-    <SlideShell>
-      <Eyebrow>3 / 4 — Kartopu (Snowball / BFS)</Eyebrow>
-      <H2 className="mb-4">Snowball Sampling</H2>
-      <Sub className="mb-8">
-        Bir seed düğümden başla; komşularını, sonra komşularının komşularını ekle.
-        Dalga dalga büyüyen bir alt-ağ.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-[#5eead4] mb-3">
-            Nasıl çalışır?
-          </div>
-          <ol className="space-y-3 text-sm text-gray-300 list-decimal list-inside">
-            <li>Bir veya birkaç seed düğüm seç (dalga 0).</li>
-            <li>Onların komşularını ekle (dalga 1).</li>
-            <li>Yeni eklenenlerin komşularını ekle (dalga 2)…</li>
-            <li>İstenen örnek boyutuna ulaşınca dur.</li>
-          </ol>
-          <div className="mt-4 saa-badge">BFS ile aynı genişleme mantığı</div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-gray-400 mb-3">
-            Nerede vazgeçilmez?
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3">
-              <Users className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                Erişimi zor, gizli popülasyonlar (örn. yönlendirmeyle ulaşılan
-                topluluklar).
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Search className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                API ile büyük ağı keşfetmek: yalnız komşu listesini çekip ilerlersin.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                Yanlılık: merkezi/yüksek dereceli düğümleri aşırı temsil eder,
-                seed seçimine duyarlıdır.
-              </span>
-            </li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  // 10 — Snowball görsel (büyük mockup)
-  () => (
-    <SlideShell>
-      <Eyebrow>Görsel · kartopu büyümesi</Eyebrow>
-      <H2 className="mb-6">Seed&apos;den dalga dalga büyüyen örnek</H2>
-      <SnowballMockup />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-5 text-center text-xs text-gray-500"
+        transition={{ delay: 0.6 }}
+        className="mt-5 saa-card-teal rounded-xl px-5 py-4 flex items-center gap-3 text-base text-gray-200"
       >
-        <span className="text-[#5eead4]">seed</span> ve ulaşılan komşular örneğe
-        girer; uzaktaki düğümler örnek dışında kalır. Farklı seed seçimi farklı
-        bir alt-ağ verir — sonuçların seed&apos;e bağımlılığını bu yüzden raporlamak gerekir.
+        <ArrowRight className="w-5 h-5 text-[#5eead4] shrink-0" />
+        <span>
+          <span className="text-[#5eead4] font-semibold">Gelecek hafta:</span>{" "}
+          Bilgisayar ağa bakıp &ldquo;bu iki kişi tanışıyor olabilir&rdquo;
+          demeyi nasıl öğrenir?
+        </span>
       </motion.div>
-    </SlideShell>
-  ),
-
-  // 11 — Random Walk + RDS/MHRW
-  () => (
-    <SlideShell>
-      <Eyebrow>4 / 4 — Rastgele Yürüyüş (Random Walk)</Eyebrow>
-      <H2 className="mb-4">Random Walk &amp; düzeltmeleri</H2>
-      <Sub className="mb-8">
-        Bir düğümden başla, her adımda rastgele bir komşuya geç. Büyük ağlarda en
-        çok kullanılan, API dostu yöntem.
-      </Sub>
-      <div className="grid md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="saa-card-teal rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-[#5eead4] mb-3">
-            Temel fikir
-          </div>
-          <p className="text-base text-gray-200 leading-relaxed mb-4">
-            Yürüyüş, ziyaret olasılığı{" "}
-            <span className="text-[#5eead4]">dereceyle orantılı</span> bir
-            durağan dağılıma yakınsar:
-          </p>
-          <div className="saa-card rounded-lg p-4 font-mono text-sm text-[#a7f3d0] text-center">
-            π(v) = deg(v) / 2|E|
-          </div>
-          <div className="mt-3 text-xs text-gray-500">
-            Yani ham random walk da yüksek dereceye yanlıdır — ama bu yanlılık
-            <span className="text-[#5eead4]"> bilinir ve düzeltilebilir</span>.
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="saa-card rounded-xl p-6"
-        >
-          <div className="text-xs uppercase tracking-wider text-gray-400 mb-3">
-            Yaygın varyantlar
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3">
-              <Waypoints className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                <span className="text-[#5eead4]">RDS</span> (Respondent-Driven
-                Sampling): derece-bilgisiyle ağırlık vererek yanlılığı düzeltir.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Shuffle className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                <span className="text-[#5eead4]">MHRW</span>
-                (Metropolis-Hastings RW): düğümleri eşit olasılığa yaklaştırır.
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <Layers className="w-5 h-5 text-[#5eead4] mt-0.5" />
-              <span>
-                <span className="text-[#5eead4]">Forest Fire</span>: yürüyüş +
-                olasılıksal dallanma; topluluk yapısını iyi yakalar.
-              </span>
-            </li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  3. PRATİKTE  ───────────────── */
-
-  // 12 — Section divider 3/3
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Pratikte"
-      subtitle="Yöntem karşılaştırması, NetworkX kodu ve bu hafta yapılacak uygulama."
-      bgGradient="linear-gradient(135deg, #0d9488, #115e59)"
-      shadow="0 20px 60px -10px rgba(13, 148, 136, 0.6)"
-      icon={<TableProperties className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  // 13 — Yöntem karşılaştırma tablosu
-  () => (
-    <SlideShell>
-      <Eyebrow>Toparlayalım</Eyebrow>
-      <H2 className="mb-2">Dört yöntem yan yana</H2>
-      <Sub className="mb-6">
-        &ldquo;En iyi yöntem&rdquo; yoktur; soru ve kısıt &mdash; ne korumak
-        istediğin ve hangi erişimin olduğu &mdash; yöntemi belirler.
-      </Sub>
-      <MethodComparison />
-    </SlideShell>
-  ),
-
-  // 14 — Python / NetworkX kod
-  () => (
-    <SlideShell>
-      <Eyebrow>Python · NetworkX + Little Ball of Fur</Eyebrow>
-      <H2 className="mb-6">Örnekle, sonra evrenle kıyasla</H2>
-      <CodeBlock />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-5 text-xs text-gray-500 text-center"
-      >
-        Little Ball of Fur, onlarca örnekleme algoritmasını tek arayüzde toplar.
-        Aynı seed ile karşılaştırma yaparak örneğin{" "}
-        <span className="text-[#5eead4]">yoğunluk</span> ve{" "}
-        <span className="text-[#5eead4]">derece</span> korunumunu raporlayabilirsin.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  // 15 — Bu hafta yapılacaklar (uygulama)
-  () => {
-    const items: Array<{ t: string; d: string; icon: LucideIcon }> = [
-      {
-        t: "Evren ağını hazırla",
-        d: "nx.barabasi_albert_graph(5000, 4) ile ölçeksiz bir ağ üret; ortalama derece ve yoğunluğu not et.",
-        icon: Database,
-      },
-      {
-        t: "Üç farklı örnek al",
-        d: "Random node, snowball ve random walk ile ~%10 (≈500 düğüm) örnek çıkar. Hepsinde aynı seed kullan.",
-        icon: Dice5,
-      },
-      {
-        t: "Korunumu ölç",
-        d: "Her örnek için ortalama derece, yoğunluk ve kümelenme katsayısını evrenle karşılaştır; tabloya yaz.",
-        icon: Scaling,
-      },
-      {
-        t: "Yanlılığı yorumla",
-        d: "Hangi yöntem hangi metriği daha iyi korudu? 4-5 cümlede yöntem seçimini gerekçelendir.",
-        icon: TableProperties,
-      },
-    ];
-    return (
-      <SlideShell>
-        <Eyebrow>Bu hafta · uygulamalı görev</Eyebrow>
-        <H2 className="mb-8">Örnekle, ölç, karşılaştır</H2>
-        <div className="space-y-3">
-          {items.map((it, i) => (
-            <motion.div
-              key={it.t}
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="saa-card saa-card-hover rounded-xl p-4 flex items-center gap-4"
-            >
-              <div className="saa-tick w-9 h-9 rounded-md flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5" strokeWidth={3} />
-              </div>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-[#14b8a6]/15 border border-[#14b8a6]/35">
-                <it.icon className="w-4 h-4 text-[#5eead4]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-white">{it.t}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{it.d}</div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-600">
-                #{String(i + 1).padStart(2, "0")}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="mt-6 saa-card-teal rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-        >
-          <AlertTriangle className="w-4 h-4 text-[#5eead4] mt-0.5 flex-shrink-0" />
-          <span>
-            <span className="text-white">İpucu:</span> Karşılaştırmanın adil
-            olması için her yöntemde aynı örnek boyutunu ve aynı rastgelelik
-            tohumunu (seed) kullan; aksi halde farkın yöntemden mi yoksa şanstan
-            mı geldiğini ayıramazsın.
-          </span>
-        </motion.div>
-      </SlideShell>
-    );
-  },
-
-  // 16 — Sıradaki hafta + kapanış
-  () => (
-    <SlideShell>
-      <div className="text-center max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-3xl items-center justify-center mb-8 saa-pulse"
-          style={{
-            background: "linear-gradient(135deg, #14b8a6, #0d9488)",
-            boxShadow: "0 20px 60px -10px rgba(20, 184, 166, 0.6)",
-          }}
-        >
-          <Share2 className="w-12 h-12 text-white" />
-        </motion.div>
-        <Eyebrow>13. hafta tamamlandı · sıradaki: proje sunumları</Eyebrow>
-        <H1 className="saa-shimmer-teal">Teşekkürler</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta büyük ağı küçük ama temsil edici bir parçaya indirdik. Hafta
-          14&apos;te kendi topladığınız ağ üzerinde dönem projelerini sunuyoruz —
-          örnekleme kararınızı da gerekçeleriyle anlatacaksınız.
-        </Sub>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 text-left"
-        >
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <Calendar className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Ders Saati
-              </div>
-              <div className="text-sm font-semibold text-white">
-                Cuma · 09:55 – 11:35
-              </div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <MapPin className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Derslik
-              </div>
-              <div className="text-sm font-semibold text-white">
-                MYO · Derslik 7
-              </div>
-            </div>
-          </div>
-          <div className="saa-card rounded-xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#14b8a6]/15 border border-[#14b8a6]/35 flex items-center justify-center shrink-0">
-              <Mail className="w-5 h-5 text-[#5eead4]" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-500">
-                Teslim
-              </div>
-              <div className="text-sm font-semibold text-white">
-                Karşılaştırma raporu
-              </div>
-            </div>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-10 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
-        >
-          <Clock className="w-3.5 h-3.5" />
-          BVA 2105 · Sosyal Ağ Analizi · 2026 Bahar
-        </motion.div>
-      </div>
-    </SlideShell>
+    </Icerik>
   ),
 ];
 
@@ -1444,6 +1307,7 @@ export default function Presentation() {
             {String(TOTAL).padStart(2, "0")}
           </div>
           <button
+            type="button"
             onClick={() => {
               if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen?.();
@@ -1474,12 +1338,14 @@ export default function Presentation() {
       </AnimatePresence>
 
       <button
+        type="button"
         onClick={prev}
         disabled={current === 0}
         aria-label="Önceki slayt"
         className="absolute left-0 top-12 bottom-16 w-[12%] z-30 cursor-w-resize disabled:cursor-default opacity-0"
       />
       <button
+        type="button"
         onClick={next}
         disabled={current === TOTAL - 1}
         aria-label="Sonraki slayt"
@@ -1488,6 +1354,7 @@ export default function Presentation() {
 
       <div className="absolute bottom-0 left-0 right-0 z-40 px-8 py-4 flex items-center justify-between border-t border-white/5 bg-black/60 backdrop-blur">
         <button
+          type="button"
           onClick={prev}
           disabled={current === 0}
           className="flex items-center gap-2 px-4 py-2 text-xs text-gray-500 hover:text-[#14b8a6] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
@@ -1498,6 +1365,7 @@ export default function Presentation() {
         <div className="flex items-center gap-1 max-w-[60%] overflow-hidden">
           {Array.from({ length: TOTAL }).map((_, i) => (
             <button
+              type="button"
               key={i}
               onClick={() => {
                 setDirection(i > current ? 1 : -1);
@@ -1518,6 +1386,7 @@ export default function Presentation() {
           ))}
         </div>
         <button
+          type="button"
           onClick={next}
           disabled={current === TOTAL - 1}
           className="flex items-center gap-2 px-4 py-2 text-xs text-gray-500 hover:text-[#14b8a6] disabled:opacity-20 disabled:cursor-not-allowed transition-colors"

@@ -9,33 +9,18 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Scale,
-  Gavel,
   ShieldCheck,
-  Shield,
+  Scale,
+  Globe,
   Lock,
-  FileText,
-  Network,
-  Database,
-  Server,
-  UserCheck,
-  Bell,
-  Clock,
-  Calendar,
-  BookOpen,
-  Mail,
-  Bug,
-  CheckCircle2,
-  AlertTriangle,
-  Ban,
-  Handshake,
-  Building2,
   FileSignature,
-  Send,
-  ListChecks,
-  Brain,
-  Target,
-  Sparkles,
+  KeyRound,
+  BookOpen,
+  XCircle,
+  CheckCircle2,
+  Calendar,
+  Hand,
+  MousePointerClick,
   ChevronRight,
   ChevronLeft,
   Maximize2,
@@ -191,99 +176,639 @@ function SectionDivider({
 }
 
 /* ============================================================
-   TOPIC-SPECIFIC MOCKUPS
+   ETKİLEŞİM BİLEŞENLERİ
    ============================================================ */
 
-function TerminalWindow({
+const BTN_CLASS =
+  "inline-flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-white transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed";
+const BTN_STYLE = { background: "linear-gradient(135deg,#06b6d4,#0e7490)" };
+
+/* Hocanın sınıfa yönelteceği tek soru */
+function AskLine({ children }: { children: ReactNode }) {
+  return (
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.8, duration: 0.6 }}
+      className="mt-6 text-sm text-gray-500"
+    >
+      <span className="font-mono uppercase tracking-widest text-[11px] text-[#06b6d4]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.p>
+  );
+}
+
+function TapHint({ children = "tıkla" }: { children?: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest text-[#67e8f9]/80">
+      <MousePointerClick className="w-3.5 h-3.5" />
+      {children}
+    </span>
+  );
+}
+
+/* Tahmin et → tıkla göster */
+function RevealCard({
   title,
   children,
+  hint = "tahmin et, sonra tıkla",
+  accent = "#06b6d4",
+  icon: Icon,
 }: {
   title: string;
   children: ReactNode;
+  hint?: string;
+  accent?: string;
+  icon?: LucideIcon;
 }) {
+  const [open, setOpen] = useState(false);
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full"
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      aria-expanded={open}
+      className="sgbh-card sgbh-card-hover rounded-xl p-5 text-left w-full h-full transition-all cursor-pointer"
+      style={open ? { borderColor: `${accent}90` } : undefined}
     >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] font-mono flex-1 max-w-md mx-auto text-center justify-center"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
-        >
-          <span
-            className="w-5 h-5 rounded-sm flex items-center justify-center text-[11px]"
-            style={{ background: "linear-gradient(135deg,#06b6d4,#0891b2)", color: "white" }}
+      <div className="flex items-start gap-4">
+        {Icon && (
+          <div
+            className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: `${accent}18`, border: `1px solid ${accent}55` }}
           >
-            $_
-          </span>
-          <span>{title}</span>
+            <Icon className="w-5 h-5" style={{ color: accent }} />
+          </div>
+        )}
+        <div className="flex-1">
+          <div className="text-lg font-semibold text-white leading-snug">{title}</div>
+          {open ? (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3 text-base text-gray-300 leading-relaxed"
+            >
+              {children}
+            </motion.div>
+          ) : (
+            <div className="mt-3">
+              <TapHint>{hint}</TapHint>
+            </div>
+          )}
         </div>
       </div>
-      <div className="sgbh-terminal">{children}</div>
-    </motion.div>
+    </button>
   );
 }
 
-/* Sahte security.txt + sorumlu açıklama e-postası penceresi */
-function DisclosureMail() {
+/* Sınıf oylaması / el kaldır */
+function Poll({ question, children }: { question: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className="sgbh-window-chrome w-full max-w-3xl mx-auto"
-    >
-      <div className="sgbh-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] flex-1 max-w-md mx-auto text-center justify-center font-mono"
-          style={{ background: "#0d0d0d", color: "#67e8f9" }}
+    <div className="max-w-3xl mx-auto sgbh-card rounded-2xl p-6 text-center">
+      <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#fbbf24] mb-4">
+        <Hand className="w-4 h-4" />
+        El kaldır
+      </div>
+      <div className="text-2xl md:text-3xl font-semibold text-white leading-snug">{question}</div>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-6 text-lg text-gray-300 leading-relaxed"
         >
-          <Send className="w-3.5 h-3.5" />
-          <span>İlk bildirim e-postası — taslak</span>
-        </div>
+          {children}
+        </motion.div>
+      )}
+      <div className="mt-6">
+        <button type="button" onClick={() => setOpen((o) => !o)} className={BTN_CLASS} style={BTN_STYLE}>
+          <MousePointerClick className="w-5 h-5" />
+          {open ? "Yorumu gizle" : "Elleri saydık; tıkla, yorumu gör"}
+        </button>
       </div>
-      <div className="sgbh-terminal">
-        <div className="sgbh-term-dim">// önce keşfet: well-known security.txt</div>
-        <div>
-          <span className="sgbh-term-prompt">$</span>{" "}
-          <span className="sgbh-term-cmd">curl https://hedef-kurum.tr/.well-known/security.txt</span>
-        </div>
-        <div><span className="sgbh-term-ok">Contact:</span> mailto:security@hedef-kurum.tr</div>
-        <div><span className="sgbh-term-ok">Policy:</span> https://hedef-kurum.tr/guvenlik-politikasi</div>
-        <div><span className="sgbh-term-ok">Encryption:</span> https://hedef-kurum.tr/pgp-key.txt</div>
-        <div className="sgbh-term-dim mt-2">────────────────────────────</div>
-        <div className="mt-2"><span className="sgbh-term-warn">Kime:</span> security@hedef-kurum.tr</div>
-        <div><span className="sgbh-term-warn">Konu:</span> Sorumlu açıklama &mdash; IDOR / yetkilendirme zafiyeti</div>
-        <div className="mt-2 text-gray-300">Merhaba,</div>
-        <div className="text-gray-300">/api/v1/fatura/&#123;id&#125; uç noktasında, oturum sahibi olmayan</div>
-        <div className="text-gray-300">bir kullanıcının başka kullanıcıların faturalarını</div>
-        <div className="text-gray-300">görebildiğini tespit ettim (IDOR).</div>
-        <div className="mt-2 text-gray-300">Kapsam: yalnızca kendi iki test hesabımla doğruladım,</div>
-        <div className="text-gray-300">veri indirmedim, kopyalamadım, paylaşmadım.</div>
-        <div className="mt-2 text-gray-300">Önerilen süre: yamayı uygulamanız için 90 gün.</div>
-        <div className="text-gray-300">PoC ve adımlar ektedir. İyi çalışmalar.</div>
-        <div className="mt-2">
-          <span className="sgbh-term-prompt">$</span>{" "}
-          <span className="sgbh-term-cmd">_</span>
-          <span className="animate-pulse">█</span>
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 }
+
+/* Mini sınav: doğru yeşil, yanlış kırmızı */
+type QuizItem = { q: string; options: string[]; correct: number; explain: string };
+
+function Quiz({ item }: { item: QuizItem }) {
+  const [picked, setPicked] = useState<number[]>([]);
+  const solved = picked.includes(item.correct);
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-xl font-semibold text-white leading-snug mb-4">{item.q}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {item.options.map((o, i) => {
+          const chosen = picked.includes(i);
+          const cls = !chosen
+            ? "border-white/15 text-gray-200 hover:border-[#06b6d4]/60"
+            : i === item.correct
+              ? "border-emerald-400 bg-emerald-500/20 text-emerald-100"
+              : "border-red-400 bg-red-500/20 text-red-100";
+          return (
+            <button
+              key={o}
+              type="button"
+              onClick={() => setPicked((p) => (p.includes(i) ? p : [...p, i]))}
+              className={`flex items-start gap-3 text-left px-5 py-3 rounded-xl border bg-white/[0.02] text-base transition-all ${cls}`}
+            >
+              <span className="font-mono text-sm mt-0.5 opacity-70">{"ABCD"[i]}</span>
+              <span>{o}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 min-h-[3rem] text-base leading-relaxed">
+        {solved ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-emerald-300">
+            {item.explain}
+          </motion.div>
+        ) : picked.length > 0 ? (
+          <div className="text-red-300">Bu değil. Bir daha düşün.</div>
+        ) : (
+          <TapHint>bir şıkka tıkla</TapHint>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* Kendini dene: art arda sorular */
+function QuizSet({ items }: { items: QuizItem[] }) {
+  const [idx, setIdx] = useState(0);
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-xs font-mono uppercase tracking-widest text-[#67e8f9] mb-3">
+        Soru {idx + 1} / {items.length}
+      </div>
+      <Quiz key={idx} item={items[idx]} />
+      <div className="mt-2 flex justify-center gap-3">
+        <button
+          type="button"
+          onClick={() => setIdx((i) => Math.max(i - 1, 0))}
+          disabled={idx === 0}
+          className={BTN_CLASS}
+          style={{ background: "rgba(255,255,255,0.08)" }}
+        >
+          Önceki soru
+        </button>
+        <button
+          type="button"
+          onClick={() => setIdx((i) => Math.min(i + 1, items.length - 1))}
+          disabled={idx === items.length - 1}
+          className={BTN_CLASS}
+          style={BTN_STYLE}
+        >
+          Sonraki soru
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* Sınıf etkinliği: adımları tıklayarak işaretle */
+function Checklist({ items }: { items: Array<{ title: string; text: string }> }) {
+  const [done, setDone] = useState<number[]>([]);
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {items.map((it, i) => {
+          const ok = done.includes(i);
+          return (
+            <button
+              key={it.title}
+              type="button"
+              onClick={() => setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]))}
+              aria-pressed={ok}
+              className={`flex items-start gap-4 text-left rounded-xl p-5 border transition-all ${
+                ok ? "border-emerald-400/70 bg-emerald-500/10" : "sgbh-card sgbh-card-hover"
+              }`}
+            >
+              <span
+                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-sm border ${
+                  ok ? "border-emerald-400 text-emerald-300" : "border-gray-600 text-gray-400"
+                }`}
+              >
+                {ok ? <CheckCircle2 className="w-5 h-5" /> : i + 1}
+              </span>
+              <span>
+                <span className="block text-lg font-semibold text-white leading-snug">{it.title}</span>
+                <span className="block mt-1 text-sm text-gray-400 leading-relaxed">{it.text}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center justify-center gap-4">
+        <TapHint>biten adıma tıkla</TapHint>
+        <span className="text-xs font-mono text-gray-500">
+          {done.length} / {items.length} adım tamam
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* Oyna-gör: her satıra doğru etiketi seç */
+type SortItem = { text: string; correct: number; explain: string };
+
+function ChipSort({ items, labels }: { items: SortItem[]; labels: string[] }) {
+  const [picks, setPicks] = useState<Record<number, number>>({});
+  return (
+    <div className="max-w-4xl mx-auto space-y-2">
+      {items.map((it, i) => {
+        const p = picks[i];
+        const ok = p === it.correct;
+        return (
+          <div key={it.text} className="sgbh-card rounded-xl px-5 py-2.5">
+            <div className="flex flex-col md:flex-row md:items-center gap-3">
+              <div className="flex-1 text-base text-gray-100 leading-snug">{it.text}</div>
+              <div className="flex gap-2 flex-shrink-0">
+                {labels.map((l, li) => {
+                  const cls =
+                    p !== li
+                      ? "border-white/15 text-gray-300 hover:border-[#06b6d4]/60"
+                      : ok
+                        ? "border-emerald-400 bg-emerald-500/20 text-emerald-200"
+                        : "border-red-400 bg-red-500/20 text-red-200";
+                  return (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setPicks((s) => ({ ...s, [i]: li }))}
+                      className={`px-4 py-2 rounded-lg border text-sm font-semibold transition-all ${cls}`}
+                    >
+                      {l}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            {p !== undefined && (
+              <div className={`mt-2 text-sm leading-relaxed ${ok ? "text-emerald-300" : "text-red-300"}`}>
+                {ok ? it.explain : "Bu değil. Bir daha düşün."}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      <div className="text-center">
+        <TapHint>her satır için bir etikete tıkla</TapHint>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   HAFTAYA ÖZEL BİLEŞENLER
+   ============================================================ */
+
+const H2_SM = "md:text-4xl!";
+
+type Vaka = {
+  story: string;
+  options: [string, string];
+  correct: number;
+  verdict: string;
+  law: string;
+  lawText: string;
+  result: string;
+};
+
+/* Vaka: önce sınıf oylar, sonra "hangi kanun" ve "sonucu ne" kartları açılır */
+function VakaKarti({ v }: { v: Vaka }) {
+  const [vote, setVote] = useState<number | null>(null);
+  const [showLaw, setShowLaw] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  return (
+    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-3">
+        <div className="sgbh-card rounded-xl p-5 text-base md:text-lg text-gray-100 leading-relaxed">
+          {v.story}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {v.options.map((o, i) => {
+            const cls =
+              vote === null
+                ? "border-white/20 text-gray-100 hover:border-[#06b6d4]/70"
+                : i === v.correct
+                  ? "border-emerald-400 bg-emerald-500/20 text-emerald-100"
+                  : i === vote
+                    ? "border-red-400 bg-red-500/20 text-red-100"
+                    : "border-white/10 text-gray-500";
+            return (
+              <button
+                key={o}
+                type="button"
+                onClick={() => setVote(i)}
+                className={`px-4 py-3 rounded-xl border bg-white/[0.02] text-base font-semibold transition-all ${cls}`}
+              >
+                {o}
+              </button>
+            );
+          })}
+        </div>
+        <div className="min-h-[4.5rem] text-base leading-relaxed">
+          {vote === null ? (
+            <TapHint>sınıf oylasın, çoğunluğun dediğine tıkla</TapHint>
+          ) : (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-emerald-300">
+              {v.verdict}
+            </motion.div>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={() => setShowLaw((s) => !s)}
+          aria-expanded={showLaw}
+          className="sgbh-card sgbh-card-hover rounded-xl p-4 text-left transition-all"
+          style={showLaw ? { borderColor: "rgba(167,139,250,0.7)" } : undefined}
+        >
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#c4b5fd]">
+            <BookOpen className="w-4 h-4" />
+            Hangi kanun?
+          </div>
+          {showLaw ? (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+              <div className="mt-2 text-lg font-semibold text-white leading-snug">{v.law}</div>
+              <p className="mt-1 text-sm text-gray-300 leading-relaxed">{v.lawText}</p>
+            </motion.div>
+          ) : (
+            <div className="mt-2">
+              <TapHint>tahmin et, sonra tıkla</TapHint>
+            </div>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowResult((s) => !s)}
+          aria-expanded={showResult}
+          className="sgbh-card sgbh-card-hover rounded-xl p-4 text-left transition-all"
+          style={showResult ? { borderColor: "rgba(251,191,36,0.7)" } : undefined}
+        >
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#fbbf24]">
+            <Scale className="w-4 h-4" />
+            Sonucu ne?
+          </div>
+          {showResult ? (
+            <motion.p
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-2 text-sm text-gray-200 leading-relaxed"
+            >
+              {v.result}
+            </motion.p>
+          ) : (
+            <div className="mt-2">
+              <TapHint>tahmin et, sonra tıkla</TapHint>
+            </div>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* Oyna-gör: aynı işlem, izin var / izin yok */
+function IzinToggle() {
+  const [izin, setIzin] = useState<boolean | null>(null);
+  const data = izin
+    ? {
+        title: "Sonuç: meslek (izinli güvenlik denetimi)",
+        color: "#34d399",
+        items: [
+          "Sistemin sahibi yazılı izin verdi.",
+          "Neye bakılacağı (kapsam) önceden belli.",
+          "Bulduğunu yalnızca sistemin sahibine raporlarsın.",
+        ],
+      }
+    : {
+        title: "Sonuç: izinsiz erişim (TCK 243 gündeme gelir)",
+        color: "#f87171",
+        items: [
+          "“İyi niyetliydim, açığı haber verecektim” demek yetmez.",
+          "Kapsam yok; nerede duracağın belli değil.",
+          "Doğru yol: sisteme girmeden, fark ettiğini sahibine bildirmek.",
+        ],
+      };
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="sgbh-card rounded-xl px-5 py-4 text-lg text-gray-100 text-center">
+        İşlem: Bir şirketin internet sitesinde güvenlik açığı arıyorsun.
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => setIzin(true)}
+          aria-pressed={izin === true}
+          className={`px-5 py-4 rounded-xl border text-lg font-semibold transition-all ${
+            izin === true
+              ? "border-emerald-400 bg-emerald-500/20 text-emerald-100"
+              : "border-white/20 text-gray-200 hover:border-emerald-400/60"
+          }`}
+        >
+          Yazılı izin var
+        </button>
+        <button
+          type="button"
+          onClick={() => setIzin(false)}
+          aria-pressed={izin === false}
+          className={`px-5 py-4 rounded-xl border text-lg font-semibold transition-all ${
+            izin === false
+              ? "border-red-400 bg-red-500/20 text-red-100"
+              : "border-white/20 text-gray-200 hover:border-red-400/60"
+          }`}
+        >
+          İzin yok
+        </button>
+      </div>
+      <div className="mt-4 min-h-[11rem]">
+        {izin === null ? (
+          <div className="text-center pt-6">
+            <TapHint>bir düğmeye tıkla, sonucu gör</TapHint>
+          </div>
+        ) : (
+          <motion.div
+            key={String(izin)}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl p-5 border"
+            style={{ borderColor: `${data.color}80`, background: `${data.color}12` }}
+          >
+            <div className="flex items-center gap-2 text-xl font-semibold" style={{ color: data.color }}>
+              {izin ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+              {data.title}
+            </div>
+            <ul className="mt-3 space-y-1.5 text-base text-gray-200">
+              {data.items.map((it) => (
+                <li key={it} className="flex gap-2">
+                  <ChevronRight className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: data.color }} />
+                  {it}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   İÇERİK VERİSİ
+   ============================================================ */
+
+const VAKA_243: Vaka = {
+  story:
+    "Ece, arkadaşı Mert’in Instagram şifresini tahmin etti (doğum tarihiydi) ve hesabına girdi. Hiçbir şeyi değiştirmedi; baktı ve çıktı.",
+  options: ["Suç", "Suç değil"],
+  correct: 0,
+  verdict: "Suç. “Sadece baktım” ya da “şaka yaptım” demek durumu değiştirmez; izinsiz girmek yeterlidir.",
+  law: "TCK 243 · Bilişim sistemine girme",
+  lawText: "Bir bilişim sistemine izinsiz girmek ya da orada kalmaya devam etmek suçtur.",
+  result:
+    "Hapis ya da adli para cezası öngörülür. Mesajları da okuduysa haberleşmenin gizliliğini ihlal ayrıca gündeme gelir.",
+};
+
+const VAKA_244: Vaka = {
+  story:
+    "Bir çalışan işten çıkarılınca sinirlendi. Hâlâ açık olan hesabıyla şirketin ortak klasöründeki müşteri dosyalarını sildi.",
+  options: ["Suç", "Suç değil"],
+  correct: 0,
+  verdict: "Suç. Hesabın hâlâ açık olması, verileri silme ya da bozma hakkı vermez.",
+  law: "TCK 244 · Sistemi engelleme, bozma, verileri yok etme",
+  lawText: "Bir sistemin çalışmasını engellemek ya da bozmak; verileri silmek, değiştirmek, erişilmez kılmak suçtur.",
+  result:
+    "Hapis cezası öngörülür; yalnızca girmeye (243) göre daha ağırdır. Şirket ayrıca zararı için tazminat isteyebilir.",
+};
+
+const VAKA_245: Vaka = {
+  story:
+    "Kaan yolda bir banka kartı buldu. Marketten temassız ödemeyle iki kez alışveriş yaptı. “Zaten küçük tutarlar” diye düşündü.",
+  options: ["Suç", "Suç değil"],
+  correct: 0,
+  verdict: "Suç. Tutarın küçük olması fark etmez; kart başkasına ait ve sahibinin izni yok.",
+  law: "TCK 245 · Banka veya kredi kartlarının kötüye kullanılması",
+  lawText:
+    "Başkasının kartını ya da kart bilgilerini izinsiz kullanıp yarar sağlamak suçtur. Başkasının kart bilgisiyle internetten alışveriş de buraya girer.",
+  result: "Hapis ve adli para cezası öngörülür. Doğru davranış: kartı bankaya teslim etmek.",
+};
+
+const VAKA_5651: Vaka = {
+  story:
+    "Bir kafe müşterilerine ücretsiz Wi-Fi veriyor. Bir müşteri bu ağdan birine tehdit mesajları gönderdi. Polis bağlantı kayıtlarını istedi; kafe hiç kayıt tutmamış.",
+  options: ["Kafe de sorumlu", "Kafe sorumlu değil"],
+  correct: 0,
+  verdict: "Kafe de sorumlu. Tehdidi gönderen ayrıca yargılanır; ama kafe kayıt tutma yükümlülüğünü yerine getirmemiş.",
+  law: "5651 sayılı Kanun · İnternet yayınları",
+  lawText:
+    "İnternette kimin neden sorumlu olduğunu belirler. Kafe, otel, okul gibi toplu internet kullandıran yerler erişim kayıtlarını tutmak zorundadır.",
+  result:
+    "Yükümlülüğe uymayan işletmeye idari para cezası verilebilir. Kayıt olmayınca asıl sorumluyu bulmak da zorlaşır.",
+};
+
+const VAKA_RIZA: Vaka = {
+  story:
+    "Bir spor salonu üyelik formunda telefon numaranı aldı. Bir ay sonra hiç tanımadığın bir firma “salon üyelerine özel indirim” diye seni aradı.",
+  options: ["Hukuka aykırı", "Sorun yok, numarayı ben verdim"],
+  correct: 0,
+  verdict: "Hukuka aykırı. Numarayı üyelik için verdin; başka firmaya aktarılması için ayrıca açık rızan gerekirdi.",
+  law: "KVKK (6698) · Kişisel veri ve açık rıza",
+  lawText:
+    "Kişisel veri: seni tanıtan her bilgi (ad, telefon, kimlik numarası, fotoğraf). Açık rıza: belirli bir konu için, bilgilendirildikten sonra, özgürce verdiğin onay.",
+  result:
+    "Önce salona yazılı başvurursun. Sonuç alamazsan Kişisel Verileri Koruma Kurulu’na şikâyet edersin; Kurul idari para cezası verebilir.",
+};
+
+const VAKA_IHLAL: Vaka = {
+  story:
+    "Bir alışveriş sitesinin müşteri listesi (ad, adres, telefon) internete sızdı. Şirket “duyulursa müşteri kaçar” diyerek kimseye haber vermedi.",
+  options: ["Bildirmek zorunda", "Kendi kararı"],
+  correct: 0,
+  verdict: "Bildirmek zorunda. Şirket susarsa müşteriler kendini koruyamaz.",
+  law: "KVKK (6698) · Veri güvenliği ve ihlal bildirimi",
+  lawText:
+    "Veriyi toplayan şirket onu korumak zorundadır. Sızıntı olursa en kısa sürede Kurul’a (uygulamada 72 saat içinde) ve verisi sızan kişilere bildirir.",
+  result:
+    "Bildirmeyen ya da önlem almayan şirkete idari para cezası verilebilir. Sen de parolanı değiştirir, sahte aramalara karşı dikkatli olursun.",
+};
+
+const VAKA_5070: Vaka = {
+  story:
+    "Ayşe bir internet aboneliği sözleşmesini e-imzasıyla imzaladı. İki ay sonra “Ben kâğıda imza atmadım, bu sözleşme geçersiz” dedi.",
+  options: ["Ayşe haklı", "Ayşe haksız"],
+  correct: 1,
+  verdict: "Haksız. Güvenli elektronik imza, elle atılan imzayla aynı hukuki sonucu doğurur.",
+  law: "5070 sayılı Kanun · Elektronik imza",
+  lawText:
+    "Güvenli e-imza, yetkili bir kuruluştan alınan sertifikayla atılır; kimin imzaladığını ve belgenin değişmediğini gösterir. İmzanın taranmış resmi e-imza değildir.",
+  result:
+    "Sözleşme geçerlidir ve Ayşe’yi bağlar. İstisna: kanunun resmî şekil aradığı bazı işlemler (örneğin tapu devri) e-imzayla yapılamaz.",
+};
+
+const MADDE_SORT: SortItem[] = [
+  {
+    text: "Kardeşinin e-posta hesabına şifresini deneyerek girdi.",
+    correct: 0,
+    explain: "243: izinsiz girdi, başka bir şey yapmadı.",
+  },
+  {
+    text: "Okulun not sistemine girip kendi notunu değiştirdi.",
+    correct: 1,
+    explain: "244: girmekle kalmadı, veriyi değiştirdi.",
+  },
+  {
+    text: "Başkasının kart bilgileriyle internetten oyun satın aldı.",
+    correct: 2,
+    explain: "245: başkasının kartını izinsiz kullanıp yarar sağladı.",
+  },
+  {
+    text: "Bir siteye aşırı istek gönderip çalışmasını durdurdu.",
+    correct: 1,
+    explain: "244: sistemin çalışmasını engelledi.",
+  },
+];
+
+const FINAL_QUIZ: QuizItem[] = [
+  {
+    q: "Arkadaşının hesabına şifresini tahmin ederek girdin ama hiçbir şeye dokunmadın. Durum nedir?",
+    options: [
+      "Suç değil, zarar vermedim",
+      "Suçtur; izinsiz girmek yeterlidir",
+      "Yalnızca KVKK’yı ilgilendirir",
+      "Arkadaşım olduğu için sorun olmaz",
+    ],
+    correct: 1,
+    explain: "TCK 243: bir bilişim sistemine izinsiz girmek tek başına suçtur.",
+  },
+  {
+    q: "Bir şirketten müşteri verileri sızdı. Şirket ne yapmalı?",
+    options: [
+      "Duyulmaması için beklemeli",
+      "Yalnızca sosyal medyadan özür dilemeli",
+      "En kısa sürede Kurul’a ve verisi sızan kişilere bildirmeli",
+      "Siteyi kapatıp yeni bir site açmalı",
+    ],
+    correct: 2,
+    explain: "KVKK: veri sorumlusu ihlali en kısa sürede Kurul’a ve ilgili kişilere bildirir.",
+  },
+  {
+    q: "Güvenli elektronik imza ile ilgili hangisi doğrudur?",
+    options: [
+      "İmzanın taranmış resmidir",
+      "Elle atılan imzayla aynı hukuki sonucu doğurur",
+      "Yalnızca devlet kurumları kullanabilir",
+      "Hukuken hiçbir geçerliliği yoktur",
+    ],
+    correct: 1,
+    explain: "5070 sayılı Kanun: güvenli e-imza, elle atılan imzayla aynı hukuki sonucu doğurur.",
+  },
+];
 
 /* ============================================================
    SLIDES
@@ -296,742 +821,229 @@ const slides: Array<(active: boolean) => ReactNode> = [
       <div className="text-center">
         <Eyebrow>BVA 2205 · 14. Hafta · Güz Dönemi</Eyebrow>
         <H1>
-          <span className="sgbh-shimmer">Türk Bilişim Hukuku</span>
+          <span className="sgbh-shimmer">Bilişim Hukuku</span>
           <br />
-          <span className="text-white/90">Özet &amp; Sorumlu Açıklama</span>
+          <span className="text-white/90 text-4xl md:text-5xl">Hangi tıklama suçtur?</span>
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          KVKK · 5651 · TCK 243-245. Teknik insanın bilmesi gereken üç kanun ve
-          zafiyet bildirmenin hukuka uygun yolu.
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Yedi kısa vaka, dört kanun: önce sen karar ver, sonra kanunun ne dediğine bakalım.
         </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 max-w-3xl mx-auto">
-          <FeatureCard
-            icon={Scale}
-            title="KVKK 6698"
-            desc="Kişisel verinin işlenmesi, ihlal bildirimi, idari para cezaları."
-            delay={0.3}
-            accent="#a78bfa"
-          />
-          <FeatureCard
-            icon={Network}
-            title="5651 · İnternet"
-            desc="İçerik/yer/erişim sağlayıcı, log saklama, erişim engeli."
-            delay={0.45}
-            accent="#06b6d4"
-          />
-          <FeatureCard
-            icon={Gavel}
-            title="TCK 243-245"
-            desc="Bilişim suçları: yetkisiz erişim, sistem bozma, kart suistimali."
-            delay={0.6}
-            accent="#f87171"
-          />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8 max-w-4xl mx-auto text-left">
+          <FeatureCard icon={Lock} title="TCK 243–245" desc="Bilişim suçları" delay={0.3} accent="#f87171" />
+          <FeatureCard icon={Globe} title="5651" desc="İnternette sorumluluk" delay={0.4} accent="#06b6d4" />
+          <FeatureCard icon={KeyRound} title="KVKK" desc="Kişisel verilerin korunması" delay={0.5} accent="#a78bfa" />
+          <FeatureCard icon={FileSignature} title="5070" desc="Elektronik imza" delay={0.6} accent="#34d399" />
         </div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.6 }}
-          className="mt-12 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
+          className="mt-6 inline-flex items-center gap-2 text-xs font-mono text-gray-500"
         >
           <Calendar className="w-3.5 h-3.5" />
-          Çarşamba 13:30 — 17:00 · Mevzuat özeti + vaka tartışması
+          Çarşamba 13:30 — 17:00 · Farkındalık amaçlıdır, hukuki danışmanlık değildir
         </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ───── 2. Köprü · geçen hafta → bu hafta ───── */
+  /* ───── 2. Sorun + sınıf oylaması ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · 13. haftadan 14. haftaya</Eyebrow>
-      <H2>Tekniği öğrendik; şimdi sınırı çizen kanunu</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Dönem boyunca tarama, sızma, analiz ve savunma yaptık. Aynı becerinin
-        izinli kullanımı meslek, izinsizi suçtur. Bu hafta o çizgiyi belirleyen
-        üç temel mevzuatı özetliyor ve bir zafiyeti hukuka uygun bildirmenin
-        yolunu öğreniyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#67e8f9]">
-            <Brain className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Şimdiye kadar (teknik)</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Nmap ile keşif, Wireshark ile analiz.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />OWASP Top 10, web zafiyetleri.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Katmanlı savunma, olay müdahale.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#c4b5fd]">
-            <Scale className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Bu hafta (hukuki)</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Hangi veri korunur, ihlali kim nasıl bildirir?</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Hangi eylem &quot;giriş&quot;, hangisi &quot;bozma&quot; suçu?</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#a78bfa] flex-shrink-0" />Bir bug&apos;ı hapse girmeden nasıl bildiririm?</li>
-          </ul>
-        </motion.div>
+      <Eyebrow>Geçen haftalardan bu haftaya</Eyebrow>
+      <H2 className={H2_SM}>Tekniği öğrendik; şimdi sınırı çizen kuralları öğreniyoruz</H2>
+      <div className="mt-8">
+        <Poll question="Kaçınız bir arkadaşının telefonuna ya da hesabına ondan habersiz baktı?">
+          Çoğumuz bunu masum bir merak sayarız. Hukuk öyle bakmaz: izin yoksa, şaka da olsa,
+          sorun başlar. Bugün yedi kısa vakayla sınırı birlikte çizeceğiz.
+        </Poll>
       </div>
+      <AskLine>Sence &ldquo;sadece baktım&rdquo; demek insanı kurtarır mı?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 3. Bu dersin akışı ───── */
+  /* ───── 3. Benzetme + dört kanunun haritası ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç kanun → bir pratik: sorumlu açıklama</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce kişisel veri (KVKK), sonra internet altyapısı (5651), sonra ceza
-        (TCK). En sonunda hepsini birleştiren tek soru: bir zafiyeti yasal yoldan
-        nasıl bildiririm?
+      <Eyebrow>Benzetme · mahalle ve kuralları</Eyebrow>
+      <H2 className={H2_SM}>İnternet de bir mahalle: kurallarını dört kanun çizer</H2>
+      <Sub className="mt-3 max-w-4xl text-base md:text-lg">
+        Kapısı kilitli olmayan eve girmek de izinsiz girmektir. İnternette de &ldquo;şifresi kolaydı&rdquo;
+        bir mazeret değildir. Hangi soruya hangi kanun cevap verir?
       </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "KVKK 6698", items: ["Kişisel veri & özel nitelik", "İşleme şartları, aydınlatma", "İhlal bildirimi 72 saat"], icon: Scale, accent: "#a78bfa" },
-          { range: "02", title: "5651 & TCK", items: ["İçerik/yer/erişim sağlayıcı", "Log saklama, erişim engeli", "TCK 243-244-245 suçları"], icon: Gavel, accent: "#06b6d4" },
-          { range: "03", title: "Sorumlu Açıklama", items: ["security.txt & kapsam", "Bildirim & yama süresi", "Bug bounty & güvenli liman"], icon: Handshake, accent: "#34d399" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="sgbh-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Bölüm {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5 max-w-4xl mx-auto">
+        <RevealCard title="Biri hesabıma izinsiz girdi. Suç mu?" icon={Lock} accent="#f87171">
+          <span className="text-white font-semibold">TCK 243–245.</span> Türk Ceza Kanunu&apos;nun bilişim
+          suçları: izinsiz girmek, bozmak, kartı kötüye kullanmak.
+        </RevealCard>
+        <RevealCard title="İnternette kim neden sorumlu?" icon={Globe} accent="#06b6d4">
+          <span className="text-white font-semibold">5651 sayılı Kanun.</span> İçeriği yazan, siteyi
+          barındıran ve interneti sağlayanın sorumlulukları.
+        </RevealCard>
+        <RevealCard title="Telefon numaramı kim, ne için kullanabilir?" icon={KeyRound} accent="#a78bfa">
+          <span className="text-white font-semibold">KVKK (6698).</span> Kişisel Verilerin Korunması Kanunu.
+        </RevealCard>
+        <RevealCard title="Ekrandan atılan imza geçerli mi?" icon={FileSignature} accent="#34d399">
+          <span className="text-white font-semibold">5070 sayılı Kanun.</span> Elektronik İmza Kanunu.
+        </RevealCard>
       </div>
+      <AskLine>Bu dört sorudan hangisi senin ya da bir yakınının başına geldi?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 4. Bölüm 1 — KVKK ───── */
+  /* ───── 4. Vaka 1 — TCK 243 ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Vaka 1 · izinsiz giriş</Eyebrow>
+      <H2 className={H2_SM}>Arkadaşının Instagram şifresini tahmin edip girdi. Suç mu?</H2>
+      <div className="mt-6">
+        <VakaKarti v={VAKA_243} />
+      </div>
+      <AskLine>Hiçbir şeye dokunmamış olması durumu değiştirir mi?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 5. Vaka 2 — TCK 244 ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Vaka 2 · veriyi silmek, bozmak</Eyebrow>
+      <H2 className={H2_SM}>İşten ayrılırken şirketin dosyalarını sildi. Suç mu?</H2>
+      <div className="mt-6">
+        <VakaKarti v={VAKA_244} />
+      </div>
+      <AskLine>Hesabı hâlâ açıktı. Bu bir izin sayılır mı?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 6. Vaka 3 — TCK 245 ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Vaka 3 · başkasının kartı</Eyebrow>
+      <H2 className={H2_SM}>Bulduğu kartla temassız alışveriş yaptı. Suç mu?</H2>
+      <div className="mt-6">
+        <VakaKarti v={VAKA_245} />
+      </div>
+      <AskLine>Tutar küçük olunca suç olmaktan çıkar mı?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 7. İzin çizgisi ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sınır çizgisi · niyet değil, izin</Eyebrow>
+      <H2 className={H2_SM}>Aynı işlem: izin varsa meslek, izin yoksa suç</H2>
+      <div className="mt-6">
+        <IzinToggle />
+      </div>
+      <AskLine>Okulun sitesinde bir açık fark etsen doğru yol ne olurdu?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 8. Ara soru: hangi madde ───── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Ara soru · girmek, bozmak, kart</Eyebrow>
+      <H2 className={H2_SM}>Hangi olay hangi maddeye girer?</H2>
+      <div className="mt-6">
+        <ChipSort items={MADDE_SORT} labels={["TCK 243", "TCK 244", "TCK 245"]} />
+      </div>
+      <AskLine>243 ile 244&apos;ü birbirinden ayıran şey ne?</AskLine>
+    </SlideShell>
+  ),
+
+  /* ───── 9. Bölüm — internet, veri, imza ───── */
   () => (
     <SectionDivider
-      num="01"
-      total="03"
-      title="KVKK · 6698 Sayılı Kanun"
-      subtitle="Kişisel Verilerin Korunması Kanunu. Hangi veri korunur, nasıl işlenir, ihlal olursa kim ne kadar sürede bildirir?"
+      num="02"
+      total="02"
+      title="İnternet, Veri, İmza"
+      subtitle="Ceza kanunundan çıkıyoruz: internette sorumluluk (5651), kişisel verilerin korunması (KVKK) ve elektronik imza (5070)."
       bgGradient="linear-gradient(135deg,#a78bfa,#5b21b6)"
-      shadow="0 30px 80px -20px rgba(167,139,250,0.55)"
+      shadow="0 30px 80px -20px rgba(167,139,250,0.6)"
       icon={<Scale className="w-16 h-16 text-white" />}
     />
   ),
 
-  /* ───── 5. Kişisel veri nedir? ───── */
+  /* ───── 10. Vaka 4 — 5651 ───── */
   () => (
     <SlideShell>
-      <Eyebrow>KVKK · temel kavramlar</Eyebrow>
-      <H2 className="mb-2">Kişisel veri &amp; özel nitelikli veri</H2>
-      <Sub className="max-w-3xl mb-6">
-        Kişisel veri, kimliği belirli ya da belirlenebilir gerçek kişiye ait her
-        türlü bilgidir. Bir alt küme olan özel nitelikli (hassas) veri, sızdığında
-        çok daha ağır sonuç doğurduğu için daha katı korunur.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#06b6d4]">
-            <Database className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Kişisel veri</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Ad-soyad, T.C. kimlik no, doğum tarihi</li>
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />E-posta, telefon, adres</li>
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />IP adresi, çerez kimliği, konum</li>
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#06b6d4] flex-shrink-0" />Plaka, ses kaydı, fotoğraf</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card-warn rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#f87171]">
-            <Lock className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Özel nitelikli (md. 6)</span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Sağlık &amp; cinsel hayat</li>
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Din, mezhep, felsefi inanç</li>
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Irk, etnik köken, siyasi düşünce</li>
-            <li className="flex gap-3"><ChevronRight className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Biyometrik, genetik veri; ceza mahkumiyeti</li>
-          </ul>
-          <div className="text-[11px] text-gray-500 mt-3 border-t border-white/5 pt-3">
-            Bu veriler kural olarak ilgili kişinin açık rızası olmadan işlenemez.
-          </div>
-        </motion.div>
+      <Eyebrow>Vaka 4 · internette sorumluluk</Eyebrow>
+      <H2 className={H2_SM}>Kafenin Wi-Fi ağından tehdit mesajı gönderildi. Kafe sorumlu mu?</H2>
+      <div className="mt-6">
+        <VakaKarti v={VAKA_5651} />
       </div>
+      <AskLine>Okulun Wi-Fi ağına neden kendi kullanıcı adınla giriyorsun?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 6. KVKK roller & ihlal bildirimi ───── */
+  /* ───── 11. Vaka 5 — KVKK açık rıza ───── */
   () => (
     <SlideShell>
-      <Eyebrow>KVKK · roller ve süreler</Eyebrow>
-      <H2 className="mb-2">Kim kimdir, ihlalde saat işler</H2>
-      <Sub className="max-w-3xl mb-6">
-        Sorumluluk &quot;veri sorumlusu&quot;na aittir. Bir ihlal olduğunda iki ayrı
-        bildirim süresi devreye girer; bunları karıştırmak ceza sebebidir.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-3"
-        >
-          {[
-            { icon: Building2, role: "Veri Sorumlusu", desc: "Veriyi neden/nasıl işleneceğine karar veren; asıl yükümlü.", color: "#a78bfa" },
-            { icon: Server, role: "Veri İşleyen", desc: "Sorumlu adına veriyi işleyen taraf (örn. bulut sağlayıcı).", color: "#06b6d4" },
-            { icon: UserCheck, role: "İlgili Kişi", desc: "Verisi işlenen gerçek kişi; haklarını kullanan taraf.", color: "#34d399" },
-          ].map((r, i) => (
-            <motion.div
-              key={r.role}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 + i * 0.1 }}
-              className="sgbh-card rounded-lg px-4 py-3 flex items-start gap-3"
-            >
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: `${r.color}18`, border: `1px solid ${r.color}55` }}
-              >
-                <r.icon className="w-4.5 h-4.5" style={{ color: r.color }} />
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-white">{r.role}</div>
-                <div className="text-[12px] text-gray-400 leading-snug">{r.desc}</div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#fbbf24]">
-            <Bell className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">İhlal bildirimi</span>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-[#fbbf24] mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="text-white font-semibold text-sm">Kurul&apos;a: en kısa sürede, 72 saat</div>
-                <div className="text-[12px] text-gray-400">Veri sorumlusu, ihlali öğrendiği andan itibaren Kişisel Verileri Koruma Kurulu&apos;na bildirir.</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-[#34d399] mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="text-white font-semibold text-sm">İlgili kişiye: makul sürede</div>
-                <div className="text-[12px] text-gray-400">Verisi etkilenen kişilere de mümkün olan en kısa sürede bilgi verilir.</div>
-              </div>
-            </div>
-            <div className="text-[11px] text-gray-500 border-t border-white/5 pt-3">
-              VERBİS kaydı (Veri Sorumluları Sicili) ayrıca, belirli eşikleri aşan
-              sorumlular için bir yükümlülüktür.
-            </div>
-          </div>
-        </motion.div>
+      <Eyebrow>Vaka 5 · kişisel veri ve açık rıza</Eyebrow>
+      <H2 className={H2_SM}>Spor salonu numaranı başka bir firmaya verdi. Verebilir mi?</H2>
+      <div className="mt-6">
+        <VakaKarti v={VAKA_RIZA} />
       </div>
+      <AskLine>En son hangi &ldquo;kabul ediyorum&rdquo; kutusunu okumadan işaretledin?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 7. İlgili kişinin hakları + yaptırım ───── */
+  /* ───── 12. Vaka 6 — KVKK veri ihlali ───── */
   () => (
     <SlideShell>
-      <Eyebrow>KVKK · md. 11 hakları &amp; yaptırım</Eyebrow>
-      <H2 className="mb-2">İlgili kişi ne isteyebilir?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Kanun, verisi işlenen kişiye somut haklar tanır. Bunlara uymamak ve
-        güvenlik tedbirini almamak idari para cezasıyla yaptırıma bağlanmıştır.
-      </Sub>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {[
-          { icon: BookOpen, t: "Bilgi talep et", d: "Verim işleniyor mu, hangi amaçla?" },
-          { icon: FileText, t: "Aktarım öğren", d: "Yurt içi/dışı kime aktarıldı?" },
-          { icon: FileSignature, t: "Düzeltme iste", d: "Eksik/yanlış veriyi düzelttir." },
-          { icon: Ban, t: "Silme iste", d: "Şartlar oluşunca sildir/yok ettir." },
-          { icon: Shield, t: "İtiraz et", d: "Otomatik analizle aleyhe sonuca itiraz." },
-          { icon: Scale, t: "Tazminat", d: "Zarara uğradıysa giderim talep et." },
-        ].map((h, i) => (
-          <motion.div
-            key={h.t}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.06 }}
-            className="sgbh-card rounded-lg p-4"
-          >
-            <h.icon className="w-5 h-5 text-[#a78bfa] mb-2" />
-            <div className="text-sm font-semibold text-white">{h.t}</div>
-            <div className="text-[11px] text-gray-400 leading-snug mt-0.5">{h.d}</div>
-          </motion.div>
-        ))}
+      <Eyebrow>Vaka 6 · veri ihlali bildirimi</Eyebrow>
+      <H2 className={H2_SM}>Müşteri listesi sızdı, şirket sustu. Susabilir mi?</H2>
+      <div className="mt-6">
+        <VakaKarti v={VAKA_IHLAL} />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 sgbh-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <Gavel className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Yaptırım:</span> Veri güvenliği tedbirlerini almamak (md. 12) ve
-          aydınlatma yükümlülüğünü ihlal, idari para cezasına tabidir. Tutarlar her yıl yeniden değerleme
-          oranıyla güncellenir; güncel tarifeyi her zaman kvkk.gov.tr&apos;den teyit et.
-        </span>
-      </motion.div>
+      <AskLine>Verilerinin sızdığını öğrensen ilk üç işin ne olurdu?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 8. Bölüm 2 — 5651 & TCK ───── */
-  () => (
-    <SectionDivider
-      num="02"
-      total="03"
-      title="5651 Sayılı Kanun & TCK 243-245"
-      subtitle="İnternet altyapısının sorumluları, log saklama ve erişim engeli; ardından bilişim suçlarının ceza karşılığı."
-      bgGradient="linear-gradient(135deg,#06b6d4,#0e7490)"
-      shadow="0 30px 80px -20px rgba(6,182,212,0.6)"
-      icon={<Gavel className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 9. 5651 sağlayıcılar ───── */
+  /* ───── 13. Vaka 7 — 5070 e-imza ───── */
   () => (
     <SlideShell>
-      <Eyebrow>5651 · 2007 · sağlayıcı türleri</Eyebrow>
-      <H2 className="mb-2">İnternette kim neyden sorumlu?</H2>
-      <Sub className="max-w-3xl mb-6">
-        5651 sayılı Kanun, internet ortamındaki yayınları ve sorumlulukları
-        düzenler. Bir geliştiricinin bilmesi gereken çekirdek, dört sağlayıcı
-        rolü ve log saklama yükümlülüğüdür.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          { icon: FileText, t: "İçerik Sağlayıcı", d: "İnternette sunulan her türlü bilgiyi/veriyi üreten, değiştiren ve sağlayan kişi. Kendi içeriğinden sorumludur.", c: "#a78bfa" },
-          { icon: Server, t: "Yer Sağlayıcı (Hosting)", d: "Hizmet ve içerikleri barındıran sistemleri sağlayan/işleten. Haberdar edilirse yayını kaldırma (uyar-kaldır) yükümlülüğü var.", c: "#06b6d4" },
-          { icon: Network, t: "Erişim Sağlayıcı (ISP)", d: "Kullanıcılara internet erişimi sunan taraf. Erişim engeli kararlarını uygular, trafik bilgisini saklar.", c: "#34d399" },
-          { icon: Building2, t: "Toplu Kullanım Sağlayıcı", d: "Kafe, otel, kampüs gibi yerde internet erişimi sunan. İç IP dağıtım loglarını tutar.", c: "#fbbf24" },
-        ].map((p, i) => (
-          <motion.div
-            key={p.t}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.1 }}
-            className="sgbh-card rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${p.c}18`, border: `1px solid ${p.c}55` }}
-            >
-              <p.icon className="w-5 h-5" style={{ color: p.c }} />
-            </div>
-            <div>
-              <div className="text-base font-semibold text-white">{p.t}</div>
-              <div className="text-[12px] text-gray-400 leading-relaxed mt-0.5">{p.d}</div>
-            </div>
-          </motion.div>
-        ))}
+      <Eyebrow>Vaka 7 · elektronik imza</Eyebrow>
+      <H2 className={H2_SM}>&ldquo;Kâğıda imza atmadım, sözleşme geçersiz.&rdquo; Haklı mı?</H2>
+      <div className="mt-6">
+        <VakaKarti v={VAKA_5070} />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 sgbh-card rounded-lg px-4 py-3 text-xs text-gray-400 flex items-start gap-3 max-w-4xl"
-      >
-        <Clock className="w-4 h-4 text-[#06b6d4] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Log saklama:</span> Sağlayıcılar trafik/erişim kayıtlarını
-          mevzuatta öngörülen süre boyunca (ikincil düzenlemelerle belirlenen, genellikle yıllarla ifade edilen
-          bir süre) doğru ve bütünlüğü bozulmadan saklamakla yükümlüdür. Güncel süreyi yürürlükteki yönetmelikten teyit et.
-        </span>
-      </motion.div>
+      <AskLine>E-imzanı ve şifresini başkasına verirsen atılan imza kimin sayılır?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 10. 5651 erişim engeli ───── */
+  /* ───── 14. Sınıfta deneyelim ───── */
   () => (
     <SlideShell>
-      <Eyebrow>5651 · erişim engeli mekanizması</Eyebrow>
-      <H2 className="mb-2">Bir içerik nasıl engellenir?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Engelleme keyfi değildir; bir karar zincirine dayanır. Teknik olarak da
-        engel farklı seviyelerde uygulanabilir &mdash; her birinin etkisi ve
-        aşılabilirliği farklıdır.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="text-xs font-mono uppercase tracking-widest text-[#06b6d4] mb-4">Karar zinciri</div>
-          <div className="sgbh-timeline space-y-5">
-            {[
-              { t: "Talep / şikayet", d: "BTK, ilgili kurum veya kişi başvurusu." },
-              { t: "Sulh ceza hakimliği kararı", d: "Kural olarak yargı kararı esastır." },
-              { t: "İdari tedbir (sınırlı haller)", d: "Belirli katalog suçlarda Başkanlık re&apos;sen tedbir uygulayabilir." },
-              { t: "Uygulama (ISP)", d: "Erişim sağlayıcı kararı teknik olarak uygular." },
-            ].map((s) => (
-              <div key={s.t} className="relative">
-                <span className="sgbh-timeline-dot">
-                  <ChevronRight className="w-3 h-3 text-[#06b6d4]" />
-                </span>
-                <div className="text-sm font-semibold text-white">{s.t}</div>
-                <div className="text-[12px] text-gray-400">{s.d}</div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="text-xs font-mono uppercase tracking-widest text-[#a78bfa] mb-4">Teknik uygulama seviyeleri</div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3"><span className="font-mono text-[11px] px-2 py-0.5 rounded bg-black/40 text-[#67e8f9] flex-shrink-0">URL</span><span>Tek bir sayfa/yol engellenir; en orantılı yöntem.</span></li>
-            <li className="flex gap-3"><span className="font-mono text-[11px] px-2 py-0.5 rounded bg-black/40 text-[#67e8f9] flex-shrink-0">DNS</span><span>Alan adı çözümlenmez; farklı DNS ile kolay aşılır.</span></li>
-            <li className="flex gap-3"><span className="font-mono text-[11px] px-2 py-0.5 rounded bg-black/40 text-[#67e8f9] flex-shrink-0">IP</span><span>Tüm IP bloklanır; aynı IP&apos;deki masum siteler de etkilenir (aşırı engelleme).</span></li>
-          </ul>
-          <div className="text-[11px] text-gray-500 mt-4 border-t border-white/5 pt-3">
-            Engelin yerindeliği ve orantılılığı, ifade özgürlüğü ile sık sık dengelenir;
-            kararlar yargı denetimine tabidir.
-          </div>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 11. TCK 243-245 tablo ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>TCK · Onuncu Bölüm · bilişim suçları</Eyebrow>
-      <H2>Üç madde, üç farklı eylem</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Türk Ceza Kanunu&apos;nun bilişim suçları bölümü üç temel maddeden oluşur.
-        Hangi eylemin hangi maddeye girdiğini ayırt etmek, &quot;test ettim&quot;
-        savunmasının neden geçersiz olduğunu da gösterir.
-      </Sub>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="mt-6 sgbh-card rounded-xl p-1"
-      >
-        <table className="sgbh-tbl">
-          <thead>
-            <tr>
-              <th style={{ width: "14%" }}>Madde</th>
-              <th style={{ width: "30%" }}>Eylem</th>
-              <th>Tipik örnek</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div className="font-semibold text-white">TCK 243</div>
-                <div className="text-[11px] text-gray-500 font-mono">yetkisiz erişim</div>
-              </td>
-              <td>Bir bilişim sisteminin bütününe veya bir kısmına hukuka aykırı olarak girmek ve orada kalmaya devam etmek.</td>
-              <td>İzinsiz ele geçirilen parolayla panele giriş yapmak; açık bir API&apos;den başkasının verisini görüntülemek.</td>
-            </tr>
-            <tr>
-              <td>
-                <div className="font-semibold text-white">TCK 244</div>
-                <div className="text-[11px] text-gray-500 font-mono">engelleme / bozma</div>
-              </td>
-              <td>Sistemin işleyişini engellemek, bozmak; verileri yok etmek, değiştirmek, erişilmez kılmak.</td>
-              <td>DDoS ile hizmeti çökertmek; veritabanını silmek/şifrelemek (ransomware); kayıtları tahrif etmek.</td>
-            </tr>
-            <tr>
-              <td>
-                <div className="font-semibold text-white">TCK 245</div>
-                <div className="text-[11px] text-gray-500 font-mono">kart suistimali</div>
-              </td>
-              <td>Başkasına ait banka/kredi kartını ele geçirip kullanmak veya sahte kart üretmek/kullanmak.</td>
-              <td>Çalınan kart bilgisiyle alışveriş; skimmer ile kopyalanmış kart kullanımı.</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-4 text-[11px] text-gray-500 font-mono max-w-4xl"
-      >
-        Not: Ceza miktarları kanun metnine ve yıllara göre değişebilir; ezber yerine maddenin tanımladığı eyleme odaklan.
-        Birçok bilişim suçu şikayete bağlı değildir, re&apos;sen soruşturulur.
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ───── 12. Suç mu, meslek mi? ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Sınır çizgisi · niyet değil, izin</Eyebrow>
-      <H2 className="mb-2">Aynı komut: meslek mi, suç mu?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Teknik eylem aynı olabilir; suçu meslekten ayıran şey &quot;iyi niyet&quot;
-        değil, <span className="text-white">yazılı yetkilendirme</span> ve
-        <span className="text-white"> kapsamdır</span>. Aşağıdaki ikili bunu gösteriyor.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#34d399]">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Meslek (yasal)</span>
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3"><ShieldCheck className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />İmzalı pentest sözleşmesi / kapsam (scope) var.</li>
-            <li className="flex gap-3"><ShieldCheck className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Yalnızca izin verilen hedef ve uç noktalar.</li>
-            <li className="flex gap-3"><ShieldCheck className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Veri kopyalanmaz; bulgular raporlanır.</li>
-            <li className="flex gap-3"><ShieldCheck className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Bug bounty programı kuralları izlenir.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-card-warn rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#f87171]">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Suç (TCK 243+)</span>
-          </div>
-          <ul className="space-y-3 text-sm text-gray-300">
-            <li className="flex gap-3"><Ban className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />&quot;Açık buldum, denedim&quot; &mdash; izin yoksa erişim suçtur.</li>
-            <li className="flex gap-3"><Ban className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Kapsam dışı sisteme geçmek (scope creep).</li>
-            <li className="flex gap-3"><Ban className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Veriyi indirmek, paylaşmak, satmak.</li>
-            <li className="flex gap-3"><Ban className="w-4 h-4 mt-0.5 text-[#f87171] flex-shrink-0" />Zafiyeti &quot;kanıtlamak&quot; için zarar vermek.</li>
-          </ul>
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 13. Bölüm 3 — Sorumlu açıklama ───── */
-  () => (
-    <SectionDivider
-      num="03"
-      total="03"
-      title="Sorumlu Açıklama"
-      subtitle="Bir zafiyet buldun. Hapse girmeden, kuruma zarar vermeden, etik kalarak nasıl bildirilir? Coordinated Vulnerability Disclosure."
-      bgGradient="linear-gradient(135deg,#22c55e,#15803d)"
-      shadow="0 30px 80px -20px rgba(34,197,94,0.55)"
-      icon={<Handshake className="w-16 h-16 text-white" />}
-    />
-  ),
-
-  /* ───── 14. Sorumlu açıklama akışı (timeline) ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Coordinated Vulnerability Disclosure</Eyebrow>
-      <H2 className="mb-2">Bildirimin altı adımı</H2>
-      <Sub className="max-w-3xl mb-6">
-        Sorumlu açıklama, zafiyeti önce üreticiyle paylaşıp düzeltmesi için makul
-        süre tanımak, kamuya ise ancak yama sonrası (veya süre dolunca) çıkmaktır.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-1">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sgbh-timeline space-y-5"
-        >
-          {[
-            { t: "1 · Keşif & doğrulama", d: "Zafiyeti yalnızca kendi/test hesabınla, minimum müdahaleyle doğrula." },
-            { t: "2 · İletişim kanalını bul", d: "security.txt, güvenlik politikası veya bug bounty platformu." },
-            { t: "3 · Şifreli bildirim", d: "PoC, adımlar ve etkiyi net biçimde, mümkünse PGP ile gönder." },
-          ].map((s) => (
-            <div key={s.t} className="relative">
-              <span className="sgbh-timeline-dot">
-                <ChevronRight className="w-3 h-3 text-[#06b6d4]" />
-              </span>
-              <div className="text-sm font-semibold text-white">{s.t}</div>
-              <div className="text-[12px] text-gray-400 leading-snug">{s.d}</div>
-            </div>
-          ))}
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="sgbh-timeline space-y-5"
-        >
-          {[
-            { t: "4 · Makul süre tanı", d: "Yama için tipik olarak 90 gün; ağır zafiyette ucu açık görüşme." },
-            { t: "5 · Üreticiyle koordinasyon", d: "İlerlemeyi takip et, gerekirse CVE/CVD süreci işlet." },
-            { t: "6 · Kamuya açıklama", d: "Yama yayınlanınca ya da süre dolduğunda; veriyi ifşa etmeden." },
-          ].map((s) => (
-            <div key={s.t} className="relative">
-              <span className="sgbh-timeline-dot" style={{ borderColor: "#34d399", boxShadow: "0 0 12px rgba(52,211,153,0.5)" }}>
-                <ChevronRight className="w-3 h-3 text-[#34d399]" />
-              </span>
-              <div className="text-sm font-semibold text-white">{s.t}</div>
-              <div className="text-[12px] text-gray-400 leading-snug">{s.d}</div>
-            </div>
-          ))}
-        </motion.div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ───── 15. security.txt + bildirim e-postası ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Pratik · iletişim &amp; ilk e-posta</Eyebrow>
-      <H2 className="mb-2">Önce kanalı bul, sonra ölçülü yaz</H2>
-      <Sub className="max-w-3xl mb-6">
-        İyi bir bildirim kısa, doğrulanabilir ve kapsamı nettir. &quot;Veri
-        indirmedim&quot; cümlesi senin de hukuki güvencendir.
-      </Sub>
-      <DisclosureMail />
-    </SlideShell>
-  ),
-
-  /* ───── 16. Güvenli liman & uyarılar ───── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Güvenli liman · safe harbor</Eyebrow>
-      <H2 className="mb-2">Seni koruyan ve riske atan ayrıntılar</H2>
-      <Sub className="max-w-3xl mb-6">
-        Bir bug bounty programının &quot;safe harbor&quot; maddesi, kurallara
-        uyduğun sürece yasal işlem yapılmayacağını taahhüt eder. Ama bu koruma
-        koşulludur ve sınırlıdır.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FeatureCard
-          icon={ShieldCheck}
-          title="Kapsam içinde kal"
-          desc="Yalnızca programda listelenen hedefler. Kapsam dışına çıkmak güvenli limanı geçersiz kılar."
-          accent="#34d399"
-          delay={0.1}
-        />
-        <FeatureCard
-          icon={Ban}
-          title="Veriye dokunma"
-          desc="Zafiyeti kanıtlamak için gereken minimumla yetin; başkasının verisini görüntüleme, indirme, paylaşma."
-          accent="#fbbf24"
-          delay={0.2}
-        />
-        <FeatureCard
-          icon={FileText}
-          title="Kuralı yazılı al"
-          desc="Safe harbor sözleşmenin metnindedir. Sözlü &quot;sorun olmaz&quot; hukuken güvence değildir."
-          accent="#06b6d4"
-          delay={0.3}
+      <Eyebrow>Sınıfta deneyelim · 10 dakika · telefonla</Eyebrow>
+      <H2 className={H2_SM}>Bu uygulama senden hangi veriyi istiyor?</H2>
+      <div className="mt-6">
+        <Checklist
+          items={[
+            { title: "Bir uygulama seç", text: "Sık kullandığın bir alışveriş, yemek ya da oyun uygulaması." },
+            { title: "Aydınlatma metnini bul", text: "Ayarlar ya da üyelik ekranında “KVKK”, “Gizlilik” ya da “Aydınlatma Metni” başlığını ara." },
+            { title: "Üç şeyi not et", text: "Hangi verilerini topluyor? Ne amaçla? Kimlerle paylaşıyor?" },
+            { title: "Yan arkadaşınla karşılaştır", text: "Sana gereksiz gelen bir veri var mı? Açık rıza ayrı bir kutuyla mı isteniyor?" },
+          ]}
         />
       </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 sgbh-card-warn rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <AlertTriangle className="w-4 h-4 text-[#f87171] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Türkiye gerçeği:</span> Bug bounty güvenli limanı bir program
-          taahhüdüdür, kanun değil. Program yoksa veya kapsam dışındaysan, TCK 243-245 hâlâ uygulanır.
-          Şüphede kal&mdash;yazılı izin olmadan test etme.
-        </span>
-      </motion.div>
+      <AskLine>Bu metni üye olurken kaçınız okumuştu?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 17. Bu hafta · uygulamalı görev ───── */
+  /* ───── 15. Kendini dene ───── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı görev</Eyebrow>
-      <H2>Mevzuatı sahaya indir: 4 adım</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Hepsi tamamen yasal ve halka açık kaynaklarla yapılır; kimseyi taramaz,
-        test etmezsin. Sonraki derse bunları yapmış gelmen bekleniyor.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: BookOpen, title: "KVKK ihlal kararı oku", desc: "kvkk.gov.tr&apos;den yayımlanmış bir &quot;Kurul Kararı&quot; seç; hangi madde ihlal edilmiş, hangi tedbir eksik kalmış, 3 cümlede özetle.", accent: "#a78bfa" },
-          { icon: FileSignature, title: "Bir security.txt yaz", desc: "Kendi örnek projen için .well-known/security.txt taslağı hazırla: Contact, Policy, Encryption, Expires alanlarıyla.", accent: "#06b6d4" },
-          { icon: Bug, title: "Vakayı maddeye eşle", desc: "Bir gerçek bilişim olayı seç; eylemleri TCK 243 / 244 / 245&apos;ten hangisine girdiğini gerekçeleriyle yaz.", accent: "#f87171" },
-          { icon: ListChecks, title: "Bildirim taslağı kur", desc: "Hayali bir IDOR için sorumlu açıklama e-postası yaz: kapsam, &quot;veri indirmedim&quot; beyanı ve 90 günlük süre talebiyle.", accent: "#34d399" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="sgbh-card sgbh-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white" dangerouslySetInnerHTML={{ __html: t.title }} />
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.desc }} />
-            </div>
-          </motion.div>
-        ))}
+      <Eyebrow>Kendini dene · 3 soru</Eyebrow>
+      <H2 className={H2_SM}>Bugün ne öğrendik?</H2>
+      <div className="mt-6">
+        <QuizSet items={FINAL_QUIZ} />
       </div>
+      <AskLine>Hangi soruda sınıf ikiye bölündü? Neden?</AskLine>
     </SlideShell>
   ),
 
-  /* ───── 18. Sıradaki hafta + kapanış ───── */
+  /* ───── 16. Aklında kalsın + köprü ───── */
   () => (
     <SlideShell>
       <div className="text-center">
@@ -1039,48 +1051,48 @@ const slides: Array<(active: boolean) => ReactNode> = [
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8"
+          className="inline-flex w-16 h-16 rounded-2xl items-center justify-center mb-5"
           style={{ background: "linear-gradient(135deg,#a78bfa,#5b21b6)", boxShadow: "0 30px 80px -20px rgba(167,139,250,0.6)" }}
         >
-          <ShieldCheck className="w-12 h-12 text-white" />
+          <ShieldCheck className="w-8 h-8 text-white" />
         </motion.div>
-        <Eyebrow>14. hafta tamamlandı · sıradaki: Final &amp; vaka analizi</Eyebrow>
-        <H1>
-          <span className="sgbh-shimmer-soft">Tekniği hukukla birleştir</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Son hafta dönemin tüm parçalarını tek bir kapsamlı vaka üzerinde
-          birleştiriyoruz: keşiften savunmaya, ihlal bildiriminden sorumlu
-          açıklamaya. Final projesi sunumları.
-        </Sub>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="sgbh-card rounded-xl p-5">
-            <Calendar className="w-5 h-5 text-[#06b6d4] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Ders saati</div>
-            <div className="text-white font-semibold">Çarşamba</div>
-            <div className="text-sm text-gray-400">13:30 — 17:00</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Target className="w-5 h-5 text-[#a78bfa] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Hazırlık</div>
-            <div className="text-white font-semibold">4 görev</div>
-            <div className="text-sm text-gray-400">tamamlanmış gelsin</div>
-          </div>
-          <div className="sgbh-card rounded-xl p-5">
-            <Brain className="w-5 h-5 text-[#34d399] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Teslim</div>
-            <div className="text-white font-semibold">Final projesi</div>
-            <div className="text-sm text-gray-400">vaka + savunma planı</div>
-          </div>
+        <Eyebrow>14. hafta tamamlandı</Eyebrow>
+        <H2>
+          <span className="sgbh-shimmer-soft">Aklında kalsın: 3 şey</span>
+        </H2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 text-left">
+          <FeatureCard
+            icon={Lock}
+            title="1 · İzin yoksa girme"
+            desc="Şifreyi bilmen ya da tahmin etmen izin değildir. İzinsiz girmek, bozmak, kartı kullanmak suçtur (TCK 243–245)."
+            accent="#f87171"
+            delay={0.1}
+          />
+          <FeatureCard
+            icon={KeyRound}
+            title="2 · Kişisel veri sahibinindir"
+            desc="Veri hangi amaçla alındıysa onun için kullanılır; sızarsa bildirilir (KVKK)."
+            accent="#a78bfa"
+            delay={0.2}
+          />
+          <FeatureCard
+            icon={FileSignature}
+            title="3 · İnternette kayıt ve imza kalır"
+            desc="Toplu internet veren yer kayıt tutar (5651); e-imzan seni bağlar (5070)."
+            accent="#34d399"
+            delay={0.3}
+          />
         </div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-10 text-xs font-mono text-gray-600 flex items-center justify-center gap-2"
+          transition={{ delay: 0.7 }}
+          className="mt-8 inline-flex items-center gap-3 sgbh-card rounded-xl px-5 py-3 text-base text-gray-200"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Yazılı izin olmadan test etme · veriye dokunma · ölçülü bildir</span>
+          <ChevronRight className="w-5 h-5 text-[#06b6d4] flex-shrink-0" />
+          <span>
+            <span className="text-white font-semibold">Gelecek hafta:</span> Final. Güvenlik denetimi raporunu nasıl yazar, nasıl sunarsın?
+          </span>
         </motion.div>
       </div>
     </SlideShell>

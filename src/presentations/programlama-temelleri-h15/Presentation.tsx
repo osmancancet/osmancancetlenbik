@@ -9,30 +9,20 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FileText,
-  FolderOpen,
-  Save,
-  PlusCircle,
-  BookOpen,
-  Pencil,
-  Trash2,
-  Lock,
-  AlertTriangle,
-  Lightbulb,
-  CheckCircle2,
-  Database,
-  ArrowRight,
-  Table2,
-  Braces,
-  Layers,
-  Terminal,
-  ListChecks,
-  Check,
   ChevronRight,
   ChevronLeft,
   Maximize2,
   Minimize2,
   Keyboard,
+  Check,
+  X,
+  Eye,
+  RotateCcw,
+  FolderOpen,
+  PenLine,
+  Lock,
+  Save,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react";
 import { CodeEditor } from "../_shared/code/CodeEditor";
@@ -54,7 +44,8 @@ function SlideShell({
       {bgPattern && (
         <div className="absolute inset-0 prog-grid-bg pointer-events-none" />
       )}
-      <div className="relative z-10 w-full max-w-6xl">{children}</div>
+      {/* max-w-4xl: tıklanabilir öğeler kenar geçiş alanlarının (%12) dışında kalsın */}
+      <div className="relative z-10 w-full max-w-4xl">{children}</div>
     </div>
   );
 }
@@ -65,7 +56,7 @@ function Eyebrow({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="inline-flex items-center gap-3 mb-6 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
+      className="inline-flex items-center gap-3 mb-4 text-xs font-mono uppercase tracking-[0.25em] text-[#5fa8e0]"
     >
       <span className="w-8 h-px bg-[#5fa8e0]" />
       {children}
@@ -92,7 +83,7 @@ function H2({ children, className = "" }: { children: ReactNode; className?: str
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className={`text-3xl md:text-5xl font-semibold tracking-tight text-white ${className}`}
+      className={`text-2xl md:text-4xl font-semibold tracking-tight leading-tight text-white ${className}`}
     >
       {children}
     </motion.h2>
@@ -105,181 +96,382 @@ function Sub({ children, className = "" }: { children: ReactNode; className?: st
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
-      className={`text-lg md:text-xl text-gray-400 leading-relaxed ${className}`}
+      className={`text-base md:text-lg text-gray-400 leading-relaxed ${className}`}
     >
       {children}
     </motion.p>
   );
 }
 
-function FeatureCard({
+/* ---- Ortak etkileşim parçaları ------------------------------ */
+
+/** Slayt altındaki soluk "Sınıfa sor" satırı. */
+function Ask({ children }: { children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.6 }}
+      className="mt-5 text-sm text-gray-500"
+    >
+      <span className="font-mono text-[11px] uppercase tracking-widest text-[#5fa8e0]/70 mr-2">
+        Sınıfa sor:
+      </span>
+      {children}
+    </motion.div>
+  );
+}
+
+/** Tahmin et → tıkla göster. Tekrar tıklayınca kapanır. */
+function Reveal({
+  label = "Cevabı görmek için tıkla",
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((o) => !o)}
+      className={`w-full text-left rounded-xl px-5 py-4 transition-all cursor-pointer ${
+        open ? "prog-card" : "prog-card-yellow"
+      }`}
+    >
+      {open ? (
+        <span className="block text-base text-gray-200 leading-relaxed">{children}</span>
+      ) : (
+        <span className="flex items-center gap-3 text-[#ffd43b] font-semibold">
+          <Eye className="w-5 h-5 flex-shrink-0" />
+          {label}
+        </span>
+      )}
+    </button>
+  );
+}
+
+/** Mini sınav: şıkka tıkla; doğru yeşil, yanlış kırmızı, altında açıklama. */
+function Quiz({
+  question,
+  options,
+  correct,
+  why,
+}: {
+  question: ReactNode;
+  options: string[];
+  correct: number;
+  why: string;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div>
+      <div className="text-lg text-white font-semibold mb-3 leading-snug">{question}</div>
+      <div className="grid gap-2">
+        {options.map((o, i) => {
+          let cls = "prog-card prog-card-hover text-gray-200";
+          if (picked !== null) {
+            if (i === correct) cls = "border border-[#4ec9b0] bg-[#4ec9b0]/15 text-[#86efac]";
+            else if (i === picked) cls = "border border-[#f87171] bg-[#f87171]/15 text-[#fca5a5]";
+            else cls = "prog-card text-gray-500";
+          }
+          return (
+            <button
+              key={o}
+              type="button"
+              onClick={() => setPicked(i)}
+              className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-left text-base transition-all cursor-pointer ${cls}`}
+            >
+              <span className="font-mono text-xs opacity-70">{"ABCD"[i]}</span>
+              <span className="flex-1">{o}</span>
+              {picked !== null && i === correct && <Check className="w-4 h-4" />}
+              {picked === i && i !== correct && <X className="w-4 h-4" />}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 min-h-[2.75rem] text-sm text-gray-300 leading-relaxed">
+        {picked === null ? (
+          <span className="text-gray-500">Bir şıkka tıkla.</span>
+        ) : (
+          <>
+            <span className={picked === correct ? "text-[#86efac] font-semibold" : "text-[#fca5a5] font-semibold"}>
+              {picked === correct ? "Doğru. " : "Olmadı. "}
+            </span>
+            {why}{" "}
+            <button
+              type="button"
+              onClick={() => setPicked(null)}
+              className="underline text-gray-500 hover:text-gray-300 cursor-pointer"
+            >
+              Sıfırla
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Çalıştırılmayan, yalnızca gösterilen kısa kod; `active` satırı vurgular. */
+function CodeView({ code, active }: { code: string; active?: number }) {
+  return (
+    <div
+      className="prog-editor rounded-lg py-3 border border-[#2d2d2d] overflow-hidden"
+      style={{ fontSize: 15 }}
+    >
+      {code.split("\n").map((ln, i) => (
+        <div
+          key={i}
+          className="px-4 whitespace-pre"
+          style={
+            i === active
+              ? { background: "rgba(255,212,59,0.14)", boxShadow: "inset 3px 0 0 #ffd43b" }
+              : undefined
+          }
+        >
+          {ln || " "}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Seçenek çipi (oyna-gör slaytları). */
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all cursor-pointer ${
+        active
+          ? "bg-[#ffd43b]/15 border-[#ffd43b] text-[#ffd43b]"
+          : "border-[#3776ab]/40 text-gray-300 hover:border-[#5fa8e0]"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Adım adım ilerleyen gösterimlerin düğmeleri. */
+function StepNav({
+  step,
+  total,
+  onStep,
+  nextLabel = "İleri",
+}: {
+  step: number;
+  total: number;
+  onStep: (n: number) => void;
+  nextLabel?: string;
+}) {
+  const atEnd = step >= total - 1;
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={() => onStep(Math.min(step + 1, total - 1))}
+        disabled={atEnd}
+        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#3776ab] text-white text-sm font-semibold disabled:opacity-30 cursor-pointer disabled:cursor-default"
+      >
+        {nextLabel} <ChevronRight className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => onStep(0)}
+        disabled={step === 0}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[#3776ab]/40 text-gray-300 text-sm disabled:opacity-30 cursor-pointer disabled:cursor-default"
+      >
+        <RotateCcw className="w-4 h-4" /> Baştan
+      </button>
+      <span className="text-xs font-mono text-gray-500">
+        Adım {step + 1} / {total} · tıkla
+      </span>
+    </div>
+  );
+}
+
+/* ---- Bu haftaya özel parçalar -------------------------------- */
+
+function InfoCard({
   icon: Icon,
   title,
   desc,
-  delay = 0,
   accent = "#3776ab",
 }: {
   icon: LucideIcon;
   title: string;
   desc: string;
-  delay?: number;
   accent?: string;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="prog-card prog-card-hover rounded-xl p-6 transition-all"
-    >
+    <div className="prog-card rounded-xl p-5">
       <div
-        className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-        style={{
-          background: `${accent}1f`,
-          border: `1px solid ${accent}55`,
-        }}
+        className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+        style={{ background: `${accent}1f`, border: `1px solid ${accent}55` }}
       >
-        <Icon className="w-6 h-6" style={{ color: accent }} />
+        <Icon className="w-5 h-5" style={{ color: accent }} />
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <h3 className="text-base font-semibold text-white mb-1">{title}</h3>
       <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
-    </motion.div>
+    </div>
   );
 }
 
-/* ---- Code Editor Mockup (VS Code style) ---------------------- */
+/** Slayt 3 — defter benzetmesi: üç adım sırayla açılır. */
+const DEFTER_ADIMLARI: Array<{ icon: LucideIcon; baslik: string; defter: string; kod: string; renk: string }> = [
+  { icon: FolderOpen, baslik: "1 · Aç", defter: "Defteri çantadan çıkar, sayfayı aç.", kod: `open("liste.txt", "r")`, renk: "#3776ab" },
+  { icon: PenLine, baslik: "2 · Oku ya da yaz", defter: "Yazılanı oku ya da yeni satır yaz.", kod: `dosya.read()  /  dosya.write("...")`, renk: "#ffd43b" },
+  { icon: Lock, baslik: "3 · Kapat", defter: "Defteri kapat, çantaya koy.", kod: `dosya.close()`, renk: "#4ec9b0" },
+];
 
-type CodeLine = ReactNode;
-
-// Yerel kod editörü kaldırıldı: kodu yalnızca gösteriyordu, öğrenci
-// çalıştıramıyordu. Ortak sürüm (../_shared/code/CodeEditor) Pyodide ile
-// tarayıcıda Python koşturuyor, hataları Türkçe açıklıyor.
-
-
-/* ---- File tree / dizin gezgini mockup ------------------------ */
-
-function FileTree() {
+function DefterAdimlari() {
+  const [adim, setAdim] = useState(0);
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.3 }}
-      className="prog-window-chrome w-full max-w-sm"
-    >
-      <div className="prog-window-bar flex items-center gap-2 px-4 py-2.5">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/70" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <span className="w-3 h-3 rounded-full bg-green-500/70" />
-        </div>
-        <div
-          className="flex items-center gap-2 ml-3 px-3 py-1 rounded text-[11px] flex-1 text-center justify-center font-mono"
-          style={{ background: "#0d0d0d", color: "#9cdcfe" }}
-        >
-          <FolderOpen className="w-3.5 h-3.5" />
-          <span>PROJE GEZGİNİ</span>
-        </div>
+    <div className="mt-5">
+      <div className="grid grid-cols-3 gap-4 min-h-[11rem]">
+        {DEFTER_ADIMLARI.slice(0, adim + 1).map((a) => (
+          <motion.div
+            key={a.baslik}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="prog-card rounded-xl p-5"
+            style={{ borderColor: `${a.renk}66` }}
+          >
+            <a.icon className="w-6 h-6 mb-2" style={{ color: a.renk }} />
+            <div className="text-white font-semibold text-lg">{a.baslik}</div>
+            <div className="text-sm text-gray-300 mt-1">{a.defter}</div>
+            <div className="font-mono text-xs mt-3" style={{ color: a.renk }}>
+              {a.kod}
+            </div>
+          </motion.div>
+        ))}
       </div>
-      <div className="prog-filetree px-4 py-3">
-        <div className="prog-filetree-folder">📁 ogrenci_proje/</div>
-        <div className="pl-4 prog-filetree-folder">📁 veri/</div>
-        <div className="pl-8 prog-filetree-file">📄 notlar.txt</div>
-        <div className="pl-8 prog-filetree-file">📄 ogrenciler.csv</div>
-        <div className="pl-8 prog-filetree-file">📄 ayarlar.json</div>
-        <div className="pl-4 prog-filetree-file">📄 main.py</div>
-        <div className="pl-4 prog-filetree-file">📄 README.md</div>
-        <div className="mt-3 prog-filetree-dim text-[11px]">
-          # main.py içinden veri/ klasörüne
-        </div>
-        <div className="prog-filetree-dim text-[11px]">
-          # &quot;veri/notlar.txt&quot; ile erişilir
-        </div>
+      <div className="mt-4">
+        <StepNav step={adim} total={DEFTER_ADIMLARI.length} onStep={setAdim} nextLabel="Sonraki adım" />
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-/* ---- Mod kartı (r, w, a, x) ---------------------------------- */
+/** Slayt 4 — açma modu: çipi değiştir, dosyaya ne olduğunu gör. */
+type Mod = "r" | "w" | "a";
 
-function ModeCard({
-  icon: Icon,
-  mode,
-  name,
-  desc,
-  note,
-  accent,
-  delay = 0,
-}: {
-  icon: LucideIcon;
-  mode: string;
-  name: string;
-  desc: string;
-  note: string;
-  accent: string;
-  delay?: number;
-}) {
+const MODLAR: Record<Mod, { ad: string; islem: string; sonra: string[]; aciklama: string; renk: string }> = {
+  r: {
+    ad: "oku (read)",
+    islem: `dosya.read()`,
+    sonra: ["süt", "ekmek"],
+    aciklama: "Dosyaya dokunmaz, yalnızca okur. Dosya yoksa hata verir.",
+    renk: "#5fa8e0",
+  },
+  w: {
+    ad: "yaz (write)",
+    islem: `dosya.write("yumurta")`,
+    sonra: ["yumurta"],
+    aciklama: "Önce dosyanın içini siler, sonra baştan yazar. Eski satırlar gitti!",
+    renk: "#f87171",
+  },
+  a: {
+    ad: "ekle (append)",
+    islem: `dosya.write("yumurta")`,
+    sonra: ["süt", "ekmek", "yumurta"],
+    aciklama: "Eskisine dokunmaz, yeni satırı sona ekler.",
+    renk: "#4ec9b0",
+  },
+};
+
+function DosyaKutusu({ baslik, satirlar, renk }: { baslik: string; satirlar: string[]; renk: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
-      className="prog-card rounded-xl p-5"
-    >
-      <div className="flex items-center gap-3 mb-3">
-        <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center"
-          style={{ background: `${accent}1f`, border: `1px solid ${accent}55` }}
-        >
-          <Icon className="w-5 h-5" style={{ color: accent }} />
-        </div>
+    <div className="prog-terminal rounded-lg p-4 border min-h-[8.5rem]" style={{ fontSize: 15, borderColor: renk }}>
+      <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">{baslik}</div>
+      {satirlar.map((s) => (
+        <div key={s}>{s}</div>
+      ))}
+    </div>
+  );
+}
+
+function ModDemo() {
+  const [mod, setMod] = useState<Mod>("r");
+  const m = MODLAR[mod];
+  return (
+    <div className="mt-5">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="text-xs font-mono uppercase tracking-widest text-gray-500 mr-2">Mod seç · tıkla</span>
+        {(["r", "w", "a"] as Mod[]).map((k) => (
+          <Chip key={k} active={mod === k} onClick={() => setMod(k)}>
+            &quot;{k}&quot; · {MODLAR[k].ad}
+          </Chip>
+        ))}
+      </div>
+      <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-4 items-start">
+        <DosyaKutusu baslik="liste.txt · önce" satirlar={["süt", "ekmek"]} renk="#2d2d2d" />
         <div>
-          <div className="font-mono text-lg font-bold" style={{ color: accent }}>
-            &quot;{mode}&quot;
-          </div>
-          <div className="text-xs text-gray-400">{name}</div>
+          <CodeView code={`with open("liste.txt", "${mod}") as dosya:\n    ${m.islem}`} active={0} />
+          <motion.div
+            key={mod}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-3 text-base text-gray-200"
+          >
+            {m.aciklama}
+          </motion.div>
         </div>
+        <DosyaKutusu baslik="liste.txt · sonra" satirlar={m.sonra} renk={m.renk} />
       </div>
-      <p className="text-sm text-gray-300 leading-relaxed">{desc}</p>
-      <p className="text-[11px] text-gray-500 border-t border-white/5 pt-3 mt-3">
-        {note}
-      </p>
-    </motion.div>
+    </div>
   );
 }
 
-function SectionDivider({
-  num,
-  total,
-  title,
-  subtitle,
-  glowClass,
-  icon,
+/** Slayt 13 — dönem haritası: karta tıkla, hatırlatmayı gör. */
+function HatirlaKart({
+  baslik,
+  hafta,
+  hatirlatma,
+  ornek,
+  renk,
 }: {
-  num: string;
-  total: string;
-  title: string;
-  subtitle: string;
-  glowClass: string;
-  icon: ReactNode;
+  baslik: string;
+  hafta: string;
+  hatirlatma: string;
+  ornek: string;
+  renk: string;
 }) {
+  const [acik, setAcik] = useState(false);
   return (
-    <SlideShell bgPattern={false}>
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className={`inline-flex w-32 h-32 rounded-3xl items-center justify-center mb-8 prog-pulse ${glowClass}`}
-        >
-          {icon}
-        </motion.div>
-        <Eyebrow>
-          Bölüm {num} / {total}
-        </Eyebrow>
-        <H1>{title}</H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">{subtitle}</Sub>
-      </div>
-    </SlideShell>
+    <button
+      type="button"
+      onClick={() => setAcik((a) => !a)}
+      className="prog-card prog-card-hover rounded-xl p-5 text-left min-h-[8.5rem] cursor-pointer transition-all"
+      style={{ borderColor: `${renk}66` }}
+    >
+      <span className="block text-[10px] font-mono uppercase tracking-widest" style={{ color: renk }}>
+        {hafta}
+      </span>
+      <span className="block text-white font-semibold text-lg mt-1">{baslik}</span>
+      {acik ? (
+        <>
+          <span className="block text-sm text-gray-300 mt-2">{hatirlatma}</span>
+          <span className="block font-mono text-xs mt-2" style={{ color: renk }}>
+            {ornek}
+          </span>
+        </>
+      ) : (
+        <span className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+          <Eye className="w-4 h-4" /> Önce sınıf anlatsın, sonra tıkla
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -292,43 +484,31 @@ const slides: Array<(active: boolean) => ReactNode> = [
   () => (
     <SlideShell>
       <div className="text-center">
-        <Eyebrow>BVA 1101 · 15. Hafta · Bahar Dönemi</Eyebrow>
+        <Eyebrow>BVA 1101 · 15. Hafta</Eyebrow>
         <H1>
-          <span className="prog-shimmer">Dosyalama İşlemleri</span>
+          <span className="prog-shimmer">Dosyalar</span>
         </H1>
-        <Sub className="mt-8 max-w-2xl mx-auto">
-          Program kapanınca veriyi kaybetme — Python ile dosya açma, okuma, yazma
-          ve güvenli kapatma.
+        <Sub className="mt-6 max-w-2xl mx-auto">
+          Programın defteri: oku, yaz, ekle. Sonunda dönemi birlikte tekrar ediyoruz.
         </Sub>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="grid grid-cols-3 gap-4 mt-14 max-w-3xl mx-auto"
+          className="grid grid-cols-3 gap-4 mt-12 max-w-2xl mx-auto"
         >
           {[
-            { name: "open()", tag: "aç", color: "#3776ab", desc: "Dosyayı belleğe bağla" },
-            { name: "read / write", tag: "g/ç", color: "#5fa8e0", desc: "Veriyi oku veya yaz" },
-            { name: "with", tag: "kapat", color: "#ffd43b", desc: "Otomatik güvenli kapanış" },
-          ].map((l, i) => (
-            <motion.div
-              key={l.name}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.1 }}
-              className="prog-card rounded-xl p-5"
-              style={{ borderColor: `${l.color}55` }}
-            >
-              <div
-                className="w-10 h-10 rounded-lg mx-auto mb-3 flex items-center justify-center text-[11px] font-mono font-bold"
-                style={{ background: `${l.color}22`, color: l.color, border: `1px solid ${l.color}66` }}
-              >
+            { name: "Oku", tag: `"r"`, color: "#3776ab" },
+            { name: "Yaz", tag: `"w"`, color: "#ffd43b" },
+            { name: "Ekle", tag: `"a"`, color: "#4ec9b0" },
+          ].map((l) => (
+            <div key={l.name} className="prog-card rounded-xl p-4" style={{ borderColor: `${l.color}55` }}>
+              <div className="font-mono font-bold text-sm mb-1" style={{ color: l.color }}>
                 {l.tag}
               </div>
-              <div className="text-white font-semibold text-sm">{l.name}</div>
-              <div className="text-[11px] text-gray-500 mt-1">{l.desc}</div>
-            </motion.div>
+              <div className="text-white text-sm">{l.name}</div>
+            </div>
           ))}
         </motion.div>
 
@@ -336,711 +516,361 @@ const slides: Array<(active: boolean) => ReactNode> = [
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="mt-12 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
+          className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
         >
-          Öğr. Gör. · MCBÜ MYO · Bilgisayar Programcılığı
+          Programlama Temelleri · MCBÜ Manisa Teknik Bilimler MYO
         </motion.div>
       </div>
     </SlideShell>
   ),
 
-  /* ─────────────────  2 · GEÇEN HAFTADAN KÖPRÜ  ───────────────── */
+  /* ─────────────────  2 · SORUN  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Köprü · 14. haftadan 15. haftaya</Eyebrow>
-      <H2>Veri artık programla birlikte ölmesin</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Şimdiye dek değişkenler, listeler ve fonksiyonlarla çalıştık; ama bütün bu
-        veri yalnızca <span className="text-white font-semibold">bellekte (RAM)</span>{" "}
-        tutuluyordu. Program kapanınca her şey siliniyor. Bu hafta veriyi{" "}
-        <span className="text-white font-semibold">diske (kalıcı depolama)</span>{" "}
-        yazmayı öğreniyoruz.
+      <Eyebrow>Sorun · önce tahmin et</Eyebrow>
+      <H2>Programı kapatınca listen neden kayboluyor?</H2>
+      <Sub className="mt-3">
+        Dün yazdığın programa 20 arkadaşının adını tek tek girdin. Bugün programı yeniden açtın.
       </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#fca5a5]">
-            <Database className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Bellek (geçici)
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />Çok hızlı erişim.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />Değişken, liste, sözlük burada durur.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" />Program bitince içerik kaybolur.</li>
-          </ul>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <Save className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">
-              Disk (kalıcı)
-            </span>
-          </div>
-          <ul className="space-y-2.5 text-sm text-gray-300">
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Daha yavaş ama kalıcı.</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Dosyalar burada saklanır (.txt, .csv, .json).</li>
-            <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#34d399] flex-shrink-0" />Program kapansa da veri yerinde kalır.</li>
-          </ul>
-        </motion.div>
+      <div className="mt-5">
+        <Reveal label="Liste duruyor mu? Tahmin et, sonra tıkla">
+          Durmuyor, liste boş. Değişkenler bilgisayarın geçici belleğinde yaşar; program kapanınca
+          silinir. <span className="text-white font-semibold">Tahtaya yazılan silinir, deftere yazılan
+          kalır.</span> Dosya, programın defteridir.
+        </Reveal>
       </div>
+      <Ask>Telefonunu kapatıp açınca kaybolmayan neler var? Onlar nerede duruyor olabilir?</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  3 · BU HAFTANIN HEDEFİ / AKIŞ  ───────────────── */
+  /* ─────────────────  3 · BENZETME: DEFTER  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu dersin akışı</Eyebrow>
-      <H2>Üç durak: aç → oku/yaz → güvenli kapat</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Önce bir dosyanın nasıl açıldığını ve modları öğreniyoruz; sonra okuma ve
-        yazma yöntemlerini görüyoruz; en son <span className="text-white">with</span> bloğuyla
-        kaynağı güvenli kapatmayı ve sık yapılan hataları işliyoruz.
-      </Sub>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-        {[
-          { range: "01", title: "Dosyayı Açmak", items: ["open() ve kapatma", "Mod harfleri: r w a x", "Metin / ikili (binary)"], icon: FolderOpen, accent: "#3776ab" },
-          { range: "02", title: "Okuma & Yazma", items: ["read / readline / readlines", "write / writelines", "Satır satır gezinme"], icon: BookOpen, accent: "#5fa8e0" },
-          { range: "03", title: "Güvenli Kapatma", items: ["with as bloğu", "Karşılaşılan hatalar", "CSV / JSON formatları"], icon: Lock, accent: "#ffd43b" },
-        ].map((g, i) => (
-          <motion.div
-            key={g.title}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.12 }}
-            className="prog-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ background: `${g.accent}18`, border: `1px solid ${g.accent}55` }}
-              >
-                <g.icon className="w-5 h-5" style={{ color: g.accent }} />
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: g.accent }}>Durak {g.range}</div>
-                <div className="text-lg font-semibold text-white">{g.title}</div>
-              </div>
-            </div>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-start gap-2">
-                  <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: g.accent }} />
-                  <span>{it}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </div>
+      <Eyebrow>Benzetme · adım adım</Eyebrow>
+      <H2>Dosyayla çalışmak defterle çalışmak gibidir: aç, kullan, kapat</H2>
+      <DefterAdimlari />
+      <Ask>Defteri açmadan içine yazabilir misin? Peki kapatmayı unutursan?</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  4 · SECTION 1/3 · DOSYAYI AÇMAK  ───────────────── */
-  () => (
-    <SectionDivider
-      num="1"
-      total="3"
-      title="Dosyayı Açmak"
-      subtitle="Bir dosyayla çalışmadan önce onu açmak gerekir. open() dosyaya bir bağlantı (handle) kurar; nasıl kullanacağını mod belirler."
-      glowClass="prog-glow-blue"
-      icon={<FolderOpen className="w-14 h-14 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  5 · open() ANATOMİSİ + DOSYA YOLU  ───────────────── */
+  /* ─────────────────  4 · MODLAR  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bölüm 1 · open()</Eyebrow>
-      <H2 className="mb-2">open() ne ister, ne döndürür?</H2>
-      <Sub className="max-w-3xl mb-6">
-        İki temel argüman: <span className="text-white font-semibold">dosya yolu</span> ve{" "}
-        <span className="text-white font-semibold">mod</span>. Geriye bir dosya nesnesi döner;
-        işin bitince <span className="font-mono text-[#5fa8e0]">close()</span> ile kapatılır.
-        Yol; dosyanın bilgisayardaki adresidir.
+      <Eyebrow>Kavram · oyna, gör</Eyebrow>
+      <H2>open() iki şey sorar: hangi dosya, ne yapacaksın?</H2>
+      <Sub className="mt-3">İkinci soru tek harfle cevaplanır. Harfi değiştir, dosyaya ne olduğuna bak.</Sub>
+      <ModDemo />
+      <Ask>Bu üç harften hangisi en tehlikeli? Neden?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  5 · WITH  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Kavram · iki yazım</Eyebrow>
+      <H2>with open: işin bitince dosyayı kendisi kapatır</H2>
+      <Sub className="mt-3">
+        Kendiliğinden kapanan kapı gibi: girintili kısım bitince Python dosyayı kapatır.
       </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        <CodeEditor
-          title="ornek.py — open() anatomisi"
-          tabs={["ornek.py"]}
-          activeTab="ornek.py"
-          code={`# dosya = open(yol, mod, encoding)
-dosya = open("veri/notlar.txt", "r", encoding="utf-8")
-
-icerik = dosya.read()
-dosya.close()  # mutlaka kapat!`}
-          setup={`import os
-os.makedirs("veri", exist_ok=True)
-with open("veri/notlar.txt", "w", encoding="utf-8") as _f:
-    _f.write("Ali Yılmaz 85\\nAyşe Demir 92\\nMehmet Kaya 74\\n")`}
-        />
-
-        <div className="space-y-3">
-          <FeatureCard
-            icon={FolderOpen}
-            title="Dosya yolu"
-            desc="Türkçe karakter ve boşluk varsa dikkat; encoding=&apos;utf-8&apos; vermek metin dosyalarında güvenlidir."
-            delay={0.3}
-            accent="#3776ab"
-          />
-          <FeatureCard
-            icon={Layers}
-            title="Göreli vs mutlak yol"
-            desc="&apos;veri/notlar.txt&apos; göreli (programın bulunduğu klasöre göre); &apos;/home/ders/...&apos; mutlak yoldur."
-            delay={0.4}
-            accent="#5fa8e0"
-          />
+      <div className="grid grid-cols-2 gap-4 mt-5 items-start">
+        <div>
+          <div className="text-xs font-mono uppercase tracking-widest text-[#fca5a5] mb-2">Elle kapatma · unutulur</div>
+          <CodeView code={`dosya = open("liste.txt", "r")\nprint(dosya.read())\ndosya.close()`} active={2} />
+        </div>
+        <div>
+          <div className="text-xs font-mono uppercase tracking-widest text-[#86efac] mb-2">with · hep bunu kullan</div>
+          <CodeView code={`with open("liste.txt", "r") as dosya:\n    print(dosya.read())`} active={0} />
         </div>
       </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  6 · DOSYA AĞACI / GÖRELİ YOL  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Dosya yolu · proje düzeni</Eyebrow>
-      <H2 className="mb-2">Program dosyayı nerede arar?</H2>
-      <Sub className="max-w-3xl mb-6">
-        Göreli yol, kodun çalıştığı klasörden başlar. Aşağıdaki düzende{" "}
-        <span className="font-mono text-[#5fa8e0]">main.py</span>, alt klasördeki dosyaya{" "}
-        <span className="font-mono text-[#5fa8e0]">&quot;veri/notlar.txt&quot;</span> ile ulaşır.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        <FileTree />
-
-        <div className="space-y-3">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="prog-card rounded-xl p-5"
-          >
-            <div className="text-xs uppercase tracking-wider text-[#5fa8e0] mb-3 font-mono">
-              Yol kuralları
-            </div>
-            <ul className="space-y-2.5 text-sm text-gray-300">
-              <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" /><span><span className="font-mono text-[#ce9178]">&quot;notlar.txt&quot;</span> → aynı klasör</span></li>
-              <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" /><span><span className="font-mono text-[#ce9178]">&quot;veri/notlar.txt&quot;</span> → alt klasör</span></li>
-              <li className="flex gap-2"><ChevronRight className="w-4 h-4 mt-0.5 text-[#5fa8e0] flex-shrink-0" /><span><span className="font-mono text-[#ce9178]">&quot;../notlar.txt&quot;</span> → bir üst klasör</span></li>
-            </ul>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="prog-card-yellow rounded-xl p-5 flex items-start gap-3"
-          >
-            <Lightbulb className="w-6 h-6 text-[#ffd43b] flex-shrink-0" />
-            <div className="text-sm text-gray-300">
-              <span className="text-white font-semibold">Windows ipucu:</span> ters bölü
-              işareti <span className="font-mono">\</span> kaçış karakteridir. Bu yüzden ya
-              çift yaz (<span className="font-mono">\\</span>) ya da ham dizi kullan:{" "}
-              <span className="font-mono text-[#5fa8e0]">r&quot;C:\veri\not.txt&quot;</span>.
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  7 · MODLAR  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Bölüm 1 · Açma modları</Eyebrow>
-      <H2>Dört temel mod — ve büyük tehlike</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Mod harfi, dosyayla ne yapacağını belirler. Bunları karıştırmak{" "}
-        <span className="text-white font-semibold">veri kaybına</span> yol açar.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        <ModeCard
-          icon={BookOpen}
-          mode="r"
-          name="read (oku)"
-          desc="Varsayılan mod. Dosyayı yalnızca okur. Dosya yoksa hata (FileNotFoundError) verir."
-          note="Yazma yapılamaz; imleç en başta başlar."
-          accent="#3776ab"
-          delay={0.0}
-        />
-        <ModeCard
-          icon={Pencil}
-          mode="w"
-          name="write (yaz)"
-          desc="Dosya yoksa oluşturur. VARSA içeriğini tamamen siler ve sıfırdan yazar."
-          note="Dikkat: mevcut veriyi geri dönüşsüz siler."
-          accent="#fca5a5"
-          delay={0.1}
-        />
-        <ModeCard
-          icon={PlusCircle}
-          mode="a"
-          name="append (ekle)"
-          desc="Dosyanın SONUNA ekler; var olan içeriğe dokunmaz. Dosya yoksa oluşturur."
-          note="Log / kayıt tutmak için ideal seçim."
-          accent="#86efac"
-          delay={0.2}
-        />
-        <ModeCard
-          icon={Lock}
-          mode="x"
-          name="exclusive (özel oluştur)"
-          desc="Yeni dosya oluşturur. Aynı isimde dosya VARSA hata verir — üzerine yazmayı önler."
-          note="Yanlışlıkla üzerine yazmaya karşı koruma."
-          accent="#ffd43b"
-          delay={0.3}
-        />
-      </div>
-
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-5 text-[11px] text-gray-500 font-mono"
+        transition={{ delay: 0.4 }}
+        className="mt-4 prog-card-yellow rounded-xl px-5 py-3 text-base text-gray-200"
       >
-        Ek harfler: <span className="text-[#5fa8e0]">&quot;b&quot;</span> ikili (resim/ses),{" "}
-        <span className="text-[#5fa8e0]">&quot;t&quot;</span> metin (varsayılan),{" "}
-        <span className="text-[#5fa8e0]">&quot;+&quot;</span> hem oku hem yaz. Örn: <span className="text-[#5fa8e0]">&quot;rb&quot;</span>, <span className="text-[#5fa8e0]">&quot;a+&quot;</span>.
+        Dosyayı kapatmayı unutursan yazdıkların dosyaya geçmeyebilir.
       </motion.div>
+      <Ask>Soldaki kodda close() satırını unutmak neden kolay?</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  8 · SECTION 2/3 · OKUMA & YAZMA  ───────────────── */
-  () => (
-    <SectionDivider
-      num="2"
-      total="3"
-      title="Okuma & Yazma"
-      subtitle="Dosya açıldıktan sonra içeriğini almak (okuma) ya da içine veri koymak (yazma) için Python birkaç farklı yöntem sunar — her birinin yeri ayrıdır."
-      glowClass="prog-glow-yellow"
-      icon={<BookOpen className="w-14 h-14 text-[#1a1a1a]" />}
-    />
-  ),
-
-  /* ─────────────────  9 · OKUMA YÖNTEMLERİ TABLOSU  ───────────────── */
+  /* ─────────────────  6 · OKUMA  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bölüm 2 · Okuma yöntemleri</Eyebrow>
-      <H2>read · readline · readlines</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Üç yöntem de aynı dosyayı okur ama farklı tipte sonuç döner. Hangisini
-        seçeceğin, veriyi nasıl işleyeceğine bağlıdır.
-      </Sub>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8 prog-card rounded-xl overflow-hidden"
-      >
-        <table className="prog-compare">
-          <thead>
-            <tr>
-              <th>Yöntem</th>
-              <th>Ne döndürür?</th>
-              <th>Ne zaman kullanılır?</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="font-semibold text-white font-mono">read()</td>
-              <td>Tüm dosyayı tek bir metin (string) olarak.</td>
-              <td>Dosya küçükse ve içeriği bir bütün olarak işliyorsan.</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white font-mono">read(n)</td>
-              <td>İlk n karakteri metin olarak.</td>
-              <td>Büyük dosyayı parça parça okurken.</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white font-mono">readline()</td>
-              <td>Sıradaki tek satırı (sonunda \n ile).</td>
-              <td>Satır satır, kontrollü ilerlemek gerektiğinde.</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white font-mono">readlines()</td>
-              <td>Tüm satırları bir liste olarak.</td>
-              <td>Satırları indeksle gezmek / saymak istediğinde.</td>
-            </tr>
-            <tr>
-              <td className="font-semibold text-white font-mono">for satir in dosya</td>
-              <td>Her döngüde bir satır (bellek dostu).</td>
-              <td>Büyük dosyalarda önerilen, en verimli yöntem.</td>
-            </tr>
-          </tbody>
-        </table>
-      </motion.div>
-    </SlideShell>
-  ),
-
-  /* ─────────────────  10 · OKUMA — CANLI KOD + TERMİNAL  ───────────────── */
-  () => (
-    <SlideShell>
-      <Eyebrow>Canlı kod · satır satır okuma</Eyebrow>
-      <H2 className="mb-2">Bir dosyayı satır satır gez</H2>
-      <Sub className="max-w-3xl mb-6">
-        En çok kullanılan kalıp: <span className="font-mono text-[#5fa8e0]">with open(...)</span>{" "}
-        ile aç, <span className="font-mono text-[#5fa8e0]">for</span> döngüsüyle her satırı oku.
-        <span className="font-mono"> strip()</span> satır sonundaki görünmez{" "}
-        <span className="font-mono">\n</span> karakterini temizler.
-      </Sub>
-
+      <Eyebrow>Canlı kod · önce tahmin et, sonra çalıştır</Eyebrow>
+      <H2 className="mb-2">Okuma: dosyayı satır satır gez</H2>
+      <Sub className="mb-4">alisveris.txt dosyasında alt alta üç satır var: süt, ekmek, yumurta.</Sub>
       <CodeEditor
-        title="oku.py — Visual Studio Code"
-        tabs={["oku.py", "notlar.txt"]}
+        title="oku.py"
+        tabs={["oku.py", "alisveris.txt"]}
         activeTab="oku.py"
-        code={`with open("veri/notlar.txt", "r", encoding="utf-8") as dosya:
-    satir_no = 1
+        code={`with open("alisveris.txt", "r", encoding="utf-8") as dosya:
     for satir in dosya:
-        temiz = satir.strip()  # \\n ve boşlukları at
-        print(f"{satir_no}: {temiz}")
-        satir_no += 1`}
-        setup={`import os
-os.makedirs("veri", exist_ok=True)
-with open("veri/notlar.txt", "w", encoding="utf-8") as _f:
-    _f.write("Ali Yılmaz 85\\nAyşe Demir 92\\nMehmet Kaya 74\\n")`}
-        terminal={
-          <div className="leading-relaxed">
-            <div>
-              <span className="prog-terminal-prompt">user@mcbu</span>
-              <span className="text-gray-500"> $ </span>
-              <span className="prog-terminal-out">python oku.py</span>
-            </div>
-            <div className="prog-terminal-out">1: Ali Yılmaz 85</div>
-            <div className="prog-terminal-out">2: Ayşe Demir 92</div>
-            <div className="prog-terminal-out">3: Mehmet Kaya 74</div>
-            <div>
-              <span className="prog-terminal-prompt">user@mcbu</span>
-              <span className="text-gray-500"> $ </span>
-              <span className="animate-pulse">▌</span>
-            </div>
-          </div>
-        }
+        print(satir.strip())`}
+        setup={`with open("alisveris.txt", "w", encoding="utf-8") as _f:
+    _f.write("süt\\nekmek\\nyumurta\\n")`}
       />
+      <Ask>
+        encoding=&quot;utf-8&quot; Türkçe harfler bozulmasın diye var. strip() satır sonundaki görünmez
+        alt satır işaretini siler; silmesek çıktı nasıl görünürdü?
+      </Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  11 · YAZMA — w vs a  ───────────────── */
+  /* ─────────────────  7 · YAZMA  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bölüm 2 · Yazma</Eyebrow>
-      <H2 className="mb-2">write() · &quot;w&quot; siler, &quot;a&quot; ekler</H2>
-      <Sub className="max-w-3xl mb-6">
-        Aynı kod, tek harf farkla bambaşka sonuç verir.{" "}
-        <span className="font-mono text-[#fca5a5]">&quot;w&quot;</span> dosyayı sıfırlar;{" "}
-        <span className="font-mono text-[#86efac]">&quot;a&quot;</span> sonuna ekler.{" "}
-        <span className="font-mono">write()</span> otomatik satır atlamaz —{" "}
-        <span className="font-mono">\n</span>&apos;i sen koyarsın.
-      </Sub>
-
+      <Eyebrow>Canlı kod · önce tahmin et, sonra çalıştır</Eyebrow>
+      <H2 className="mb-2">Yazma: &quot;w&quot; ile dosyayı baştan yaz</H2>
+      <Sub className="mb-4">Önce yazıyoruz, sonra aynı dosyayı açıp okuyoruz. Satır sonuna \n koymak bize düşer.</Sub>
       <CodeEditor
-        title="yaz.py — Visual Studio Code"
+        title="yaz.py"
         tabs={["yaz.py"]}
         activeTab="yaz.py"
-        code={`# "w": dosyayı sıfırlar, baştan yazar
-with open("rapor.txt", "w", encoding="utf-8") as f:
-    f.write("Başlık: Haftalık Rapor\\n")
+        code={`with open("gunluk.txt", "w", encoding="utf-8") as dosya:
+    dosya.write("Bugün dosyaları öğrendim.\\n")
 
-# "a": var olanı koru, sonuna ekle
-with open("rapor.txt", "a", encoding="utf-8") as f:
-    f.write("Satış: 1240 adet\\n")
-    f.writelines(["Şehir: Manisa\\n", "Yıl: 2026\\n"])`}
+with open("gunluk.txt", "r", encoding="utf-8") as dosya:
+    print(dosya.read())`}
       />
+      <Ask>Çalıştır&apos;a iki kez basarsak dosyada kaç satır olur? Deneyelim.</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  12 · SECTION 3/3 · GÜVENLİ KAPATMA  ───────────────── */
-  () => (
-    <SectionDivider
-      num="3"
-      total="3"
-      title="Güvenli Kapatma & Formatlar"
-      subtitle="Açılan her dosya kapatılmalı. with bloğu bunu otomatik yapar. Ardından gerçek dünyada en çok kullanılan iki format: CSV ve JSON."
-      glowClass="prog-glow-purple"
-      icon={<Lock className="w-14 h-14 text-white" />}
-    />
-  ),
-
-  /* ─────────────────  13 · with — close() KARŞILAŞTIRMA  ───────────────── */
+  /* ─────────────────  8 · EKLEME  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bölüm 3 · with bloğu</Eyebrow>
-      <H2>Neden hep with kullanmalısın?</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Elle <span className="font-mono">close()</span> yazarsan, arada bir hata oluşunca dosya
-        açık kalabilir — bu, veri kaybına ve kilitli dosyalara yol açar.{" "}
-        <span className="font-mono text-[#5fa8e0]">with</span> bloğu, hata olsa bile dosyayı
-        otomatik kapatır.
-      </Sub>
+      <Eyebrow>Canlı kod · önce tahmin et, sonra çalıştır</Eyebrow>
+      <H2 className="mb-2">Ekleme: &quot;a&quot; ile sona satır ekle</H2>
+      <Sub className="mb-4">gunluk.txt içinde şu an tek satır var: Pazartesi: dosyaları öğrendim.</Sub>
+      <CodeEditor
+        title="ekle.py"
+        tabs={["ekle.py", "gunluk.txt"]}
+        activeTab="ekle.py"
+        code={`with open("gunluk.txt", "a", encoding="utf-8") as dosya:
+    dosya.write("Salı: tekrar yaptım.\\n")
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#fca5a5]">
-            <AlertTriangle className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Riskli · elle kapatma</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px]">
-            <div className="whitespace-pre">
-              <span className="tok-var">f</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-builtin">open</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-string">&quot;d.txt&quot;</span>
-              <span className="tok-punct">)</span>
-            </div>
-            <div className="whitespace-pre">
-              <span className="tok-var">veri</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-var">f</span>
-              <span className="tok-punct">.</span>
-              <span className="tok-fname">read</span>
-              <span className="tok-punct">()</span>
-              <span className="tok-comment">  # burada hata olursa?</span>
-            </div>
-            <div className="whitespace-pre">
-              <span className="tok-var">f</span>
-              <span className="tok-punct">.</span>
-              <span className="tok-fname">close</span>
-              <span className="tok-punct">()</span>
-              <span className="tok-comment">  # bu satıra hiç gelinmez</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-gray-500 mt-3">
-            Hata, close() öncesi oluşursa dosya açık kalır.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-4 text-[#86efac]">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="text-xs font-mono uppercase tracking-widest">Doğru · with bloğu</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px]">
-            <div className="whitespace-pre">
-              <span className="tok-keyword">with</span>{" "}
-              <span className="tok-builtin">open</span>
-              <span className="tok-punct">(</span>
-              <span className="tok-string">&quot;d.txt&quot;</span>
-              <span className="tok-punct">)</span>{" "}
-              <span className="tok-keyword">as</span>{" "}
-              <span className="tok-var">f</span>
-              <span className="tok-punct">:</span>
-            </div>
-            <div className="whitespace-pre">
-              {"    "}
-              <span className="tok-var">veri</span>
-              <span className="tok-operator"> = </span>
-              <span className="tok-var">f</span>
-              <span className="tok-punct">.</span>
-              <span className="tok-fname">read</span>
-              <span className="tok-punct">()</span>
-            </div>
-            <div className="whitespace-pre">
-              <span className="tok-comment"># blok bitince f otomatik kapanır</span>
-            </div>
-            <div className="whitespace-pre">
-              <span className="tok-comment"># hata olsa bile kapanır</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-gray-500 mt-3">
-            close() yazmaya gerek yok; Python halleder.
-          </p>
-        </motion.div>
-      </div>
+with open("gunluk.txt", "r", encoding="utf-8") as dosya:
+    print(dosya.read())`}
+        setup={`with open("gunluk.txt", "w", encoding="utf-8") as _f:
+    _f.write("Pazartesi: dosyaları öğrendim.\\n")`}
+      />
+      <Ask>İlk satırdaki &quot;a&quot; yerine &quot;w&quot; yazarsak çıktıda ne kalır? Değiştirip çalıştıralım.</Ask>
     </SlideShell>
   ),
 
-  /* ─────────────────  14 · SIK YAPILAN HATALAR  ───────────────── */
+  /* ─────────────────  9 · MİNİ SINAV  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Dosya işlerinde · sık hatalar</Eyebrow>
-      <H2>En çok karşılaşacağın üç hata</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Bu üç durumu tanımak, hata mesajını okuyup hızlıca çözmeni sağlar.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        <FeatureCard
-          icon={AlertTriangle}
-          title="FileNotFoundError"
-          desc="&quot;r&quot; modunda var olmayan dosyayı açmaya çalıştın. Yolu ve klasörü kontrol et; gerekirse önce oluştur."
-          accent="#fca5a5"
-          delay={0.1}
+      <Eyebrow>Mini sınav · şıkka tıkla</Eyebrow>
+      <H2>İçi dolu bir dosyayı &quot;w&quot; ile açarsan ne olur?</H2>
+      <div className="mt-6 max-w-2xl">
+        <Quiz
+          question="Önce sınıfça oylayın, sonra tıklayın."
+          options={[
+            "Yeni yazdıkların sona eklenir",
+            "Eski içerik silinir, dosya baştan yazılır",
+            "Python hata verir",
+            "Dosyanın bir kopyası oluşur",
+          ]}
+          correct={1}
+          why="“w” önce dosyayı boşaltır. Eskisini korumak istiyorsan “a” kullanırsın."
         />
-        <FeatureCard
-          icon={Trash2}
-          title="İçeriğin silinmesi"
-          desc="Eklemek isterken &quot;w&quot; kullandın; dosya sıfırlandı. Var olan veriyi korumak için her zaman &quot;a&quot; seç."
+      </div>
+      <Ask>Her gün yeni satır eklenen bir günlük programında hangi modu seçerdin?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  10 · SIK HATA  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Dikkat · önce tahmin et</Eyebrow>
+      <H2>Olmayan dosyayı okumaya çalışırsan Python hata verir</H2>
+      <Sub className="mt-3">Klasörde notlarim.txt diye bir dosya yok. Yine de şu kodu çalıştırdık:</Sub>
+      <div className="grid grid-cols-2 gap-4 mt-5 items-start">
+        <CodeView code={`with open("notlarim.txt", "r") as dosya:\n    print(dosya.read())`} active={0} />
+        <Reveal label="Ne olur? Tahmin et, sonra tıkla">
+          <span className="text-[#fca5a5] font-semibold">FileNotFoundError</span> (dosya bulunamadı).
+          &quot;w&quot; ve &quot;a&quot; olmayan dosyayı kendisi oluşturur; &quot;r&quot; oluşturmaz.
+        </Reveal>
+      </div>
+      <Ask>Bu hatayı görünce ilk neye bakarsın? (Dosya adı doğru mu, dosya programla aynı klasörde mi?)</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  11 · SINIFTA DENEYELİM  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Sınıfta deneyelim · 5–10 dakika</Eyebrow>
+      <H2 className="mb-2">Arkadaş listeni dosyaya yaz, sonra geri oku</H2>
+      <Sub className="mb-4">Yazma kısmı hazır. Sen dosyayı &quot;r&quot; ile aç, her satırı ekrana yazdır.</Sub>
+      <CodeEditor
+        title="arkadaslar.py"
+        tabs={["arkadaslar.py"]}
+        activeTab="arkadaslar.py"
+        mode="exercise"
+        code={`adlar = ["Elif", "Mert", "Zeynep"]
+
+with open("arkadaslar.txt", "w", encoding="utf-8") as dosya:
+    for ad in adlar:
+        dosya.write(ad + "\\n")
+
+# Buradan sonrasını sen yaz`}
+        expectedOutput={`Elif\nMert\nZeynep`}
+        hints={[
+          "with open(\"arkadaslar.txt\", \"r\", encoding=\"utf-8\") as dosya: satırıyla başla.",
+          "İçine for satir in dosya: yaz, onun altında print(satir.strip()) olsun.",
+        ]}
+        solution={`adlar = ["Elif", "Mert", "Zeynep"]
+
+with open("arkadaslar.txt", "w", encoding="utf-8") as dosya:
+    for ad in adlar:
+        dosya.write(ad + "\\n")
+
+with open("arkadaslar.txt", "r", encoding="utf-8") as dosya:
+    for satir in dosya:
+        print(satir.strip())`}
+      />
+      <Ask>Listeye dördüncü bir ad eklersek kodun başka bir yerini değiştirmemiz gerekir mi?</Ask>
+    </SlideShell>
+  ),
+
+  /* ─────────────────  12 · AKLINDA KALSIN  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Aklında kalsın · 3 şey</Eyebrow>
+      <H2>Dosyalardan cebine koyacağın üç şey</H2>
+      <div className="grid grid-cols-3 gap-4 mt-6">
+        <InfoCard
+          icon={Save}
+          title="1 · Dosya kalıcıdır"
+          desc="Değişken program kapanınca silinir; dosyaya yazdığın kalır."
+          accent="#3776ab"
+        />
+        <InfoCard
+          icon={PenLine}
+          title="2 · Üç harf, üç iş"
+          desc="r okur, w silip baştan yazar, a sona ekler."
           accent="#ffd43b"
-          delay={0.2}
         />
-        <FeatureCard
-          icon={Braces}
-          title="UnicodeDecodeError"
-          desc="Türkçe karakterli dosyada encoding belirtmedin. open() çağrısına encoding=&quot;utf-8&quot; ekle."
-          accent="#5fa8e0"
-          delay={0.3}
+        <InfoCard
+          icon={Lock}
+          title="3 · Hep with open"
+          desc="Girinti bitince dosya kendiliğinden kapanır."
+          accent="#4ec9b0"
         />
       </div>
-
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-6 prog-card rounded-lg px-4 py-3 text-sm text-gray-300 flex items-start gap-3 max-w-4xl"
+        transition={{ delay: 0.5 }}
+        className="mt-6 prog-card-yellow rounded-xl px-5 py-4 text-base text-gray-200"
       >
-        <Lightbulb className="w-5 h-5 text-[#ffd43b] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">Güvenli kalıp:</span> dosya işlemini bir{" "}
-          <span className="font-mono text-[#5fa8e0]">try / except FileNotFoundError</span>{" "}
-          bloğuna alıp kullanıcıya anlaşılır bir uyarı göster — programın çökmesini önle. (Hata yönetimini geçen hafta işledik.)
-        </span>
+        <span className="text-[#ffd43b] font-semibold">Şimdi:</span> son konuyu da bitirdik. Kalan
+        sürede dönemi dört başlıkta toparlayıp kendimizi deniyoruz.
       </motion.div>
     </SlideShell>
   ),
 
-  /* ─────────────────  15 · CSV ve JSON  ───────────────── */
+  /* ─────────────────  13 · DÖNEM HARİTASI  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Gerçek dünya formatları</Eyebrow>
-      <H2>Düz metin yetmediğinde: CSV &amp; JSON</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Verinin yapısı varsa düz metin yerine standart format kullanılır. Python&apos;ın
-        hazır <span className="font-mono text-[#5fa8e0]">csv</span> ve{" "}
-        <span className="font-mono text-[#5fa8e0]">json</span> modülleri bu dosyaları
-        kolayca okur ve yazar.
-      </Sub>
+      <Eyebrow>Dönem tekrarı · karta tıkla</Eyebrow>
+      <H2>Dönem haritası: on beş hafta, dört büyük fikir</H2>
+      <div className="grid grid-cols-2 gap-4 mt-5">
+        <HatirlaKart
+          hafta="Veriyi sakla"
+          baslik="Değişken, liste, metin"
+          hatirlatma="Değişken tek değeri, liste birçok değeri tutar; sıra numarası 0'dan başlar."
+          ornek={`notlar = [70, 45, 90]  →  notlar[0] 70'tir`}
+          renk="#3776ab"
+        />
+        <HatirlaKart
+          hafta="Karar ver"
+          baslik="Koşul: if, elif, else"
+          hatirlatma="Koşul doğruysa bir yol, değilse başka yol çalışır."
+          ornek={`if puan >= 50: print("Geçti")`}
+          renk="#ffd43b"
+        />
+        <HatirlaKart
+          hafta="Tekrar et"
+          baslik="Döngü: for, while"
+          hatirlatma="Aynı işi elle yazmak yerine Python'a tekrar ettiririz."
+          ornek={`for i in range(3):  →  0, 1, 2`}
+          renk="#4ec9b0"
+        />
+        <HatirlaKart
+          hafta="Düzenle ve sakla"
+          baslik="Fonksiyon ve dosya"
+          hatirlatma="Fonksiyon kodu bir kez yazdırır; dosya veriyi kalıcı yapar."
+          ornek={`def ... return   ·   with open(...)`}
+          renk="#f472b6"
+        />
+      </div>
+      <Ask>Bu dört başlıktan en çok hangisinde zorlandın? El kaldırarak oylayalım.</Ask>
+    </SlideShell>
+  ),
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#86efac]">
-            <Table2 className="w-5 h-5" />
-            <span className="text-sm font-semibold text-white">CSV — tablo verisi</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px] mb-3">
-            <div className="whitespace-pre"><span className="tok-comment">ogrenciler.csv</span></div>
-            <div className="whitespace-pre tok-var">ad,soyad,not</div>
-            <div className="whitespace-pre tok-string">Ali,Yılmaz,85</div>
-            <div className="whitespace-pre tok-string">Ayşe,Demir,92</div>
-          </div>
-          <p className="text-sm text-gray-400">
-            Virgülle ayrılmış değerler. Excel ve Google Sheets ile uyumlu — tablo
-            şeklindeki kayıtlar için idealdir.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="prog-card rounded-xl p-6"
-        >
-          <div className="flex items-center gap-2 mb-3 text-[#5fa8e0]">
-            <Braces className="w-5 h-5" />
-            <span className="text-sm font-semibold text-white">JSON — iç içe veri</span>
-          </div>
-          <div className="prog-editor rounded-lg px-4 py-3 text-[12px] mb-3">
-            <div className="whitespace-pre"><span className="tok-comment">ayarlar.json</span></div>
-            <div className="whitespace-pre"><span className="tok-punct">{"{"}</span></div>
-            <div className="whitespace-pre">{"  "}<span className="tok-string">&quot;ad&quot;</span><span className="tok-punct">: </span><span className="tok-string">&quot;Ali&quot;</span><span className="tok-punct">,</span></div>
-            <div className="whitespace-pre">{"  "}<span className="tok-string">&quot;not&quot;</span><span className="tok-punct">: </span><span className="tok-number">85</span></div>
-            <div className="whitespace-pre"><span className="tok-punct">{"}"}</span></div>
-          </div>
-          <p className="text-sm text-gray-400">
-            Anahtar-değer yapısı; Python sözlüğüne birebir benzer. Ayar dosyaları ve
-            web (API) verisi için standarttır.
-          </p>
-        </motion.div>
+  /* ─────────────────  14 · KENDİNİ DENE 1  ───────────────── */
+  () => (
+    <SlideShell>
+      <Eyebrow>Kendini dene · döngü ve liste</Eyebrow>
+      <H2>Dönem tekrarı: ilk iki soru</H2>
+      <div className="grid grid-cols-2 gap-6 mt-6 items-start">
+        <Quiz
+          question={
+            <>
+              <span className="font-mono text-[#9cdcfe]">for i in range(3): print(i)</span> ekrana
+              hangi sayıları yazar?
+            </>
+          }
+          options={["1, 2, 3", "0, 1, 2", "0, 1, 2, 3", "Yalnızca 3"]}
+          correct={1}
+          why="range(3) saymaya 0'dan başlar ve 3'e gelmeden durur."
+        />
+        <Quiz
+          question={
+            <>
+              <span className="font-mono text-[#9cdcfe]">sayilar = [4, 9, 2]</span> ise{" "}
+              <span className="font-mono text-[#9cdcfe]">sayilar[1]</span> kaçtır?
+            </>
+          }
+          options={["4", "9", "2", "Hata verir"]}
+          correct={1}
+          why="Sıra numarası 0'dan başlar: sayilar[0] 4, sayilar[1] 9'dur."
+        />
       </div>
     </SlideShell>
   ),
 
-  /* ─────────────────  16 · UYGULAMALI LAB  ───────────────── */
+  /* ─────────────────  15 · KENDİNİ DENE 2  ───────────────── */
   () => (
     <SlideShell>
-      <Eyebrow>Bu hafta · uygulamalı alıştırma</Eyebrow>
-      <H2>Mini not defteri programı yaz</H2>
-      <Sub className="mt-3 max-w-3xl">
-        Tek başına çalışınca pekişir. Aşağıdaki dört adımı tamamla; sonraki derse
-        kodunu ve ekran görüntüsünü getir.
-      </Sub>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        {[
-          { icon: PlusCircle, title: "Kayıt ekle", desc: "Kullanıcıdan bir not al, &quot;a&quot; modunda notlar.txt dosyasına satır olarak ekle.", accent: "#86efac" },
-          { icon: BookOpen, title: "Tüm notları listele", desc: "Dosyayı with + for ile satır satır oku; başına satır numarası koyup ekrana yaz.", accent: "#5fa8e0" },
-          { icon: Terminal, title: "Notları say", desc: "readlines() ile satır listesini al, len() ile toplam not sayısını yazdır.", accent: "#3776ab" },
-          { icon: ListChecks, title: "Hataya dayanıklı yap", desc: "Dosya yoksa try/except FileNotFoundError ile &quot;Henüz not yok&quot; mesajı göster.", accent: "#ffd43b" },
-        ].map((t, i) => (
-          <motion.div
-            key={t.title}
-            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 + i * 0.1 }}
-            className="prog-card prog-card-hover rounded-xl p-5 flex items-start gap-4"
-          >
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${t.accent}18`, border: `1px solid ${t.accent}55` }}
-            >
-              <t.icon className="w-5 h-5" style={{ color: t.accent }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center text-[10px] text-gray-500 font-mono">{i + 1}</span>
-                <h3 className="text-base font-semibold text-white">{t.title}</h3>
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed">{t.desc}</p>
-            </div>
-          </motion.div>
-        ))}
+      <Eyebrow>Kendini dene · koşul ve dosya</Eyebrow>
+      <H2>Dönem tekrarı: son iki soru</H2>
+      <div className="grid grid-cols-2 gap-6 mt-6 items-start">
+        <div>
+          <CodeView code={`puan = 45\nif puan >= 50:\n    print("Geçti")\nelse:\n    print("Kaldı")`} />
+          <div className="mt-3">
+            <Quiz
+              question="Bu kod ekrana ne yazar?"
+              options={["Geçti", "Kaldı", "45", "Hiçbir şey"]}
+              correct={1}
+              why="45, 50'den küçük; koşul yanlış olduğu için else kısmı çalışır."
+            />
+          </div>
+        </div>
+        <Quiz
+          question="Program kapansa da kaybolmasın istediğin veriyi nereye yazarsın?"
+          options={["Bir değişkene", "Bir listeye", "Bir dosyaya", "print ile ekrana"]}
+          correct={2}
+          why="Değişken ve liste program kapanınca silinir; dosya kalır."
+        />
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="mt-6 prog-card-yellow rounded-lg px-4 py-3 text-xs text-gray-300 flex items-start gap-3 max-w-4xl"
-      >
-        <Check className="w-4 h-4 text-[#ffd43b] mt-0.5 flex-shrink-0" />
-        <span>
-          <span className="text-white">İpucu:</span> ekleme ve okuma için ayrı{" "}
-          <span className="font-mono text-[#5fa8e0]">with</span> blokları kullan; aynı dosyayı
-          &quot;a&quot; ile yazıp, sonra &quot;r&quot; ile oku. encoding=&quot;utf-8&quot; eklemeyi unutma.
-        </span>
-      </motion.div>
     </SlideShell>
   ),
 
-  /* ─────────────────  17 · SIRADAKİ HAFTA + KAPANIŞ  ───────────────── */
+  /* ─────────────────  16 · KAPANIŞ  ───────────────── */
   () => (
     <SlideShell>
       <div className="text-center">
@@ -1048,48 +878,26 @@ with open("rapor.txt", "a", encoding="utf-8") as f:
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7 }}
-          className="inline-flex w-24 h-24 rounded-2xl items-center justify-center mb-8 prog-glow-blue"
+          className="inline-flex w-20 h-20 rounded-2xl items-center justify-center mb-6 prog-glow-blue"
         >
-          <FileText className="w-12 h-12 text-white" />
+          <GraduationCap className="w-10 h-10 text-white" />
         </motion.div>
-        <Eyebrow>15. hafta tamamlandı · sıradaki: Genel tekrar &amp; proje</Eyebrow>
-        <H1>
-          <span className="prog-shimmer">Veriyi artık saklayabiliyorsun</span>
-        </H1>
-        <Sub className="mt-6 max-w-2xl mx-auto">
-          Bu hafta dosya açmayı, okumayı, yazmayı ve güvenli kapatmayı öğrendik.
-          Önümüzdeki hafta tüm dönemin parçalarını — değişken, döngü, fonksiyon ve
-          dosya — tek bir küçük projede birleştiriyoruz.
-        </Sub>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto text-left">
-          <div className="prog-card rounded-xl p-5">
-            <CheckCircle2 className="w-5 h-5 text-[#86efac] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Öğrendik</div>
-            <div className="text-white font-semibold">open / read / write</div>
-            <div className="text-sm text-gray-400">modlar ve with bloğu</div>
-          </div>
-          <div className="prog-card rounded-xl p-5">
-            <ArrowRight className="w-5 h-5 text-[#5fa8e0] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Sonraki hafta</div>
-            <div className="text-white font-semibold">Genel tekrar</div>
-            <div className="text-sm text-gray-400">uçtan uca mini proje</div>
-          </div>
-          <div className="prog-card rounded-xl p-5">
-            <ListChecks className="w-5 h-5 text-[#ffd43b] mb-3" />
-            <div className="text-xs uppercase tracking-widest text-gray-500 font-mono mb-1">Teslim</div>
-            <div className="text-white font-semibold">Not defteri</div>
-            <div className="text-sm text-gray-400">4 adım + ekran görüntüsü</div>
-          </div>
+        <div>
+          <Eyebrow>Dönem bitti</Eyebrow>
         </div>
-
+        <H2>Artık küçük bir programı baştan sona yazabilirsin</H2>
+        <Sub className="mt-4 max-w-2xl mx-auto">
+          Veriyi al, karar ver, tekrar et, fonksiyona böl, dosyaya kaydet. Bir dönemde öğrendiğimiz
+          yol bu.
+        </Sub>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="mt-10 text-[11px] font-mono text-gray-600 uppercase tracking-[0.3em]"
+          transition={{ delay: 0.5 }}
+          className="mt-8 prog-card-yellow rounded-xl px-5 py-4 text-base text-gray-200 max-w-2xl mx-auto"
         >
-          BVA 1101 · Programlama Temelleri · Bahar 2026
+          <span className="text-[#ffd43b] font-semibold">Sırada final var:</span> 9–15. hafta
+          sunumlarındaki &ldquo;Kendini dene&rdquo; sorularını ve canlı kodları bir kez daha çöz.
         </motion.div>
       </div>
     </SlideShell>
@@ -1182,7 +990,7 @@ export default function Presentation() {
 
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-4 text-[10px] font-mono uppercase tracking-wider">
         <div className="text-[#5fa8e0]/70">
-          BVA 1101 · 15. Hafta · Dosyalama İşlemleri
+          BVA 1101 · 15. Hafta · Dosyalar ve Dönem Tekrarı
         </div>
         <div className="flex items-center gap-3">
           <div className="text-[#5fa8e0]/50">
