@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -47,7 +47,12 @@ export type Data = {
     | { words: Array<{ word: string; count: number }> }
     | { texts: string[] }
     | null;
-  participants: Array<{ id: string; nickname: string; score: number }>;
+  participants: Array<{
+    id: string;
+    nickname: string;
+    score: number;
+    lastSeenAt: string;
+  }>;
 };
 
 const POLL_MS = 2000;
@@ -58,28 +63,82 @@ export function LiveConsoleClient({ id }: { id: string }) {
   const [data, setData] = useState<Data | null>(null);
   const [board, setBoard] = useState(false);
 
-  const load = useCallback(async () => {
-    const res = await fetch(`/api/admin/live/${id}`, { cache: "no-store" });
-    if (res.ok) setData(await res.json());
-  }, [id]);
+  const seq = useRef(0);
+  const applied = useRef(0);
+  const loading = useRef(false);
 
+  // Yanıtlar sırasız dönebiliyor; eski bir yanıt yenisinin üstüne yazılırsa
+  // sayaçlar ve sıralama geri sıçrıyordu. Yalnızca en yeni istek uygulanıyor,
+  // biri sürerken sayaçtan gelen yenisi atlanıyor.
+  const load = useCallback(
+    async (force = false) => {
+      if (loading.current && !force) return;
+      loading.current = true;
+      const mine = ++seq.current;
+      try {
+        const res = await fetch(`/api/admin/live/${id}`, {
+          cache: "no-store",
+          signal: AbortSignal.timeout(8000),
+        });
+        if (res.ok) {
+          const next = await res.json();
+          if (mine >= applied.current) {
+            applied.current = mine;
+            setData(next);
+          }
+        }
+      } catch {
+        // Sıradaki yoklama yeniden dener.
+      } finally {
+        if (mine === seq.current) loading.current = false;
+      }
+    },
+    [id]
+  );
+
+  /**
+   * Konsol işlemi. Başarısız olursa hata fırlatır: oyun ekranı sunucu
+   * onaylamadan sonraki aşamaya geçerse tahta ilerliyor ama öğrenci
+   * telefonları eski soruda kalıyordu.
+   */
   const act = useCallback(
     async (action: string, activityId?: string) => {
-      await fetch(`/api/admin/live/${id}`, {
+      const res = await fetch(`/api/admin/live/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, activityId }),
+        signal: AbortSignal.timeout(8000),
       });
-      await load();
+      if (!res.ok) {
+        throw new Error(
+          res.status === 401
+            ? "Yönetici oturumu kapanmış. Başka sekmede yeniden giriş yapın."
+            : `Sunucu işlemi kabul etmedi (${res.status}).`
+        );
+      }
+      // Tazeleme beklenmiyor: yavaş bir okuma akışı durdurmasın.
+      void load(true);
     },
     [id, load]
+  );
+
+  const [actError, setActError] = useState<string | null>(null);
+  /** Konsol düğmeleri için: hata fırlatmak yerine ekranda gösterir. */
+  const actUi = useCallback(
+    (action: string, activityId?: string) => {
+      setActError(null);
+      act(action, activityId).catch((e: unknown) =>
+        setActError(e instanceof Error ? e.message : "İşlem yapılamadı.")
+      );
+    },
+    [act]
   );
 
   const [game, setGame] = useState(false);
 
   useEffect(() => {
     load();
-    const t = setInterval(load, game ? GAME_POLL_MS : POLL_MS);
+    const t = setInterval(() => void load(), game ? GAME_POLL_MS : POLL_MS);
     return () => clearInterval(t);
   }, [load, game]);
 
@@ -98,13 +157,21 @@ export function LiveConsoleClient({ id }: { id: string }) {
         data={data}
         current={current}
         onClose={() => setBoard(false)}
-        onAct={act}
+        onAct={actUi}
       />
     );
   }
 
   return (
     <div>
+      {actError && (
+        <p
+          role="alert"
+          className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-md px-3 py-2"
+        >
+          {actError}
+        </p>
+      )}
       <Link
         href="/admin/canli"
         className="inline-flex items-center gap-2 text-sm text-[var(--fg-muted)] hover:text-[var(--accent)] mb-6"
@@ -142,7 +209,7 @@ export function LiveConsoleClient({ id }: { id: string }) {
           </button>
           {s.status !== "ENDED" ? (
             <button
-              onClick={() => act("end")}
+              onClick={() => actUi("end")}
               className="inline-flex items-center gap-2 px-4 py-2.5 border border-[var(--border-strong)] text-sm rounded-md text-[var(--fg-muted)] hover:border-red-400 hover:text-red-400"
             >
               <Square className="w-4 h-4" />
@@ -150,7 +217,7 @@ export function LiveConsoleClient({ id }: { id: string }) {
             </button>
           ) : (
             <button
-              onClick={() => act("reopen")}
+              onClick={() => actUi("reopen")}
               className="inline-flex items-center gap-2 px-4 py-2.5 border border-[var(--border-strong)] text-sm rounded-md text-[var(--fg-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
             >
               <Play className="w-4 h-4" />
@@ -192,19 +259,19 @@ export function LiveConsoleClient({ id }: { id: string }) {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Btn onClick={() => act("show", a.id)} icon={Monitor}>
+                  <Btn onClick={() => actUi("show", a.id)} icon={Monitor}>
                     Sahneye al
                   </Btn>
-                  <Btn onClick={() => act("open", a.id)} icon={Play} primary>
+                  <Btn onClick={() => actUi("open", a.id)} icon={Play} primary>
                     Yanıtları aç
                   </Btn>
-                  <Btn onClick={() => act("lock", a.id)} icon={Lock}>
+                  <Btn onClick={() => actUi("lock", a.id)} icon={Lock}>
                     Kilitle
                   </Btn>
-                  <Btn onClick={() => act("reveal", a.id)} icon={Eye}>
+                  <Btn onClick={() => actUi("reveal", a.id)} icon={Eye}>
                     Sonucu göster
                   </Btn>
-                  <Btn onClick={() => act("reset", a.id)} icon={RotateCcw}>
+                  <Btn onClick={() => actUi("reset", a.id)} icon={RotateCcw}>
                     Sıfırla
                   </Btn>
                 </div>

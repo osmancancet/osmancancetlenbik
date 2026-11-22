@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { cached } from "@/lib/liveCache";
 import {
   normalizeCode,
   scoreFor,
@@ -9,6 +10,35 @@ import {
 } from "@/lib/live";
 
 export const dynamic = "force-dynamic";
+
+const SESSION_TTL_MS = 400;
+const RESULTS_TTL_MS = 1000;
+const LAST_SEEN_EVERY_MS = 15_000;
+
+async function loadResults(activityId: string, type: string): Promise<unknown> {
+  if (type === "WORDCLOUD" || type === "QA") {
+    const rows = await prisma.liveResponse.findMany({
+      where: { activityId },
+      select: { text: true },
+      orderBy: { createdAt: "desc" },
+      take: 300,
+    });
+    const texts = rows.map((r) => r.text ?? "").filter(Boolean);
+    return type === "WORDCLOUD"
+      ? { words: tallyWords(texts) }
+      : { texts: texts.slice(0, 50) };
+  }
+  const grouped = await prisma.liveResponse.groupBy({
+    by: ["optionId"],
+    where: { activityId },
+    _count: { _all: true },
+  });
+  const counts: Record<string, number> = {};
+  for (const g of grouped) {
+    if (g.optionId) counts[g.optionId] = g._count._all;
+  }
+  return { counts, total: Object.values(counts).reduce((a, b) => a + b, 0) };
+}
 
 type Ctx = { params: Promise<{ code: string }> };
 
@@ -23,13 +53,16 @@ export async function GET(req: Request, { params }: Ctx) {
   const code = normalizeCode(raw);
   const key = new URL(req.url).searchParams.get("key");
 
-  const session = await prisma.liveSession.findUnique({
-    where: { code },
-    include: {
-      activities: { orderBy: { order: "asc" } },
-      _count: { select: { participants: true } },
-    },
-  });
+  // Oturum ve soru listesi herkes için aynı: kısa süre önbellekten.
+  const session = await cached(`live:s:${code}`, SESSION_TTL_MS, () =>
+    prisma.liveSession.findUnique({
+      where: { code },
+      include: {
+        activities: { orderBy: { order: "asc" } },
+        _count: { select: { participants: true } },
+      },
+    })
+  );
 
   if (!session) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
@@ -37,6 +70,9 @@ export async function GET(req: Request, { params }: Ctx) {
 
   const current =
     session.activities.find((a) => a.id === session.currentActivityId) ?? null;
+  const state = (current?.state ?? "IDLE") as ActivityState;
+  const revealed = !!current && state === "REVEALED";
+  const ended = session.status === "ENDED";
 
   const me = key
     ? await prisma.liveParticipant.findUnique({
@@ -44,33 +80,63 @@ export async function GET(req: Request, { params }: Ctx) {
       })
     : null;
 
-  if (me) {
-    // Katılımcı listesinde "çevrimiçi" göstergesini besler.
-    await prisma.liveParticipant.update({
-      where: { id: me.id },
-      data: { lastSeenAt: new Date() },
-    });
-  }
+  // Katılımcıya özel sorgular birlikte gidiyor; sıra ve seri yalnızca
+  // ekranda gösterildikleri anda (sonuç açıkken, ders bitince) hesaplanıyor.
+  const needStanding = !!me && (revealed || ended);
+  const quizIds =
+    me && revealed && current!.type === "QUIZ"
+      ? session.activities
+          .filter((a) => a.type === "QUIZ" && a.order <= current!.order)
+          .map((a) => a.id)
+      : [];
+
+  const [myResponse, higher, ahead, mine] = await Promise.all([
+    me && current
+      ? prisma.liveResponse.findUnique({
+          where: {
+            activityId_participantId: {
+              activityId: current.id,
+              participantId: me.id,
+            },
+          },
+        })
+      : null,
+    needStanding
+      ? prisma.liveParticipant.count({
+          where: { sessionId: session.id, score: { gt: me!.score } },
+        })
+      : null,
+    needStanding
+      ? prisma.liveParticipant.findFirst({
+          where: { sessionId: session.id, score: { gt: me!.score } },
+          orderBy: [{ score: "asc" }, { joinedAt: "asc" }],
+          select: { nickname: true, score: true },
+        })
+      : null,
+    quizIds.length
+      ? prisma.liveResponse.findMany({
+          where: { participantId: me!.id, activityId: { in: quizIds } },
+          select: { activityId: true, correct: true },
+        })
+      : null,
+    // "Çevrimiçi" göstergesi: her yoklamada değil, arada bir yazılıyor.
+    me && Date.now() - me.lastSeenAt.getTime() > LAST_SEEN_EVERY_MS
+      ? prisma.liveParticipant
+          .update({ where: { id: me.id }, data: { lastSeenAt: new Date() } })
+          .catch(() => null)
+      : null,
+  ]);
 
   // Kahoot'taki "3. sıradasın, Ayşe'nin 120 puan gerisinde" satırı için.
-  let standing: { rank: number; ahead: { nickname: string; gap: number } | null } | null =
-    null;
-  if (me) {
-    const [higher, ahead] = await Promise.all([
-      prisma.liveParticipant.count({
-        where: { sessionId: session.id, score: { gt: me.score } },
-      }),
-      prisma.liveParticipant.findFirst({
-        where: { sessionId: session.id, score: { gt: me.score } },
-        orderBy: [{ score: "asc" }, { joinedAt: "asc" }],
-        select: { nickname: true, score: true },
-      }),
-    ]);
-    standing = {
-      rank: higher + 1,
-      ahead: ahead ? { nickname: ahead.nickname, gap: ahead.score - me.score } : null,
-    };
-  }
+  const standing =
+    me && higher != null
+      ? {
+          rank: higher + 1,
+          ahead: ahead
+            ? { nickname: ahead.nickname, gap: ahead.score - me.score }
+            : null,
+        }
+      : null;
 
   const base = {
     code: session.code,
@@ -88,31 +154,11 @@ export async function GET(req: Request, { params }: Ctx) {
     return NextResponse.json({ ...base, activity: null });
   }
 
-  const state = current.state as ActivityState;
-  const revealed = state === "REVEALED";
   const options = (current.options as ActivityOption[] | null) ?? [];
-
-  const myResponse = me
-    ? await prisma.liveResponse.findUnique({
-        where: {
-          activityId_participantId: {
-            activityId: current.id,
-            participantId: me.id,
-          },
-        },
-      })
-    : null;
 
   // Cevap serisi: sonucu açılmış yarışma sorularında arka arkaya doğru sayısı.
   let streak = 0;
-  if (me && revealed && current.type === "QUIZ") {
-    const quizIds = session.activities
-      .filter((a) => a.type === "QUIZ" && a.order <= current.order)
-      .map((a) => a.id);
-    const mine = await prisma.liveResponse.findMany({
-      where: { participantId: me.id, activityId: { in: quizIds } },
-      select: { activityId: true, correct: true },
-    });
+  if (mine) {
     const byId = new Map(mine.map((r) => [r.activityId, r.correct]));
     for (let i = quizIds.length - 1; i >= 0; i--) {
       if (byId.get(quizIds[i]) !== true) break;
@@ -120,36 +166,12 @@ export async function GET(req: Request, { params }: Ctx) {
     }
   }
 
-  let results: unknown = null;
-  if (revealed) {
-    if (current.type === "WORDCLOUD" || current.type === "QA") {
-      const rows = await prisma.liveResponse.findMany({
-        where: { activityId: current.id },
-        select: { text: true },
-        orderBy: { createdAt: "desc" },
-        take: 300,
-      });
-      const texts = rows.map((r) => r.text ?? "").filter(Boolean);
-      results =
-        current.type === "WORDCLOUD"
-          ? { words: tallyWords(texts) }
-          : { texts: texts.slice(0, 50) };
-    } else {
-      const grouped = await prisma.liveResponse.groupBy({
-        by: ["optionId"],
-        where: { activityId: current.id },
-        _count: { _all: true },
-      });
-      const counts: Record<string, number> = {};
-      for (const g of grouped) {
-        if (g.optionId) counts[g.optionId] = g._count._all;
-      }
-      results = {
-        counts,
-        total: Object.values(counts).reduce((a, b) => a + b, 0),
-      };
-    }
-  }
+  // Açılmış sonucun dağılımı da herkes için aynı.
+  const results = revealed
+    ? await cached(`live:r:${current.id}`, RESULTS_TTL_MS, () =>
+        loadResults(current.id, current.type)
+      )
+    : null;
 
   return NextResponse.json({
     ...base,

@@ -27,15 +27,32 @@ export function JoinClient() {
     setError(null);
 
     const clean = normalizeCode(code);
-    const res = await fetch("/api/live/join", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code: clean,
-        nickname: nickname.trim() || undefined,
-        key: readKey(clean) ?? undefined,
-      }),
+    const body = JSON.stringify({
+      code: clean,
+      nickname: nickname.trim() || undefined,
+      key: readKey(clean) ?? undefined,
     });
+
+    // Sınıf Wi-Fi'ında istek arada bir düşüyor; düğme kilitli kalmasın diye
+    // zaman aşımı var ve bağlantı hatasında bir kez daha deneniyor.
+    let res: Response | null = null;
+    for (let attempt = 0; attempt < 2 && !res; attempt++) {
+      try {
+        res = await fetch("/api/live/join", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+          signal: AbortSignal.timeout(8000),
+        });
+      } catch {
+        res = null;
+      }
+    }
+    if (!res) {
+      setError("Bağlantı kurulamadı. İnternetini kontrol edip tekrar dene.");
+      setBusy(false);
+      return;
+    }
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {

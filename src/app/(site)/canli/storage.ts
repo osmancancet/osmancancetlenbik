@@ -15,11 +15,41 @@ function safe<T>(fn: () => T, fallback: T): T {
   }
 }
 
-export const readKey = (code: string) =>
-  safe(() => localStorage.getItem(keyFor(code)), null);
+/**
+ * localStorage kapalıysa (gizli sekme, uygulama içi tarayıcı, kısıtlı okul
+ * tableti) anahtar kaydedilemiyor, öğrenci katıldıktan sonra "henüz
+ * katılmadınız" ekranına düşüyordu. Sırayla deneniyor: localStorage →
+ * sessionStorage → çerez → sayfa belleği.
+ */
+const memory = new Map<string, string>();
 
-export const writeKey = (code: string, key: string) =>
-  safe(() => localStorage.setItem(keyFor(code), key), undefined);
+function readCookie(name: string): string | null {
+  const hit = document.cookie
+    .split("; ")
+    .find((c) => c.startsWith(`${name}=`));
+  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null;
+}
+
+export const readKey = (code: string): string | null => {
+  const k = keyFor(code);
+  return (
+    safe(() => localStorage.getItem(k), null) ??
+    safe(() => sessionStorage.getItem(k), null) ??
+    safe(() => readCookie(k), null) ??
+    memory.get(k) ??
+    null
+  );
+};
+
+export const writeKey = (code: string, key: string) => {
+  const k = keyFor(code);
+  memory.set(k, key);
+  safe(() => localStorage.setItem(k, key), undefined);
+  safe(() => sessionStorage.setItem(k, key), undefined);
+  safe(() => {
+    document.cookie = `${k}=${encodeURIComponent(key)}; path=/canli; max-age=43200; samesite=lax`;
+  }, undefined);
+};
 
 export const readNickname = () => safe(() => localStorage.getItem(NICK), null);
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { cached } from "@/lib/liveCache";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 import { normalizeCode, scoreFor, type ActivityOption } from "@/lib/live";
 
@@ -37,9 +38,15 @@ export async function POST(req: Request, { params }: Ctx) {
     );
   }
 
-  const session = await prisma.liveSession.findUnique({
-    where: { code: normalizeCode(raw) },
-  });
+  // Oturum satırı herkes için aynı; yanıt anında yeniden okumaya gerek yok.
+  // Asıl kapı aşağıda: sorunun durumu her seferinde taze okunuyor.
+  const code = normalizeCode(raw);
+  const session = await cached(`live:a:${code}`, 2000, () =>
+    prisma.liveSession.findUnique({
+      where: { code },
+      select: { id: true, status: true },
+    })
+  );
   if (!session || session.status === "ENDED") {
     return NextResponse.json({ error: "Ders aktif değil." }, { status: 410 });
   }
@@ -89,46 +96,49 @@ export async function POST(req: Request, { params }: Ctx) {
     ? Date.now() - activity.openedAt.getTime()
     : null;
 
-  const existing = await prisma.liveResponse.findUnique({
-    where: {
-      activityId_participantId: {
-        activityId: activity.id,
-        participantId: participant.id,
-      },
-    },
-  });
-
-  // Yarışmada ilk yanıt bağlayıcı: aksi hâlde sonuç açılmadan önce tekrar
-  // deneyip puan avlamak mümkün olurdu.
-  if (existing && activity.type === "QUIZ") {
-    return NextResponse.json(
-      { error: "Yanıtınız zaten alındı." },
-      { status: 409 }
-    );
-  }
-
-  await prisma.liveResponse.upsert({
-    where: {
-      activityId_participantId: {
-        activityId: activity.id,
-        participantId: participant.id,
-      },
-    },
-    create: {
+  const where = {
+    activityId_participantId: {
       activityId: activity.id,
       participantId: participant.id,
-      optionId: isText ? null : parsed.data.optionId,
-      text: isText ? parsed.data.text : null,
-      correct,
-      elapsedMs,
     },
-    update: {
-      optionId: isText ? null : parsed.data.optionId,
-      text: isText ? parsed.data.text : null,
-      correct,
-      elapsedMs,
-    },
-  });
+  };
+  const fields = {
+    optionId: isText ? null : parsed.data.optionId,
+    text: isText ? parsed.data.text : null,
+    correct,
+    elapsedMs,
+  };
+
+  if (activity.type === "QUIZ") {
+    // Yarışmada ilk yanıt bağlayıcı: aksi hâlde sonuç açılmadan önce tekrar
+    // deneyip puan avlamak mümkün olurdu. Önce "var mı" diye sormak yerine
+    // doğrudan yazılıyor; ikinci yanıtı benzersizlik kısıtı geri çeviriyor.
+    // Çift dokunuş ya da yeniden deneme de buraya düşer ve başarı sayılır.
+    try {
+      await prisma.liveResponse.create({
+        data: {
+          activityId: activity.id,
+          participantId: participant.id,
+          ...fields,
+        },
+      });
+    } catch (e) {
+      if ((e as { code?: string }).code === "P2002") {
+        return NextResponse.json({ ok: true, already: true });
+      }
+      throw e;
+    }
+  } else {
+    await prisma.liveResponse.upsert({
+      where,
+      create: {
+        activityId: activity.id,
+        participantId: participant.id,
+        ...fields,
+      },
+      update: fields,
+    });
+  }
 
   if (activity.type === "QUIZ" && correct !== null) {
     const gained = scoreFor({

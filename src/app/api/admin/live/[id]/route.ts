@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
 import { tallyWords, type ActivityOption } from "@/lib/live";
+import { invalidate } from "@/lib/liveCache";
 
 export const dynamic = "force-dynamic";
 
@@ -128,6 +129,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (!session) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
+  // Aynı sunucu örneğindeki öğrenci yoklamaları yeni durumu hemen görsün.
+  invalidate(`live:s:${session.code}`);
+  invalidate(`live:a:${session.code}`);
+  if (activityId) invalidate(`live:r:${activityId}`);
 
   if (action === "end") {
     await prisma.liveSession.update({

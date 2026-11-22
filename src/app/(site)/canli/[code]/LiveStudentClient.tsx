@@ -71,48 +71,128 @@ export function LiveStudentClient({ code }: { code: string }) {
     keyRef.current = readKey(code);
   }, [code]);
 
+  const [offline, setOffline] = useState(false);
+  /** Dokunuş sunucuya ulaşana kadar ekranda "yanıtın alındı" göstermek için. */
+  const [pending, setPending] = useState<{
+    activityId: string;
+    optionId: string;
+  } | null>(null);
+
+  const seq = useRef(0);
+  const applied = useRef(0);
+  const fails = useRef(0);
+
+  /**
+   * Durumu çeker. Yanıtlar sırasız dönebiliyor (yavaş bir istek, kendinden
+   * sonra atılanın arkasından gelebiliyor); eski yanıt yenisinin üstüne
+   * yazılırsa ekran bir önceki soruya geri sıçrıyordu. Her isteğe sıra
+   * numarası veriliyor, yalnızca en yenisi uygulanıyor.
+   */
   const load = useCallback(async () => {
     const key = keyRef.current;
-    const res = await fetch(
-      `/api/live/${code}${key ? `?key=${encodeURIComponent(key)}` : ""}`,
-      { cache: "no-store" }
-    );
-    if (res.status === 404) {
-      setGone(true);
-      return;
+    const mine = ++seq.current;
+    try {
+      const res = await fetch(
+        `/api/live/${code}${key ? `?key=${encodeURIComponent(key)}` : ""}`,
+        { cache: "no-store", signal: AbortSignal.timeout(6000) }
+      );
+      if (res.status === 404) {
+        setGone(true);
+        return;
+      }
+      if (!res.ok) throw new Error(String(res.status));
+      const next = (await res.json()) as State;
+      if (mine < applied.current) return;
+      applied.current = mine;
+      fails.current = 0;
+      setOffline(false);
+      setState(next);
+    } catch {
+      fails.current += 1;
+      if (fails.current >= 3) setOffline(true);
     }
-    if (!res.ok) return;
-    setState(await res.json());
   }, [code]);
 
   const live = state?.status === "LIVE";
+  const liveRef = useRef(live);
+  liveRef.current = live;
+
+  // Yoklama: bir istek bitmeden yenisi atılmıyor. Sabit aralıklı sayaç,
+  // bağlantı yavaşladığında istekleri üst üste bindirip telefonu ve sunucuyu
+  // daha da yavaşlatıyordu.
   useEffect(() => {
-    load();
-    const id = setInterval(load, live ? LIVE_POLL_MS : POLL_MS);
-    // Sekme arkadayken yoklamayı durdurmak telefon pilini koruyor.
+    let stop = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const tick = async () => {
+      if (stop) return;
+      await load();
+      if (stop) return;
+      const wait = fails.current
+        ? Math.min(4000, 1000 * fails.current)
+        : liveRef.current
+          ? LIVE_POLL_MS
+          : POLL_MS;
+      timer = setTimeout(tick, wait);
+    };
+    tick();
     const onVis = () => {
       if (document.visibilityState === "visible") load();
     };
     document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("online", onVis);
     return () => {
-      clearInterval(id);
+      stop = true;
+      if (timer) clearTimeout(timer);
       document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("online", onVis);
     };
-  }, [load, live]);
+  }, [load]);
+
+  const activityId = state?.activity?.id ?? null;
+  // Yeni soruya geçildiğinde önceki sorunun hata mesajı ve bekleyen dokunuşu kalmasın.
+  useEffect(() => {
+    setError(null);
+    setPending((p) => (p && p.activityId !== activityId ? null : p));
+  }, [activityId]);
 
   async function answer(payload: { optionId?: string; text?: string }) {
     const key = keyRef.current;
-    if (!key || !state?.activity) return;
+    const act = state?.activity;
+    if (!key || !act || sending) return;
     setSending(true);
     setError(null);
-    const res = await fetch(`/api/live/${code}/answer`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, activityId: state.activity.id, ...payload }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) setError(data.error ?? "Gönderilemedi.");
-    else setText("");
+    if (payload.optionId && act.type === "QUIZ") {
+      setPending({ activityId: act.id, optionId: payload.optionId });
+    }
+
+    // Dokunuş kaybolmasın: bağlantı hatasında iki kez daha deneniyor.
+    // Sunucu aynı yanıtın ikinci kez gelmesini sorun etmiyor.
+    let res: Response | null = null;
+    for (let attempt = 0; attempt < 3 && !res; attempt++) {
+      try {
+        res = await fetch(`/api/live/${code}/answer`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, activityId: act.id, ...payload }),
+          signal: AbortSignal.timeout(6000),
+        });
+        if (res.status >= 500) res = null;
+      } catch {
+        res = null;
+      }
+      if (!res) await new Promise((r) => setTimeout(r, 400));
+    }
+
+    if (!res) {
+      setPending(null);
+      setError("Yanıt gönderilemedi. Bağlantını kontrol edip tekrar dokun.");
+    } else if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setPending(null);
+      setError(data.error ?? "Gönderilemedi.");
+    } else {
+      setText("");
+    }
     setSending(false);
     load();
   }
@@ -142,7 +222,9 @@ export function LiveStudentClient({ code }: { code: string }) {
     );
   }
 
-  if (!keyRef.current) {
+  // Anahtar yoksa ya da sunucu bu anahtarı tanımıyorsa (oturum yeniden
+  // açılmış, tarayıcı verisi silinmiş) öğrenci boş ekranda kalmasın.
+  if (!keyRef.current || (!state.me && state.status !== "ENDED")) {
     return (
       <Centered>
         <h1 className="text-2xl font-semibold text-[var(--fg)] mb-2">
@@ -162,7 +244,12 @@ export function LiveStudentClient({ code }: { code: string }) {
   }
 
   const a = state.activity;
-  const answered = Boolean(state.myAnswer);
+  const myAnswer: State["myAnswer"] =
+    state.myAnswer ??
+    (pending && a && pending.activityId === a.id
+      ? { optionId: pending.optionId, text: null, correct: null }
+      : null);
+  const answered = Boolean(myAnswer);
 
   return (
     <div className="min-h-[100dvh] flex flex-col">
@@ -188,6 +275,15 @@ export function LiveStudentClient({ code }: { code: string }) {
           </div>
         </div>
       </header>
+
+      {offline && (
+        <div
+          role="status"
+          className="bg-amber-500/15 border-b border-amber-500/30 text-amber-200 text-xs text-center px-4 py-2"
+        >
+          Bağlantı zayıf — yeniden bağlanmaya çalışıyorum…
+        </div>
+      )}
 
       <main className="flex-1 px-5 py-8">
         <div className="max-w-lg mx-auto">
@@ -215,7 +311,7 @@ export function LiveStudentClient({ code }: { code: string }) {
             <QuizPlayer
               activity={a}
               total={state.activityCount}
-              myAnswer={state.myAnswer}
+              myAnswer={myAnswer}
               streak={state.streak ?? 0}
               me={state.me}
               sending={sending}
@@ -231,7 +327,7 @@ export function LiveStudentClient({ code }: { code: string }) {
             <ActivityView
               activity={a}
               answered={answered}
-              myAnswer={state.myAnswer}
+              myAnswer={myAnswer}
               sending={sending}
               text={text}
               setText={setText}

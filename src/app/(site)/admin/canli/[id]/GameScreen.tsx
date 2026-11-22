@@ -26,6 +26,10 @@ const GRACE_MS = 1500;
 const RESULT_MS = 6000;
 const SCOREBOARD_MS = 6000;
 const DEFAULT_SECONDS = 20;
+/** Başarısız sunucu işlemi bu aralıkla yeniden denenir. */
+const RETRY_MS = 1500;
+/** Bu süredir yoklama atmayan katılımcı "herkes yanıtladı" sayımına girmez. */
+const ACTIVE_WINDOW_MS = 40_000;
 
 type Timed = "countdown" | "intro" | "question" | "result" | "scoreboard";
 type Stage =
@@ -50,6 +54,9 @@ export function GameScreen({
   const [pausedLeft, setPausedLeft] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const busy = useRef(false);
+  /** Son başarısız işlem: aynı adımı her 200 ms'de bir yeniden denememek için. */
+  const failedAt = useRef(0);
+  const [netError, setNetError] = useState<string | null>(null);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 200);
@@ -110,6 +117,17 @@ export function GameScreen({
         case "podium":
           break;
       }
+      failedAt.current = 0;
+      setNetError(null);
+    } catch (e) {
+      // Sunucu onaylamadıysa aşama değişmiyor: tahta öğrenci telefonlarından
+      // ileri gitmesin. Aynı adım kısa aralıkla yeniden deneniyor.
+      failedAt.current = Date.now();
+      setNetError(
+        e instanceof Error && e.name !== "TimeoutError" && e.name !== "TypeError"
+          ? e.message
+          : "Sunucuya ulaşılamıyor"
+      );
     } finally {
       busy.current = false;
     }
@@ -119,13 +137,20 @@ export function GameScreen({
   const answered =
     current && data.current?.id === current.id ? data.current.answered : 0;
   const players = data.participants.length;
+  // "Herkes yanıtladı" sayımı: telefonu kapanan ya da iki kez katılan biri
+  // yüzünden süre hiç erken bitmiyordu. Son 40 saniyede görülenler sayılıyor.
+  const activePlayers = data.participants.filter(
+    (p) => now - new Date(p.lastSeenAt).getTime() < ACTIVE_WINDOW_MS
+  ).length;
 
   // Süre dolunca — ya da soruda herkes yanıtlayınca — kendiliğinden ilerle.
   useEffect(() => {
     if (pausedLeft != null || !("endsAt" in stage)) return;
-    const allIn = stage.k === "question" && players > 0 && answered >= players;
+    if (failedAt.current && now - failedAt.current < RETRY_MS) return;
+    const allIn =
+      stage.k === "question" && activePlayers > 0 && answered >= activePlayers;
     if (now >= stage.endsAt || allIn) advance();
-  }, [now, stage, pausedLeft, players, answered, advance]);
+  }, [now, stage, pausedLeft, activePlayers, answered, advance]);
 
   const togglePause = useCallback(() => {
     if (!("endsAt" in stage)) return;
@@ -180,6 +205,15 @@ export function GameScreen({
           </TopBtn>
         </div>
       </div>
+
+      {netError && (
+        <div
+          role="alert"
+          className="px-6 py-2 text-sm text-amber-200 bg-amber-500/15 border-b border-amber-500/30 text-center"
+        >
+          {netError} — yeniden deneniyor. Oyun kaldığı yerden sürecek.
+        </div>
+      )}
 
       <div className="flex-1 min-h-0 overflow-hidden">
         {stage.k === "lobby" && (
