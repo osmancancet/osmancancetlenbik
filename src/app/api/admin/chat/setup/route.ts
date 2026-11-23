@@ -19,52 +19,9 @@ async function connected() {
   return Boolean(owner);
 }
 
-async function probe(url: string) {
-  const t = Date.now();
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(6000), redirect: "manual" });
-    return `${r.status} ${Date.now() - t}ms`;
-  } catch (e) {
-    const c = (e as { cause?: { code?: string; message?: string } }).cause;
-    return `${(e as Error).name} ${c?.code ?? ""} ${c?.message ?? ""} ${Date.now() - t}ms`;
-  }
-}
-
-export async function GET(req: Request) {
+export async function GET() {
   if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-  // GEÇİCİ tanı: sunucunun dış adreslere erişimi.
-  if (new URL(req.url).searchParams.has("tani")) {
-    const [fake, fakeMe, tg1, tg2, ex] = await Promise.all([
-      probe("https://api.telegram.org/bot123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/getMe"),
-      probe("https://api.telegram.org/bot/getMe"),
-      probe("https://api.telegram.org/"),
-      probe("https://149.154.166.110/"),
-      probe("https://www.google.com/"),
-    ]);
-    const raw = process.env.TELEGRAM_BOT_TOKEN ?? "";
-    const tok = raw.trim();
-    const shape = {
-      rawLen: raw.length,
-      len: tok.length,
-      pattern: /^\d{6,12}:[A-Za-z0-9_-]{30,40}$/.test(tok),
-      quoted: /^["']|["']$/.test(tok),
-      nonAscii: /[^\x21-\x7e]/.test(tok),
-    };
-    const t = Date.now();
-    let getMe = "";
-    try {
-      const r = await fetch(`https://api.telegram.org/bot${tok}/getMe`, {
-        signal: AbortSignal.timeout(8000),
-      });
-      const j = await r.json();
-      getMe = `${r.status} ok=${j.ok} ${j.description ?? j.result?.username ?? ""} ${Date.now() - t}ms`;
-    } catch (e) {
-      getMe = `${(e as Error).name} ${(e as Error).message} ${Date.now() - t}ms`;
-    }
-    const viaTg = await tg("getMe", {});
-    return NextResponse.json({ region: process.env.VERCEL_REGION, fake, fakeMe, tg1, tg2, ex, shape, getMe, viaTg: viaTg.ok ? "ok" : viaTg.description });
   }
   return NextResponse.json({
     tokenSet: Boolean(botToken()),
@@ -86,10 +43,13 @@ export async function POST() {
 
   const me = await tg<{ username: string }>("getMe", {});
   if (!me.ok) {
-    return NextResponse.json(
-      { error: `Bot anahtarı geçersiz görünüyor: ${me.description ?? ""}` },
-      { status: 400 }
-    );
+    const d = me.description ?? "";
+    const error = /Unauthorized|Not Found/i.test(d)
+      ? "Bot anahtarı geçersiz: Vercel'deki TELEGRAM_BOT_TOKEN, BotFather'ın verdiği son anahtar olmalı."
+      : /Too Many Requests/i.test(d)
+        ? "Telegram şu an çok fazla istek olduğunu söylüyor; bir dakika sonra tekrar deneyin."
+        : `Telegram yanıt vermedi (${d}). Biraz sonra tekrar deneyin.`;
+    return NextResponse.json({ error }, { status: 502 });
   }
 
   const hook = await tg("setWebhook", {
