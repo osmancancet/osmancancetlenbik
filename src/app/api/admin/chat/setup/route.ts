@@ -41,7 +41,28 @@ export async function GET(req: Request) {
       probe("https://149.154.166.110/"),
       probe("https://www.google.com/"),
     ]);
-    return NextResponse.json({ region: process.env.VERCEL_REGION, tg1, tg2, ex });
+    const raw = process.env.TELEGRAM_BOT_TOKEN ?? "";
+    const tok = raw.trim();
+    const shape = {
+      rawLen: raw.length,
+      len: tok.length,
+      pattern: /^\d{6,12}:[A-Za-z0-9_-]{30,40}$/.test(tok),
+      quoted: /^["']|["']$/.test(tok),
+      nonAscii: /[^\x21-\x7e]/.test(tok),
+    };
+    const t = Date.now();
+    let getMe = "";
+    try {
+      const r = await fetch(`https://api.telegram.org/bot${tok}/getMe`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      const j = await r.json();
+      getMe = `${r.status} ok=${j.ok} ${j.description ?? j.result?.username ?? ""} ${Date.now() - t}ms`;
+    } catch (e) {
+      getMe = `${(e as Error).name} ${(e as Error).message} ${Date.now() - t}ms`;
+    }
+    const viaTg = await tg("getMe", {});
+    return NextResponse.json({ region: process.env.VERCEL_REGION, tg1, tg2, ex, shape, getMe, viaTg: viaTg.ok ? "ok" : viaTg.description });
   }
   return NextResponse.json({
     tokenSet: Boolean(botToken()),
