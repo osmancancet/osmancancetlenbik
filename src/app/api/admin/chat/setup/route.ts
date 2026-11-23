@@ -36,7 +36,9 @@ export async function GET(req: Request) {
   }
   // GEÇİCİ tanı: sunucunun dış adreslere erişimi.
   if (new URL(req.url).searchParams.has("tani")) {
-    const [tg1, tg2, ex] = await Promise.all([
+    const [fake, fakeMe, tg1, tg2, ex] = await Promise.all([
+      probe("https://api.telegram.org/bot123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/getMe"),
+      probe("https://api.telegram.org/bot/getMe"),
       probe("https://api.telegram.org/"),
       probe("https://149.154.166.110/"),
       probe("https://www.google.com/"),
@@ -62,7 +64,7 @@ export async function GET(req: Request) {
       getMe = `${(e as Error).name} ${(e as Error).message} ${Date.now() - t}ms`;
     }
     const viaTg = await tg("getMe", {});
-    return NextResponse.json({ region: process.env.VERCEL_REGION, tg1, tg2, ex, shape, getMe, viaTg: viaTg.ok ? "ok" : viaTg.description });
+    return NextResponse.json({ region: process.env.VERCEL_REGION, fake, fakeMe, tg1, tg2, ex, shape, getMe, viaTg: viaTg.ok ? "ok" : viaTg.description });
   }
   return NextResponse.json({
     tokenSet: Boolean(botToken()),
