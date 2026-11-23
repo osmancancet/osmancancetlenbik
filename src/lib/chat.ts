@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { request } from "node:https";
 
 /**
  * Site sohbeti ↔ Telegram köprüsü.
@@ -40,23 +41,50 @@ export function safeEqual(a: string, b: string): boolean {
 
 type TgResult<T> = { ok: true; result: T } | { ok: false; description?: string };
 
-export async function tg<T = unknown>(
+/**
+ * Telegram Bot API çağrısı. Bilerek IPv4 ile (`family: 4`) yapılıyor:
+ * api.telegram.org'un IPv6 adresi de var ve sunucusuz ortamda fetch IPv6'ya
+ * takılıp zaman aşımına düşüyordu.
+ */
+export function tg<T = unknown>(
   method: string,
   body: Record<string, unknown>
 ): Promise<TgResult<T>> {
   const token = botToken();
-  if (!token) return { ok: false, description: "TELEGRAM_BOT_TOKEN yok" };
-  try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(8000),
-    });
-    return (await res.json()) as TgResult<T>;
-  } catch (e) {
-    return { ok: false, description: e instanceof Error ? e.name : "hata" };
+  if (!token) {
+    return Promise.resolve({ ok: false, description: "TELEGRAM_BOT_TOKEN yok" });
   }
+  const payload = JSON.stringify(body);
+  return new Promise((resolve) => {
+    const req = request(
+      {
+        host: "api.telegram.org",
+        path: `/bot${token}/${method}`,
+        method: "POST",
+        family: 4,
+        timeout: 10_000,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+        },
+      },
+      (res) => {
+        let raw = "";
+        res.setEncoding("utf8");
+        res.on("data", (c) => (raw += c));
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(raw) as TgResult<T>);
+          } catch {
+            resolve({ ok: false, description: `HTTP ${res.statusCode}` });
+          }
+        });
+      }
+    );
+    req.on("timeout", () => req.destroy(new Error("TimeoutError")));
+    req.on("error", (e) => resolve({ ok: false, description: e.message }));
+    req.end(payload);
+  });
 }
 
 /** Telegram'a düşen mesajın metni. Düz metin: biçimlendirme yorumlanmaz. */
