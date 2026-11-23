@@ -19,9 +19,29 @@ async function connected() {
   return Boolean(owner);
 }
 
-export async function GET() {
+async function probe(url: string) {
+  const t = Date.now();
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(6000), redirect: "manual" });
+    return `${r.status} ${Date.now() - t}ms`;
+  } catch (e) {
+    const c = (e as { cause?: { code?: string; message?: string } }).cause;
+    return `${(e as Error).name} ${c?.code ?? ""} ${c?.message ?? ""} ${Date.now() - t}ms`;
+  }
+}
+
+export async function GET(req: Request) {
   if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  // GEÇİCİ tanı: sunucunun dış adreslere erişimi.
+  if (new URL(req.url).searchParams.has("tani")) {
+    const [tg1, tg2, ex] = await Promise.all([
+      probe("https://api.telegram.org/"),
+      probe("https://149.154.166.110/"),
+      probe("https://www.google.com/"),
+    ]);
+    return NextResponse.json({ region: process.env.VERCEL_REGION, tg1, tg2, ex });
   }
   return NextResponse.json({
     tokenSet: Boolean(botToken()),
