@@ -8,7 +8,8 @@ export const viewport = rootViewport;
 
 // Sohbet penceresi yalnız Telegram botu tanımlıysa görünür.
 const chatEnabled = Boolean(process.env.TELEGRAM_BOT_TOKEN?.trim());
-const chatEmail = process.env.CONTACT_TO_EMAIL || "osman.cetlenbik@cbu.edu.tr";
+// Meşgul notundaki adres: iletişim formunun alıcısından bağımsız, kurum adresi.
+const chatEmail = "osman.cetlenbik@cbu.edu.tr";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
