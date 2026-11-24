@@ -190,9 +190,11 @@ export function Hero({ locale = "tr" }: { locale?: Locale }) {
         </div>
 
         {/* Right: round photo with green scanner rings */}
+        {/* Fotoğraf baştan görünür (yalnız ölçek animasyonu): mobilde LCP
+            öğesi bu; opacity 0'dan başlarsa JS yüklenene kadar çizilmiyor. */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ scale: 0.94 }}
+          animate={{ scale: 1 }}
           transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="relative justify-self-center md:justify-self-end"
         >
