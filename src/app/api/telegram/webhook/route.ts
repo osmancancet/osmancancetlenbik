@@ -44,15 +44,25 @@ export async function POST(req: Request) {
   // Bağlama: yönetim panelindeki bağlantı `/start <kod>` gönderir.
   if (text.startsWith("/start")) {
     const code = text.split(/\s+/)[1] ?? "";
-    if (code && safeEqual(code, ownerCode())) {
+    const match = Boolean(code) && safeEqual(code, ownerCode());
+    console.log("telegram /start", { codeLen: code.length, match });
+    if (match) {
       await prisma.siteSetting.upsert({
         where: { key: OWNER_CHAT_SETTING },
         create: { key: OWNER_CHAT_SETTING, value: chatId },
         update: { value: chatId },
       });
-      await say(
+      const sent = await say(
         "✅ Site sohbeti bu hesaba bağlandı.\n\nZiyaretçi mesajları buraya düşer. Cevap vermek için mesajı \"Yanıtla\" ile seçip yazın.\n\nBir mesajı yanıtlayarak /engelle yazarsanız o kişi engellenir, /ac ile açılır."
       );
+      console.log("telegram /start bound", { replied: sent.ok, err: sent.ok ? null : sent.description });
+    } else {
+      const owner = await prisma.siteSetting.findUnique({ where: { key: OWNER_CHAT_SETTING } });
+      if (!owner) {
+        await say(
+          "Bağlantı kodu gelmedi. /start'ı elle yazmak yerine sitedeki Yönetim › Sohbet sayfasındaki \"Telegram'da aç\" bağlantısıyla açıp Başlat'a basın."
+        );
+      }
     }
     return ok();
   }
