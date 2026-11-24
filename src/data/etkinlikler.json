@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-23T06:42:20+03:00",
+  "updatedAt": "2026-11-25T01:24:01+03:00",
   "events": [
     {
       "id": "paypal-ai-hackathon-2026",
@@ -673,6 +673,59 @@
       "eventDate": "17-31 Ocak 2027 (itch.io'ya göre teslim 31 Ocak 23.48 UTC = TSİ 1 Şubat 02.48; saatler değişebilir)",
       "summary": "İki hafta süren, kalabalık katılımlı çevrim içi game jam; tek başına veya en fazla 5 kişilik takımlarla katılınıyor, oyunla birlikte oyun tasarım belgesi de isteniyor ve yapay zekâ üretimi içerik yasak. Yarıyıl tatiline denk geldiği için öğrenci takımlarına uygun.",
       "firstSeen": "2026-11-19"
+    },
+    {
+      "id": "yenilikci-fikirler-kampi-2026",
+      "name": "Yenilikçi Fikirler Kampı",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Aydem Perakende ve Ege Üniversitesi Teknopark (Coderspace)",
+      "location": "İzmir, Ege Üniversitesi Teknopark",
+      "online": false,
+      "prize": "150.000 TL / 100.000 TL / 75.000 TL",
+      "url": "https://coderspace.io/etkinlikler/yenilikci-fikirler-kampi/",
+      "deadline": "2026-12-05",
+      "eventDate": "Proje geliştirme aşaması 10 Aralık 2026 (Ege Üniversitesi Teknopark), final 21 Aralık 2026 (İzmir)",
+      "summary": "Üniversite öğrencilerinin 2-4 kişilik takımlarla yapay zekâ ve otonom enerji sistemleri, karbon ve yeşil dönüşüm ile enerjide insan ve erişim temalarında fikir geliştirdiği enerji odaklı yarışma. Manisa'ya yakın İzmir'de yapılması ve veri/YZ temalı bir başlık içermesi öğrencilerimiz için avantaj.",
+      "firstSeen": "2026-11-25"
+    },
+    {
+      "id": "ai-for-medicine-student-hackathon-2026",
+      "name": "AI for Medicine: Global Student Hackathon",
+      "type": "Hackathon",
+      "audience": [
+        "Öğrenci"
+      ],
+      "organizer": "Open Health AI Collective (Devpost)",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "Sertifika ödülleri (nakit yok)",
+      "url": "https://ai-for-medicine.devpost.com/",
+      "deadline": "2026-12-05",
+      "eventDate": "4 Kasım – 4 Aralık 2026 (son teslim 4 Aralık 23.45 ET = TSİ 5 Aralık 07.45)",
+      "summary": "Sağlık alanındaki bir problem için tanımlı görevi ve değerlendirmesi olan bir yapay zekâ, veri ya da sinyal işleme projesi geliştirilen çevrim içi öğrenci hackathonu; kayıtlı öğrencilere açık, en fazla 4 kişilik takımlar. Veri analitiği öğrencileri için açık kaynaklı bir portfolyo projesi çıkarmak adına uygun.",
+      "firstSeen": "2026-11-25"
+    },
+    {
+      "id": "la-ctf-2027",
+      "name": "LA CTF 2027",
+      "type": "CTF",
+      "audience": [
+        "Öğrenci",
+        "Mezun",
+        "Akademisyen"
+      ],
+      "organizer": "ACM Cyber at UCLA ve Psi Beta Rho",
+      "location": "Çevrim içi",
+      "online": true,
+      "prize": "",
+      "url": "https://lac.tf/",
+      "deadline": "2027-02-22",
+      "eventDate": "20-22 Şubat 2027 (TSİ 20 Şubat 05.00 – 22 Şubat 05.00)",
+      "summary": "UCLA'nın düzenlediği, CTFtime ağırlığı yüksek jeopardy tarzı çevrim içi CTF; açık kategoride takım büyüklüğü ve ülke sınırı yok. Başlangıç düzeyinden zora uzanan sorularıyla siber güvenlik takımlarımız için iyi bir pratik.",
+      "firstSeen": "2026-11-25"
     }
   ]
 }
