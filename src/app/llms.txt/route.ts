@@ -70,6 +70,14 @@ ${profileI18n.en.bio}
 - E-posta / Email: ${profile.email}
 - Web: ${siteUrl}
 - Uzmanlık / Expertise: ${profile.expertise.join(", ")}
+- ORCID: ${profile.socials.orcid}
+- Google Scholar: ${profile.socials.scholar}
+- Scopus: ${profile.socials.scopus}
+- ResearchGate: ${profile.socials.researchgate}
+- DergiPark: ${profile.socials.dergipark}
+- AVESİS: ${profile.socials.avesis}
+- LinkedIn: ${profile.socials.linkedin}
+- GitHub: ${profile.socials.github}
 
 ## Diller / Languages / Sprachen / اللغات
 

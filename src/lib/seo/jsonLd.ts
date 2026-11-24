@@ -15,11 +15,21 @@ export function personJsonLd() {
     email: profile.email,
     url: siteUrl,
     image: `${siteUrl}/profile.webp`,
+    // Kaynak: ORCID kaydındaki bağlantılar — yapay zekâ motorları ve Google
+    // bu profilleri aynı kişiye bağlar.
     sameAs: [
       profile.socials.orcid,
+      profile.socials.scholar,
+      profile.socials.scopus,
+      profile.socials.researchgate,
+      profile.socials.dergipark,
       profile.socials.avesis,
       profile.socials.linkedin,
       profile.socials.github,
+    ],
+    identifier: [
+      { "@type": "PropertyValue", propertyID: "ORCID", value: "0009-0000-6561-1943" },
+      { "@type": "PropertyValue", propertyID: "Scopus Author ID", value: "60810827100" },
     ],
     worksFor: {
       "@type": "CollegeOrUniversity",

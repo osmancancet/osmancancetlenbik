@@ -105,25 +105,17 @@ export function Hero({ locale = "tr" }: { locale?: Locale }) {
             <DecryptText text="ÇETLENBİK" speed={80} delay={1250} />
           </h1>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 2.3 }}
-            className="mt-5 text-base md:text-lg text-[var(--fg-muted)]"
-          >
+          {/* Rol ve tanıtım paragrafı animasyonsuz: sayfanın en büyük içeriği
+              (LCP) bu paragraf; görünmesi JS'yi beklerse LCP 5 sn'yi aşıyordu. */}
+          <div className="mt-5 text-base md:text-lg text-[var(--fg-muted)]">
             <span className="text-[var(--fg)] font-medium">{t.role}</span>
             <span className="mx-2 text-[var(--fg-subtle)]">·</span>
             <span>{t.institution}</span>
-          </motion.div>
+          </div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 2.45 }}
-            className="mt-6 text-base md:text-lg text-[var(--fg-muted)] max-w-xl leading-relaxed"
-          >
+          <p className="mt-6 text-base md:text-lg text-[var(--fg-muted)] max-w-xl leading-relaxed">
             {t.lead}
-          </motion.p>
+          </p>
 
           {/* Topic tags — clean Turkish */}
           <motion.div

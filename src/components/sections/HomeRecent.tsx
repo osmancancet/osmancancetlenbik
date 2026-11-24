@@ -60,6 +60,7 @@ export function HomeRecent({
                   <div className="flex items-center gap-2 text-[10px] font-mono text-[var(--fg-subtle)] mb-3">
                     <span>
                       {new Date(p.createdAt).toLocaleDateString("tr-TR", {
+                        timeZone: "Europe/Istanbul",
                         day: "2-digit",
                         month: "short",
                       })}
@@ -135,6 +136,7 @@ export function HomeRecent({
                     <Mic className="w-4 h-4 text-[var(--accent)]" />
                     <span className="font-mono text-xs text-[var(--fg-muted)]">
                       {new Date(c.date).toLocaleDateString("tr-TR", {
+                        timeZone: "Europe/Istanbul",
                         day: "2-digit",
                         month: "short",
                         year: "2-digit",
