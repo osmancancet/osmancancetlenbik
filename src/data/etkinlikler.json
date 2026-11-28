@@ -1,24 +1,6 @@
 {
-  "updatedAt": "2026-11-25T01:24:01+03:00",
+  "updatedAt": "2026-11-28T06:30:17+03:00",
   "events": [
-    {
-      "id": "paypal-ai-hackathon-2026",
-      "name": "PayPal AI Hackathon",
-      "type": "Hackathon",
-      "audience": [
-        "Öğrenci",
-        "Mezun"
-      ],
-      "organizer": "PayPal (Devpost)",
-      "location": "Çevrim içi",
-      "online": true,
-      "prize": "67.500 USD üzeri",
-      "url": "https://paypalaihackathon.devpost.com/",
-      "deadline": "2026-11-12",
-      "eventDate": "Son teslim 12 Kasım 2026",
-      "summary": "PayPal API'leri ile yapay zekayı birleştiren serbest temalı çevrim içi hackathon; ajan tabanlı ticaret ve fintech projeleri için uygun.",
-      "firstSeen": "2026-10-12"
-    },
     {
       "id": "meta-vr-start-developer-competition-2026",
       "name": "Meta VR Start Developer Competition 2026",
